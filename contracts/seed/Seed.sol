@@ -12,10 +12,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 /* solhint-disable space-after-comma */
 /* solhint-disable max-states-count */
-pragma solidity 0.5.13;
+pragma solidity 0.8.4;
 
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
 /**
@@ -23,9 +22,6 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
  * @dev   Smart contract for seed phases of liquid launch.
  */
 contract Seed {
-    using SafeMath for uint256;
-    using SafeMath for uint32;
-    using SafeMath for uint8;
 
     // Locked parameters
     address public beneficiary;
@@ -173,8 +169,8 @@ contract Seed {
         minimumReached    = false;
         maximumReached    = false;
 
-        seedAmountRequired = (hardCap.div(_price)).mul(PCT_BASE);
-        feeAmountRequired = seedAmountRequired.mul(_fee).div(100);
+        seedAmountRequired = (hardCap / _price) * PCT_BASE;
+        feeAmountRequired = seedAmountRequired * _fee / 100;
         seedRemainder     = seedAmountRequired;
         feeRemainder  = feeAmountRequired;
     }
@@ -185,32 +181,31 @@ contract Seed {
     */
     function buy(uint256 _fundingAmount) public isActive allowedToBuy returns(uint256, uint256) {
         if(!isFunded) {
-            require(seedToken.balanceOf(address(this)) >= seedAmountRequired.add(feeAmountRequired),
+            require(seedToken.balanceOf(address(this)) >= seedAmountRequired + feeAmountRequired,
                 "Seed: sufficient seeds not provided");
             isFunded = true;
         }
         // fundingAmount is an amount of fundingTokens required to buy _seedAmount of SeedTokens
-        uint256 seedAmount = (_fundingAmount.mul(PCT_BASE)).div(price);
+        uint256 seedAmount = (_fundingAmount * PCT_BASE) / price;
 
         // Funding Token balance of this contract;
         uint256 fundingBalance = fundingCollected;
 
         // feeAmount is an amount of fee we are going to get in seedTokens
-        uint256 feeAmount = seedAmount.mul(fee).div(100);
+        uint256 feeAmount = (seedAmount * fee) / 100;
 
         // total fundingAmount should not be greater than the hardCap
-        require( fundingBalance.
-                  add(_fundingAmount) <= hardCap,
+        require(( fundingBalance + _fundingAmount) <= hardCap,
             "Seed: amount exceeds contract sale hardCap");
 
         require( seedRemainder >= seedAmount && feeRemainder >= feeAmount,
             "Seed: seed distribution would be exceeded");
 
-        fundingCollected = fundingBalance.add(_fundingAmount);
+        fundingCollected = fundingBalance + _fundingAmount;
 
         // the amount of seed tokens still to be distributed
-        seedRemainder    = seedRemainder.sub(seedAmount);
-        feeRemainder = feeRemainder.sub(feeAmount);
+        seedRemainder    = seedRemainder - seedAmount;
+        feeRemainder = feeRemainder - feeAmount;
 
         // Here we are sending amount of tokens to pay for seed tokens to purchase
         require(fundingToken.transferFrom(msg.sender, address(this), _fundingAmount), "Seed: no tokens");
@@ -224,10 +219,10 @@ contract Seed {
 
         _addFunder(
             msg.sender,
-            (funders[msg.sender].seedAmount.add(seedAmount)),         // Previous Seed Amount + new seed amount
-            (funders[msg.sender].fundingAmount.add(_fundingAmount)),  // Previous Funding Amount + new funding amount
+            (funders[msg.sender].seedAmount + seedAmount),         // Previous Seed Amount + new seed amount
+            (funders[msg.sender].fundingAmount + _fundingAmount),  // Previous Funding Amount + new funding amount
              funders[msg.sender].totalClaimed,
-            (funders[msg.sender].fee.add(feeAmount)),                  // Previous Fee + new fee
+            (funders[msg.sender].fee + feeAmount),                  // Previous Fee + new fee
              funders[msg.sender].feeClaimed
             );
         
@@ -248,16 +243,16 @@ contract Seed {
         amountClaimable = calculateClaim(_funder);
         require( amountClaimable > 0, "Seed: amount claimable is 0");
         require( amountClaimable >= _claimAmount, "Seed: request is greater than claimable amount");
-        uint256 feeAmountOnClaim = _claimAmount.mul(fee).div(100);
+        uint256 feeAmountOnClaim = (_claimAmount * fee) / 100;
 
         FunderPortfolio memory tokenFunder = funders[_funder];
 
-        tokenFunder.totalClaimed    = uint256(tokenFunder.totalClaimed.add(_claimAmount));
-        tokenFunder.feeClaimed      = tokenFunder.feeClaimed.add(feeAmountOnClaim);
+        tokenFunder.totalClaimed    = uint256(tokenFunder.totalClaimed + _claimAmount);
+        tokenFunder.feeClaimed      = tokenFunder.feeClaimed + feeAmountOnClaim;
         funders[_funder] = tokenFunder;
         
-        seedClaimed    = seedClaimed.add(_claimAmount);
-        feeClaimed = feeClaimed.add(feeAmountOnClaim);
+        seedClaimed    = seedClaimed + _claimAmount;
+        feeClaimed = feeClaimed + feeAmountOnClaim;
         require(seedToken.transfer(beneficiary, feeAmountOnClaim), "Seed: cannot transfer to beneficiary");
         require(seedToken.transfer(_funder, _claimAmount), "Seed: no tokens");
 
@@ -274,13 +269,13 @@ contract Seed {
         require(funders[msg.sender].fundingAmount > 0, "Seed: zero funding amount");
         FunderPortfolio memory tokenFunder = funders[msg.sender];
         uint256 fundingAmount = tokenFunder.fundingAmount;
-        seedRemainder    = seedRemainder.add(tokenFunder.seedAmount);
-        feeRemainder = feeRemainder.add(tokenFunder.fee);
+        seedRemainder    = seedRemainder + tokenFunder.seedAmount;
+        feeRemainder = feeRemainder + tokenFunder.fee;
         tokenFunder.seedAmount    = 0;
         tokenFunder.fee           = 0;
         tokenFunder.fundingAmount = 0;
         funders[msg.sender]  = tokenFunder;
-        fundingCollected = fundingCollected.sub(fundingAmount);
+        fundingCollected = fundingCollected - fundingAmount;
         require(
             fundingToken.transfer(msg.sender, fundingAmount),
             "Seed: cannot return funding tokens to msg.sender"
@@ -316,7 +311,7 @@ contract Seed {
         // transfer seed tokens back to admin
         if(minimumReached){
             // remaining seeds = seedRemainder + feeRemainder
-            uint256 seedToTransfer = seedRemainder.add(feeRemainder);
+            uint256 seedToTransfer = seedRemainder + feeRemainder;
             require(
                 seedToken.transfer(admin, seedToTransfer),
                 "Seed: should transfer seed tokens to admin"
@@ -324,7 +319,7 @@ contract Seed {
             paused = false;
         } else {
             require(
-                seedToken.transfer(admin, seedAmountRequired.add(feeAmountRequired)),
+                seedToken.transfer(admin, seedAmountRequired + feeAmountRequired),
                 "Seed: should transfer seed tokens to admin"
             );
             closed = true;
@@ -367,7 +362,7 @@ contract Seed {
       * @dev                     Withdraw funds from the contract
     */
     function withdraw() public onlyAdmin allowedToWithdraw {
-        uint pendingFundingBalance = fundingCollected.sub(fundingWithdrawn);
+        uint pendingFundingBalance = fundingCollected - fundingWithdrawn;
         fundingWithdrawn = fundingCollected;
         fundingToken.transfer(msg.sender, pendingFundingBalance);
     }
@@ -394,7 +389,7 @@ contract Seed {
         FunderPortfolio memory tokenFunder = funders[_funder];
 
         // Check cliff was reached
-        uint256 elapsedSeconds = _currentTime().sub(startTime);
+        uint256 elapsedSeconds = _currentTime() - startTime;
 
         if (elapsedSeconds < vestingCliff) {
             return 0;
@@ -402,11 +397,11 @@ contract Seed {
 
         // If over vesting duration, all tokens vested
         if (elapsedSeconds >= vestingDuration) {
-            return tokenFunder.seedAmount.sub(tokenFunder.totalClaimed);
+            return tokenFunder.seedAmount - tokenFunder.totalClaimed;
         } else {
-            uint256 amountVestedPerDay = tokenFunder.seedAmount.div(uint256(vestingDuration));
-            uint256 amountVested = uint256(elapsedSeconds.mul(amountVestedPerDay));
-            return amountVested.sub(tokenFunder.totalClaimed);
+            uint256 amountVestedPerDay = tokenFunder.seedAmount / (uint256(vestingDuration));
+            uint256 amountVested = uint256(elapsedSeconds * amountVestedPerDay);
+            return amountVested / tokenFunder.totalClaimed;
         }
     }
 
@@ -445,7 +440,7 @@ contract Seed {
     internal
     {
 
-        uint256 amountVestedPerSecond = _seedAmount.div(vestingDuration);
+        uint256 amountVestedPerSecond = _seedAmount / vestingDuration;
         require(amountVestedPerSecond > 0, "Seed: amountVestedPerSecond > 0");
 
         funders[_recipient] = FunderPortfolio({
