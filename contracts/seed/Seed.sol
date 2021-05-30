@@ -131,9 +131,10 @@ contract Seed {
       * @param _softHardThresholds     Array containing two params:
                                         - the minimum funding token collection threshold in wei denomination.
                                         - the highest possible funding token amount to be raised in wei denomination.
+      * @param _endStartTime          Array containing two params:  
+      *                                 - Distribution start time in unix timecode.
+                                        - Distribution end time in unix timecode.
       * @param _price                 The price in wei of fundingTokens when exchanged for seedTokens.
-      * @param _startTime             Distribution start time in unix timecode.
-      * @param _endTime               Distribution end time in unix timecode.
       * @param _vestingDuration       Vesting period duration in seconds.
       * @param _vestingCliff          Cliff duration in seconds.
       * @param _permissionedSeed      Set to true if only whitelisted adresses are allowed to participate.
@@ -144,9 +145,8 @@ contract Seed {
         address _admin,
         address[] memory _tokens,
         uint256[] memory _softHardThresholds,
+        uint256[] memory _endStartTime,
         uint256 _price,
-        uint256 _startTime,
-        uint256 _endTime,
         uint32  _vestingDuration,
         uint32  _vestingCliff,
         bool    _permissionedSeed,
@@ -157,8 +157,8 @@ contract Seed {
         softCap           = _softHardThresholds[0];
         hardCap           = _softHardThresholds[1];
         price             = _price;
-        startTime         = _startTime;
-        endTime           = _endTime;
+        startTime         = _endStartTime[1];
+        endTime           = _endStartTime[0];
         vestingDuration   = _vestingDuration;
         vestingCliff      = _vestingCliff;
         permissionedSeed  = _permissionedSeed;

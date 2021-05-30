@@ -69,12 +69,13 @@ contract SeedFactory is CloneFactory, Ownable {
       * @param _softHardThresholds     Array containing two params:
                                         - the minimum funding token collection threshold in wei denomination.
                                         - the highest possible funding token amount to be raised in wei denomination.
+      * @param _endStartTime          Array containing two params:  
+      *                                 - Distribution start time in unix timecode.
+                                        - Distribution end time in unix timecode.
       * @param _price                 The price in wei of fundingTokens when exchanged for seedTokens.
-      * @param _startTime             Distribution start time in unix timecode.
-      * @param _endTime               Distribution end time in unix timecode.
       * @param _vestingDuration       Vesting period duration in days.
       * @param _vestingCliff          Cliff duration in days.
-      * @param _permissionedSeed      Set to true if only whitelisted adresses are allowed to participate.
+      * @param _permissionedSeed         Set to true if only whitelisted adresses are allowed to participate.
       * @param _fee                   Success fee expressed in Wei as a % (e.g. 2 = 2% fee)
       * @param _metadata              Seed contract metadata, that is IPFS URI
     */
@@ -83,9 +84,8 @@ contract SeedFactory is CloneFactory, Ownable {
         address _admin,
         address[] memory _tokens,
         uint256[] memory _softHardThresholds,
+        uint256[] memory _endStartTime,
         uint256 _price,
-        uint256 _startTime,
-        uint256 _endTime,
         uint32 _vestingDuration,
         uint32 _vestingCliff,
         bool _permissionedSeed,
@@ -103,9 +103,8 @@ contract SeedFactory is CloneFactory, Ownable {
             _admin,
             _tokens,
             _softHardThresholds,
+            _endStartTime,
             _price,
-            _startTime,
-            _endTime,
             _vestingDuration,
             _vestingCliff,
             _permissionedSeed,
