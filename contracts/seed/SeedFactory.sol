@@ -18,6 +18,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "./Seed.sol";
 import "../utils/CloneFactory.sol";
+import "../ISafe.sol";
 
 /**
  * @title primeDAO Seed Factory
@@ -28,6 +29,8 @@ contract SeedFactory is CloneFactory, Ownable {
 
     Seed public masterCopy;
     bool public initialized;
+
+    ISafe public safe;
 
     event SeedCreated(address indexed newSeed, address indexed beneficiary);
 
@@ -117,5 +120,49 @@ contract SeedFactory is CloneFactory, Ownable {
         emit SeedCreated(address(_newSeed), msg.sender);
 
         return address(_newSeed);
+    }
+
+    /**
+      * @dev                          Set safe address.
+      * @param _safe                  The address os safe.
+    */
+    function setSafe(ISafe _safe) public {
+        safe = _safe;
+    }
+
+    /**
+      * @dev                          Deploys Seed contract from safe without any confirmation.
+    */
+    function deployFromModule() public {
+        bytes memory data = abi.encodeWithSignature("deploySeed()");
+        require(safe.execTransactionFromModule(address(this), 0, data, Enum.Operation.Call), "Failed");
+    }
+
+    /**
+      * @dev                        Create safe transaction to deploy seed.
+      * @param _to                  The address of SeedFactory.
+      * @param _value               value to be transferred.
+      * @param _operation           Operation type of Safe transaction.
+      * @param _safeTxGas           Gas that should be used for the Safe transaction.
+      * @param _baseGas             Gas costs that are independent of the transaction execution(e.g. base transaction fee, signature check, payment of the refund)
+      * @param _gasPrice            Gas price that should be used for the payment calculation.
+      * @param _gasToken            Token address (or 0 if ETH) that is used for the payment.
+      * @param _refundReceiver      Address of receiver of gas payment (or 0 if tx.origin).
+      * @param _signatures          Packed signature data ({bytes32 r}{bytes32 s}{uint8 v})
+    */
+    // This can be done directly on the dapp, that is invoke exectransaction directly at safe.
+    function createSafeTransaction(
+        address _to,
+        uint256 _value,
+        Enum.Operation _operation,
+        uint256 _safeTxGas,
+        uint256 _baseGas,
+        uint256 _gasPrice,
+        address _gasToken,
+        address payable _refundReceiver,
+        bytes memory _signatures
+    ) public {
+        bytes memory data = abi.encodeWithSignature("deploySeed()");
+        require(safe.execTransaction(_to, _value, _data, _operation, _safeTxGas, _baseGas, _gasPrice, _gasToken, _refundReceiver, _signatures), "Failed");
     }
 }
