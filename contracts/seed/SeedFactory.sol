@@ -11,11 +11,10 @@
 
 // SPDX-License-Identifier: GPL-3.0-or-later
 /* solhint-disable space-after-comma */
-pragma solidity 0.5.13;
+pragma solidity 0.8.4;
 
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "./Seed.sol";
 import "../utils/CloneFactory.sol";
 
@@ -24,7 +23,6 @@ import "../utils/CloneFactory.sol";
  * @dev   Enable primeDAO governance to create new Seed contracts.
  */
 contract SeedFactory is CloneFactory, Ownable {
-    using SafeMath for uint256;
 
     Seed public masterCopy;
     bool public initialized;
@@ -47,7 +45,7 @@ contract SeedFactory is CloneFactory, Ownable {
      * @param _masterCopy The address of the Seed contract which will be a masterCopy for all of the clones.
      */
     function initializeMasterCopy(Seed _masterCopy) external initializer onlyOwner {
-        require(_masterCopy != Seed(0),   "SeedFactory: masterCopy cannot be null");
+        require(address(_masterCopy) != address(0),   "SeedFactory: masterCopy cannot be null");
         masterCopy = _masterCopy;
     }
 
@@ -71,12 +69,13 @@ contract SeedFactory is CloneFactory, Ownable {
       * @param _softHardThresholds     Array containing two params:
                                         - the minimum funding token collection threshold in wei denomination.
                                         - the highest possible funding token amount to be raised in wei denomination.
+      * @param _endStartTime          Array containing two params:  
+      *                                 - Distribution start time in unix timecode.
+                                        - Distribution end time in unix timecode.
       * @param _price                 The price in wei of fundingTokens when exchanged for seedTokens.
-      * @param _startTime             Distribution start time in unix timecode.
-      * @param _endTime               Distribution end time in unix timecode.
       * @param _vestingDuration       Vesting period duration in days.
       * @param _vestingCliff          Cliff duration in days.
-      * @param _isWhitelisted         Set to true if only whitelisted adresses are allowed to participate.
+      * @param _permissionedSeed         Set to true if only whitelisted adresses are allowed to participate.
       * @param _fee                   Success fee expressed in Wei as a % (e.g. 2 = 2% fee)
       * @param _metadata              Seed contract metadata, that is IPFS URI
     */
@@ -85,12 +84,11 @@ contract SeedFactory is CloneFactory, Ownable {
         address _admin,
         address[] memory _tokens,
         uint256[] memory _softHardThresholds,
+        uint256[] memory _endStartTime,
         uint256 _price,
-        uint256 _startTime,
-        uint256 _endTime,
         uint32 _vestingDuration,
         uint32 _vestingCliff,
-        bool _isWhitelisted,
+        bool _permissionedSeed,
         uint8 _fee,
         bytes32 _metadata
     ) public onlyOwner isInitialised returns (address) {
@@ -105,12 +103,11 @@ contract SeedFactory is CloneFactory, Ownable {
             _admin,
             _tokens,
             _softHardThresholds,
+            _endStartTime,
             _price,
-            _startTime,
-            _endTime,
             _vestingDuration,
             _vestingCliff,
-            _isWhitelisted,
+            _permissionedSeed,
             _fee
         );
 
