@@ -1,3 +1,5 @@
+pragma solidity 0.8.4;
+
 contract Enum {
     enum Operation {
         Call,
@@ -6,10 +8,7 @@ contract Enum {
 }
 
 interface ISafe{
-    function execTransactionFromModule(address to, uint256 value, bytes memory data, Enum.Operation operation)
-        external
-        returns (bool success);
-    function execTransaction(
+    function getTransactionHash(
         address to,
         uint256 value,
         bytes calldata data,
@@ -18,7 +17,7 @@ interface ISafe{
         uint256 baseGas,
         uint256 gasPrice,
         address gasToken,
-        address payable refundReceiver,
-        bytes calldata signatures)
-        external returns (bool success);
+        address refundReceiver,
+        uint256 _nonce
+    ) external view returns (bytes32);
 }
