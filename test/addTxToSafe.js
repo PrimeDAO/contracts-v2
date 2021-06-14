@@ -29,7 +29,27 @@ const opts = [
     false,
     2,
     ethers.utils.formatBytes32String(`0x`)
-]
+];
+
+const send = async (trx, sender) => {
+    const options = {
+        safe: trx.safe,
+        to: trx.to,
+        value: trx.value,
+        data: trx.data,
+        operation: trx.operation,
+        safeTxGas: trx.safeTxGas,
+        baseGas: trx.baseGas,
+        gasPrice: trx.gasPrice,
+        nonce: trx.nonce,
+        contractTransactionHash: trx.hash,
+        sender,
+        signature: trx.signature
+      }
+      console.log(JSON.stringify(options));
+      const res = await axios.post(generateUrl(api.sendTransaction), options);
+      console.log(res);
+}
 
 const main = async () => {
     const rinkeby = new ethers.providers.InfuraProvider('rinkeby', PROVIDER_KEY);
@@ -48,7 +68,7 @@ const main = async () => {
     const trx = {
         to,
         value: 0,
-        data,
+        data: data,
         gasToken: '0x0000000000000000000000000000000000000000',
         refundReceiver: '0x0000000000000000000000000000000000000000',
         operation: 0,
@@ -85,26 +105,13 @@ const main = async () => {
         const sign = error;
         trx.signature= sign;
   
-        const options = {
-          safe: trx.safe,
-          to: trx.to,
-          value: trx.value,
-          data: trx.data,
-          operation: trx.operation,
-          safeTxGas: trx.safeTxGas,
-          baseGas: trx.baseGas,
-          gasPrice: trx.gasPrice,
-          nonce: trx.nonce,
-          contractTransactionHash: trx.hash,
-          sender: seedSignature.address,
-          signature: trx.signature
-        }
-        console.log(options);
-        const res = await axios.post(generateUrl(api.sendTransaction), options);
-        console.log(res);
-      })
+        send(trx,SEED_SIGNATURE);
+    })
 
     await seedSignature.generateSignature(trx.hash);
+
+    // trx.signature = await wallet.signTransaction({hash: trx.hash});
+    // send(trx, wallet.address);
 }
 
 main().then().catch(console.log);

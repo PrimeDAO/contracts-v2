@@ -16,7 +16,7 @@ interface IERC1271 {
 }
 
 
-contract SeedSignature{
+contract Signature{
     
     // bytes4(keccak256("isValidSignature(bytes,bytes)")
     bytes4 internal constant EIP1271_MAGIC_VALUE = 0x20c13b0b;
