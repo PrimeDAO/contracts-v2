@@ -1,5 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
 require("dotenv").config({path: "./.env"});
+require("hardhat-deploy");
+// require("hardhat-gas-reporter");
 
 const {MNEMONIC} = process.env;
 
@@ -13,6 +15,11 @@ task("accounts", "Prints the list of accounts", async () => {
   }
 });
 
+
+const primarySolidityVersion = "0.8.4";
+const soliditySettings = undefined;
+
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -22,6 +29,11 @@ task("accounts", "Prints the list of accounts", async () => {
 module.exports = {
   defaultNetwork: 'hardhat',
   networks: {
+    hardhat: {
+      allowUnlimitedContractSize: true,
+      blockGasLimit: 100000000,
+      gas: 100000000
+    },
     ganache: {
       url: "http://127.0.0.1:7545",
       accounts: {
@@ -35,5 +47,11 @@ module.exports = {
       }
     }
   },
-  solidity: "0.8.4",
+  solidity: {
+    compilers: [
+      { version: primarySolidityVersion, settings: soliditySettings },
+      { version: "0.6.12" },
+      { version: "0.5.17" },
+    ]
+  },
 };
