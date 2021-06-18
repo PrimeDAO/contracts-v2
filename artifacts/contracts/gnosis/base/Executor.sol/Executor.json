@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Executor",
+  "sourceName": "contracts/gnosis/base/Executor.sol",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122088a05873f46ca7644c85c5c9c5bf7881aa3bd03cb024f4e8e98fe92ef6745c3c64736f6c63430008040033",
+  "deployedBytecode": "0x6080604052600080fdfea264697066735822122088a05873f46ca7644c85c5c9c5bf7881aa3bd03cb024f4e8e98fe92ef6745c3c64736f6c63430008040033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
