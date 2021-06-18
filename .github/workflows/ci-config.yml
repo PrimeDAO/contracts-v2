@@ -5,12 +5,12 @@ name: PrimeDAO CI
 # Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
-  [push]
+  [push, pull_request]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
-  test-build:
+  build:
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -25,11 +25,46 @@ jobs:
       - name: Installs needed packages using npm
         run: npm i
 
-      # Runs a single command using the runners shell
-      - name: Lints the project
-        run: npm run lint
+  lint:
+    runs-on: ubuntu-latest
 
-      # Runs a single command using the runners shell
-      - name: Tests the project
-        run: npm run test
+    needs: build
+
+      # Steps represent a sequence of tasks that will be executed as part of the job
+      steps:
+        # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+        - uses: actions/checkout@v2
+        - uses: actions/setup-node@v2
+          with:
+            node-version: '14'
+
+        # Runs a single command using the runners shell
+        - name: Installs needed packages using npm
+          run: npm i
+
+        # Runs a single command using the runners shell
+        - name: Lints the project
+          run: npm run lint
+
+  test:
+    runs-on: ubuntu-latest
+
+    needs: build
+
+      # Steps represent a sequence of tasks that will be executed as part of the job
+      steps:
+        # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+        - uses: actions/checkout@v2
+        - uses: actions/setup-node@v2
+          with:
+            node-version: '14'
+
+
+        # Runs a single command using the runners shell
+        - name: Installs needed packages using npm
+          run: npm i
+
+        # Runs a single command using the runners shell
+        - name: Tests the project
+          run: npm run test
 
