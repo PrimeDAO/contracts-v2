@@ -20,10 +20,9 @@ contract SeedSignature{
 
     function isValidSignature(bytes32 _hash, bytes memory _signature) external pure returns(bytes4) {
         bytes32 add = _readBytes32(_signature, 0);
-        bytes32 pos = bytes32(uint(_readBytes32(_signature, 32)));
         bytes1 v = bytes1(uint8(_signature[65]));
-        uint l = uint(_readBytes32(_signature, 65));
-        bytes32 s = _readBytes32(_signature, 65+l);
+        uint li = uint(_readBytes32(_signature, 65));
+        bytes32 s = _readBytes32(_signature, 65+li);
         require(_hash == s, "Invalid Hash");
         return bytes4(keccak256("isValidSignature(bytes,bytes)"));
     }

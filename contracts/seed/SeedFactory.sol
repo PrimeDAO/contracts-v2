@@ -201,6 +201,15 @@ contract SeedFactory is CloneFactory, Ownable {
         bytes memory _signatures
     ) public {
         bytes memory data = abi.encodeWithSignature("deploySeed()");
-        require(safe.execTransaction(_to, _value, data, _operation, _safeTxGas, _baseGas, _gasPrice, _gasToken, _refundReceiver, _signatures), "Failed");
+        require(safe.execTransaction( _to,
+                                      _value,
+                                      data,
+                                      _operation,
+                                      _safeTxGas,
+                                      _baseGas,
+                                      _gasPrice,
+                                      _gasToken,
+                                      _refundReceiver,
+                                      _signatures), "Failed");
     }
 }
