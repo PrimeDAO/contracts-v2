@@ -9,9 +9,8 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+
+  test-build:
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -25,4 +24,12 @@ jobs:
       # Runs a single command using the runners shell
       - name: Installs needed packages using npm
         run: npm i
+
+      # Runs a single command using the runners shell
+      - name: Lints the project
+        run: npm run lint
+
+      # Runs a single command using the runners shell
+      - name: Tests the project
+        run: npm run test
 

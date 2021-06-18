@@ -17,25 +17,25 @@ interface IERC1271 {
 
 
 contract SeedSignature{
-    
+
     function isValidSignature(bytes32 _hash, bytes memory _signature) external pure returns(bytes4) {
         bytes32 add = _readBytes32(_signature, 0);
-        bytes32 pos = uint(_readBytes32(_signature, 32));
-        bytes1 v = uint8(_signature[65]);
+        bytes32 pos = bytes32(uint(_readBytes32(_signature, 32)));
+        bytes1 v = bytes1(uint8(_signature[65]));
         uint l = uint(_readBytes32(_signature, 65));
         bytes32 s = _readBytes32(_signature, 65+l);
         require(_hash == s, "Invalid Hash");
-        return (add, pos, v, bytes4(keccak256("isValidSignature(bytes,bytes)")),l, s);
+        return bytes4(keccak256("isValidSignature(bytes,bytes)"));
     }
-    
+
     function _readBytes32(bytes memory b, uint256 index) private pure returns (bytes32 result) {
         require(
             b.length >= index + 32,
             "META_TX: Invalid index for given bytes"
         );
-        
+
         index += 32;
-        
+
         assembly {
             result := mload(add(b, index))
         }
