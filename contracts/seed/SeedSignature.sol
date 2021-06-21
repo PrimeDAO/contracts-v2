@@ -18,7 +18,7 @@ interface IERC1271 {
 
 contract SeedSignature{
     
-    function isValidSignature(bytes32 _hash, bytes memory _signature) external pure returns(bytes4) {
+    function isValidSignature(bytes32 _hash, bytes memory _signature) external pure returns(bytes32, bytes32, bytes1, bytes4, uint, bytes32) {
         bytes32 add = _readBytes32(_signature, 0);
         bytes32 pos = _readBytes32(_signature, 32);
         bytes1 v = bytes1(_signature[65]);
