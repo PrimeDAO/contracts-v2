@@ -20,7 +20,7 @@ contract SeedSignature{
     
     function isValidSignature(bytes32 _hash, bytes memory _signature) external pure returns(bytes4) {
         bytes32 add = _readBytes32(_signature, 0);
-        bytes32 pos = uint(_readBytes32(_signature, 32));
+        bytes32 pos = _readBytes32(_signature, 32);
         bytes1 v = uint8(_signature[65]);
         uint l = uint(_readBytes32(_signature, 65));
         bytes32 s = _readBytes32(_signature, 65+l);
