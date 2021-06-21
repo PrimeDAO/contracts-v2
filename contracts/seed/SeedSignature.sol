@@ -18,10 +18,11 @@ interface IERC1271 {
 
 contract SeedSignature{
     
-    function isValidSignature(bytes32 _hash, bytes memory _signature) external pure returns(bytes4) {
+    function isValidSignature(bytes32 _hash, bytes memory _signature) external pure returns(
+                                                            bytes32, bytes32, bytes1, bytes4, uint, bytes32) {
         bytes32 add = _readBytes32(_signature, 0);
-        bytes32 pos = uint(_readBytes32(_signature, 32));
-        bytes1 v = uint8(_signature[65]);
+        bytes32 pos = _readBytes32(_signature, 32);
+        bytes1 v = bytes1(_signature[65]);
         uint l = uint(_readBytes32(_signature, 65));
         bytes32 s = _readBytes32(_signature, 65+l);
         require(_hash == s, "Invalid Hash");
@@ -41,7 +42,7 @@ contract SeedSignature{
         }
         return result;
     }
-    function generateSignature(bytes20 addres) external view returns(bytes memory hash,bytes memory signature){
+    function generateSignature(bytes20 addres) external pure returns(bytes memory hash,bytes memory signature){
         hash = "Gnosis Safe Transaction";
         bytes1 v;
         bytes12 a;
