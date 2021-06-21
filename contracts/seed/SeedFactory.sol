@@ -17,48 +17,24 @@ import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "./Seed.sol";
 import "../utils/CloneFactory.sol";
-import "../ISafe.sol";
 
 /**
- * @title primeDAO Seed Factory
- * @dev   Enable primeDAO governance to create new Seed contracts.
+ * @title PrimeDAO Seed Factory
+ * @dev   Enable PrimeDAO governance to create new Seed contracts.
  */
 contract SeedFactory is CloneFactory, Ownable {
 
     Seed public masterCopy;
-    bool public initialized;
-
-    ISafe public safe;
 
     event SeedCreated(address indexed newSeed, address indexed beneficiary);
 
-    modifier initializer() {
-        require(!initialized, "SeedFactory: contract already initialized");
-        initialized = true;
-        _;
-    }
-
-    modifier isInitialised() {
-        require(initialized, "SeedFactory: contract not initialized");
-        _;
-    }
-
     /**
-     * @dev               Initialize SeedFactory.
-     * @param _masterCopy The address of the Seed contract which will be a masterCopy for all of the clones.
-     */
-    function initializeMasterCopy(Seed _masterCopy) external initializer onlyOwner {
-        require(address(_masterCopy) != address(0),   "SeedFactory: masterCopy cannot be null");
-        masterCopy = _masterCopy;
-    }
-
-    /**
-     * @dev               Update Seed contract which works as a base for clones.
+     * @dev               Set Seed contract which works as a base for clones.
      * @param _masterCopy The address of the new Seed basis.
      */
-    function changeMasterCopy(Seed _masterCopy) public onlyOwner {
-        masterCopy = _masterCopy;
-        initialized = true;
+    function setMasterCopy(Seed _masterCopy) public onlyOwner {
+        require(address(_masterCopy) != address(0), "SeedFactory: new mastercopy cannot be zero address");
+        masterCopy = _masterCopy; 
     }
 
     /**
@@ -72,10 +48,9 @@ contract SeedFactory is CloneFactory, Ownable {
       * @param _softHardThresholds     Array containing two params:
                                         - the minimum funding token collection threshold in wei denomination.
                                         - the highest possible funding token amount to be raised in wei denomination.
-      * @param _endStartTime          Array containing two params:  
-      *                                 - Distribution start time in unix timecode.
-                                        - Distribution end time in unix timecode.
-      * @param _price                 The price in wei of fundingTokens when exchanged for seedTokens.
+      * @param _price                 1 Funding Token = _price amount of Seed Token. 
+      * @param _startTime             Distribution start time in unix timecode.
+      * @param _endTime               Distribution end time in unix timecode.
       * @param _vestingDuration       Vesting period duration in days.
       * @param _vestingCliff          Cliff duration in days.
       * @param _permissionedSeed         Set to true if only whitelisted adresses are allowed to participate.
@@ -87,14 +62,25 @@ contract SeedFactory is CloneFactory, Ownable {
         address _admin,
         address[] memory _tokens,
         uint256[] memory _softHardThresholds,
-        uint256[] memory _endStartTime,
         uint256 _price,
+        uint256 _startTime,
+        uint256 _endTime,
         uint32 _vestingDuration,
         uint32 _vestingCliff,
         bool _permissionedSeed,
         uint8 _fee,
-        bytes32 _metadata
-    ) public onlyOwner isInitialised returns (address) {
+        bytes memory _metadata
+    ) public onlyOwner returns (address) {
+        {
+            require(address(masterCopy) != address(0), "SeedFactory: mastercopy cannot be zero address");
+
+            // parameter check
+            require( _tokens[0] != _tokens[1], "SeedFactory: seedToken cannot be fundingToken" );
+            require( _softHardThresholds[1] >= _softHardThresholds[0],"SeedFactory: hardCap cannot be less than softCap");
+            require( _vestingDuration >= _vestingCliff, "SeedFactory: vestingDuration cannot be less than vestingCliff" );
+            require( _endTime > _startTime, "SeedFactory: endTime cannot be less than equal to startTime");
+        }
+
         // deploy clone
         address _newSeed = createClone(address(masterCopy));
 
@@ -106,8 +92,9 @@ contract SeedFactory is CloneFactory, Ownable {
             _admin,
             _tokens,
             _softHardThresholds,
-            _endStartTime,
             _price,
+            _startTime,
+            _endTime,
             _vestingDuration,
             _vestingCliff,
             _permissionedSeed,
@@ -116,6 +103,6 @@ contract SeedFactory is CloneFactory, Ownable {
 
         emit SeedCreated(address(_newSeed), msg.sender);
 
-        return address(_newSeed);
+        return _newSeed;
     }
 }
