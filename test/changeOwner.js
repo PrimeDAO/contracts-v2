@@ -4,7 +4,7 @@ const {PROVIDER_KEY, SAFE, SEED_FACTORY, MNEMONIC} = process.env;
 const ethers = hre.ethers;
 
 const main = async () => {
-
+    
     const rinkeby = new ethers.providers.InfuraProvider('rinkeby', PROVIDER_KEY);
     const wallet = await (new ethers.Wallet.fromMnemonic(MNEMONIC)).connect(rinkeby);
 

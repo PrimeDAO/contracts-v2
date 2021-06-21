@@ -30,19 +30,19 @@ const main = async () => {
 
     console.log("Initialising Seed Factory with master copy contract");
     
-    await seedFactory.initializeMasterCopy(seed.address);
+    await seedFactory.setMasterCopy(seed.address);
 
     console.log(`Seed Factory initialised with master copy\n`);
 
     console.log("--------------------------------------------------------------\n")
 
     console.log("Deploying Seed Signature contract");
-    const SeedSignatureFactory = await hre.ethers.getContractFactory("SeedSignature");
-    const SeedSignature = await SeedSignatureFactory.deploy();
+    const SignatureFactory = await hre.ethers.getContractFactory("Signature");
+    const Signature = await SignatureFactory.deploy();
 
-    const seedSignature =  await SeedSignature.deployed();
+    const signature =  await Signature.deployed();
 
-    console.log(`Seed Signature deployed to: ${seedSignature.address}\n`);
+    console.log(`Signature deployed to: ${signature.address}\n`);
 
     console.log("--------------------------------------------------------------\n")
 
@@ -53,7 +53,7 @@ const main = async () => {
     DeployedContracts[chainId] = DeployedContracts[chainId] || {};
     DeployedContracts[chainId].seedFactory = seedFactory.address;
     DeployedContracts[chainId].seed = seed.address;
-    DeployedContracts[chainId].seedSignature = seedSignature.address;
+    DeployedContracts[chainId].signature = signature.address;
 
     fs.writeFileSync(
       `./contractAddresses.json`,

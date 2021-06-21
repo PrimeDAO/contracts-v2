@@ -22,8 +22,9 @@ const opts = [
     ADMIN,
     [PRIME,WETH],
     ['100000000000000000000','10000000000000000000000'],
-    [Date.now(),Date.now()+10000],
     '1500000000000000000',
+    Date.now(),
+    Date.now()+10000,
     Math.floor(360*86400),
     Math.floor(22*86400),
     false,
@@ -83,9 +84,8 @@ const main = async () => {
         operation: trx.operation
     });
     trx.safeTxGas = estimate.safeTxGas;
-    trx.baseGas = estimate.baseGas,
-    trx.dataGas = estimate.dataGas,
-    trx.gasPrice = estimate.gasPrice,
+    trx.baseGas = 0,
+    trx.gasPrice = 0,
     trx.nonce = estimate.lastUsedNonce+1;
 
     trx.hash = await safe.getTransactionHash(
