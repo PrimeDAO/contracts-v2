@@ -37,13 +37,13 @@ module.exports = {
     ganache: {
       url: "http://127.0.0.1:7545",
       accounts: {
-        mnemonic: MNEMONIC
+        mnemonic: MNEMONIC || "hello darkness my old friend"
       }
     },
     rinkeby: {
       url: "https://rinkeby.infura.io/v3/c77020f1ad294f6a95b4e1203ffbe3ba",
       accounts: {
-        mnemonic: MNEMONIC
+        mnemonic: MNEMONIC || "hello darkness my old friend"
       }
     }
   },
