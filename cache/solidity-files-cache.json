@@ -217,8 +217,8 @@
       ]
     },
     "/home/konst/Documents/job/contracts-v2/contracts/ISafe.sol": {
-      "lastModificationDate": 1624020613492,
-      "contentHash": "d1a31487356bf8a109c4697f087aa7f4",
+      "lastModificationDate": 1624049231620,
+      "contentHash": "c5cf8912bba45c45a5931350f97926bb",
       "sourceName": "contracts/ISafe.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -251,15 +251,17 @@
         }
       },
       "imports": [],
-      "versionPragmas": [],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
       "artifacts": [
         "Enum",
         "ISafe"
       ]
     },
     "/home/konst/Documents/job/contracts-v2/contracts/seed/SeedFactory.sol": {
-      "lastModificationDate": 1624024045008,
-      "contentHash": "eafb8fe397849c7feccca7624218890e",
+      "lastModificationDate": 1624049624861,
+      "contentHash": "30ca97cd2759e1c52635ce6b850ca46a",
       "sourceName": "contracts/seed/SeedFactory.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -392,8 +394,8 @@
       ]
     },
     "/home/konst/Documents/job/contracts-v2/contracts/seed/Seed.sol": {
-      "lastModificationDate": 1623411129941,
-      "contentHash": "a25d7f89c3998e502fee061996096f45",
+      "lastModificationDate": 1624049484041,
+      "contentHash": "bb984b05b9bdde33f25cda192d52f492",
       "sourceName": "contracts/seed/Seed.sol",
       "solcConfig": {
         "version": "0.8.4",
@@ -520,8 +522,8 @@
       ]
     },
     "/home/konst/Documents/job/contracts-v2/contracts/seed/SeedSignature.sol": {
-      "lastModificationDate": 1624024153013,
-      "contentHash": "d8c0cfc3ef877c01ea6e0d19683ac9d3",
+      "lastModificationDate": 1624375594600,
+      "contentHash": "4f706c4c5a418983da0dba7dc0bff193",
       "sourceName": "contracts/seed/SeedSignature.sol",
       "solcConfig": {
         "version": "0.8.4",
