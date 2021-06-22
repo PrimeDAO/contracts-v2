@@ -57,7 +57,7 @@ contract Seed {
     uint256 public feeRemainder;       // Amount of seed tokens remaining for the fee
     uint256 public feeClaimed;         // Amount of seed tokens claimed as fee
     uint256 public fundingCollected;       // Amount of funding tokens collected by the seed contract.
-    uint256 public fundingWithdrawn;       // Amount of funding token withdrawn from the seed contract. 
+    uint256 public fundingWithdrawn;       // Amount of funding token withdrawn from the seed contract.
 
     mapping (address => bool) public whitelisted;        // funders that are whitelisted and allowed to contribute
     mapping (address => FunderPortfolio) public funders; // funder address to funder portfolio
@@ -67,7 +67,7 @@ contract Seed {
     event FundingReclaimed(address indexed recipient, uint256 amountReclaimed);
     event MetadataUpdated(bytes32 indexed metadata);
 
-    struct FunderPortfolio { 
+    struct FunderPortfolio {
         uint256 seedAmount;
         uint256 totalClaimed;
         uint256 fundingAmount;
@@ -93,7 +93,7 @@ contract Seed {
     }
 
     modifier allowedToBuy() {
-        require(maximumReached == false, "Seed: maximum funding reached" );
+        require(maximumReached == false, "Seed: maximum funding reached");
         require(permissionedSeed != true || whitelisted[msg.sender] == true, "Seed: sender has no rights");
         require(endTime >= block.timestamp && startTime <= block.timestamp,
             "Seed: only allowed during distribution period");
@@ -102,7 +102,7 @@ contract Seed {
 
     modifier allowedToClaim() {
         require(minimumReached == true, "Seed: minimum funding amount not met");
-        require(endTime <= block.timestamp  || maximumReached == true,"Seed: the distribution has not yet finished");
+        require(endTime <= block.timestamp || maximumReached == true,"Seed: the distribution has not yet finished");
         _;
     }
 
@@ -131,7 +131,7 @@ contract Seed {
       * @param _softHardThresholds     Array containing two params:
                                         - the minimum funding token collection threshold in wei denomination.
                                         - the highest possible funding token amount to be raised in wei denomination.
-      * @param _endStartTime          Array containing two params:  
+      * @param _endStartTime          Array containing two params:
       *                                 - Distribution start time in unix timecode.
                                         - Distribution end time in unix timecode.
       * @param _price                 The price in wei of fundingTokens when exchanged for seedTokens.
@@ -180,7 +180,7 @@ contract Seed {
       * @param _fundingAmount    The amount of funding tokens to contribute.
     */
     function buy(uint256 _fundingAmount) public isActive allowedToBuy returns(uint256, uint256) {
-        if(!isFunded) {
+        if (!isFunded) {
             require(seedToken.balanceOf(address(this)) >= seedAmountRequired + feeAmountRequired,
                 "Seed: sufficient seeds not provided");
             isFunded = true;
@@ -214,7 +214,7 @@ contract Seed {
             minimumReached = true;
         }
         if (fundingCollected >= hardCap) {
-            maximumReached = true;            
+            maximumReached = true;
         }
 
         _addFunder(
@@ -225,7 +225,7 @@ contract Seed {
             (funders[msg.sender].fee + feeAmount),                  // Previous Fee + new fee
              funders[msg.sender].feeClaimed
             );
-        
+
         // buyer, seed token purchased in this transaction (not the total amount of seed purchased)
         emit SeedsPurchased(msg.sender, seedAmount);
 
@@ -241,8 +241,8 @@ contract Seed {
         uint256 amountClaimable;
 
         amountClaimable = calculateClaim(_funder);
-        require( amountClaimable > 0, "Seed: amount claimable is 0");
-        require( amountClaimable >= _claimAmount, "Seed: request is greater than claimable amount");
+        require(amountClaimable > 0, "Seed: amount claimable is 0");
+        require(amountClaimable >= _claimAmount, "Seed: request is greater than claimable amount");
         uint256 feeAmountOnClaim = (_claimAmount * fee) / 100;
 
         FunderPortfolio memory tokenFunder = funders[_funder];
@@ -250,14 +250,14 @@ contract Seed {
         tokenFunder.totalClaimed    = uint256(tokenFunder.totalClaimed + _claimAmount);
         tokenFunder.feeClaimed      = tokenFunder.feeClaimed + feeAmountOnClaim;
         funders[_funder] = tokenFunder;
-        
+
         seedClaimed    = seedClaimed + _claimAmount;
         feeClaimed = feeClaimed + feeAmountOnClaim;
         require(seedToken.transfer(beneficiary, feeAmountOnClaim), "Seed: cannot transfer to beneficiary");
         require(seedToken.transfer(_funder, _claimAmount), "Seed: no tokens");
 
         emit TokensClaimed(_funder, _claimAmount, beneficiary, feeAmountOnClaim);
-        
+
         // amount of seed rewarded , fee on the distributed reward collected from admin
         return (_claimAmount, feeAmountOnClaim);
     }
@@ -309,7 +309,7 @@ contract Seed {
     */
     function close() public onlyAdmin isActive {
         // transfer seed tokens back to admin
-        if(minimumReached){
+        if (minimumReached){
             // remaining seeds = seedRemainder + feeRemainder
             uint256 seedToTransfer = seedRemainder + feeRemainder;
             require(
