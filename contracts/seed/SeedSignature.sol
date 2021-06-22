@@ -40,7 +40,7 @@ contract SeedSignature{
         }
         return result;
     }
-    function generateSignature(bytes20 addres) external view returns(bytes memory hash,bytes memory signature){
+    function generateSignature(bytes20 addres) external pure returns(bytes memory hash,bytes memory signature){
         hash = "Gnosis Safe Transaction";
         bytes1 v;
         bytes12 a;
