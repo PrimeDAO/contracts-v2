@@ -59,7 +59,7 @@ contract Seed {
     uint256 public feeRemainder;           // Amount of seed tokens remaining for the fee
     uint256 public feeClaimed;             // Amount of seed tokens claimed as fee
     uint256 public fundingCollected;       // Amount of funding tokens collected by the seed contract.
-    uint256 public fundingWithdrawn;       // Amount of funding token withdrawn from the seed contract. 
+    uint256 public fundingWithdrawn;       // Amount of funding token withdrawn from the seed contract.
 
     mapping (address => bool) public whitelisted;        // funders that are whitelisted and allowed to contribute
     mapping (address => FunderPortfolio) public funders; // funder address to funder portfolio
@@ -180,7 +180,7 @@ contract Seed {
       * @param _fundingAmount    The amount of funding tokens to contribute.
     */
     function buy(uint256 _fundingAmount) public isActive allowedToBuy returns(uint256, uint256) {
-        if(!isFunded) {
+        if (!isFunded) {
             require(seedToken.balanceOf(address(this)) >= seedAmountRequired + feeAmountRequired,
                 "Seed: sufficient seeds not provided");
             isFunded = true;
@@ -226,7 +226,7 @@ contract Seed {
             (funders[msg.sender].fee + feeAmount),                  // Previous Fee + new fee
              funders[msg.sender].feeClaimed
             );
-        
+
         // buyer, seed token purchased in this transaction (not the total amount of seed purchased)
         emit SeedsPurchased(msg.sender, seedAmount);
 
@@ -242,9 +242,9 @@ contract Seed {
         uint256 amountClaimable;
 
         amountClaimable = calculateClaim(_funder);
-        require( amountClaimable > 0, "Seed: amount claimable is 0");
-        require( amountClaimable >= _claimAmount, "Seed: request is greater than claimable amount");
-        uint256 feeAmountOnClaim = (_claimAmount + fee)/100;
+        require(amountClaimable > 0, "Seed: amount claimable is 0");
+        require(amountClaimable >= _claimAmount, "Seed: request is greater than claimable amount");
+        uint256 feeAmountOnClaim = (_claimAmount * fee) / 100;
 
         FunderPortfolio memory tokenFunder = funders[_funder];
 
@@ -310,7 +310,7 @@ contract Seed {
     */
     function close() public onlyAdmin isActive {
         // transfer seed tokens back to admin
-        if(minimumReached){
+        if (minimumReached){
             // remaining seeds = seedRemainder + feeRemainder
             uint256 seedToTransfer = seedRemainder+feeRemainder;
             require(

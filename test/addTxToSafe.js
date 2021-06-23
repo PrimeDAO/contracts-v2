@@ -47,9 +47,9 @@ const send = async (trx, sender) => {
         sender,
         signature: trx.signature
       }
-      console.log(JSON.stringify(options));
+    //   console.log(JSON.stringify(options));
       const res = await axios.post(generateUrl(api.sendTransaction), options);
-      console.log(res);
+      console.log(res.status);
 }
 
 const main = async () => {
@@ -100,18 +100,12 @@ const main = async () => {
         trx.refundReceiver,
         trx.nonce);
 
-    await seedSignature.once('SignatureCreated',async (error)=> {
-        console.log(error);
-        const sign = error;
-        trx.signature= sign;
-  
+    await seedSignature.once('SignatureCreated',async (signature)=> {
+        trx.signature= signature;
         send(trx,SEED_SIGNATURE);
     })
 
     await seedSignature.generateSignature(trx.hash);
-
-    // trx.signature = await wallet.signTransaction({hash: trx.hash});
-    // send(trx, wallet.address);
 }
 
 main().then().catch(console.log);
