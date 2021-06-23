@@ -8,9 +8,9 @@ contract Signature {
     bytes4 internal constant EIP1271_MAGIC_VALUE = 0x20c13b0b;
     
     // keccak256(
-    //     "EIP712Domain(uint256 chainId,address verifyingContract)"
+    //     "EIP1271Domain(uint256 chainId,address verifyingContract)"
     // );
-    bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH = keccak256("EIP712Domain(uint256 chainId,address veryfingContract ");
+    bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH = keccak256("EIP1271Domain(uint256 chainId,address veryfingContract ");
     
     mapping(bytes => uint8) public approvedSignatures;
     
@@ -26,11 +26,9 @@ contract Signature {
     }
     
     function generateSignature(bytes memory _message) external returns(bytes memory signature){
-        bytes1 v;
-        bytes12 a;
-        bytes memory paddedAddress = bytes.concat(a, bytes20(address(this)));
+        bytes memory paddedAddress = bytes.concat(bytes12(0), bytes20(address(this)));
         bytes memory messageHash = getMessageHash(_message);
-        signature = bytes.concat(paddedAddress, bytes32(uint256(65)), v, bytes32(uint256(messageHash.length)), messageHash);
+        signature = bytes.concat(paddedAddress, bytes32(uint256(65)), bytes1(0), bytes32(uint256(messageHash.length)), messageHash);
         approvedSignatures[messageHash] = 1;
         emit SignatureCreated(signature, _message);
     }
@@ -38,6 +36,6 @@ contract Signature {
     function getMessageHash(bytes memory message) private pure returns (bytes memory) {
         bytes32 safeMessageHash = keccak256(abi.encode(SEED_MSG_TYPEHASH, keccak256(message)));
         return
-            abi.encodePacked(bytes1(0x19), bytes1(0x01), DOMAIN_SEPARATOR_TYPEHASH, safeMessageHash);
+            abi.encodePacked(bytes1(0x19), bytes1(0x23), keccak256(abi.encode(DOMAIN_SEPARATOR_TYPEHASH, safeMessageHash)));
     }
 }
