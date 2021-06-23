@@ -12,6 +12,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 /* solhint-disable space-after-comma */
 /* solhint-disable max-states-count */
+// solium-disable linebreak-style
 pragma solidity 0.8.4;
 
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
@@ -89,14 +90,14 @@ contract Seed {
     }
 
     modifier isActive() {
-        require( !closed , "Seed: should not be closed");
-        require( !paused, "Seed: should not be paused");
+        require(!closed, "Seed: should not be closed");
+        require(!paused, "Seed: should not be paused");
         _;
     }
 
     modifier allowedToBuy() {
-        require( !maximumReached, "Seed: maximum funding reached" );
-        require( !permissionedSeed || whitelisted[msg.sender], "Seed: sender has no rights");
+        require(!maximumReached, "Seed: maximum funding reached");
+        require(!permissionedSeed || whitelisted[msg.sender], "Seed: sender has no rights");
         require(endTime >= block.timestamp && startTime <= block.timestamp,
             "Seed: only allowed during distribution period");
         _;
@@ -109,16 +110,16 @@ contract Seed {
     }
 
     modifier allowedToRetrieve() {
-        require( !paused, "Seed: should not be paused");
+        require(!paused, "Seed: should not be paused");
         require(startTime <= block.timestamp, "Seed: distribution haven't started");
-        require( !minimumReached, "Seed: minimum already met");
+        require(!minimumReached, "Seed: minimum already met");
         _;
     }
 
     modifier allowedToWithdraw() {
-        require( !paused, "Seed: should not be paused");
-        require( !closed, "Seed: should not be closed");
-        require( minimumReached, "Seed: minimum funding amount not met");
+        require(!paused, "Seed: should not be paused");
+        require(!closed, "Seed: should not be closed");
+        require(minimumReached, "Seed: minimum funding amount not met");
         _;
     }
 
@@ -389,7 +390,7 @@ contract Seed {
     function calculateClaim(address _funder) public view returns(uint256) {
         FunderPortfolio memory tokenFunder = funders[_funder];
 
-        if(_currentTime() < vestingStartTime){
+        if (_currentTime() < vestingStartTime) {
             return 0;
         }
 

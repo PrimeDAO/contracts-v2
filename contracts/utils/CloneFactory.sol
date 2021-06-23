@@ -1,3 +1,4 @@
+// solium-disable linebreak-style
 pragma solidity 0.8.4;
 
 /*
@@ -26,6 +27,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 //solhint-disable max-line-length
 //solhint-disable no-inline-assembly
+
 
 contract CloneFactory {
 

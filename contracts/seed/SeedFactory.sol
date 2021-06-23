@@ -11,6 +11,7 @@
 
 // SPDX-License-Identifier: GPL-3.0-or-later
 /* solhint-disable space-after-comma */
+// solium-disable linebreak-style
 pragma solidity 0.8.4;
 
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
@@ -75,10 +76,10 @@ contract SeedFactory is CloneFactory, Ownable {
             require(address(masterCopy) != address(0), "SeedFactory: mastercopy cannot be zero address");
 
             // parameter check
-            require( _tokens[0] != _tokens[1], "SeedFactory: seedToken cannot be fundingToken" );
-            require( _softHardThresholds[1] >= _softHardThresholds[0],"SeedFactory: hardCap cannot be less than softCap");
-            require( _vestingDuration >= _vestingCliff, "SeedFactory: vestingDuration cannot be less than vestingCliff" );
-            require( _endTime > _startTime, "SeedFactory: endTime cannot be less than equal to startTime");
+            require(_tokens[0] != _tokens[1], "SeedFactory: seedToken cannot be fundingToken");
+            require(_softHardThresholds[1] >= _softHardThresholds[0],"SeedFactory: hardCap cannot be less than softCap");
+            require(_vestingDuration >= _vestingCliff, "SeedFactory: vestingDuration cannot be less than vestingCliff");
+            require(_endTime > _startTime, "SeedFactory: endTime cannot be less than equal to startTime");
         }
 
         // deploy clone

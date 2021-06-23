@@ -1,23 +1,9 @@
+// solium-disable linebreak-style
 pragma solidity ^0.8.0;
 
-/**
- * @dev Interface of the ERC1271 standard signature validation method for
- * contracts as defined in https://eips.ethereum.org/EIPS/eip-1271[ERC-1271].
- *
- * _Available since v4.1._
- */
-interface IERC1271 {
-    /**
-     * @dev Should return whether the signature provided is valid for the provided data
-     * @param hash      Hash of the data to be signed
-     * @param signature Signature byte array associated with _data
-     */
-    function isValidSignature(bytes32 hash, bytes memory signature) external view returns (bytes4 magicValue);
-}
 
+contract Signature {
 
-contract Signature{
-    
     // bytes4(keccak256("isValidSignature(bytes,bytes)")
     bytes4 internal constant EIP1271_MAGIC_VALUE = 0x20c13b0b;
     
@@ -33,10 +19,10 @@ contract Signature{
     event SignatureCreated(bytes signature, bytes message);
     
     function isValidSignature(bytes memory _hash, bytes memory _signature) external view returns(bytes4) {
-        if( approvedSignatures[_signature] == 1 ) {
+        if (approvedSignatures[_signature] == 1) {
             return EIP1271_MAGIC_VALUE;
         }
-        return '0x';
+        return "0x";
     }
     
     function generateSignature(bytes memory _message) external returns(bytes memory signature){
