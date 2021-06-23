@@ -4,7 +4,9 @@
   "description": "new experimental version of PrimeDAO contracts",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy:contracts:rinkeby": "npx hardhat run scripts/deploy_contracts.js --network rinkeby",
+    "change:factoryOwner:rinkeby": "npx hardhat run test/changeOwner.js --network rinkeby"
   },
   "repository": {
     "type": "git",

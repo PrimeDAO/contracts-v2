@@ -62,7 +62,7 @@ const main = async () => {
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
     const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, wallet);
 
-    const SeedSignature = await hre.artifacts.readArtifact("SeedSignature");
+    const SeedSignature = await hre.artifacts.readArtifact("Signature");
     const seedSignature = await new ethers.Contract(SEED_SIGNATURE, SeedSignature.abi, wallet);
 
     const {data, to} = await seedFactory.populateTransaction.deploySeed(...opts);

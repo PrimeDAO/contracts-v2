@@ -13,7 +13,7 @@ const main = async () => {
 
     await seedFactory.transferOwnership(SAFE);
 
-    console.log(await seedFactory.owner());
+    console.log("New Owner:- ",await seedFactory.owner());
 }
 
 main().then().catch(console.log);
