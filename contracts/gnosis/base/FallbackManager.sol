@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-only
+/* solium-disable */
 pragma solidity >=0.7.0 <0.9.0;
 
 import "../common/SelfAuthorized.sol";
