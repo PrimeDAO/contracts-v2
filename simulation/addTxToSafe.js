@@ -2,7 +2,7 @@ require('dotenv').config({path:'./.env'});
 const hre = require('hardhat');
 const {PROVIDER_KEY, MNEMONIC} = process.env;
 const {SAFE, ADMIN, BENEFICIARY,} = require('../config.json');
-const {['4']: {seedFactory, signature}} = require('../contractAddresses.json');
+const {['4']: {SEED_FACTORY, SIGNER}} = require('../contractAddresses.json');
 const ethers = hre.ethers;
 const axios = require('axios');
 const { generateUrlFor, api } = require('./GnosisApi.js');
@@ -10,14 +10,6 @@ const generateUrl = generateUrlFor(SAFE);
 
 const WETH = '0xc778417E063141139Fce010982780140Aa0cD5Ab';
 const PRIME = '0x561b8e669cE0239c560CAe80b3717De61aff19be';
-
-function convertToHex(str) {
-    var hex = '';
-    for(var i=0;i<str.length;i++) {
-        hex += ''+str.charCodeAt(i).toString(16);
-    }
-    return hex;
-}
 
 const opts = [
     BENEFICIARY,
@@ -64,8 +56,8 @@ const main = async () => {
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
     const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, wallet);
 
-    const SeedSignature = await hre.artifacts.readArtifact("Signature");
-    const seedSignature = await new ethers.Contract(SEED_SIGNATURE, SeedSignature.abi, wallet);
+    const Signer = await hre.artifacts.readArtifact("Signer");
+    const signer = await new ethers.Contract(SIGNER, Signer.abi, wallet);
 
     const {data, to} = await seedFactory.populateTransaction.deploySeed(...opts);
     const trx = {
@@ -102,12 +94,12 @@ const main = async () => {
         trx.refundReceiver,
         trx.nonce);
 
-    await seedSignature.once('SignatureCreated',async (signature)=> {
+    await signer.once('SignatureCreated',async (signature)=> {
         trx.signature= signature;
         send(trx,SEED_SIGNATURE);
     })
 
-    await seedSignature.generateSignature(trx.hash);
+    await signer.generateSignature(trx.hash);
 }
 
 main().then().catch(console.log);

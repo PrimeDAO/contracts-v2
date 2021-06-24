@@ -2,14 +2,10 @@
 pragma solidity ^0.8.0;
 
 
-contract Signature {
+contract Signer {
 
-    // bytes4(keccak256("isValidSignature(bytes,bytes)")
     bytes4 internal constant EIP1271_MAGIC_VALUE = 0x20c13b0b;
     
-    // keccak256(
-    //     "EIP1271Domain(uint256 chainId,address verifyingContract)"
-    // );
     bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH = keccak256("EIP1271Domain(uint256 chainId,address veryfingContract ");
     
     mapping(bytes => uint8) public approvedSignatures;

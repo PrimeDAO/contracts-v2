@@ -9,20 +9,16 @@ const main = async () => {
     console.log("--------------------------------------------------------------\n")
 
     console.log("Deploying Seed Factory contract");
-    const SFFactory = await hre.ethers.getContractFactory("SeedFactory");
-    const SeedFactory = await SFFactory.deploy();
-
-    const seedFactory =  await SeedFactory.deployed();
+    const SeedFactory_Factory = await hre.ethers.getContractFactory("SeedFactory");
+    const seedFactory = await SeedFactory_Factory.deploy();
 
     console.log(`Seed Factory deployed to: ${seedFactory.address}\n`);
 
     console.log("--------------------------------------------------------------\n")
 
     console.log("Deploying Seed Master Copy contract");
-    const SeedF = await hre.ethers.getContractFactory("Seed");
-    const Seed = await SeedF.deploy();
-
-    const seed =  await Seed.deployed();
+    const Seed_Factory = await hre.ethers.getContractFactory("Seed");
+    const seed = await Seed_Factory.deploy();
 
     console.log(`Seed Master Copy deployed to: ${seed.address}\n`);
 
@@ -36,13 +32,11 @@ const main = async () => {
 
     console.log("--------------------------------------------------------------\n")
 
-    console.log("Deploying Seed Signature contract");
-    const SignatureFactory = await hre.ethers.getContractFactory("Signature");
-    const Signature = await SignatureFactory.deploy();
+    console.log("Deploying Signer contract");
+    const Signer_Factory = await hre.ethers.getContractFactory("Signer");
+    const signer = await Signer_Factory.deploy();
 
-    const signature =  await Signature.deployed();
-
-    console.log(`Signature deployed to: ${signature.address}\n`);
+    console.log(`Signer deployed to: ${signer.address}\n`);
 
     console.log("--------------------------------------------------------------\n")
 
@@ -51,9 +45,9 @@ const main = async () => {
     let {chainId} = await ethers.provider.getNetwork();
 
     DeployedContracts[chainId] = DeployedContracts[chainId] || {};
-    DeployedContracts[chainId].seedFactory = seedFactory.address;
-    DeployedContracts[chainId].seed = seed.address;
-    DeployedContracts[chainId].signature = signature.address;
+    DeployedContracts[chainId].SEED_FACTORY = seedFactory.address;
+    DeployedContracts[chainId].SEED = seed.address;
+    DeployedContracts[chainId].SIGNER = signer.address;
 
     fs.writeFileSync(
       `./contractAddresses.json`,

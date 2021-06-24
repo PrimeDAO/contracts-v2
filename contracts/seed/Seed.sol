@@ -155,6 +155,13 @@ contract Seed {
         bool    _permissionedSeed,
         uint8   _fee
     ) public initializer {
+
+        // parameter check
+        require(_tokens[0] != _tokens[1], "SeedFactory: seedToken cannot be fundingToken");
+        require(_softHardThresholds[1] >= _softHardThresholds[0],"SeedFactory: hardCap cannot be less than softCap");
+        require(_vestingDuration >= _vestingCliff, "SeedFactory: vestingDuration cannot be less than vestingCliff");
+        require(_endTime > _startTime, "SeedFactory: endTime cannot be less than equal to startTime");
+
         beneficiary       = _beneficiary;
         admin             = _admin;
         softCap           = _softHardThresholds[0];

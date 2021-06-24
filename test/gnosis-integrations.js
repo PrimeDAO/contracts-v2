@@ -44,11 +44,11 @@ const deploy = async () => {
     );
     setup.gnosisSafeProxyFactory = await  GnosisSafeProxyFactory_Factory.deploy();
 
-    const Signature_Factory = await ethers.getContractFactory(
-        "Signature",
+    const Signer_Factory = await ethers.getContractFactory(
+        "Signer",
         setup.roles.deployer
     );
-    setup.signature = await Signature_Factory.deploy();
+    setup.signer = await Signer_Factory.deploy();
 
     const SeedFactory_Factory = await ethers.getContractFactory(
         "SeedFactory",
@@ -99,7 +99,7 @@ describe('>> Gnosis Integration', async () => {
         it('setup gnosis proxy', async () => {
             expect(await setup.safe.isOwner(setup.roles.deployer.address)).to.equal(false);
             await setup.safe.connect(setup.roles.deployer).setup(
-                [setup.roles.deployer.address, setup.signature.address],
+                [setup.roles.deployer.address, setup.signer.address],
                 1,
                 setup.safe.address,
                 '0x',
@@ -109,7 +109,7 @@ describe('>> Gnosis Integration', async () => {
                 setup.roles.deployer.address
             );
             expect(await setup.safe.isOwner(setup.roles.deployer.address)).to.equal(true);
-            expect(await setup.safe.isOwner(setup.signature.address)).to.equal(true);
+            expect(await setup.safe.isOwner(setup.signer.address)).to.equal(true);
         });
     });
     context('$ create and execute transaction to deploy new seed using safe', async () => {
@@ -141,13 +141,13 @@ describe('>> Gnosis Integration', async () => {
                 constants.ZERO_ADDRESS
             ];
             const hash = await setup.safe.connect(setup.roles.deployer).encodeTransactionData(...trx, nonce);
-            const transaction = await setup.signature.generateSignature(hash);
+            const transaction = await setup.signer.generateSignature(hash);
             const receipt = await transaction.wait();
             const signature = receipt.events.filter((data) => {return data.event === SIGNATURE_CREATED})[0].args['signature'];
             trx.push(signature);
             setup.data.trx = trx;
             setup.data.hash = hash;
-            expect(await setup.signature.isValidSignature(hash,`0x${signature.slice(signaturePosition)}`)).to.equal(magicValue);
+            expect(await setup.signer.isValidSignature(hash,`0x${signature.slice(signaturePosition)}`)).to.equal(magicValue);
         });
         it('executes transaction in safe contract successfully', async () => {
             await expect(setup.safe.execTransaction(...(setup.data.trx))).to.emit(setup.safe, EXECUTION_SUCCESS);
