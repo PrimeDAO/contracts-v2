@@ -7,7 +7,7 @@
     "deploy:contracts:rinkeby": "npx hardhat run scripts/deploy_contracts.js --network rinkeby",
     "change:factoryOwner:rinkeby": "npx hardhat run test/changeOwner.js --network rinkeby",
     "send:safeTrx:rinkeby": "npx hardhat run test/addTxToSafe.js --network rinkeby",
-    "lint": "eslint . --ext .js && solium --no-soliumignore --dir ./contracts",
+    "lint": "eslint . --ext .js && solium --dir ./contracts",
     "test": "hardhat test"
   },
   "repository": {
