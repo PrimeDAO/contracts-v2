@@ -1,18 +1,4 @@
-const signTransaction = async (ethereum, account, trxHash) => 
-        await ethereum.request({method: 'eth_sign', params: [account, trxHash]});
-
-const getTransactionHash = async (moduleManager, trx) => 
-        await moduleManager.methods.getTransactionHash(
-            trx.to,
-            trx.value,
-            trx.data,
-            trx.operation,
-            trx.safeTxGas,
-            trx.baseGas,
-            trx.gasPrice,
-            trx.gasToken,
-            trx.refundReceiver,
-            trx.nonce).call();
+// to be used in front-end
 
 const getEstimate = async (options, safe) => {
     const res = await fetch(
@@ -24,6 +10,15 @@ const getEstimate = async (options, safe) => {
         }
     );
     return await res.json();
+}
+
+const getCurrentNonce = async (safe) => {
+    const res = await fetch(
+        `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/${safe}/`
+    );
+    const nonce = (await res.json()).nonce;
+    console.log(nonce);
+    return nonce;
 }
 
 const sendTransaction = async (options, safe) => {
@@ -45,21 +40,25 @@ const getTransactionHistory = async (safe) => {
     return await res.json();
 }
 
-const generateUrlFor = (safe) => (type) => {
-    switch(type){
-        case api.sendTransaction:
-            return `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/${safe}/transactions/`;
-        case api.getHistory:
-            return `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/${safe}/transactions`;
-        case api.getEstimate:
-            return `https://safe-relay.rinkeby.gnosis.io/api/v2/safes/${safe}/transactions/estimate/`;
+const api = (safe) => async (type, params) => {
+    switch (type) {
+        case option.sendTransaction:
+            return await sendTransaction(params, safe);
+        case option.getHistory:
+            return await getTransactionHistory(safe);
+        case option.getEstimate:
+            return await getEstimate(params, safe);
+        case option.getNonce:
+            return await getCurrentNonce(safe);
+        default:
+            console.log("Invalid case");
     }
-}
+};
 
-const api = {
+const option = {
     sendTransaction: 'sendTransaction',
     getHistory: 'getTransactionHistory',
     getEstimate: 'getEstimate'
 }
 
-module.exports = {generateUrlFor, api};
+export {option, api};
