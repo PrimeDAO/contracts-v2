@@ -13,12 +13,17 @@ const getEstimate = async (options, safe) => {
 }
 
 const getCurrentNonce = async (safe) => {
+    console.log(safe);
     const res = await fetch(
-        `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/${safe}/`
+        `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/${safe}/transactions`
     );
-    const nonce = (await res.json()).nonce;
-    console.log(nonce);
-    return nonce;
+    const transactions = await res.json();
+    const previousNonce = transactions.results.find(
+        trx => {
+            return trx.confirmations.length !== 0 ;
+        }
+    ).nonce;
+    return previousNonce+1;
 }
 
 const sendTransaction = async (options, safe) => {
@@ -58,7 +63,8 @@ const api = (safe) => async (type, params) => {
 const option = {
     sendTransaction: 'sendTransaction',
     getHistory: 'getTransactionHistory',
-    getEstimate: 'getEstimate'
+    getEstimate: 'getEstimate',
+    getNonce: 'getNonce'
 }
 
 export {option, api};
