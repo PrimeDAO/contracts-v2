@@ -19,6 +19,7 @@ import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "./Seed.sol";
 import "../utils/CloneFactory.sol";
 
+
 /**
  * @title PrimeDAO Seed Factory
  * @dev   Enable PrimeDAO governance to create new Seed contracts.
@@ -35,7 +36,7 @@ contract SeedFactory is CloneFactory, Ownable {
      */
     function setMasterCopy(Seed _masterCopy) public onlyOwner {
         require(address(_masterCopy) != address(0), "SeedFactory: new mastercopy cannot be zero address");
-        masterCopy = _masterCopy; 
+        masterCopy = _masterCopy;
     }
 
     /**
@@ -49,7 +50,7 @@ contract SeedFactory is CloneFactory, Ownable {
       * @param _softHardThresholds     Array containing two params:
                                         - the minimum funding token collection threshold in wei denomination.
                                         - the highest possible funding token amount to be raised in wei denomination.
-      * @param _price                 1 Funding Token = _price amount of Seed Token. 
+      * @param _price                 1 Funding Token = _price amount of Seed Token.
       * @param _startTime             Distribution start time in unix timecode.
       * @param _endTime               Distribution end time in unix timecode.
       * @param _vestingDuration       Vesting period duration in days.
@@ -71,7 +72,8 @@ contract SeedFactory is CloneFactory, Ownable {
         bool _permissionedSeed,
         uint8 _fee,
         bytes memory _metadata
-    ) public onlyOwner returns (address) {
+    ) public onlyOwner returns (address)
+    {
         {
             require(address(masterCopy) != address(0), "SeedFactory: mastercopy cannot be zero address");
         }
