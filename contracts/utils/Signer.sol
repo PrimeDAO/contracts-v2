@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "../interface/ISAFE.sol";
 
 
-contract Signer2 {
+contract Signer {
 
     bytes4 internal constant EIP1271_MAGIC_VALUE       = 0x20c13b0b;
     bytes4 internal constant SEED_FACTORY_MAGIC_VALUE  = 0x75729555;
