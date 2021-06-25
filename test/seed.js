@@ -22,11 +22,17 @@ const deploy = async (signers) => { // Deleted .setup from calls to setup.js. As
     // initialize test setup
     const setup = await helpers.initialize(signers[0]);
     // deploy ERC20s
+    // console.log((await setup.root.getAddress()))
     setup.tokens = await helpers.tokens(setup);
+	// console.log("test2");
+    // deploy DAOStack meta-contracts
+    setup.DAOStack = await setup.DAOStack(setup);
     // deploy organization
     setup.organization = await helpers.organization(setup);
     // deploy seed
+	console.log("test3");
     setup.seed = await helpers.seed();
+
 	
     return setup;
 };
