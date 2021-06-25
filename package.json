@@ -7,7 +7,7 @@
     "deploy:contracts:rinkeby": "npx hardhat run scripts/deploy_contracts.js --network rinkeby",
     "change:factoryOwner:rinkeby": "npx hardhat run test/changeOwner.js --network rinkeby",
     "send:safeTrx:rinkeby": "npx hardhat run test/addTxToSafe.js --network rinkeby",
-    "lint": "eslint . --ext .js && solium --dir ./contracts",
+    "lint": "eslint . --ext .js && solium --no-soliumignore --dir ./contracts",
     "test": "hardhat test"
   },
   "repository": {
@@ -36,7 +36,7 @@
     "solium": "^1.2.5"
   },
   "dependencies": {
-    "@gnosis.pm/mock-contract": "^4.0.0",
+    "@gnosis.pm/safe-contracts": "^1.3.0",
     "axios": "^0.21.1",
     "dotenv": "^10.0.0",
     "openzeppelin-solidity": "^4.1.0"
