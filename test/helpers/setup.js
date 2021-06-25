@@ -4,9 +4,9 @@ const { parseUnits } = ethers.utils
 
 const Seed = hre.artifacts.readArtifact('Seed');
 const ERC20 = hre.artifacts.readArtifact("ERC20Mock")
-const ControllerCreator = artifacts.require('./ControllerCreator.sol');
-const DaoCreator = artifacts.require('./DaoCreator.sol');
-const DAOTracker = artifacts.require('./DAOTracker.sol');
+// const ControllerCreator = artifacts.require('./ControllerCreator.sol');
+const DaoCreator = hre.artifacts.readArtifact('./DaoCreator.sol');
+const DAOTracker = hre.artifacts.readArtifact('./DAOTracker.sol');
 // const GenericScheme = artifacts.require('GenericScheme');
 // const GenericSchemeMultiCall = artifacts.require('GenericSchemeMultiCall')
 // const Avatar = artifacts.require('./Avatar.sol');

@@ -3,6 +3,7 @@ require('hardhat-dependency-compiler');
 require("@nomiclabs/hardhat-ethers");
 require('dotenv').config
 
+// const { artifacts } = require("hardhat");
 const helpers = require("./test/helpers");
 
 
@@ -77,7 +78,8 @@ module.exports = {
     ],
     dependencyCompiler: {
       paths: [
-        "@openzeppelin-solidity/contracts/token/ERC20/ERC20.sol"
+        "@openzeppelin-solidity/contracts/token/ERC20/ERC20.sol",
+        "@daostack/arc/contracts/universalSchemes/DaoCreator.sol"
       ]
     }
   }
