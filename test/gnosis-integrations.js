@@ -44,12 +44,6 @@ const deploy = async () => {
     );
     setup.gnosisSafeProxyFactory = await  GnosisSafeProxyFactory_Factory.deploy();
 
-    const Signer_Factory = await ethers.getContractFactory(
-        "Signer",
-        setup.roles.prime
-    );
-    setup.signer = await Signer_Factory.deploy();
-
     const SeedFactory_Factory = await ethers.getContractFactory(
         "SeedFactory",
         setup.roles.prime
@@ -98,6 +92,13 @@ describe('>> Gnosis Integration', async () => {
             await setup.seedFactory.connect(setup.roles.prime).transferOwnership(setup.safe.address);
             expect(await setup.seedFactory.connect(setup.roles.prime).owner()).to.equal(setup.safe.address);
         });
+        it("deploys signer contract with correct safe and seedFactory addresses", async () => {
+            const Signer_Factory = await ethers.getContractFactory(
+                "Signer",
+                setup.roles.prime
+            );
+            setup.signer = await Signer_Factory.deploy(setup.safe.address, setup.seedFactory.address);
+        });
         it('setup gnosis proxy', async () => {
             // setting up safe with two owners, 1) prime 2) signer contract
             expect(await setup.safe.isOwner(setup.roles.prime.address)).to.equal(false);
@@ -144,12 +145,11 @@ describe('>> Gnosis Integration', async () => {
                 constants.ZERO_ADDRESS,
                 constants.ZERO_ADDRESS
             ];
-            // once transaction object is created, we use safe.encodeTransactionData to generate safeTrx hash.
-            const hash = await setup.safe.connect(setup.roles.prime).encodeTransactionData(...trx, nonce);
-            // this hash is then signed by signer contract, which is an owner of the safe.
-            const transaction = await setup.signer.generateSignature(hash);
+            // once transaction object is created, we send the transaction data along with nonce to generate safeTrx hash
+            // and verify if the transaction is valid or not, and sign the hash.
+            const transaction = await setup.signer.generateSignature(...trx, nonce);
             const receipt = await transaction.wait();
-            const signature = receipt.events.filter((data) => {return data.event === SIGNATURE_CREATED})[0].args['signature'];
+            const {signature, hash} = receipt.events.filter((data) => {return data.event === SIGNATURE_CREATED})[0].args;
             trx.push(signature);
             setup.data.trx = trx;
             setup.data.hash = hash;
@@ -173,6 +173,63 @@ describe('>> Gnosis Integration', async () => {
             expect(await seed.beneficiary()).to.equal(BENEFICIARY);
             expect(await seed.admin()).to.equal(ADMIN);
             expect((await seed.hardCap()).toString()).to.equal(hardCap);
+        });
+    });
+    context('$ create and execute transaction other than to deploy new seed using safe', async () => {
+        it('reverts', async () => {
+            // here we create a transaction object
+            nonce++;
+            // incorrect function call
+            const {data, to} = await setup.seedFactory.populateTransaction.setMasterCopy(
+                BENEFICIARY
+            );
+            const trx = [
+                to,
+                zero,
+                data,
+                zero,
+                oneMillion,
+                oneMillion,
+                zero,
+                constants.ZERO_ADDRESS,
+                constants.ZERO_ADDRESS
+            ];
+            // once transaction object is created, we send the transaction data along with nonce to generate safeTrx hash
+            // and verify if the transaction is valid or not, and sign the hash.
+            await expect(setup.signer.generateSignature(...trx, nonce)).to.be.revertedWith("Signer: cannot sign invalid function call");
+        });
+    });
+    context('$ create and execute transaction to deploy new seed using safe from other seedFactory', async () => {
+        it('reverts', async () => {
+            // here we create a transaction object
+            nonce++;
+            const {data, to} = await setup.seedFactory.populateTransaction.deploySeed(
+                BENEFICIARY,
+                ADMIN,
+                [PRIME,WETH],
+                [softCap,hardCap],
+                price,
+                startTime,
+                endTime,
+                vestingDuration,
+                vestingCliff,
+                isPermissioned,
+                fee,
+                metadata
+            );
+            // incorrect seedFactory address
+            const trx = [
+                BENEFICIARY,
+                zero,
+                data,
+                zero,
+                oneMillion,
+                oneMillion,
+                zero,
+                constants.ZERO_ADDRESS,
+                constants.ZERO_ADDRESS
+            ];
+            await expect(setup.signer.generateSignature(...trx, nonce)).to.be.revertedWith("Signer: cannot sign invalid transaction");
         });
     });
 });
