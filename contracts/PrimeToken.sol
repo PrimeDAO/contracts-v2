@@ -25,7 +25,7 @@ contract PrimeToken is ERC20Capped {
     ERC20Capped(cap) 
     public
     {
-        require(cap <= initialSupply); // _mint from ERC20 is not protected
+        require(initialSupply <= cap); // _mint from ERC20 is not protected
         ERC20._mint(genesisMultisig, initialSupply);
     }
 

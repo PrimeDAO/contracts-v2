@@ -1,6 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
 require('hardhat-dependency-compiler');
 require("@nomiclabs/hardhat-ethers");
+require("@nomiclabs/hardhat-web3");
 require('dotenv').config
 
 // const { artifacts } = require("hardhat");

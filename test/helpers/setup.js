@@ -1,12 +1,12 @@
 // const { concat } = require('ethers/lib/utils');
-const hre = require('hardhat')
+const hre = require("hardhat")
 const { parseUnits } = ethers.utils
 
-const Seed = hre.artifacts.readArtifact('Seed');
+const Seed = hre.artifacts.readArtifact("Seed");
 const ERC20 = hre.artifacts.readArtifact("ERC20Mock")
 // const ControllerCreator = artifacts.require('./ControllerCreator.sol');
-const DaoCreator = hre.artifacts.readArtifact('./DaoCreator.sol');
-const DAOTracker = hre.artifacts.readArtifact('./DAOTracker.sol');
+// const DaoCreator = hre.artifacts.readArtifact('./DaoCreator.sol');
+// const DAOTracker = hre.artifacts.readArtifact('./DAOTracker.sol');
 // const GenericScheme = artifacts.require('GenericScheme');
 // const GenericSchemeMultiCall = artifacts.require('GenericSchemeMultiCall')
 // const Avatar = artifacts.require('./Avatar.sol');
@@ -48,19 +48,19 @@ const PRIME_CAP = parseUnits('90000000').toString();
 const PRIME_SUPPLY = parseUnits('21000000').toString();
 // const REPUTATION = '1000';
 
-const deployOrganization = async (daoCreator, daoCreatorOwner, founderToken, founderReputation, cap = 0) => {
-    var org = {};
-    var tx = await daoCreator.forgeOrg('primeDAO', 'PrimeDAO token', 'PDAO', daoCreatorOwner, founderToken, founderReputation, cap, { gas: constants.ARC_GAS_LIMIT });
-    assert.equal(tx.logs.length, 1);
-    assert.equal(tx.logs[0].event, 'NewOrg');
-    var avatarAddress = tx.logs[0].args._avatar;
-    org.avatar = await Avatar.at(avatarAddress);
-    var tokenAddress = await org.avatar.nativeToken();
-    org.token = await DAOToken.at(tokenAddress);
-    var reputationAddress = await org.avatar.nativeReputation();
-    org.reputation = await Reputation.at(reputationAddress);
-    return org;
-};
+// const deployOrganization = async (daoCreator, daoCreatorOwner, founderToken, founderReputation, cap = 0) => {
+//     var org = {};
+//     var tx = await daoCreator.forgeOrg('primeDAO', 'PrimeDAO token', 'PDAO', daoCreatorOwner, founderToken, founderReputation, cap, { gas: constants.ARC_GAS_LIMIT });
+//     assert.equal(tx.logs.length, 1);
+//     assert.equal(tx.logs[0].event, 'NewOrg');
+//     var avatarAddress = tx.logs[0].args._avatar;
+//     org.avatar = await Avatar.at(avatarAddress);
+//     var tokenAddress = await org.avatar.nativeToken();
+//     org.token = await DAOToken.at(tokenAddress);
+//     var reputationAddress = await org.avatar.nativeReputation();
+//     org.reputation = await Reputation.at(reputationAddress);
+//     return org;
+// };
 
 // const setAbsoluteVote = async (voteOnBehalf = constants.ZERO_ADDRESS, precReq = 50) => {
 //     var votingMachine = {};
@@ -80,19 +80,13 @@ const initialize = async (root) => {
 };
 
 const tokens = async (setup) => {
-	console.log("test0.1")
 	const ERC20F = await hre.ethers.getContractFactory("ERC20");
-
-    const erc20s = [await ERC20F.deploy('DAI Stablecoin', 'DAI'), await ERC20F.deploy('USDC Stablecoin', 'USDC'), await ERC20F.deploy('USDT Stablecoin', 'USDT')];
-    console.log("test0")
-	const PrimeTokenF = await hre.ethers.getContractFactory("PrimeToken");
-	// console.log(PrimeTokenF)
-	console.log("test0.2")
-	// console.log(PRIME_CAP)
-	// console.log(1000*10**18)
-	const primeToken = await PrimeTokenF.deploy(PRIME_SUPPLY, PRIME_CAP, setup.root.getAddress());
-	console.log("test1");
-    return { erc20s, primeToken};
+	const erc20s = [await ERC20F.deploy('DAI Stablecoin', 'DAI'), await ERC20F.deploy('USDC Stablecoin', 'USDC'), await ERC20F.deploy('USDT Stablecoin', 'USDT')];
+	
+	const primeTokenF = await hre.ethers.getContractFactory("PrimeToken");
+	const primeToken = await primeTokenF.deploy(PRIME_SUPPLY, PRIME_CAP, setup.root.getAddress());
+    
+	return { erc20s, primeToken};
 };
 
 // const incentives = async (setup) => {
@@ -121,7 +115,8 @@ const tokens = async (setup) => {
 // };
 
 const seed = async () => {
-    const seed = await Seed.new();
+	const seedF = await hre.ethers.getContractFactory("Seed");
+    const seed = await seedF.deploy();
 
     return seed;
 };
@@ -205,20 +200,20 @@ const seed = async () => {
 //     return { pool, proxy };
 // };
 
-const DAOStack = async () => {
-    const controllerCreator = await ControllerCreator.new();
-    const daoTracker = await DAOTracker.new();
-    const daoCreator = await DaoCreator.new(controllerCreator.address, daoTracker.address);
+// const DAOStack = async () => {
+//     const controllerCreator = await ControllerCreator.new();
+// //     const daoTracker = await DAOTracker.new();
+// //     const daoCreator = await DaoCreator.new(controllerCreator.address, daoTracker.address);
 
-    return { controllerCreator, daoTracker, daoCreator };
-};
+// //     return { controllerCreator, daoTracker, daoCreator };
+// // };
 
-const organization = async (setup) => {
-    // deploy organization
-    const organization = await deployOrganization(setup.DAOStack.daoCreator, [setup.root], [PDAO_TOKENS], [REPUTATION]);
+// const organization = async (setup) => {
+//     // deploy organization
+//     const organization = await deployOrganization(setup.DAOStack.daoCreator, [setup.root], [PDAO_TOKENS], [REPUTATION]);
 
-    return organization;
-};
+//     return organization;
+// };
 
 // const token4rep = async (setup) => {
 //     const priceOracle = await PriceOracle.new();
@@ -294,7 +289,7 @@ module.exports = {
     tokens,
     // balancer,
     // DAOStack,
-    organization,
+    // organization,
     // farmFactory,
     seed,
     // seedFactory,
