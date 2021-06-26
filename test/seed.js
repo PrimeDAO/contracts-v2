@@ -115,22 +115,22 @@ describe("Seed", function() {
                         avatar.address,
                         admin.address,
                         [seedToken.address, fundingToken.address],
-                        [softCap.toString, hardCap],
-                        [endTime, startTime],
-                        price,
-                        vestingDuration,
-                        vestingCliff,
+                        [softCap.toString(), hardCap.toString()],
+                        [endTime.toString(), startTime.toString()],
+                        price.toString(),
+                        vestingDuration.toString(),
+                        vestingCliff.toString(),
                         permissionedSeed,
                         fee
                     );
                     console.log("test1");
                     expect(await setup.seed.initialized()).to.equal(true);
                     expect(await setup.seed.beneficiary()).to.equal(avatar.address);
-                    expect(await setup.seed.admin()).to.equal(admin);
+                    expect(await setup.seed.admin()).to.equal(admin.address);
                     expect(await setup.seed.seedToken()).to.equal(seedToken.address);
                     expect(await setup.seed.fundingToken()).to.equal(fundingToken.address);
-                    expect((await setup.seed.softCap()).toString()).to.equal(softCap);
-                    expect((await setup.seed.price()).toString()).to.equal(price);
+                    expect((await setup.seed.softCap()).toString()).to.equal(softCap.toString());
+                    expect((await setup.seed.price()).toString()).to.equal(price.toString());
                     expect(await setup.seed.permissionedSeed()).to.equal(permissionedSeed);
                     expect((await setup.seed.fee()).toString()).to.equal(fee.toString());
                     expect(await setup.seed.closed()).to.equal(false);
@@ -144,14 +144,13 @@ describe("Seed", function() {
                     await expectRevert(
                         setup.seed.initialize(
                             avatar.address,
-                            admin,
+                            admin.address,
                             [seedToken.address, fundingToken.address],
-                            [softCap, hardCap],
-                            price,
-                            startTime,
-                            endTime,
-                            vestingDuration,
-                            vestingCliff,
+                            [softCap.toString(), hardCap.toString()],
+                            [endTime.toString(), startTime.toString()],
+                            price.toString(),
+                            vestingDuration.toString(),
+                            vestingCliff.toString(),
                             permissionedSeed,
                             fee
                         ),

@@ -72,7 +72,7 @@ contract SeedFactory is CloneFactory, Ownable {
       * @param _softHardThresholds     Array containing two params:
                                         - the minimum funding token collection threshold in wei denomination.
                                         - the highest possible funding token amount to be raised in wei denomination.
-      * @param _endStartTime          Array containing two params:  
+      * @param _endStartTime          Array containing two params:
       *                                 - Distribution start time in unix timecode.
                                         - Distribution end time in unix timecode.
       * @param _price                 The price in wei of fundingTokens when exchanged for seedTokens.
@@ -160,15 +160,15 @@ contract SeedFactory is CloneFactory, Ownable {
         bytes32 _metadata
     ) public {
         bytes memory data = abi.encodeWithSignature(
-            "deploySeed()", 
-            address(safe), 
-            _admin, 
+            "deploySeed()",
+            address(safe),
+            _admin,
             _tokens,
-            _softHardThresholds, 
-            _price, 
-            _startTime, 
-            _endTime, 
-            _vestingDuration, 
+            _softHardThresholds,
+            _price,
+            _startTime,
+            _endTime,
+            _vestingDuration,
             _vestingCliff,
             _isWhitelisted,
             _fee,
@@ -201,6 +201,15 @@ contract SeedFactory is CloneFactory, Ownable {
         bytes memory _signatures
     ) public {
         bytes memory data = abi.encodeWithSignature("deploySeed()");
-        require(safe.execTransaction(_to, _value, data, _operation, _safeTxGas, _baseGas, _gasPrice, _gasToken, _refundReceiver, _signatures), "Failed");
+        require(safe.execTransaction( _to,
+                                      _value,
+                                      data,
+                                      _operation,
+                                      _safeTxGas,
+                                      _baseGas,
+                                      _gasPrice,
+                                      _gasToken,
+                                      _refundReceiver,
+                                      _signatures), "Failed");
     }
 }
