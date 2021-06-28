@@ -57,9 +57,9 @@ describe("Seed", function() {
     const hundred = 100;
     const PPM     = 1000000;
     const PPM100  = 100000000;
-    const tenETH            = parseUnits("10");
-    const hundredTwoETH     = parseUnits("102");
-    const twoHundredFourETH = parseUnits("204");
+    const tenETH            = parseUnits("10").toString();
+    const hundredTwoETH     = parseUnits("102").toString();
+    const twoHundredFourETH = parseUnits("204").toString();
     const twoBN    = new BN(2);
     const pct_base = new BN("1000000000000000000"); // 10**18
     const ninetyTwoDaysInSeconds  = time.duration.days(92);
@@ -69,16 +69,16 @@ describe("Seed", function() {
     describe("» creator is avatar", () => {
         before("!! deploy setup", async () => {
             signers = await ethers.getSigners();
-            [owner, admin, buyer1, buyer2, avatar] = signers;
-            setup = await deploy(owner);
+            [, admin, buyer1, buyer2, avatar] = signers;
+            setup = await deploy(signers[0]);
             seedToken    = setup.tokens.primeToken;
             fundingToken = setup.tokens.erc20s[0];
-            softCap        = parseUnits("10"); // is this neccesary?
-            hardCap        = parseUnits("102");
-            price          = parseUnits("0.01");
-            buyAmount      = parseUnits("51");
-            smallBuyAmount = parseUnits("9");
-            buySeedAmount  = parseUnits("5100");
+            softCap        = parseUnits("10").toString(); // is this neccesary?
+            hardCap        = parseUnits("102").toString();
+            price          = parseUnits("0.01").toString();
+            buyAmount      = parseUnits("51").toString();
+            smallBuyAmount = parseUnits("9").toString();
+            buySeedAmount  = parseUnits("5100").toString();
             startTime = await time.latest();
             endTime   = await startTime.add(await time.duration.days(7));
             vestingDuration = time.duration.days(365); // 1 year
@@ -87,11 +87,11 @@ describe("Seed", function() {
             fee = 2;
             metadata = `0x`;
 
-            buySeedFee = new BN(buySeedAmount.toString()) // Check if this was correct
+            buySeedFee = new BN(buySeedAmount) // Check if this was correct
             .mul(new BN(PPM))
             .mul(new BN(fee))
             .div(new BN(PPM100));
-            seedForDistribution = new BN(hardCap.toString()).div(new BN(price.toString())).mul(new BN(pct_base.toString()));
+            seedForDistribution = new BN(hardCap).div(new BN(price)).mul(new BN(pct_base.toString()));
             seedForFee = seedForDistribution
                 .mul(new BN(PPM))
                 .mul(new BN(fee))
@@ -107,15 +107,15 @@ describe("Seed", function() {
                         avatar.address,
                         admin.address,
                         [seedToken.address, fundingToken.address],
-                        [softCap.toString(), hardCap.toString()],
-                        [endTime.toString(), startTime.toString()],
-                        price.toString(),
-                        vestingDuration.toString(),
-                        vestingCliff.toString(),
+                        [softCap, hardCap],
+                        [endTime.toNumber(), startTime.toNumber()],
+                        price,
+                        vestingDuration.toNumber(),
+                        vestingCliff.toNumber(),
                         permissionedSeed,
                         fee
                     );
-
+                    
                     expect(await setup.seed.initialized()).to.equal(true);
                     expect(await setup.seed.beneficiary()).to.equal(avatar.address);
                     expect(await setup.seed.admin()).to.equal(admin.address);
@@ -138,11 +138,11 @@ describe("Seed", function() {
                             avatar.address,
                             admin.address,
                             [seedToken.address, fundingToken.address],
-                            [softCap.toString(), hardCap.toString()],
-                            [endTime.toString(), startTime.toString()],
-                            price.toString(),
-                            vestingDuration.toString(),
-                            vestingCliff.toString(),
+                            [softCap, hardCap],
+                            [endTime.toNumber(), startTime.toNumber()],
+                            price,
+                            vestingDuration.toNumber(),
+                            vestingCliff.toNumber(),
                             permissionedSeed,
                             fee
                         ),
@@ -154,12 +154,8 @@ describe("Seed", function() {
         describe("# buy", () => {
             describe("» generics", () => {
                 before("!! top up buyer1 balance", async () => {
-                    console.log("here0")
-                    // console.log(await fundingToken.balanceOf(setup.root.address))
-                    // console.log(hundredTwoETH.toString())
-                    await fundingToken.transfer(buyer1.address, hundredTwoETH.toString());
-                    console.log("here0.2")
-                    await fundingToken.approve(setup.seed.address, hundredTwoETH, { from: buyer1 });
+                    await fundingToken.transfer(buyer1.address, hundredTwoETH);
+                    await fundingToken.connect(setup.root).approve(setup.seed.address, hundredTwoETH);
                     claimAmount = new BN(ninetyTwoDaysInSeconds).mul(
                         new BN(buySeedAmount).mul(twoBN).div(new BN(vestingDuration))
                     );
@@ -170,29 +166,30 @@ describe("Seed", function() {
                 });
                 it("it cannot buy if not funded", async () => {
                     await expectRevert(
-                        setup.seed.buy(buyAmount, { from: buyer1 }),
+                        setup.seed.connect(buyer1).buy(buyAmount),
                         "Seed: sufficient seeds not provided"
                     );
                 });
                 it("it funds the Seed contract with Seed Token", async () => {
-                    await seedToken.transfer(setup.seed.address, requiredSeedAmount, { from: setup.root });
+                    await seedToken.connect(setup.root).transfer(setup.seed.address, requiredSeedAmount.toString());
                     expect((await seedToken.balanceOf(setup.seed.address)).toString()).to.equal(
                         requiredSeedAmount.toString()
                     );
                 });
                 it("it cannot buy when paused", async () => {
-                    await setup.seed.pause({ from: admin });
-                    await expectRevert(setup.seed.buy(buyAmount, { from: buyer1 }), "Seed: should not be paused");
-                    await setup.seed.unpause({ from: admin });
+                    await setup.seed.connect(admin).pause();
+                    await expectRevert(setup.seed.connect(buyer1).buy(buyAmount), "Seed: should not be paused");
+                    await setup.seed.connect(admin).unpause();
                 });
                 it("it cannot buy 0 seeds", async () => {
                     await expectRevert(
-                        setup.seed.buy(zero.toString(), { from: buyer1 }),
+                        setup.seed.connect(buyer1).buy(zero.toString()),
                         "Seed: amountVestedPerSecond > 0"
                     );
                 });
                 it("it buys tokens ", async () => {
-                    let tx = await setup.seed.buy(buyAmount, { from: buyer1 });
+                    // console.log(">>hier" + await setup.seed.connect(buyer1).balanceOf(buyer1));
+                    let tx = await setup.seed.connect(buyer1).buy(buyAmount);
                     setup.data.tx = tx;
                     await expectEvent.inTransaction(setup.data.tx.tx, setup.seed, "SeedsPurchased");
                     expect((await fundingToken.balanceOf(setup.seed.address)).toString()).to.equal(

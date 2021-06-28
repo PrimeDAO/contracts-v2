@@ -3,7 +3,7 @@ const hre = require("hardhat")
 const { parseUnits } = ethers.utils;
 // const { toTwos } = ethers.BigNumber;
 
-const Seed = hre.artifacts.readArtifact("Seed");
+// const Seed = hre.artifacts.readArtifact("Seed");
 const ERC20 = hre.artifacts.readArtifact("ERC20Mock")
 const PrimeToken = hre.artifacts.readArtifact('PrimeToken');
 
@@ -27,9 +27,8 @@ const initialize = async (root) => {
 
 const tokens = async (setup) => {
 
-	const ERC20F = await hre.ethers.getContractFactory("ERC20", setup.root);
-    await ERC20F.attach(setup.root.address);
-    const test = await ERC20F.deploy('DAI2 Stablecoin', 'DAI4')
+	const ERC20F = await hre.ethers.getContractFactory("ERC20Mock", setup.root);
+    // const test1 = await ERC20F.deploy('DAI2 Stablecoin', 'DAI4')
 	const erc20s = [await ERC20F.deploy('DAI Stablecoin', 'DAI'), await ERC20F.deploy('USDC Stablecoin', 'USDC'), await ERC20F.deploy('USDT Stablecoin', 'USDT')];
     // await erc20s[0].deployed();
 
@@ -37,13 +36,14 @@ const tokens = async (setup) => {
 
     // console.log(test.signer);
     // console.log(setup.root);
+    // test1 = await test.connect(setup.root.address).transfer(setup.root.address, "10000")
 
-    if (test.signer == setup.root)
-    {
-        console.log("owner of contract and setup.root are the same")
-    }
+    // if (test.signer == setup.root)
+    // {
+    //     console.log("owner of contract and setup.root are the same")
+    // }
 
-    console.log("balance new ERC20 contract = " + (await test.totalSupply()).toString());
+    // console.log("balance new ERC20 contract = " + (await test1.totalSupply()).toString());
     // await test.deployed();
     // await test.attach(setup.root.address)
     // await erc20s[1].deployed();
@@ -60,14 +60,14 @@ const tokens = async (setup) => {
     // const proxy = await test.connect(setup.root.address)
     // const dai = erc20s[0];
     // const usdc = erc20s[1];
-    const ownerBalance = await test.balanceOf(setup.root.address);
-    const ownerBalance1 = await primeToken.balanceOf(setup.root.address);
+    // const ownerBalance = await test.balanceOf(setup.root.address);
+    // const ownerBalance1 = await primeToken.balanceOf(setup.root.address);
 
 
-    // await dai.approve(setup.root.address, MAX);
-    // await usdc.approve(setup.root.address, MAX);
-    console.log("owner balans erc = " + ownerBalance)
-    console.log("owner balans prime = " + ownerBalance1)
+    // // await dai.approve(setup.root.address, MAX);
+    // // await usdc.approve(setup.root.address, MAX);
+    // console.log("owner balans erc = " + ownerBalance)
+    // console.log("owner balans prime = " + ownerBalance1)
     // // console.log("here33")
     // console.log(await dai.totalSupply());
     // console.log("Here25")
@@ -78,6 +78,8 @@ const tokens = async (setup) => {
 const seed = async () => {
 	const seedF = await hre.ethers.getContractFactory("Seed");
     const seed = await seedF.deploy();
+    // console.log(await seed.totalSupply());
+
 
     return seed;
 };
