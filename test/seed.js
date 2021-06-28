@@ -10,9 +10,9 @@ const helpers = require("./helpers/setup"); // Check why had to import like this
 const { parseUnits } = ethers.utils
 const Seed = hre.artifacts.readArtifact('Seed');
 
-const deploy = async (signers) => { // Deleted .setup from calls to setup.js. Ask why?
+const deploy = async (signer) => { // Deleted .setup from calls to setup.js. Ask why?
     // initialize test setup
-    const setup = await helpers.initialize(signers[0]);
+    const setup = await helpers.initialize(signer);
     // deploy ERC20s
     setup.tokens = await helpers.tokens(setup);
     // deploy seed
@@ -69,8 +69,8 @@ describe("Seed", function() {
     describe("» creator is avatar", () => {
         before("!! deploy setup", async () => {
             signers = await ethers.getSigners();
-            setup = await deploy(signers);
-            [, admin, buyer1, buyer2, avatar] = signers;
+            [owner, admin, buyer1, buyer2, avatar] = signers;
+            setup = await deploy(owner);
             seedToken    = setup.tokens.primeToken;
             fundingToken = setup.tokens.erc20s[0];
             softCap        = parseUnits("10"); // is this neccesary?
@@ -155,8 +155,9 @@ describe("Seed", function() {
             describe("» generics", () => {
                 before("!! top up buyer1 balance", async () => {
                     console.log("here0")
-                    console.log(await fundingToken.balanceOf(setup.root.address))
-                    await fundingToken.transfer(buyer1.address, hundredTwoETH.toString(), { from: setup.root.address });
+                    // console.log(await fundingToken.balanceOf(setup.root.address))
+                    // console.log(hundredTwoETH.toString())
+                    await fundingToken.transfer(buyer1.address, hundredTwoETH.toString());
                     console.log("here0.2")
                     await fundingToken.approve(setup.seed.address, hundredTwoETH, { from: buyer1 });
                     claimAmount = new BN(ninetyTwoDaysInSeconds).mul(
