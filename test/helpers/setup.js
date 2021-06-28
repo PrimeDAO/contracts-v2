@@ -1,75 +1,21 @@
 // const { concat } = require('ethers/lib/utils');
 const hre = require("hardhat")
-const { parseUnits } = ethers.utils
+const { parseUnits } = ethers.utils;
+// const { toTwos } = ethers.BigNumber;
 
 const Seed = hre.artifacts.readArtifact("Seed");
 const ERC20 = hre.artifacts.readArtifact("ERC20Mock")
-// const ControllerCreator = artifacts.require('./ControllerCreator.sol');
-// const DaoCreator = hre.artifacts.readArtifact('./DaoCreator.sol');
-// const DAOTracker = hre.artifacts.readArtifact('./DAOTracker.sol');
-// const GenericScheme = artifacts.require('GenericScheme');
-// const GenericSchemeMultiCall = artifacts.require('GenericSchemeMultiCall')
-// const Avatar = artifacts.require('./Avatar.sol');
-// const DAOToken = artifacts.require('./DAOToken.sol');
-// const Reputation = artifacts.require('./Reputation.sol');
-// const AbsoluteVote = artifacts.require('./AbsoluteVote.sol');
-// const LockingToken4Reputation = artifacts.require('./LockingToken4Reputation.sol');
-// const PriceOracle = artifacts.require('./PriceOracle.sol');
-// const FarmFactory = artifacts.require('./FarmFactory.sol');
-// const SeedFactory = artifacts.require('./SeedFactory.sol');
-// const Seed = artifacts.require('./Seed.sol');
-// // Balancer imports
-// const ConfigurableRightsPool = artifacts.require('ConfigurableRightsPool');
-// const BPool = artifacts.require('BPool');
-// const BFactory = artifacts.require('BFactory');
-// const CRPFactory = artifacts.require('CRPFactory');
-// const BalancerSafeMath = artifacts.require('BalancerSafeMath');
-// const RightsManager = artifacts.require('RightsManager');
-// const SmartPoolManager = artifacts.require('SmartPoolManager');
-// const BalancerProxy = artifacts.require('BalancerProxy');
 const PrimeToken = hre.artifacts.readArtifact('PrimeToken');
-// const RepRedeemer = artifacts.require('RepRedeemer');
 
+// const MAX = ethers.BigNumber.toTwos(-1); <<<<<<<<<<<<<<< // WHy does this one not work?
+const MAX = web3.utils.toTwosComplement(-1);
+// console.log(Max)
 
-// const { time, constants } = require('@openzeppelin/test-helpers');
-// // Incentives imports
-// const StakingRewards = artifacts.require('StakingRewards');
-
-// const MAX = web3.utils.toTwosComplement(-1);
-
-// const { toWei } = web3.utils;
-// const { fromWei } = web3.utils;
-
-// const ARC_GAS_LIMIT = 6200000;
-// const INITIAL_CASH_SUPPLY = '2000000000000000000000';
-// const INITIAL_CASH_BALANCE = '100000000000000';
-// const PDAO_TOKENS = toWei('1000');
 const PRIME_CAP = parseUnits('90000000').toString();
 const PRIME_SUPPLY = parseUnits('21000000').toString();
-// const REPUTATION = '1000';
 
-// const deployOrganization = async (daoCreator, daoCreatorOwner, founderToken, founderReputation, cap = 0) => {
-//     var org = {};
-//     var tx = await daoCreator.forgeOrg('primeDAO', 'PrimeDAO token', 'PDAO', daoCreatorOwner, founderToken, founderReputation, cap, { gas: constants.ARC_GAS_LIMIT });
-//     assert.equal(tx.logs.length, 1);
-//     assert.equal(tx.logs[0].event, 'NewOrg');
-//     var avatarAddress = tx.logs[0].args._avatar;
-//     org.avatar = await Avatar.at(avatarAddress);
-//     var tokenAddress = await org.avatar.nativeToken();
-//     org.token = await DAOToken.at(tokenAddress);
-//     var reputationAddress = await org.avatar.nativeReputation();
-//     org.reputation = await Reputation.at(reputationAddress);
-//     return org;
-// };
-
-// const setAbsoluteVote = async (voteOnBehalf = constants.ZERO_ADDRESS, precReq = 50) => {
-//     var votingMachine = {};
-//     votingMachine.absoluteVote = await AbsoluteVote.new();
-//     // register some parameters
-//     await votingMachine.absoluteVote.setParameters(precReq, voteOnBehalf);
-//     votingMachine.params = await votingMachine.absoluteVote.getParametersHash(precReq, voteOnBehalf);
-//     return votingMachine;
-// };
+const DAI_START_BALANCE = parseUnits('5000').toString();
+const USDC_START_BALANCE = parseUnits('5000').toString();
 
 const initialize = async (root) => {
     const setup = {};
@@ -83,36 +29,24 @@ const tokens = async (setup) => {
 	const ERC20F = await hre.ethers.getContractFactory("ERC20");
 	const erc20s = [await ERC20F.deploy('DAI Stablecoin', 'DAI'), await ERC20F.deploy('USDC Stablecoin', 'USDC'), await ERC20F.deploy('USDT Stablecoin', 'USDT')];
 	
+    // console.log(MAX)
+    // await erc20s[0].approve(setup.root.address, MAX);
+    // console.log(await erc20s[0].balanceOf(setup.root.address));
+
 	const primeTokenF = await hre.ethers.getContractFactory("PrimeToken");
-	const primeToken = await primeTokenF.deploy(PRIME_SUPPLY, PRIME_CAP, setup.root.getAddress());
+	const primeToken = await primeTokenF.deploy(PRIME_SUPPLY, PRIME_CAP, setup.root.address);
     
+    // const dai = erc20s[0];
+    // const usdc = erc20s[1];
+
+    // await dai.approve(setup.root.address, MAX);
+    // await usdc.approve(setup.root.address, MAX);
+    // // console.log("here33")
+    // console.log(await dai.totalSupply());
+    // console.log("Here25")
+
 	return { erc20s, primeToken};
 };
-
-// const incentives = async (setup) => {
-//     const stakingRewards = await StakingRewards.new();
-
-//     return { stakingRewards };
-// };
-
-// const repRedeemer = async (setup) => {
-//     const repRedeemer = await RepRedeemer.new();
-
-//     return repRedeemer;
-// };
-
-// const farmFactory = async (setup) => {
-//     const farmFactory = await FarmFactory.new();
-//     const stakingRewards = await StakingRewards.new();
-//     let tx = await farmFactory.initialize(setup.organization.avatar.address, stakingRewards.address);
-
-//     return farmFactory;
-// };
-
-// const seedFactory = async (setup) => {
-//     const seedFactory = await SeedFactory.new();
-//     return seedFactory;
-// };
 
 const seed = async () => {
 	const seedF = await hre.ethers.getContractFactory("Seed");
@@ -200,20 +134,7 @@ const seed = async () => {
 //     return { pool, proxy };
 // };
 
-// const DAOStack = async () => {
-//     const controllerCreator = await ControllerCreator.new();
-// //     const daoTracker = await DAOTracker.new();
-// //     const daoCreator = await DaoCreator.new(controllerCreator.address, daoTracker.address);
 
-// //     return { controllerCreator, daoTracker, daoCreator };
-// // };
-
-// const organization = async (setup) => {
-//     // deploy organization
-//     const organization = await deployOrganization(setup.DAOStack.daoCreator, [setup.root], [PDAO_TOKENS], [REPUTATION]);
-
-//     return organization;
-// };
 
 // const token4rep = async (setup) => {
 //     const priceOracle = await PriceOracle.new();
@@ -284,8 +205,6 @@ const seed = async () => {
 
 module.exports = {
     initialize,
-    // incentives,
-    // repRedeemer,
     tokens,
     // balancer,
     // DAOStack,
