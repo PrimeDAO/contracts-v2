@@ -16,45 +16,26 @@ const {
     metadata,
 } = require('../test-сonfig.json');
 
+const init = require("../test-init.js");
+
 const zero = 0;
 const oneMillion = 1000000;
 const magicValue = `0x20c13b0b`;
 const signaturePosition = 196;
 const EXECUTION_SUCCESS = 'ExecutionSuccess';
-const PROXY_CREATION = 'ProxyCreation';
 const SIGNATURE_CREATED = 'SignatureCreated';
 
 
 const deploy = async () => {
-    const setup = {};
-    const accounts = await ethers.getSigners();
-    setup.roles = {
-        prime: accounts[0],
-        randomPerson: accounts[1],
-    };
-    const GnosisSafe_Factory = await ethers.getContractFactory(
-        "GnosisSafe",
-        setup.roles.prime
-    );
-    setup.gnosisSafe = await GnosisSafe_Factory.deploy();
+    const setup = await init.initialize(await ethers.getSigners());;
 
-    const GnosisSafeProxyFactory_Factory = await ethers.getContractFactory(
-        "GnosisSafeProxyFactory",
-        setup.roles.prime
-    );
-    setup.gnosisSafeProxyFactory = await  GnosisSafeProxyFactory_Factory.deploy();
+    setup.gnosisSafe = await init.gnosisSafe(setup);
 
-    const SeedFactory_Factory = await ethers.getContractFactory(
-        "SeedFactory",
-        setup.roles.prime
-    );
-    setup.seedFactory = await  SeedFactory_Factory.deploy();
+    setup.proxySafe = await init.gnosisProxy(setup);
 
-    const Seed_Factory = await ethers.getContractFactory(
-        "Seed",
-        setup.roles.prime
-    );
-    setup.seed = await Seed_Factory.deploy();
+    setup.seedFactory = await init.seedFactory(setup);
+
+    setup.seed = await init.seedMasterCopy(setup);
 
     await setup.seedFactory.connect(setup.roles.prime).setMasterCopy(setup.seed.address);
 
@@ -63,24 +44,11 @@ const deploy = async () => {
     return setup;
 }
 
-const createGnosisProxy = async (setup) => {
-    const proxy_tx = await setup.gnosisSafeProxyFactory
-            .connect(setup.roles.prime)
-            .createProxy(setup.gnosisSafe.address, "0x00");
-    const proxy_receit = await proxy_tx.wait();
-    const proxy_addr = proxy_receit.events.filter((data) => {return data.event === PROXY_CREATION})[0].args['proxy'];
-    return await ethers.getContractAt(
-        "GnosisSafe",
-        proxy_addr
-    );
-}
-
 describe('>> Deploy new seed with gnosis safe', async () => {
     let setup;
     let nonce = 0;
     before('!! setup', async () => {
         setup = await deploy();
-        setup.safe = await createGnosisProxy(setup);
     });
     context('$ prequesities', async () => {
         it('seed factory should have correct mastercopy', async () => {
@@ -89,31 +57,31 @@ describe('>> Deploy new seed with gnosis safe', async () => {
         });
         it('transfer seed factory ownership to safe', async () => {
             // transfering ownership to safe, as seedFactory.deploySeed() should be called by safe only
-            await setup.seedFactory.connect(setup.roles.prime).transferOwnership(setup.safe.address);
-            expect(await setup.seedFactory.connect(setup.roles.prime).owner()).to.equal(setup.safe.address);
+            await setup.seedFactory.connect(setup.roles.prime).transferOwnership(setup.proxySafe.address);
+            expect(await setup.seedFactory.connect(setup.roles.prime).owner()).to.equal(setup.proxySafe.address);
         });
         it("deploys signer contract with correct safe and seedFactory addresses", async () => {
             const Signer_Factory = await ethers.getContractFactory(
                 "Signer",
                 setup.roles.prime
             );
-            setup.signer = await Signer_Factory.deploy(setup.safe.address, setup.seedFactory.address);
+            setup.signer = await Signer_Factory.deploy(setup.proxySafe.address, setup.seedFactory.address);
         });
         it('setup gnosis proxy', async () => {
             // setting up safe with two owners, 1) prime 2) signer contract
-            expect(await setup.safe.isOwner(setup.roles.prime.address)).to.equal(false);
-            await setup.safe.connect(setup.roles.prime).setup(
+            expect(await setup.proxySafe.isOwner(setup.roles.prime.address)).to.equal(false);
+            await setup.proxySafe.connect(setup.roles.prime).setup(
                 [setup.roles.prime.address, setup.signer.address],
                 1,
-                setup.safe.address,
+                setup.proxySafe.address,
                 '0x',
                 constants.ZERO_ADDRESS,
                 constants.ZERO_ADDRESS,
                 0,
                 setup.roles.prime.address
             );
-            expect(await setup.safe.isOwner(setup.roles.prime.address)).to.equal(true);
-            expect(await setup.safe.isOwner(setup.signer.address)).to.equal(true);
+            expect(await setup.proxySafe.isOwner(setup.roles.prime.address)).to.equal(true);
+            expect(await setup.proxySafe.isOwner(setup.signer.address)).to.equal(true);
         });
     });
     context('$ create and execute transaction to deploy new seed using safe', async () => {
@@ -159,7 +127,7 @@ describe('>> Deploy new seed with gnosis safe', async () => {
         it('executes transaction in safe contract successfully', async () => {
             // once the transaction is signed, we use safe.execTransaction() to execute this transaction using safe.
             // this is where the seedFactory.deploySeed() will be invoked and new seed will be created.
-            await expect(setup.safe.connect(setup.roles.prime).execTransaction(...(setup.data.trx))).to.emit(setup.safe, EXECUTION_SUCCESS);
+            await expect(setup.proxySafe.connect(setup.roles.prime).execTransaction(...(setup.data.trx))).to.emit(setup.proxySafe, EXECUTION_SUCCESS);
         });
         it('seed should have been deployed', async () => {
             // checking if the seed is created and if, then with correct parameters.
