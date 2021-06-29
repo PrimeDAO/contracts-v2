@@ -1,6 +1,23 @@
 # contracts-v2
 new experimental version of PrimeDAO contracts
 
+## About the Approach:-
+### Problem Statement:-
+The dApp should send the deploySeed() transaction request to Gnosis, where the Multi-sig Owners can sign and execute transactions.
+
+## Approach:-
+Gnosis provides two services
+1) Gnosis Safe Transactions Service [GTS]:- Keeps track of transactions sent via Gnosis Safe contracts. https://docs.gnosis.io/safe/docs/services_transactions/
+2) Gnosis Safe Relay Service [GRS]:- The transaction relay service acts as a proxy, paying for the transaction fees and getting it back. https://docs.gnosis.io/safe/docs/services_relay/
+
+The Transactions can be sent to the GTS, where it verifies the transaction signatures. The transaction can be sent with or without signatures. When Transactions are sent without signatures, the Gnosis UI doesn't read this transaction, as it will think it as a spam. When transactions are sent with signatures, the Gnosis UI will read this transaction and allow owners to sign & execute transaction from Gnosis UI.
+
+We have a contract `Signer`, which will act as a delegate for the GTS. The Signer contract will be added as a delegate by any one of the Safe owner. Now the transactions will be sent to GTS, signed by `Signer` contract. As it is signed by delegate, the Gnosis UI will fetch this transaction and enable other owners to sign and execute this transactions.
+
+<img src="./architecture.jpg"
+    alt="Architecture">
+
+
 ## Setup Gnosis API:-
 1. Import Gnosis.js
 ```js
