@@ -31,7 +31,7 @@ contract Signer {
     address immutable seedFactory;
     /* solium-enable */
 
-    event SignatureCreated(bytes signature, bytes hash);
+    event SignatureCreated(bytes signature, bytes32 hash);
 
     constructor (address _safe, address _seedFactory) {
         safe = _safe;
@@ -56,12 +56,12 @@ contract Signer {
         address gasToken,
         address refundReceiver,
         uint256 _nonce
-        ) external returns(bytes memory signature) {
+        ) external returns(bytes memory signature, bytes32 hash) {
 
         require(to == seedFactory, "Signer: cannot sign invalid transaction");
         require(getFunctionHashFromData(data) == SEED_FACTORY_MAGIC_VALUE, "Signer: cannot sign invalid function call");
 
-        bytes memory hash = ISAFE(safe).encodeTransactionData(
+        hash = ISAFE(safe).getTransactionHash(
             to,
             value,
             data,
@@ -88,8 +88,8 @@ contract Signer {
         }
     } 
 
-    function getMessageHash(bytes memory message) private pure returns (bytes memory) {
-        bytes32 safeMessageHash = keccak256(abi.encode(SEED_MSG_TYPEHASH, keccak256(message)));
+    function getMessageHash(bytes32 message) private pure returns (bytes memory) {
+        bytes32 safeMessageHash = keccak256(abi.encode(SEED_MSG_TYPEHASH, message));
         return
             abi.encodePacked(bytes1(0x19), bytes1(0x23), keccak256(abi.encode(DOMAIN_SEPARATOR_TYPEHASH, safeMessageHash)));
     }
