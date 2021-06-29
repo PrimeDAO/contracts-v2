@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "deploy:contracts:rinkeby": "npx hardhat run scripts/deploy_contracts.js --network rinkeby",
-    "change:factoryOwner:rinkeby": "npx hardhat run simulations/changeOwner.js --network rinkeby",
-    "send:safeTrx:rinkeby": "npx hardhat run simulations/addTxToSafe.js --network rinkeby",
+    "change:factoryOwner:rinkeby": "npx hardhat run scripts/changeOwner.js --network rinkeby",
+    "send:safeTrx:rinkeby": "npx hardhat run scripts/addTxToSafe.js --network rinkeby",
     "lint": "eslint . --ext .js && solium --no-soliumignore --dir ./contracts",
     "test": "hardhat test"
   },
