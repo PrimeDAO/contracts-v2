@@ -15,8 +15,6 @@
 pragma solidity 0.8.4;
 
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
-import "hardhat/console.sol";
-
 
 
 /**
@@ -187,7 +185,6 @@ contract Seed {
                 "Seed: sufficient seeds not provided");
             isFunded = true;
         }
-        console.log("test1");
         // fundingAmount is an amount of fundingTokens required to buy _seedAmount of SeedTokens
         uint256 seedAmount = (_fundingAmount * PCT_BASE) / price;
 
@@ -209,11 +206,9 @@ contract Seed {
         // the amount of seed tokens still to be distributed
         seedRemainder    = seedRemainder - seedAmount;
         feeRemainder = feeRemainder - feeAmount;
-        console.log("test2");
 
         // Here we are sending amount of tokens to pay for seed tokens to purchase
         require(fundingToken.transferFrom(msg.sender, address(this), _fundingAmount), "Seed: no tokens");
-        console.log("test3");
 
         if (fundingCollected >= softCap) {
             minimumReached = true;
@@ -221,7 +216,6 @@ contract Seed {
         if (fundingCollected >= hardCap) {
             maximumReached = true;
         }
-        console.log("test4");
 
         _addFunder(
             msg.sender,
@@ -231,7 +225,6 @@ contract Seed {
             (funders[msg.sender].fee + feeAmount),                  // Previous Fee + new fee
              funders[msg.sender].feeClaimed
             );
-        console.log("test5");
 
         // buyer, seed token purchased in this transaction (not the total amount of seed purchased)
         emit SeedsPurchased(msg.sender, seedAmount);

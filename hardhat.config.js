@@ -4,7 +4,6 @@ require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-web3");
 require('dotenv').config
 
-// const { artifacts } = require("hardhat");
 const helpers = require("./test/helpers");
 
 
