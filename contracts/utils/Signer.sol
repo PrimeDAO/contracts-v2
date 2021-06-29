@@ -1,7 +1,7 @@
 // solium-disable linebreak-style
 pragma solidity ^0.8.0;
 
-import "../interface/ISAFE.sol";
+import "./interface/ISAFE.sol";
 
 
 contract Signer {
