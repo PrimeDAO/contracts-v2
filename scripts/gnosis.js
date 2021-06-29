@@ -1,24 +1,40 @@
 // // to be used in front-end
 // /* eslint-disable */
+// const url = `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/`
 
-// const getEstimate = async (options, safe) => {
+// const post = async (method, payload, safe) => {
+//     const res = await fetch(
+//         `${url}${safe}${methods[method]}`,
+//         {
+//             method: 'POST',
+//             headers: {'Content-Type': 'application/json'},
+//             body: JSON.stringify(payload)
+//         }
+//     );
+//     return await res.json();
+// }
+
+// const get = async (method, safe) => {
+//     const res = await fetch(
+//         `${url}${safe}${methods[method]}`
+//     );
+//     return await res.json();
+// }
+
+// const getEstimate = async (payload, safe) => {
 //     const res = await fetch(
 //         `https://safe-relay.rinkeby.gnosis.io/api/v2/safes/${safe}/transactions/estimate/`,
 //         {
 //             method: 'POST',
 //             headers: {'Content-Type': 'application/json'},
-//             body: JSON.stringify(options)
+//             body: JSON.stringify(payload)
 //         }
 //     );
 //     return await res.json();
 // }
 
 // const getCurrentNonce = async (safe) => {
-//     console.log(safe);
-//     const res = await fetch(
-//         `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/${safe}/transactions`
-//     );
-//     const transactions = await res.json();
+//     const transactions = await get('getNonce', safe);
 //     const previousNonce = transactions.results.find(
 //         trx => {
 //             return trx.confirmations.length !== 0 ;
@@ -27,45 +43,28 @@
 //     return previousNonce+1;
 // }
 
-// const sendTransaction = async (options, safe) => {
-//     const res = await fetch(
-//         `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/${safe}/transactions/`,
-//         {
-//             method: 'POST',
-//             headers: {'Content-Type': 'application/json'},
-//             body: JSON.stringify(options)
-//         }
-//     );
-//     return await res.json();
+// const sendTransaction = async (payload, safe) => await post('sendTransaction', payload, safe);
+// const getTransactionHistory = async (safe) => await get('getTransactionHistory', safe);
+
+// const addDelegate = async (payload, safe) => await post('addDelegate', payload, safe);
+// const getDelegates = async (safe) => (await get('getDelegates', safe)).results;
+
+// const api = (safe) => ({
+//     sendTransaction: async (payload) => await sendTransaction(payload, safe),
+//     addDelegate: async (payload) => await await addDelegate(payload, safe),
+//     getEstimate: async (payload) => await getEstimate(payload, safe),
+//     getTransactionHistory: async () => await getTransactionHistory(safe),
+//     getCurrentNonce: async () => await getCurrentNonce(safe),
+//     getDelegates: async () => await getDelegates(safe)
+// });
+
+// const methods = {
+//     'sendTransaction': `/transactions/`,
+//     'addDelegate': `/delegates/`,
+//     'getTransactionHistory': `/transactions`,
+//     'getEstimate': `/transactions/estimate/`,
+//     'getNonce': `/transactions`,
+//     'getDelegates': `/delegates/`
 // }
 
-// const getTransactionHistory = async (safe) => {
-//     const res = await fetch(
-//         `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/${safe}/transactions`
-//     );
-//     return await res.json();
-// }
-
-// const api = (safe) => async (type, params) => {
-//     switch (type) {
-//         case option.sendTransaction:
-//             return await sendTransaction(params, safe);
-//         case option.getHistory:
-//             return await getTransactionHistory(safe);
-//         case option.getEstimate:
-//             return await getEstimate(params, safe);
-//         case option.getNonce:
-//             return await getCurrentNonce(safe);
-//         default:
-//             console.log("Invalid case");
-//     }
-// };
-
-// const option = {
-//     sendTransaction: 'sendTransaction',
-//     getHistory: 'getTransactionHistory',
-//     getEstimate: 'getEstimate',
-//     getNonce: 'getNonce'
-// }
-
-// export {option, api};
+// export {api};
