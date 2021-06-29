@@ -2,7 +2,7 @@
 new experimental version of PrimeDAO contracts
 
 ## To Run
-1. Please add the following details in `.env. file.
+1. Please add the following details in `.env`. file.
 a. PROVIDER_KEY - Infura api key for rinkeby test network
 b. SAFE - Gnosis Safe Address at rinkeby
 c. SEED_SIGNATURE - Contract which generates signature and also is the owner of safe.
@@ -94,7 +94,3 @@ transaction.sender = signatureContract.options.address;
 ```js
 const response = await gnosis(option.sendTransaction, transaction);
 ```
-
-## Things to remember:-
-1. Works with only safe whose threshold is 1.
-2. Need to resolve the issue with signatures when threshold is more than 1.
