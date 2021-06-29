@@ -4,6 +4,9 @@
   "description": "new experimental version of PrimeDAO contracts",
   "main": "index.js",
   "scripts": {
+    "deploy:contracts:rinkeby": "npx hardhat run scripts/deploy_contracts.js --network rinkeby",
+    "change:factoryOwner:rinkeby": "npx hardhat run simulation/changeOwner.js --network rinkeby",
+    "send:safeTrx:rinkeby": "npx hardhat run simulation/addTxToSafe.js --network rinkeby",
     "lint": "eslint . --ext .js && solium --no-soliumignore --dir ./contracts",
     "test": "hardhat test"
   },
@@ -22,6 +25,7 @@
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "^3.4.1",
+    "@openzeppelin/test-helpers": "^0.5.11",
     "chai": "^4.3.4",
     "eslint": "^7.28.0",
     "ethereum-waffle": "^3.3.0",
@@ -32,7 +36,7 @@
     "solium": "^1.2.5"
   },
   "dependencies": {
-    "@gnosis.pm/mock-contract": "^4.0.0",
+    "@gnosis.pm/safe-contracts": "^1.3.0",
     "axios": "^0.21.1",
     "dotenv": "^10.0.0",
     "openzeppelin-solidity": "^4.1.0"

@@ -12,27 +12,28 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 /* solhint-disable space-after-comma */
 /* solhint-disable max-states-count */
+// solium-disable linebreak-style
 pragma solidity 0.8.4;
 
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 
 
 /**
- * @title primebeneSeed contract
+ * @title PrimeDAO Seed contract
  * @dev   Smart contract for seed phases of liquid launch.
  */
 contract Seed {
-
     // Locked parameters
     address public beneficiary;
     address public admin;
     uint256 public softCap;
     uint256 public hardCap;
     uint256 public seedAmountRequired;    // Amount of seed required for distribution
-    uint256 public feeAmountRequired;    // Amount of seed required for fee
+    uint256 public feeAmountRequired;     // Amount of seed required for fee
     uint256 public price;
     uint256 public startTime;
-    uint256 public endTime;
+    uint256 public endTime;               // set by project admin, this is the last resort endTime to be applied when
+                                          //     maximumReached has not been reached by then
     bool    public permissionedSeed;
     uint32  public vestingDuration;
     uint32  public vestingCliff;
@@ -40,7 +41,7 @@ contract Seed {
     IERC20  public fundingToken;
     uint8   public fee;
 
-    bytes32 public metadata;           // IPFS Hash
+    bytes   public metadata;           // IPFS Hash
 
     uint256 constant internal PCT_BASE        = 10 ** 18;  // // 0% = 0; 1% = 10 ** 16; 100% = 10 ** 18
 
@@ -49,13 +50,15 @@ contract Seed {
     bool    public paused;                 // is the distribution paused
     bool    public isFunded;               // distribution can only start when required seed tokens have been funded
     bool    public initialized;            // is this contract initialized [not necessary that it is funded]
-    bool    public minimumReached;         // // if the softCap[minimum limit of funding token] is reached
+    bool    public minimumReached;         // if the softCap[minimum limit of funding token] is reached
     bool    public maximumReached;         // if the hardCap[maximum limit of funding token] is reached
+    uint256 public vestingStartTime;       // timestamp for when vesting starts, by default == endTime,
+                                           //     otherwise when maximumReached is reached
     uint256 public totalFunderCount;       // Total funders that have contributed.
     uint256 public seedRemainder;          // Amount of seed tokens remaining to be distributed
     uint256 public seedClaimed;            // Amount of seed token claimed by the user.
-    uint256 public feeRemainder;       // Amount of seed tokens remaining for the fee
-    uint256 public feeClaimed;         // Amount of seed tokens claimed as fee
+    uint256 public feeRemainder;           // Amount of seed tokens remaining for the fee
+    uint256 public feeClaimed;             // Amount of seed tokens claimed as fee
     uint256 public fundingCollected;       // Amount of funding tokens collected by the seed contract.
     uint256 public fundingWithdrawn;       // Amount of funding token withdrawn from the seed contract.
 
@@ -65,14 +68,14 @@ contract Seed {
     event SeedsPurchased(address indexed recipient, uint256 amountPurchased);
     event TokensClaimed(address indexed recipient,uint256 amount,address indexed beneficiary,uint256 feeAmount);
     event FundingReclaimed(address indexed recipient, uint256 amountReclaimed);
-    event MetadataUpdated(bytes32 indexed metadata);
+    event MetadataUpdated(bytes indexed metadata);
 
     struct FunderPortfolio {
-        uint256 seedAmount;
-        uint256 totalClaimed;
-        uint256 fundingAmount;
-        uint256 fee;
-        uint256 feeClaimed;
+        uint256 seedAmount;                 // Total amount of seed tokens bought
+        uint256 totalClaimed;               // Total amount of seed tokens claimed
+        uint256 fundingAmount;              // Total amount of funding tokens contributed
+        uint256 fee;                        // Total amount of fee in seed amount for this portfolio
+        uint256 feeClaimed;                 // Total amount of fee sent to beneficiary for this portfolio
     }
 
     modifier initializer() {
@@ -87,36 +90,36 @@ contract Seed {
     }
 
     modifier isActive() {
-        require(closed != true, "Seed: should not be closed");
-        require(paused != true, "Seed: should not be paused");
+        require(!closed, "Seed: should not be closed");
+        require(!paused, "Seed: should not be paused");
         _;
     }
 
     modifier allowedToBuy() {
-        require(maximumReached == false, "Seed: maximum funding reached");
-        require(permissionedSeed != true || whitelisted[msg.sender] == true, "Seed: sender has no rights");
+        require(!maximumReached, "Seed: maximum funding reached");
+        require(!permissionedSeed || whitelisted[msg.sender], "Seed: sender has no rights");
         require(endTime >= block.timestamp && startTime <= block.timestamp,
             "Seed: only allowed during distribution period");
         _;
     }
 
     modifier allowedToClaim() {
-        require(minimumReached == true, "Seed: minimum funding amount not met");
-        require(endTime <= block.timestamp || maximumReached == true,"Seed: the distribution has not yet finished");
+        require(minimumReached, "Seed: minimum funding amount not met");
+        require(endTime <= block.timestamp || maximumReached,"Seed: the distribution has not yet finished");
         _;
     }
 
     modifier allowedToRetrieve() {
-        require(paused != true, "Seed: should not be paused");
+        require(!paused, "Seed: should not be paused");
         require(startTime <= block.timestamp, "Seed: distribution haven't started");
-        require(minimumReached == false, "Seed: minimum already met");
+        require(!minimumReached, "Seed: minimum already met");
         _;
     }
 
     modifier allowedToWithdraw() {
-        require(paused != true, "Seed: should not be paused");
-        require(closed != true, "Seed: should not be closed");
-        require(minimumReached == true, "Seed: minimum funding amount not met");
+        require(!paused, "Seed: should not be paused");
+        require(!closed, "Seed: should not be closed");
+        require(minimumReached, "Seed: minimum funding amount not met");
         _;
     }
 
@@ -131,10 +134,9 @@ contract Seed {
       * @param _softHardThresholds     Array containing two params:
                                         - the minimum funding token collection threshold in wei denomination.
                                         - the highest possible funding token amount to be raised in wei denomination.
-      * @param _endStartTime          Array containing two params:
-      *                                 - Distribution start time in unix timecode.
-                                        - Distribution end time in unix timecode.
       * @param _price                 The price in wei of fundingTokens when exchanged for seedTokens.
+      * @param _startTime             Distribution start time in unix timecode.
+      * @param _endTime               Distribution end time in unix timecode.
       * @param _vestingDuration       Vesting period duration in seconds.
       * @param _vestingCliff          Cliff duration in seconds.
       * @param _permissionedSeed      Set to true if only whitelisted adresses are allowed to participate.
@@ -145,34 +147,41 @@ contract Seed {
         address _admin,
         address[] memory _tokens,
         uint256[] memory _softHardThresholds,
-        uint256[] memory _endStartTime,
         uint256 _price,
+        uint256 _startTime,
+        uint256 _endTime,
         uint32  _vestingDuration,
         uint32  _vestingCliff,
         bool    _permissionedSeed,
         uint8   _fee
-    ) public initializer {
+    ) public initializer
+    {
+
+        // parameter check
+        require(_tokens[0] != _tokens[1], "SeedFactory: seedToken cannot be fundingToken");
+        require(_softHardThresholds[1] >= _softHardThresholds[0],"SeedFactory: hardCap cannot be less than softCap");
+        require(_vestingDuration >= _vestingCliff, "SeedFactory: vestingDuration cannot be less than vestingCliff");
+        require(_endTime > _startTime, "SeedFactory: endTime cannot be less than equal to startTime");
+
         beneficiary       = _beneficiary;
         admin             = _admin;
         softCap           = _softHardThresholds[0];
         hardCap           = _softHardThresholds[1];
         price             = _price;
-        startTime         = _endStartTime[1];
-        endTime           = _endStartTime[0];
+        startTime         = _startTime;
+        endTime           = _endTime;
+        vestingStartTime  = endTime;
         vestingDuration   = _vestingDuration;
         vestingCliff      = _vestingCliff;
         permissionedSeed  = _permissionedSeed;
         seedToken         = IERC20(_tokens[0]);
         fundingToken      = IERC20(_tokens[1]);
         fee               = _fee;
-        closed            = false;
-        minimumReached    = false;
-        maximumReached    = false;
 
-        seedAmountRequired = (hardCap / _price) * PCT_BASE;
-        feeAmountRequired = seedAmountRequired * _fee / 100;
-        seedRemainder     = seedAmountRequired;
-        feeRemainder  = feeAmountRequired;
+        seedAmountRequired = (hardCap*PCT_BASE) / _price;
+        feeAmountRequired  = (seedAmountRequired*_fee) / 100;
+        seedRemainder      = seedAmountRequired;
+        feeRemainder       = feeAmountRequired;
     }
 
     /**
@@ -186,26 +195,26 @@ contract Seed {
             isFunded = true;
         }
         // fundingAmount is an amount of fundingTokens required to buy _seedAmount of SeedTokens
-        uint256 seedAmount = (_fundingAmount * PCT_BASE) / price;
+        uint256 seedAmount = (_fundingAmount*PCT_BASE)/price;
 
         // Funding Token balance of this contract;
         uint256 fundingBalance = fundingCollected;
 
         // feeAmount is an amount of fee we are going to get in seedTokens
-        uint256 feeAmount = (seedAmount * fee) / 100;
+        uint256 feeAmount = (seedAmount*fee) / 100;
 
         // total fundingAmount should not be greater than the hardCap
-        require(( fundingBalance + _fundingAmount) <= hardCap,
+        require( fundingBalance + _fundingAmount <= hardCap,
             "Seed: amount exceeds contract sale hardCap");
 
-        require( seedRemainder >= seedAmount && feeRemainder >= feeAmount,
+        require( seedRemainder >= seedAmount,
             "Seed: seed distribution would be exceeded");
 
         fundingCollected = fundingBalance + _fundingAmount;
 
         // the amount of seed tokens still to be distributed
-        seedRemainder    = seedRemainder - seedAmount;
-        feeRemainder = feeRemainder - feeAmount;
+        seedRemainder -= seedAmount;
+        feeRemainder  -= feeAmount;
 
         // Here we are sending amount of tokens to pay for seed tokens to purchase
         require(fundingToken.transferFrom(msg.sender, address(this), _fundingAmount), "Seed: no tokens");
@@ -215,6 +224,7 @@ contract Seed {
         }
         if (fundingCollected >= hardCap) {
             maximumReached = true;
+            vestingStartTime = _currentTime();
         }
 
         _addFunder(
@@ -237,7 +247,7 @@ contract Seed {
       * @param _funder           Address of funder to calculate seconds and amount claimable
       * @param _claimAmount      The amount of seed token a users wants to claim.
     */
-    function claim(address _funder, uint256 _claimAmount) public allowedToClaim returns(uint256, uint256) {
+    function claim(address _funder, uint256 _claimAmount) public allowedToClaim returns(uint256) {
         uint256 amountClaimable;
 
         amountClaimable = calculateClaim(_funder);
@@ -247,19 +257,19 @@ contract Seed {
 
         FunderPortfolio memory tokenFunder = funders[_funder];
 
-        tokenFunder.totalClaimed    = uint256(tokenFunder.totalClaimed + _claimAmount);
-        tokenFunder.feeClaimed      = tokenFunder.feeClaimed + feeAmountOnClaim;
+        tokenFunder.totalClaimed    += _claimAmount;
+        tokenFunder.feeClaimed      += feeAmountOnClaim;
         funders[_funder] = tokenFunder;
 
-        seedClaimed    = seedClaimed + _claimAmount;
-        feeClaimed = feeClaimed + feeAmountOnClaim;
+        seedClaimed += _claimAmount;
+        feeClaimed  += feeAmountOnClaim;
         require(seedToken.transfer(beneficiary, feeAmountOnClaim), "Seed: cannot transfer to beneficiary");
         require(seedToken.transfer(_funder, _claimAmount), "Seed: no tokens");
 
         emit TokensClaimed(_funder, _claimAmount, beneficiary, feeAmountOnClaim);
 
-        // amount of seed rewarded , fee on the distributed reward collected from admin
-        return (_claimAmount, feeAmountOnClaim);
+        // fee on the distributed reward collected from admin
+        return (feeAmountOnClaim);
     }
 
     /**
@@ -269,13 +279,13 @@ contract Seed {
         require(funders[msg.sender].fundingAmount > 0, "Seed: zero funding amount");
         FunderPortfolio memory tokenFunder = funders[msg.sender];
         uint256 fundingAmount = tokenFunder.fundingAmount;
-        seedRemainder    = seedRemainder + tokenFunder.seedAmount;
-        feeRemainder = feeRemainder + tokenFunder.fee;
+        seedRemainder += tokenFunder.seedAmount;
+        feeRemainder += tokenFunder.fee;
         tokenFunder.seedAmount    = 0;
         tokenFunder.fee           = 0;
         tokenFunder.fundingAmount = 0;
         funders[msg.sender]  = tokenFunder;
-        fundingCollected = fundingCollected - fundingAmount;
+        fundingCollected -= fundingAmount;
         require(
             fundingToken.transfer(msg.sender, fundingAmount),
             "Seed: cannot return funding tokens to msg.sender"
@@ -309,9 +319,9 @@ contract Seed {
     */
     function close() public onlyAdmin isActive {
         // transfer seed tokens back to admin
-        if (minimumReached){
+        if (minimumReached) {
             // remaining seeds = seedRemainder + feeRemainder
-            uint256 seedToTransfer = seedRemainder + feeRemainder;
+            uint256 seedToTransfer = seedRemainder+feeRemainder;
             require(
                 seedToken.transfer(admin, seedToTransfer),
                 "Seed: should transfer seed tokens to admin"
@@ -319,7 +329,7 @@ contract Seed {
             paused = false;
         } else {
             require(
-                seedToken.transfer(admin, seedAmountRequired + feeAmountRequired),
+                seedToken.transfer(admin, seedAmountRequired+feeAmountRequired),
                 "Seed: should transfer seed tokens to admin"
             );
             closed = true;
@@ -343,7 +353,7 @@ contract Seed {
     */
     function whitelistBatch(address[] memory _buyers) public onlyAdmin isActive {
         require(permissionedSeed == true, "Seed: module is not whitelisted");
-        for (uint256 i=0; i < _buyers.length; i++) {
+        for (uint256 i = 0; i < _buyers.length; i++) {
             whitelisted[_buyers[i]] = true;
         }
     }
@@ -371,7 +381,7 @@ contract Seed {
       * @dev                     Updates metadata.
       * @param _metadata         Seed contract metadata, that is IPFS Hash
     */
-    function updateMetadata(bytes32 _metadata) public {
+    function updateMetadata(bytes memory _metadata) public {
         require(
             initialized != true || msg.sender == admin,
             "Seed: contract should not be initialized or caller should be admin"
@@ -388,8 +398,12 @@ contract Seed {
     function calculateClaim(address _funder) public view returns(uint256) {
         FunderPortfolio memory tokenFunder = funders[_funder];
 
+        if (_currentTime() < vestingStartTime) {
+            return 0;
+        }
+
         // Check cliff was reached
-        uint256 elapsedSeconds = _currentTime() - startTime;
+        uint256 elapsedSeconds = _currentTime() - vestingStartTime;
 
         if (elapsedSeconds < vestingCliff) {
             return 0;
@@ -399,9 +413,8 @@ contract Seed {
         if (elapsedSeconds >= vestingDuration) {
             return tokenFunder.seedAmount - tokenFunder.totalClaimed;
         } else {
-            uint256 amountVestedPerDay = tokenFunder.seedAmount / (uint256(vestingDuration));
-            uint256 amountVested = uint256(elapsedSeconds * amountVestedPerDay);
-            return amountVested / tokenFunder.totalClaimed;
+            uint256 amountVested = (elapsedSeconds*tokenFunder.seedAmount) / vestingDuration;
+            return amountVested - tokenFunder.totalClaimed;
         }
     }
 
@@ -440,8 +453,7 @@ contract Seed {
     internal
     {
 
-        uint256 amountVestedPerSecond = _seedAmount / vestingDuration;
-        require(amountVestedPerSecond > 0, "Seed: amountVestedPerSecond > 0");
+        require(_seedAmount >= vestingDuration, "Seed: amountVestedPerSecond > 0");
 
         funders[_recipient] = FunderPortfolio({
             seedAmount: _seedAmount,
