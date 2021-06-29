@@ -1,7 +1,7 @@
 const fs = require('fs');
 const hre = require("hardhat");
 require('dotenv').config({path: './.env'});
-const DeployedContracts = require('../contractAddresses.json');
+const DeployedContracts = require('../contract-addresses.json');
 
 const main = async () => {
 
