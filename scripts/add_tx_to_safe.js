@@ -1,9 +1,9 @@
 require('dotenv').config({path:'./.env'});
 const hre = require('hardhat');
 const {SAFE, ADMIN, BENEFICIARY,} = require('../config.json');
-const {['4']: {SEED_FACTORY, SIGNER}} = require('../contractAddresses.json');
+const {['4']: {SEED_FACTORY, SIGNER}} = require('../contract-addresses.json');
 const axios = require('axios');
-const { generateUrlFor, api } = require('./utils/GnosisUrlGenerator.js');
+const { generateUrlFor, api } = require('./utils/gnosis_url_generator.js');
 const {send} = require('./utils/helpers.js');
 const {
     WETH,
