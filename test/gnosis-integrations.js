@@ -14,7 +14,7 @@ const {
     isPermissioned,
     fee,
     metadata,
-} = require('../testSeedDetails.json');
+} = require('./testConfig.json');
 
 const zero = 0;
 const oneMillion = 1000000;
