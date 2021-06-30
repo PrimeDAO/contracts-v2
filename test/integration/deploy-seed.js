@@ -17,6 +17,8 @@ const {
 } = require('../test-сonfig.json');
 
 const init = require("../test-init.js");
+const { keccak256 } = require('ethers/lib/utils');
+const { default: axios } = require('axios');
 
 const zero = 0;
 const oneMillion = 1000000;
@@ -86,7 +88,6 @@ describe('>> Deploy new seed with gnosis safe', async () => {
     context('$ Signer cannot create and execute transaction to deploy new seed using safe contract', async () => {
         it('produce valid signature for a transaction', async () => {
             // here we create a transaction object
-            nonce++;
             const {data, to} = await setup.seedFactory.populateTransaction.deploySeed(
                 BENEFICIARY,
                 ADMIN,
@@ -115,13 +116,15 @@ describe('>> Deploy new seed with gnosis safe', async () => {
             // once transaction object is created, we send the transaction data along with nonce to generate safeTrx hash
             // and verify if the transaction is valid or not, and sign the hash.
             const transaction = await setup.signer.generateSignature(...trx, nonce);
+            const hashData = await setup.proxySafe.encodeTransactionData(...trx, nonce);
+            nonce++;
             const receipt = await transaction.wait();
             const {signature, hash} = receipt.events.filter((data) => {return data.event === SIGNATURE_CREATED})[0].args;
             trx.push(signature);
             setup.data.trx = trx;
             setup.data.hash = hash;
             // checking if the signature produced can correctly be verified by signer contract.
-            expect(await setup.signer.isValidSignature(hash,`0x${signature.slice(signaturePosition)}`)).to.equal(magicValue);
+            expect(await setup.signer.isValidSignature(hashData,`0x${signature.slice(signaturePosition)}`)).to.equal(magicValue);
         });
         it('cannot executes transaction in safe contract successfully', async () => {
             // once the transaction is signed, we use safe.execTransaction() to execute this transaction using safe.
