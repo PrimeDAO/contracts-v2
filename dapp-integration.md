@@ -132,6 +132,7 @@ const gnosis = api(safeAddress);
 
 // generate a totp - as mentioned by Gnosis
 // totp = current timestamp (in seconds) / 3600 [natural division, no floating point]
+// time-based one-time-password
 const totp = Math.floor(Math.floor(Date.now()/1000) / 3600);
 
 // create a hash, concat delegateAddress + totp [not addition]
