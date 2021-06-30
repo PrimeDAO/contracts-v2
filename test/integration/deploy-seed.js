@@ -71,7 +71,7 @@ describe('>> Deploy new seed with gnosis safe', async () => {
             // setting up safe with two owners, 1) prime 2) signer contract
             expect(await setup.proxySafe.isOwner(setup.roles.prime.address)).to.equal(false);
             await setup.proxySafe.connect(setup.roles.prime).setup(
-                [setup.roles.prime.address, setup.signer.address],
+                [setup.roles.prime.address],
                 1,
                 setup.proxySafe.address,
                 '0x',
@@ -81,10 +81,9 @@ describe('>> Deploy new seed with gnosis safe', async () => {
                 setup.roles.prime.address
             );
             expect(await setup.proxySafe.isOwner(setup.roles.prime.address)).to.equal(true);
-            expect(await setup.proxySafe.isOwner(setup.signer.address)).to.equal(true);
         });
     });
-    context('$ create and execute transaction to deploy new seed using safe', async () => {
+    context('$ Signer cannot create and execute transaction to deploy new seed using safe contract', async () => {
         it('produce valid signature for a transaction', async () => {
             // here we create a transaction object
             nonce++;
@@ -124,23 +123,10 @@ describe('>> Deploy new seed with gnosis safe', async () => {
             // checking if the signature produced can correctly be verified by signer contract.
             expect(await setup.signer.isValidSignature(hash,`0x${signature.slice(signaturePosition)}`)).to.equal(magicValue);
         });
-        it('executes transaction in safe contract successfully', async () => {
+        it('cannot executes transaction in safe contract successfully', async () => {
             // once the transaction is signed, we use safe.execTransaction() to execute this transaction using safe.
             // this is where the seedFactory.deploySeed() will be invoked and new seed will be created.
-            await expect(setup.proxySafe.connect(setup.roles.prime).execTransaction(...(setup.data.trx))).to.emit(setup.proxySafe, EXECUTION_SUCCESS);
-        });
-        it('seed should have been deployed', async () => {
-            // checking if the seed is created and if, then with correct parameters.
-            const eventsFilter = setup.seedFactory.filters.SeedCreated();
-            const events = await setup.seedFactory.queryFilter(eventsFilter);
-            const seedAddress = await events[0].args.newSeed;
-            const seed = await ethers.getContractAt(
-                "Seed",
-                seedAddress
-            );
-            expect(await seed.beneficiary()).to.equal(BENEFICIARY);
-            expect(await seed.admin()).to.equal(ADMIN);
-            expect((await seed.hardCap()).toString()).to.equal(hardCap);
+            await expect(setup.proxySafe.connect(setup.roles.prime).execTransaction(...(setup.data.trx))).to.revertedWith("GS026");
         });
     });
     context('$ create and execute transaction other than to deploy new seed using safe', async () => {
