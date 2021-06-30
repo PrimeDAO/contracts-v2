@@ -3,3 +3,4 @@
 /artifacts/
 .env
 /cache/
+/coverage/
