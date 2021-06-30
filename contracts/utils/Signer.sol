@@ -26,10 +26,8 @@ contract Signer {
 
     mapping(bytes => uint8) public approvedSignatures;
 
-    /* solium-disable */
-    address immutable safe;
-    address immutable seedFactory;
-    /* solium-enable */
+    address constant safe;
+    address constant seedFactory;
 
     event SignatureCreated(bytes signature, bytes32 hash);
 
