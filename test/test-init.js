@@ -1,4 +1,12 @@
+// const { ethers } = require("hardhat");
+
+const { parseUnits } = ethers.utils
+const { BigNumber } = ethers
+
 const PROXY_CREATION = 'ProxyCreation';
+const PRIME_CAP = parseUnits('90000000').toString();
+const PRIME_SUPPLY = parseUnits('21000000').toString();
+// const MAX = ethers.BigNumber.toTwos(-1)
 
 
 const initialize = async (accounts) => {
@@ -6,6 +14,11 @@ const initialize = async (accounts) => {
     setup.roles = {
         root: accounts[0],
         prime: accounts[1],
+        beneficiary: accounts[2],
+        buyer1: accounts[3],
+        buyer2: accounts[4],
+        buyer3: accounts[5],
+        buyer4: accounts[6],
     };
 
     return setup;
@@ -59,12 +72,29 @@ const seedMasterCopy = async (setup) => {
     return seed;
 };
 
+const tokens = async (setup) => {
+    const PrimeToken_Factory = await ethers.getContractFactory(
+        "PrimeToken",
+        setup.roles.root
+    );
+    const seedToken = await PrimeToken_Factory.deploy(
+        PRIME_SUPPLY, PRIME_CAP, setup.roles.root.address);
+
+    const ERC20_Factory = await ethers.getContractFactory(
+        "ERC20Mock",
+        setup.roles.root
+    );
+    const fundingToken = await ERC20_Factory.deploy('DAI Stablecoin', 'DAI');
+
+    return { seedToken, fundingToken }
+}
 
 module.exports = {
     initialize,
     gnosisSafe,
     gnosisProxy,
     seedFactory,
-    seedMasterCopy
+    seedMasterCopy,
+    tokens,
 };
 
