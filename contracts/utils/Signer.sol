@@ -26,8 +26,8 @@ contract Signer {
 
     mapping(bytes => uint8) public approvedSignatures;
 
-    address constant safe;
-    address constant seedFactory;
+    address safe;
+    address seedFactory;
 
     event SignatureCreated(bytes signature, bytes32 hash);
 
