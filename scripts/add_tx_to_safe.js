@@ -44,8 +44,7 @@ const main = async () => {
         price,
         startTime,
         endTime,
-        vestingDuration,
-        vestingCliff,
+        [vestingDuration, vestingCliff],
         isPermissioned,
         fee,
         metadata

@@ -41,22 +41,23 @@ contract SeedFactory is CloneFactory, Ownable {
     }
 
     /**
-      * @dev                          Deploys Seed contract.
-      * @param _beneficiary           The address that recieves fees.
-      * @param _admin                 The address of the admin of this contract. Funds contract
-                                      and has permissions to whitelist users, pause and close contract.
-      * @param _tokens                Array containing two params:
-                                        - The address of the seed token being distributed.
-      *                                 - The address of the funding token being exchanged for seed token.
-      * @param _softHardThresholds     Array containing two params:
-                                        - the minimum funding token collection threshold in wei denomination.
-                                        - the highest possible funding token amount to be raised in wei denomination.
-      * @param _price                 1 Funding Token = _price amount of Seed Token.
-      * @param _startTime             Distribution start time in unix timecode.
-      * @param _endTime               Distribution end time in unix timecode.
-      * @param _vestingDuration       Vesting period duration in days.
-      * @param _vestingCliff          Cliff duration in days.
-      * @param _permissionedSeed         Set to true if only whitelisted adresses are allowed to participate.
+      * @dev                                Deploys Seed contract.
+      * @param _beneficiary                 The address that recieves fees.
+      * @param _admin                       The address of the admin of this contract. Funds contract
+                                            and has permissions to whitelist users, pause and close contract.
+      * @param _tokens                      Array containing two params:
+                                                - The address of the seed token being distributed.
+      *                                         - The address of the funding token being exchanged for seed token.
+      * @param _softHardThresholds          Array containing two params:
+                                                - the minimum funding token collection threshold in wei denomination.
+                                                - the highest possible funding token amount to be raised in wei denomination.
+      * @param _price                       1 Funding Token = _price amount of Seed Token.
+      * @param _startTime                   Distribution start time in unix timecode.
+      * @param _endTime                     Distribution end time in unix timecode.
+      * @param _vestingDurationAndCliff       Array containing two params:
+                                                - Vesting period duration in days.
+                                                - Cliff duration in days.
+      * @param _permissionedSeed      Set to true if only whitelisted adresses are allowed to participate.
       * @param _fee                   Success fee expressed in Wei as a % (e.g. 2 = 2% fee)
       * @param _metadata              Seed contract metadata, that is IPFS URI
     */
@@ -68,15 +69,15 @@ contract SeedFactory is CloneFactory, Ownable {
         uint256 _price,
         uint256 _startTime,
         uint256 _endTime,
-        uint32 _vestingDuration,
-        uint32 _vestingCliff,
-        bool _permissionedSeed,
+        uint32[] memory _vestingDurationAndCliff,
+        bool  _permissionedSeed,
         uint8 _fee,
         bytes memory _metadata
     ) public onlyOwner returns (address)
     {
         {
             require(address(masterCopy) != address(0), "SeedFactory: mastercopy cannot be zero address");
+            require(_vestingDurationAndCliff.length == 2, "Hasn't provided both vesting duration and cliff");
         }
 
         // deploy clone
@@ -93,8 +94,8 @@ contract SeedFactory is CloneFactory, Ownable {
             _price,
             _startTime,
             _endTime,
-            _vestingDuration,
-            _vestingCliff,
+            _vestingDurationAndCliff[0],
+            _vestingDurationAndCliff[1],
             _permissionedSeed,
             _fee
         );

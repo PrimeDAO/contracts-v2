@@ -1,6 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
 require("dotenv").config({path: "./.env"});
 require("hardhat-deploy");
+require('solidity-coverage');
 // require("hardhat-gas-reporter");
 
 const {MNEMONIC} = process.env;
