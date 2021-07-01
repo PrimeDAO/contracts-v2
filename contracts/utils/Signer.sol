@@ -24,20 +24,24 @@ contract Signer {
     bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH = 0x7a9f5b2bf4dbb53eb85e012c6094a3d71d76e5bfe821f44ab63ed59311264e35;
     bytes32 private constant SEED_MSG_TYPEHASH         = 0xa1a7ad659422d5fc08fdc481fd7d8af8daf7993bc4e833452b0268ceaab66e5d;
 
-    mapping(bytes => uint8) public approvedSignatures;
+    mapping(bytes32 => bytes32) public approvedSignatures;
 
-    address safe;
-    address seedFactory;
+    address public safe;
+    address public seedFactory;
 
     event SignatureCreated(bytes signature, bytes32 hash);
 
     constructor (address _safe, address _seedFactory) {
+        require(
+            _safe != address(0) && _seedFactory != address(0),
+            "Signer: Safe and SeedFactory address cannot be zero"
+            );
         safe = _safe;
         seedFactory = _seedFactory;
     }
 
     function isValidSignature(bytes memory _hash, bytes memory _signature) external view returns(bytes4) {
-        if (approvedSignatures[_signature] == 1) {
+        if (approvedSignatures[keccak256(_hash)] == keccak256(abi.encode(_signature, 1))) {
             return EIP1271_MAGIC_VALUE;
         }
         return "0x";
@@ -76,11 +80,11 @@ contract Signer {
         bytes memory messageHash = getMessageHash(hash);
 
         signature = bytes.concat(paddedAddress, bytes32(uint256(65)), bytes1(0), bytes32(uint256(messageHash.length)), messageHash);
-        approvedSignatures[messageHash] = 1;
+        approvedSignatures[hash] = keccak256(abi.encode(messageHash, 1));
         emit SignatureCreated(signature, hash);
     }
 
-    function getFunctionHashFromData(bytes memory _data) internal pure returns(bytes4 _functionHash) {
+    function getFunctionHashFromData(bytes memory _data) private pure returns(bytes4 _functionHash) {
         assembly {
             _functionHash := mload(add(_data, 32))
         }
