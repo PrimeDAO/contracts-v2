@@ -1,13 +1,9 @@
-// const { ethers } = require("hardhat");
 
-const { parseUnits } = ethers.utils
-const { BigNumber } = ethers
+const { parseEther } = ethers.utils
 
 const PROXY_CREATION = 'ProxyCreation';
-const PRIME_CAP = parseUnits('90000000').toString();
-const PRIME_SUPPLY = parseUnits('21000000').toString();
-// const MAX = ethers.BigNumber.toTwos(-1)
-
+const PRIME_CAP = parseEther('90000000').toString();
+const PRIME_SUPPLY = parseEther('21000000').toString();
 
 const initialize = async (accounts) => {
     const setup = {};

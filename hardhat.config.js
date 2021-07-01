@@ -3,6 +3,7 @@ require("dotenv").config({path: "./.env"});
 require("hardhat-deploy");
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-web3");
+require("@nomiclabs/hardhat-solhint");
 // require("hardhat-gas-reporter");
 
 const {MNEMONIC} = process.env;

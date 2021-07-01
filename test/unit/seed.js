@@ -19,9 +19,12 @@ const deploy = async () => {
 
 describe('>> Deploy a new seed contract', async () => {
     let setup;
+	let root;
     let admin;
     let buyer1;
     let buyer2;
+    let buyer3;
+    let buyer4;
     let seedToken;
     let fundingToken;
     let softCap;
@@ -45,8 +48,6 @@ describe('>> Deploy a new seed contract', async () => {
     let claimAmount;
     let feeAmount;
     let totalClaimedByBuyer1;
-
-    let nonce = 0;
     
     // constants
     const zero    = 0;
