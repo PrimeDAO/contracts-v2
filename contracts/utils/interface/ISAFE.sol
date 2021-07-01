@@ -19,7 +19,7 @@ contract Enum {
 }
 
 interface ISAFE{
-    function encodeTransactionData(
+    function getTransactionHash(
         address to,
         uint256 value,
         bytes calldata data,
@@ -30,5 +30,5 @@ interface ISAFE{
         address gasToken,
         address refundReceiver,
         uint256 _nonce
-    ) external view returns (bytes memory);
+    ) external view returns (bytes32);
 }

@@ -1,7 +1,7 @@
 const {expect} = require('chai');
 const { ethers } = require("hardhat");
-const { time, expectRevert, BN, expectEvent } = require('@openzeppelin/test-helpers');
-const { parseEther } = ethers.utils
+const { time, expectRevert, BN } = require('@openzeppelin/test-helpers');
+const { parseEther } = ethers.utils;
 
 const init = require("../test-init.js");
 
@@ -17,7 +17,7 @@ const deploy = async () => {
     return setup;
 }
 
-describe('>> Deploy a new seed contract', async () => {
+describe('Contract: Seed', async () => {
     let setup;
 	let root;
     let admin;
@@ -66,7 +66,7 @@ describe('>> Deploy a new seed contract', async () => {
     const eightyNineDaysInSeconds = time.duration.days(89);
     const tenDaysInSeconds      = time.duration.days(10);
 
-    describe("» creator is avatar", () => {
+    context("» creator is avatar", () => {
         before('!! setup', async () => {
             setup = await deploy();
         
@@ -108,8 +108,8 @@ describe('>> Deploy a new seed contract', async () => {
                 .div(new BN(PPM100));
             requiredSeedAmount = seedForDistribution.add(seedForFee);
         });
-        describe("» contract is not initialized yet", () => {
-            describe("» parameters are valid", () => {
+        context("» contract is not initialized yet", () => {
+            context("» parameters are valid", () => {
                 it("it initializes seed", async () => {
                 // emulate creation & initialization via seedfactory & fund with seedTokens
 
@@ -163,8 +163,8 @@ describe('>> Deploy a new seed contract', async () => {
                 });
             });
         });
-        describe("# buy", () => {
-            describe("» generics", () => {
+        context("# buy", () => {
+            context("» generics", () => {
                 before("!! top up buyer1 balance", async () => {
                     await fundingToken.connect(root).transfer(buyer1.address, hundredTwoETH);
                     await fundingToken.connect(buyer1).approve(setup.seed.address, hundredTwoETH);
@@ -291,8 +291,8 @@ describe('>> Deploy a new seed contract', async () => {
                 });
             });
         });
-        describe("# claim", () => {
-            describe("» generics", () => {
+        context("# claim", () => {
+            context("» generics", () => {
                 it("claim = 0 when not currentTime<endTime", async () => {
                     expect((await setup.seed.calculateClaim(buyer2.address)).toString()).to.equal('0');
                 });
@@ -370,7 +370,7 @@ describe('>> Deploy a new seed contract', async () => {
                     .to.emit(setup.seed, "TokensClaimed").withArgs(buyer1.address, claim, beneficiary.address, feeAmountOnClaim.toString());
                 });
             });                    
-            describe("» claim after vesting duration", async () => {
+            context("» claim after vesting duration", async () => {
                 before("!! deploy new contract + top up buyer balance", async () => {
                     let newStartTime = await time.latest();
                     let newEndTime = await newStartTime.add(await time.duration.days(7));
@@ -427,7 +427,7 @@ describe('>> Deploy a new seed contract', async () => {
                     delete setup.data.prevBalance;
                 });
             });
-            describe("» claim when vesting duration is 0", async () => {
+            context("» claim when vesting duration is 0", async () => {
                 before("!! deploy new contract + top up buyer balance", async () => {
                     let newStartTime = await time.latest();
                     let newEndTime = await newStartTime.add(await time.duration.days(7));
@@ -486,8 +486,8 @@ describe('>> Deploy a new seed contract', async () => {
                 });
             });
         });
-        describe("# retrieveFundingTokens", () => {
-            describe("» generics", () => {
+        context("# retrieveFundingTokens", () => {
+            context("» generics", () => {
                 before("!! deploy new contract + top up buyer balance", async () => {
                     let newStartTime = await time.latest();
                     let newEndTime = await newStartTime.add(await time.duration.days(7));
@@ -560,8 +560,8 @@ describe('>> Deploy a new seed contract', async () => {
                 });
             });
         });
-        describe("# close", () => {
-            describe("» generics", () => {
+        context("# close", () => {
+            context("» generics", () => {
                 before("!! deploy new contract + top up buyer balance", async () => {
                     let newStartTime = await time.latest();
                     let newEndTime = await newStartTime.add(await time.duration.days(7));
@@ -601,9 +601,6 @@ describe('>> Deploy a new seed contract', async () => {
                 it("it cannot buy when closed", async () => {
                     await expectRevert(setup.data.seed.connect(buyer1).buy(buyAmount), "Seed: should not be closed");
                 });
-                it("it cannot withdraw when closed", async () => {
-                    await expectRevert(setup.data.seed.connect(admin).withdraw(), "Seed: should not be closed");
-                });
                 it("do not transfer funding tokens to the admin", async () => {
                     let ftBalance = await fundingToken.balanceOf(setup.data.seed.address);
                     expect((await fundingToken.balanceOf(setup.data.seed.address)).toString()).to.equal(
@@ -621,7 +618,7 @@ describe('>> Deploy a new seed contract', async () => {
                     expect((await fundingToken.balanceOf(buyer2.address)).toString()).to.equal(smallBuyAmount.toString());
                 });
             });
-            describe("» close after minimum reached", () => {
+            context("» close after minimum reached", () => {
                 before("!! deploy new contract + top up buyer balance", async () => {
                     let newStartTime = await time.latest();
                     let newEndTime = await newStartTime.add(await time.duration.days(7));
@@ -668,28 +665,28 @@ describe('>> Deploy a new seed contract', async () => {
                 });
             });
         });
-        describe("# getter functions", () => {
-            describe("» checkWhitelisted", () => {
+        context("# getter functions", () => {
+            context("» checkWhitelisted", () => {
                 it("returns correct bool", async () => {
                     // default false - contract not whitelist contract
                     expect(await setup.seed.checkWhitelisted(buyer1.address)).to.equal(false);
                 });
             });
-            describe("» getAmount", () => {
+            context("» getAmount", () => {
                 it("returns correct amount", async () => {
                     expect((await setup.seed.funders(buyer1.address)).seedAmount.toString()).to.equal(
                         new BN(buySeedAmount).mul(new BN(twoBN)).toString()
                     );
                 });
             });
-            describe("» getTotalClaimed", () => {
+            context("» getTotalClaimed", () => {
                 it("returns correct claimed", async () => {
                     expect((await setup.seed.funders(buyer1.address)).totalClaimed.toString()).to.equal(
                         totalClaimedByBuyer1.toString()
                     );
                 });
             });
-            describe("» getFee", () => {
+            context("» getFee", () => {
                 it("returns correct fee", async () => {
                     let amount = new BN(buySeedAmount);
                     let amountMinusFee = new BN(amount.mul(twoBN).div(new BN(hundred)));
@@ -702,8 +699,8 @@ describe('>> Deploy a new seed contract', async () => {
                 });
             });
         });
-        describe("# admin functions", () => {
-            describe("» update metadata", () => {
+        context("# admin functions", () => {
+            context("» update metadata", () => {
                 it("can only be called by admin", async () => {
                     await expectRevert(
                         setup.seed.connect(buyer1).updateMetadata(metadata),
@@ -715,7 +712,7 @@ describe('>> Deploy a new seed contract', async () => {
                     .to.emit(setup.seed, "MetadataUpdated").withArgs(metadata);
                 });
             });
-            describe("» pause", () => {
+            context("» pause", () => {
                 it("can only be called by admin", async () => {
                     await expectRevert(setup.seed.connect(buyer1).pause(), "Seed: caller should be admin");
                 });
@@ -736,7 +733,7 @@ describe('>> Deploy a new seed contract', async () => {
                     await expectRevert(setup.seed.connect(admin).withdraw(), "Seed: should not be paused");
                 });
             });
-            describe("» unpause", () => {
+            context("» unpause", () => {
                 it("can only be called by admin", async () => {
                     await expectRevert(setup.seed.connect(buyer1).unpause(), "Seed: caller should be admin");
                 });
@@ -745,7 +742,7 @@ describe('>> Deploy a new seed contract', async () => {
                     expect(await setup.seed.paused()).to.equal(false);
                 });
             });
-            describe("» unwhitelist", () => {
+            context("» unwhitelist", () => {
                 it("can only be called by admin", async () => {
                     await expectRevert(setup.seed.connect(buyer1).unwhitelist(buyer1.address), "Seed: caller should be admin");
                 });
@@ -756,7 +753,7 @@ describe('>> Deploy a new seed contract', async () => {
                     );
                 });
             });
-            describe("» whitelist", () => {
+            context("» whitelist", () => {
                 it("can only be called by admin", async () => {
                     await expectRevert(setup.seed.connect(buyer1).whitelist(buyer1.address), "Seed: caller should be admin");
                 });
@@ -767,7 +764,7 @@ describe('>> Deploy a new seed contract', async () => {
                     );
                 });
             });
-            describe("» withdraw", () => {
+            context("» withdraw", () => {
                 before("!! deploy new contract", async () => {
                     let newStartTime = await time.latest();
                     let newEndTime = await newStartTime.add(await time.duration.days(7));
@@ -815,7 +812,7 @@ describe('>> Deploy a new seed contract', async () => {
             });
         });
     });
-    describe("creator is avatar -- whitelisted contract", () => {
+    context("creator is avatar -- whitelisted contract", () => {
         before("!! deploy setup", async () => {
             setup = await deploy();
         
@@ -851,8 +848,8 @@ describe('>> Deploy a new seed contract', async () => {
                 .div(new BN(PPM100));
             requiredSeedAmount = seedForDistribution.add(seedForFee);
         });
-        describe("» contract is not initialized yet", () => {
-            describe("» parameters are valid", () => {
+        context("» contract is not initialized yet", () => {
+            context("» parameters are valid", () => {
                 before("!! deploy new contract", async () => {
                     seed = await init.seedMasterCopy(setup);
                 });
@@ -875,7 +872,7 @@ describe('>> Deploy a new seed contract', async () => {
                     );
                     expect(await seed.initialized()).to.equal(true);
                     expect(await seed.beneficiary()).to.equal(beneficiary.address);
-                    expect(await seed.admin()).to.equal(admin);
+                    expect(await seed.admin()).to.equal(admin.address);
                     expect(await seed.seedToken()).to.equal(seedToken.address);
                     expect(await seed.fundingToken()).to.equal(fundingToken.address);
                     expect((await seed.softCap()).toString()).to.equal(softCap);
@@ -911,22 +908,22 @@ describe('>> Deploy a new seed contract', async () => {
                 });
             });
         });
-        describe("# admin whitelist functions", () => {
-            describe("» whitelist", () => {
+        context("# admin whitelist functions", () => {
+            context("» whitelist", () => {
                 it("adds a user to the whitelist", async () => {
                     expect(await seed.checkWhitelisted(buyer1.address)).to.equal(false);
                     await seed.connect(admin).whitelist(buyer1.address);
                     expect(await seed.checkWhitelisted(buyer1.address)).to.equal(true);
                 });
             });
-            describe("» unwhitelist", () => {
+            context("» unwhitelist", () => {
                 it("removes a user from the whitelist", async () => {
                     expect(await seed.checkWhitelisted(buyer1.address)).to.equal(true);
                     await seed.connect(admin).unwhitelist(buyer1.address);
                     expect(await seed.checkWhitelisted(buyer1.address)).to.equal(false);
                 });
             });
-            describe("» whitelistBatch", () => {
+            context("» whitelistBatch", () => {
                 it("can only be called by admin", async () => {
                     await expectRevert(seed.connect(buyer1).whitelistBatch([buyer1.address, buyer2.address]), "Seed: caller should be admin");
                 });
@@ -941,8 +938,8 @@ describe('>> Deploy a new seed contract', async () => {
                 });
             });
         });
-        describe("# hardCap", () => {
-            describe("» check hardCap", () => {
+        context("# hardCap", () => {
+            context("» check hardCap", () => {
                 it("cannot buy more than hardCap", async () => {
                     await fundingToken.connect(root).transfer(buyer2.address, hundredTwoETH);
                     await fundingToken.connect(buyer2).approve(seed.address, hundredTwoETH);
