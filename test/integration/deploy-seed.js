@@ -96,8 +96,7 @@ describe('>> Deploy new seed with gnosis safe', async () => {
                 price,
                 startTime,
                 endTime,
-                vestingDuration,
-                vestingCliff,
+                [vestingDuration, vestingCliff],
                 isPermissioned,
                 fee,
                 metadata
@@ -179,8 +178,7 @@ describe('>> Deploy new seed with gnosis safe', async () => {
                 price,
                 startTime,
                 endTime,
-                vestingDuration,
-                vestingCliff,
+                [vestingDuration, vestingCliff],
                 isPermissioned,
                 fee,
                 metadata
