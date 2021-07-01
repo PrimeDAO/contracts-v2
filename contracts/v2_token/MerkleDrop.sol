@@ -1,10 +1,10 @@
 pragma solidity 0.5.16;
 pragma experimental ABIEncoderV2;
 
-import { MerkleProof } from "@openzeppelin/contracts/cryptography/MerkleProof.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { MerkleProof } from "openzeppelin-contracts-sol5/cryptography/MerkleProof.sol";
+import { IERC20 } from "openzeppelin-contracts-sol5/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "openzeppelin-contracts-sol5/token/ERC20/SafeERC20.sol";
+import { SafeMath } from "openzeppelin-contracts-sol5/math/SafeMath.sol";
 
 import { Initializable } from "@openzeppelin/upgrades/contracts/Initializable.sol";
 import { InitializableGovernableWhitelist } from "@mstable/protocol/contracts/governance/InitializableGovernableWhitelist.sol";
