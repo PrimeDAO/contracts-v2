@@ -17,8 +17,6 @@ const {
 } = require('../test-сonfig.json');
 
 const init = require("../test-init.js");
-const { keccak256 } = require('ethers/lib/utils');
-const { default: axios } = require('axios');
 
 const zero = 0;
 const oneMillion = 1000000;
@@ -29,7 +27,7 @@ const SIGNATURE_CREATED = 'SignatureCreated';
 
 
 const deploy = async () => {
-    const setup = await init.initialize(await ethers.getSigners());;
+    const setup = await init.initialize(await ethers.getSigners());
 
     setup.gnosisSafe = await init.gnosisSafe(setup);
 

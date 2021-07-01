@@ -26,12 +26,16 @@ contract Signer {
 
     mapping(bytes32 => bytes32) public approvedSignatures;
 
-    address safe;
-    address seedFactory;
+    address public safe;
+    address public seedFactory;
 
     event SignatureCreated(bytes signature, bytes32 hash);
 
     constructor (address _safe, address _seedFactory) {
+        require(
+            _safe != address(0) && _seedFactory != address(0),
+            "Signer: Safe and SeedFactory address cannot be zero"
+            );
         safe = _safe;
         seedFactory = _seedFactory;
     }
@@ -80,7 +84,7 @@ contract Signer {
         emit SignatureCreated(signature, hash);
     }
 
-    function getFunctionHashFromData(bytes memory _data) internal pure returns(bytes4 _functionHash) {
+    function getFunctionHashFromData(bytes memory _data) private pure returns(bytes4 _functionHash) {
         assembly {
             _functionHash := mload(add(_data, 32))
         }
