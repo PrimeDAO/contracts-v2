@@ -48,6 +48,8 @@ describe('>> Deploy a new seed contract', async () => {
     let claimAmount;
     let feeAmount;
     let totalClaimedByBuyer1;
+    let seedAmount;
+    let feeAmountOnClaim;
     
     // constants
     const zero    = 0;
@@ -75,7 +77,7 @@ describe('>> Deploy a new seed contract', async () => {
             // // Roles
             root = setup.roles.root;
             beneficiary = setup.roles.beneficiary;
-            admin = setup.roles.prime; //check of dit klopt
+            admin = setup.roles.prime;
             buyer1 = setup.roles.buyer1;
             buyer2 = setup.roles.buyer2;
             buyer3 = setup.roles.buyer3;
@@ -201,13 +203,15 @@ describe('>> Deploy a new seed contract', async () => {
                     );
                 });
                 it("it buys tokens ", async () => {
-                    console.log(">>>>> Error with expectEvent.inTransition")
-                    let tx = await setup.seed.connect(buyer1).buy(buyAmount);
-                    setup.data.tx = tx;
-                    // await expectEvent.inTransaction(setup.data.tx, setup.seed, "SeedsPurchased");
-                    // expect((await fundingToken.balanceOf(setup.seed.address)).toString()).to.equal(
-                    //     ((buySeedAmount * price) / pct_base).toString()
-                    // );
+                    // seedAmount = (buyAmountt*PCT_BASE)/price;
+                    seedAmount = new BN(buyAmount).mul(new BN(pct_base.toString())).div(new BN(price))
+
+                    await expect(setup.seed.connect(buyer1).buy(buyAmount))
+                    .to.emit(setup.seed, "SeedsPurchased").withArgs(buyer1.address, seedAmount);
+                    expect((await fundingToken.balanceOf(setup.seed.address)).toString()).to.equal(
+                        ((buySeedAmount * price) / pct_base).toString()
+                    );
+
                 });
                 it("minimumReached == true", async () => {
                     expect(await setup.seed.minimumReached()).to.equal(true);
@@ -247,17 +251,18 @@ describe('>> Deploy a new seed contract', async () => {
                     ).to.equal('0');
                 });
                 it("updates lock when it buys tokens", async () => {
-                    console.log(">>>>> Error with expectEvent.inTransition")
+                    // seedAmount = (buyAmountt*PCT_BASE)/price;
+                    seedAmount = new BN(buyAmount).mul(new BN(pct_base.toString())).div(new BN(price))
+
                     let prevSeedAmount = (await setup.seed.funders(buyer1.address)).seedAmount;
                     let prevFeeAmount = (await setup.seed.funders(buyer1.address)).fee;
 
-                    let tx = await setup.seed.connect(buyer1).buy(buyAmount);
-                    setup.data.tx = tx;
-
-                    // await expectEvent.inTransaction(setup.data.tx.tx, setup.seed, "SeedsPurchased");
-                    // expect((await fundingToken.balanceOf(setup.seed.address)).toString()).to.equal(
-                    //     (2 * buyAmount).toString()
-                    // );
+                    await expect(setup.seed.connect(buyer1).buy(buyAmount))
+                    .to.emit(setup.seed, "SeedsPurchased").withArgs(buyer1.address, seedAmount);
+                    
+                    expect((await fundingToken.balanceOf(setup.seed.address)).toString()).to.equal(
+                        (2 * buyAmount).toString()
+                    );
 
                     expect((await setup.seed.funders(buyer1.address)).seedAmount.toString()).to.equal(
                         prevSeedAmount.mul(twoBN.toNumber()).toString()
@@ -329,13 +334,13 @@ describe('>> Deploy a new seed contract', async () => {
                 });
                 it("it withdraws tokens after time passes", async () => {
                     // claim lock
-                    console.log(">>>>> Error with expectEvent.inTransition")
-                    let tx = await setup.seed.connect(buyer1).claim(buyer1.address, claimAmount.toString());
-                    setup.data.tx = tx;
 
-                    // await expectEvent.inTransaction(setup.data.tx.tx, setup.seed, "TokensClaimed", {
-                    //     recipient: buyer1,
-                    // });
+                    // feeAmountOnClaim = (_claimAmount * fee) / 100;
+                    feeAmountOnClaim = new BN(claimAmount).mul(new BN(fee)).div(new BN(hundred))
+
+                    await expect(setup.seed.connect(buyer1).claim(buyer1.address, claimAmount.toString()))
+                    .to.emit(setup.seed, "TokensClaimed").withArgs(buyer1.address, claimAmount, beneficiary.address, feeAmountOnClaim.toString());
+
                 });
                 it("updates claim", async () => {
                     expect((await setup.seed.funders(buyer1.address)).totalClaimed.toString()).to.equal(claimAmount.toString());
@@ -357,14 +362,15 @@ describe('>> Deploy a new seed contract', async () => {
                 });
                 it("calculates and claims exact seed amount", async () => {
                     const claim = await setup.seed.calculateClaim(buyer1.address);
-                    let tx = await setup.seed.connect(buyer1).claim(buyer1.address, claim);
-                    setup.data.tx = tx;
+                    feeAmountOnClaim = new BN(claim.toString()).mul(new BN(fee)).div(new BN(hundred))
 
                     totalClaimedByBuyer1 = totalClaimedByBuyer1.add(new BN(claim.toString()));
-                console.log(">>>>> Error with expectEvent.inTransition")
+
+                    await expect(setup.seed.connect(buyer1).claim(buyer1.address, claim))
+                    .to.emit(setup.seed, "TokensClaimed").withArgs(buyer1.address, claim, beneficiary.address, feeAmountOnClaim.toString());
 
                     // const receipt = await expectEvent.inTransaction(setup.data.tx.tx, setup.seed, "TokensClaimed");
-                    // expect(await receipt.args[1].toString()).to.equal(claim.toString());
+                    expect(await receipt.args[1].toString()).to.equal(claim.toString());
                 });
             });                    
             describe("» claim after vesting duration", async () => {
@@ -396,14 +402,18 @@ describe('>> Deploy a new seed contract', async () => {
                     await setup.data.seed.connect(buyer2).buy((new BN(buyAmount).mul(new BN(twoBN))).toString());
                 });
                 it("claims all seeds after vesting duration", async () => {
-                    console.log(">>>>> Error with expectEvent.inTransition")
                     time.increase(await time.duration.days(7));
                     time.increase(vestingDuration.toNumber());
                     setup.data.prevBalance = await seedToken.balanceOf(beneficiary.address);
-                    let tx = await setup.data.seed.connect(buyer2).claim(buyer2.address, (new BN(buySeedAmount).mul(new BN(twoBN))).toString());
-                    setup.data.tx = tx;
+
+                    const claimTemp = (new BN(buySeedAmount).mul(new BN(twoBN))).toString()
+                    feeAmountOnClaim = new BN(claimTemp).mul(new BN(fee)).div(new BN(hundred))
+
+                    await expect(setup.data.seed.connect(buyer2).claim(buyer2.address, claimTemp.toString()))
+                    .to.emit(setup.data.seed, "TokensClaimed").withArgs(buyer2.address, claimTemp.toString(), beneficiary.address, feeAmountOnClaim.toString());
+
                     // const receipt = await expectEvent.inTransaction(setup.data.tx.tx, setup.data.seed, "TokensClaimed");
-                    // expect(await receipt.args[1].toString()).to.equal(new BN(buySeedAmount).mul(new BN(twoBN)).toString());
+                    expect(await receipt.args[1].toString()).to.equal(new BN(buySeedAmount).mul(new BN(twoBN)).toString());
                 });
                 it("it claims all the fee for a buyer's claim", async () => {
                     const fee = (await setup.data.seed.funders(buyer2.address)).fee;
@@ -452,10 +462,14 @@ describe('>> Deploy a new seed contract', async () => {
                     await setup.data.seed.connect(buyer2).buy((new BN(buyAmount).mul(new BN(twoBN))).toString());
                 });
                 it("claims all seeds after vesting duration", async () => {
-                    console.log(">>>>> Error with expectEvent.inTransition")
                     setup.data.prevBalance = await seedToken.balanceOf(beneficiary.address);
-                    let tx = await setup.data.seed.connect(buyer2).claim(buyer2.address, (new BN(buySeedAmount).mul(new BN(twoBN))).toString());
-                    setup.data.tx = tx;
+
+                    const claimTemp = (new BN(buySeedAmount).mul(new BN(twoBN))).toString()
+                    feeAmountOnClaim = new BN(claimTemp).mul(new BN(fee)).div(new BN(hundred))
+
+                    await expect(setup.data.seed.connect(buyer2).claim(buyer2.address, claimTemp.toString()))
+                    .to.emit(setup.data.seed, "TokensClaimed").withArgs(buyer2.address, claimTemp.toString(), beneficiary.address, feeAmountOnClaim.toString());
+
                     // const receipt = await expectEvent.inTransaction(setup.data.tx.tx, setup.data.seed, "TokensClaimed");
                     // expect(await receipt.args[1].toString()).to.equal(new BN(buySeedAmount).mul(twoBN).toString());
                 });
@@ -517,14 +531,14 @@ describe('>> Deploy a new seed contract', async () => {
                     expect((await fundingAmount).toString()).to.equal(smallBuyAmount);
                 });
                 it("returns funding tokens to buyer", async () => {
-                    console.log(">>>>> Error with expectEvent.inTransition")
+                    const fundingAmount = await setup.data.seed.connect(buyer2).callStatic.retrieveFundingTokens();
+
                     expect((await fundingToken.balanceOf(buyer2.address)).toString()).to.equal(zero.toString());
 
-                    let tx = await setup.data.seed.connect(buyer2).retrieveFundingTokens();
-                    setup.data.tx = tx;
+                    await expect(setup.data.seed.connect(buyer2).retrieveFundingTokens())
+                    .to.emit(setup.data.seed, "FundingReclaimed").withArgs(buyer2.address, fundingAmount);
 
-                    // expectEvent.inTransaction(setup.data.tx.tx, setup.data.seed, "FundingReclaimed");
-                    // expect((await fundingToken.balanceOf(buyer2)).toString()).to.equal(smallBuyAmount.toString());
+                    expect((await fundingToken.balanceOf(buyer2.address)).toString()).to.equal(smallBuyAmount.toString());
                 });
                 it("clears `fee` mapping", async () => {
                     expect((await setup.data.seed.funders(buyer2.address)).fee.toString()).to.equal(zero.toString());
@@ -580,7 +594,6 @@ describe('>> Deploy a new seed contract', async () => {
                     await setup.data.seed.connect(buyer2).buy(smallBuyAmount);
                 });
                 it("can only be called by admin", async () => {
-                    console.log(">>>>> Double check pls - only by admin")
                     await expectRevert(setup.data.seed.connect(buyer1).close(), "Seed: caller should be admin");
                 });
                 it("transfers seed tokens to the admin", async () => {
@@ -604,15 +617,14 @@ describe('>> Deploy a new seed contract', async () => {
                     );
                 });
                 it("returns funding tokens to buyer", async () => {
-                    console.log(">>>>> Error with expectEvent.inTransition")
-
                     expect((await fundingToken.balanceOf(buyer2.address)).toString()).to.equal(zero.toString());
 
-                    let tx = await setup.data.seed.connect(buyer2).retrieveFundingTokens();
-                    setup.data.tx = tx;
+                    const fundingAmount = await setup.data.seed.connect(buyer2).callStatic.retrieveFundingTokens();
 
-                    // expectEvent.inTransaction(setup.data.tx.tx, setup.data.seed, "FundingReclaimed");
-                    // expect((await fundingToken.balanceOf(buyer2)).toString()).to.equal(smallBuyAmount.toString());
+                    await expect(setup.data.seed.connect(buyer2).retrieveFundingTokens())
+                    .to.emit(setup.data.seed, "FundingReclaimed").withArgs(buyer2.address, fundingAmount);
+
+                    expect((await fundingToken.balanceOf(buyer2.address)).toString()).to.equal(smallBuyAmount.toString());
                 });
             });
             describe("» close after minimum reached", () => {
@@ -699,23 +711,18 @@ describe('>> Deploy a new seed contract', async () => {
         describe("# admin functions", () => {
             describe("» update metadata", () => {
                 it("can only be called by admin", async () => {
-                    console.log(">>>>> Double check pls - only by admin")
                     await expectRevert(
                         setup.seed.connect(buyer1).updateMetadata(metadata),
                         "Seed: contract should not be initialized or caller should be admin"
                     );
                 });
                 it("updates metadata", async () => {
-                    let tx = await setup.seed.connect(admin).updateMetadata(metadata);
-                    setup.data.tx = tx;
-                    console.log(">>>>> Error with expectEvent.inTransition")
-
-                    // await expectEvent.inTransaction(setup.data.tx.tx, setup.seed, "MetadataUpdated");
+                    await expect(setup.seed.connect(admin).updateMetadata(metadata))
+                    .to.emit(setup.seed, "MetadataUpdated").withArgs(metadata);
                 });
             });
             describe("» pause", () => {
                 it("can only be called by admin", async () => {
-                    console.log(">>>>> Double check pls - only by admin")
                     await expectRevert(setup.seed.connect(buyer1).pause(), "Seed: caller should be admin");
                 });
                 it("pauses contract", async () => {
@@ -737,7 +744,6 @@ describe('>> Deploy a new seed contract', async () => {
             });
             describe("» unpause", () => {
                 it("can only be called by admin", async () => {
-                    console.log(">>>>> Double check pls - only by admin")
                     await expectRevert(setup.seed.connect(buyer1).unpause(), "Seed: caller should be admin");
                 });
                 it("unpauses contract", async () => {
@@ -747,7 +753,6 @@ describe('>> Deploy a new seed contract', async () => {
             });
             describe("» unwhitelist", () => {
                 it("can only be called by admin", async () => {
-                    console.log(">>>>> Double check pls - only by admin")
                     await expectRevert(setup.seed.connect(buyer1).unwhitelist(buyer1.address), "Seed: caller should be admin");
                 });
                 it("reverts: can only be called on whitelisted contract", async () => {
@@ -759,7 +764,6 @@ describe('>> Deploy a new seed contract', async () => {
             });
             describe("» whitelist", () => {
                 it("can only be called by admin", async () => {
-                    console.log(">>>>> Double check pls - only by admin")
                     await expectRevert(setup.seed.connect(buyer1).whitelist(buyer1.address), "Seed: caller should be admin");
                 });
                 it("reverts: can only be called on whitelisted contract", async () => {
@@ -812,7 +816,6 @@ describe('>> Deploy a new seed contract', async () => {
                     await expect((await setup.data.seed.fundingWithdrawn()).toString()).to.equal(buyAmount);
                 });
                 it("can only be called by admin", async () => {
-                    console.log(">>>>> Double check pls - only by admin")
                     await expectRevert(setup.seed.connect(buyer1).withdraw(), "Seed: caller should be admin");
                 });
             });
@@ -829,7 +832,7 @@ describe('>> Deploy a new seed contract', async () => {
             // // Roles
             root = setup.roles.root;
             beneficiary = setup.roles.beneficiary;
-            admin = setup.roles.prime; //check of dit klopt
+            admin = setup.roles.prime;
             buyer1 = setup.roles.buyer1;
             buyer2 = setup.roles.buyer2;
             buyer3 = setup.roles.buyer3;
@@ -876,7 +879,7 @@ describe('>> Deploy a new seed contract', async () => {
                         permissionedSeed,
                         fee
                     );
-
+                    console.log(beneficiary.address);
                     expect(await seed.initialized()).to.equal(true);
                     expect(await seed.beneficiary()).to.equal(beneficiary.address);
                     expect(await seed.admin()).to.equal(admin);
@@ -932,7 +935,6 @@ describe('>> Deploy a new seed contract', async () => {
             });
             describe("» whitelistBatch", () => {
                 it("can only be called by admin", async () => {
-                    console.log(">>>>> Double check pls - only by admin")
                     await expectRevert(seed.connect(buyer1).whitelistBatch([buyer1.address, buyer2.address]), "Seed: caller should be admin");
                 });
                 it("adds users to the whitelist", async () => {
