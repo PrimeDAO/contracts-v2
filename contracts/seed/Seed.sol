@@ -118,7 +118,6 @@ contract Seed {
 
     modifier allowedToWithdraw() {
         require(!paused, "Seed: should not be paused");
-        require(!closed, "Seed: should not be closed");
         require(minimumReached, "Seed: minimum funding amount not met");
         _;
     }
@@ -231,9 +230,9 @@ contract Seed {
             msg.sender,
             (funders[msg.sender].seedAmount + seedAmount),         // Previous Seed Amount + new seed amount
             (funders[msg.sender].fundingAmount + _fundingAmount),  // Previous Funding Amount + new funding amount
-             funders[msg.sender].totalClaimed,
+            funders[msg.sender].totalClaimed,
             (funders[msg.sender].fee + feeAmount),                  // Previous Fee + new fee
-             funders[msg.sender].feeClaimed
+            funders[msg.sender].feeClaimed
             );
 
         // buyer, seed token purchased in this transaction (not the total amount of seed purchased)
@@ -461,7 +460,7 @@ contract Seed {
             fundingAmount: _fundingAmount,
             fee: _fee,
             feeClaimed: _feeClaimed
-            });
+        });
         totalFunderCount++;
     }
 }

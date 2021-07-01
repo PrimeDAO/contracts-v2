@@ -21,8 +21,10 @@ contract Signer {
 
     bytes4 internal constant EIP1271_MAGIC_VALUE       = 0x20c13b0b;
     bytes4 internal constant SEED_FACTORY_MAGIC_VALUE  = 0x4a7eb3c2;
-    bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH = 0x7a9f5b2bf4dbb53eb85e012c6094a3d71d76e5bfe821f44ab63ed59311264e35;
-    bytes32 private constant SEED_MSG_TYPEHASH         = 0xa1a7ad659422d5fc08fdc481fd7d8af8daf7993bc4e833452b0268ceaab66e5d;
+    bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH =
+    0x7a9f5b2bf4dbb53eb85e012c6094a3d71d76e5bfe821f44ab63ed59311264e35;
+    bytes32 private constant SEED_MSG_TYPEHASH         =
+    0xa1a7ad659422d5fc08fdc481fd7d8af8daf7993bc4e833452b0268ceaab66e5d;
 
     mapping(bytes32 => bytes32) public approvedSignatures;
 
@@ -93,6 +95,7 @@ contract Signer {
     function getMessageHash(bytes32 message) private pure returns (bytes memory) {
         bytes32 safeMessageHash = keccak256(abi.encode(SEED_MSG_TYPEHASH, message));
         return
-            abi.encodePacked(bytes1(0x19), bytes1(0x23), keccak256(abi.encode(DOMAIN_SEPARATOR_TYPEHASH, safeMessageHash)));
+            abi.encodePacked(
+                bytes1(0x19), bytes1(0x23), keccak256(abi.encode(DOMAIN_SEPARATOR_TYPEHASH, safeMessageHash)));
     }
 }
