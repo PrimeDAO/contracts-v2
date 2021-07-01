@@ -879,7 +879,6 @@ describe('>> Deploy a new seed contract', async () => {
                         permissionedSeed,
                         fee
                     );
-                    console.log(beneficiary.address);
                     expect(await seed.initialized()).to.equal(true);
                     expect(await seed.beneficiary()).to.equal(beneficiary.address);
                     expect(await seed.admin()).to.equal(admin);
