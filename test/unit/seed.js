@@ -368,9 +368,6 @@ describe('>> Deploy a new seed contract', async () => {
 
                     await expect(setup.seed.connect(buyer1).claim(buyer1.address, claim))
                     .to.emit(setup.seed, "TokensClaimed").withArgs(buyer1.address, claim, beneficiary.address, feeAmountOnClaim.toString());
-
-                    // const receipt = await expectEvent.inTransaction(setup.data.tx.tx, setup.seed, "TokensClaimed");
-                    expect(await receipt.args[1].toString()).to.equal(claim.toString());
                 });
             });                    
             describe("» claim after vesting duration", async () => {
@@ -411,9 +408,6 @@ describe('>> Deploy a new seed contract', async () => {
 
                     await expect(setup.data.seed.connect(buyer2).claim(buyer2.address, claimTemp.toString()))
                     .to.emit(setup.data.seed, "TokensClaimed").withArgs(buyer2.address, claimTemp.toString(), beneficiary.address, feeAmountOnClaim.toString());
-
-                    // const receipt = await expectEvent.inTransaction(setup.data.tx.tx, setup.data.seed, "TokensClaimed");
-                    expect(await receipt.args[1].toString()).to.equal(new BN(buySeedAmount).mul(new BN(twoBN)).toString());
                 });
                 it("it claims all the fee for a buyer's claim", async () => {
                     const fee = (await setup.data.seed.funders(buyer2.address)).fee;
