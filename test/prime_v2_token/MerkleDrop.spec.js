@@ -1,30 +1,41 @@
-const { deployments, ethers } = require("hardhat");
-const init = require("../test-init.js");
+const { deployments, network } = require("hardhat");
+const { constants, BigNumber } = require("ethers");
+const {
+  mineBlocks,
+  deploy,
+  setupFixture,
+  setupInitialState,
+} = require("./utils/setupHelpers");
+const { getTranche } = require("./merkle/math");
 
-const deploy = async () => {
-  const setup = await init.initialize(await ethers.getSigners());
-  const merkleDrop = await init.merkleDrop(setup);
-  return merkleDrop;
+const MAX_BIG_INT = constants.MaxUint256;
+
+const commonState = {
+  initialPrimeV2Supply: BigNumber.from(10 ** 7),
+  forwardBlocks: 100,
 };
 
-const setupFixture = deployments.createFixture(
-  async ({ deployments, ethers }, options) => {
-    await deployments.fixture();
-    const merkleDropInstance = await deploy();
-    return merkleDropInstance;
-  }
-);
-
 describe("MerkleDrop", () => {
-  let merkleDropInstance;
+  let merkleDropInstance, v2TokenInstance;
 
-  beforeEach("", async () => {
-    ({ merkleDropInstance } = await setupFixture());
-  });
+  describe("thresholdBlock lies in the past", () => {
+    const initialState = { ...commonState, thresholdInPast: true };
 
-  describe("initialization", () => {
+    beforeEach("", async () => {
+      ({ merkleDropInstance, v2TokenInstance } = await setupFixture({
+        initialState,
+      }));
+    });
+
     it("bla", async () => {
-      console.log(await merkleDropInstance.token());
+      // console.log(await merkleDropInstance.token());
     });
   });
+
+  // describe("initialization", () => {
+  //   it("bla", async () => {
+  //     console.log(merkleDropInstance);
+  //     // console.log(await merkleDropInstance.token());
+  //   });
+  // });
 });
