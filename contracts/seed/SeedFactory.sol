@@ -77,7 +77,7 @@ contract SeedFactory is CloneFactory, Ownable {
     {
         {
             require(address(masterCopy) != address(0), "SeedFactory: mastercopy cannot be zero address");
-            require(_vestingDurationAndCliff.length == 2, "Hasn't provided both vesting duration and cliff");
+            require(_vestingDurationAndCliff.length == 2, "SeedFactory: Hasn't provided both vesting duration and cliff");
         }
 
         // deploy clone
