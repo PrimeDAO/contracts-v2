@@ -2,6 +2,7 @@ const fs = require('fs');
 const hre = require("hardhat");
 require('dotenv').config({path: './.env'});
 const DeployedContracts = require('../contract-addresses.json');
+const {SAFE} = require('../config.json');
 
 const main = async () => {
 
@@ -33,7 +34,7 @@ const main = async () => {
 
     console.log("Deploying Signer contract");
     const Signer_Factory = await hre.ethers.getContractFactory("Signer");
-    const signer = await Signer_Factory.deploy();
+    const signer = await Signer_Factory.deploy(SAFE, seedFactory.address);
 
     console.log(`Signer deployed to: ${signer.address}\n`);
 
@@ -49,7 +50,7 @@ const main = async () => {
     DeployedContracts[chainId].SIGNER = signer.address;
 
     fs.writeFileSync(
-      `./contractAddresses.json`,
+      `./contract-addresses.json`,
       JSON.stringify(DeployedContracts), 
       (err) => {
       if(err) throw err;

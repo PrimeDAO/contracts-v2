@@ -309,7 +309,11 @@ await gnosis.getCurrentNonce();
     2. SAFE - Gnosis Safe Address
     3. BENEFICIARY - Address of beneficiary for simulation 
 
-## For Front-end . How to Send transaction.
+## For Front-end
+
+### How to add Delegate
+
+### How to Send transaction.
 
 0. Import Gnosis file created in-house
 ```js
