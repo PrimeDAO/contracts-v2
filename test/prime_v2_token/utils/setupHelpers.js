@@ -1,4 +1,5 @@
 const { deployments, network } = require("hardhat");
+const BN = require("bn.js");
 const { constants, BigNumber, utils } = require("ethers");
 const init = require("../../test-init.js");
 const rawAllocations = require("./primeV2Distribution.json");
@@ -6,6 +7,7 @@ const {
   getTranche,
   createTreeWithAccounts,
   parseToBnArr,
+  getAccountBalanceProof,
 } = require("../merkle");
 
 const parsedAllocations = Object.fromEntries(
@@ -46,13 +48,13 @@ const setupFixture = deployments.createFixture(
     const { merkleDropInstance, v2TokenInstance } = await deploy(initialState);
 
     // TODO: call setupInitialState
-    const tree = await setupInitialState(
+    const stateInfo = await setupInitialState(
       merkleDropInstance,
       v2TokenInstance,
       initialState
     );
 
-    return { merkleDropInstance, v2TokenInstance, tree };
+    return { merkleDropInstance, v2TokenInstance, ...stateInfo };
   }
 );
 
@@ -62,17 +64,16 @@ const setupInitialState = async (
   initialState
 ) => {
   // go some blocks in the future
+  const { thresholdInPast, generateProof } = initialState;
 
   const { forwardBlocks } = initialState;
   await mineBlocks(forwardBlocks);
 
   // get signers
-  const [_, prime] = await ethers.getSigners();
+  const [_, prime, alice] = await ethers.getSigners();
   const currentBlock = await ethers.provider.getBlockNumber();
 
   // check if claiming date should be in the future
-  const { thresholdInPast } = initialState;
-
   const thresholdBlockNumber = thresholdInPast
     ? currentBlock - 50
     : currentBlock + 50;
@@ -99,14 +100,28 @@ const setupInitialState = async (
   // create tree
   const tree = createTreeWithAccounts(tranche);
   const merkleRoot = tree.hexRoot;
-  // pass merkle root and cumulativeAllocation to MerkleDrop (seedNewAllocation)
 
+  // pass merkle root and cumulativeAllocation to MerkleDrop (seedNewAllocation)
   await merkleDropInstance
     .connect(prime)
     .seedNewAllocations(merkleRoot, cumulativeAllocation);
 
-  return tree;
+  // generate proof if
+  let proof, trancheIdx, expectedBalance;
+  if (generateProof) {
+    proof = getAccountBalanceProof(
+      tree,
+      alice.address,
+      new BN(parsedAllocations[alice.address].toString())
+    );
+    trancheIdx = "0";
+    expectedBalance = parsedAllocations[alice.address];
+  }
+
+  return { tree, proof, trancheIdx, expectedBalance };
 };
+
+const prepareMerkleDrop = () => {};
 
 module.exports = {
   mineBlocks,

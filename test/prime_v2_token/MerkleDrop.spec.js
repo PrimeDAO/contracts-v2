@@ -20,36 +20,64 @@ describe(">> MerkleDrop", () => {
 
   before(async () => {
     const signers = await ethers.getSigners();
-    alice = signers[3];
+    alice = signers[2];
   });
 
   describe("$ thresholdBlock lies in the future", () => {
-    let expectedBalance;
-    const initialState = { ...commonState, thresholdInPast: false };
+    const initialState = {
+      ...commonState,
+      thresholdInPast: false,
+      generateProof: true,
+    };
 
     beforeEach(async () => {
-      ({ merkleDropInstance, v2TokenInstance, tree } = await setupFixture({
+      ({
+        merkleDropInstance,
+        v2TokenInstance,
+        tree,
+        proof,
+        trancheIdx,
+        expectedBalance,
+      } = await setupFixture({
         initialState,
       }));
-      proof = getAccountBalanceProof(
-        tree,
-        alice.address,
-        new BN(parsedAllocations[alice.address].toString())
-      );
-      tranche = "0";
-      expectedBalance = parsedAllocations[alice.address];
     });
 
     it("reverts", async () => {
       const claim = merkleDropInstance
         .connect(alice)
-        .claimTranche(
-          alice.address,
-          tranche,
-          parsedAllocations[alice.address],
-          proof
-        );
+        .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
       expect(claim).to.be.revertedWith("Rewards are not yet claimable");
+    });
+  });
+
+  describe("$ thresholdBlock lies in the past", () => {
+    const initialState = {
+      ...commonState,
+      thresholdInPast: true,
+      generateProof: true,
+    };
+
+    beforeEach(async () => {
+      ({
+        merkleDropInstance,
+        v2TokenInstance,
+        tree,
+        proof,
+        trancheIdx,
+        expectedBalance,
+      } = await setupFixture({
+        initialState,
+      }));
+
+      await merkleDropInstance
+        .connect(alice)
+        .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
+    });
+
+    it("lets alice claim her allocation", async () => {
+      const aliceBalance = await v2TokenInstance.balanceOf(alice.address);
+      expect(aliceBalance).to.eq(expectedBalance);
     });
   });
 });
