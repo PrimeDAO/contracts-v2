@@ -1,6 +1,8 @@
 require('dotenv').config({path:'./.env'});
 const hre = require('hardhat');
-const {PROVIDER_KEY, SAFE, SEED_FACTORY, MNEMONIC} = process.env;
+const {PROVIDER_KEY, MNEMONIC} = process.env;
+const {SAFE} = require("../config.json");
+const {'4': {SEED_FACTORY}} = require('../contract-addresses.json');
 const ethers = hre.ethers;
 
 const main = async () => {
@@ -11,7 +13,7 @@ const main = async () => {
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
     const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, wallet);
 
-    await seedFactory.transferOwnership(SAFE);
+    await seedFactory.connect(wallet).transferOwnership(SAFE);
 
     console.log("New Owner:- ",await seedFactory.owner());
 }

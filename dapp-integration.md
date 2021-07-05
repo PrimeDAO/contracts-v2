@@ -309,7 +309,38 @@ await gnosis.getCurrentNonce();
     2. SAFE - Gnosis Safe Address
     3. BENEFICIARY - Address of beneficiary for simulation 
 
-## For Front-end . How to Send transaction.
+## For Front-end
+
+### How to add Delegate
+
+1. Setup parameters
+```js
+const delegate = signer;
+const label = "Signer";
+const safe = SAFE;
+const totp = Math.floor(Math.floor(Date.now()/1000) / 3600);
+```
+
+2. Create a hash
+```js
+const dataToBeHashed = delegate+totp.toString();
+const hash = keccak256(dataToBeHashed);
+// ethers.js does the hash in the below function so no need to do it from our side
+const signature = await wallet.signMessage(dataToBeHashed);
+```
+
+3. Create a payload and send transaction
+```js
+const payload = {
+    safe,
+    delegate,
+    label,
+    signature
+};
+await gnosis.addDelegate(payload);
+```
+
+### How to Send transaction.
 
 0. Import Gnosis file created in-house
 ```js

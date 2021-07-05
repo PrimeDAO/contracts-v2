@@ -26,7 +26,7 @@ contract Signer {
     bytes32 private constant SEED_MSG_TYPEHASH         =
     0xa1a7ad659422d5fc08fdc481fd7d8af8daf7993bc4e833452b0268ceaab66e5d;
 
-    mapping(bytes32 => bytes32) public approvedSignatures;
+    mapping(bytes32 => uint8) public approvedSignatures;
 
     address public safe;
     address public seedFactory;
@@ -43,7 +43,7 @@ contract Signer {
     }
 
     function isValidSignature(bytes memory _hash, bytes memory _signature) external view returns(bytes4) {
-        if (approvedSignatures[keccak256(_hash)] == keccak256(abi.encode(_signature, 1))) {
+        if (approvedSignatures[keccak256(_signature)] == 1) {
             return EIP1271_MAGIC_VALUE;
         }
         return "0x";
@@ -82,7 +82,7 @@ contract Signer {
         bytes memory messageHash = getMessageHash(hash);
 
         signature = bytes.concat(paddedAddress, bytes32(uint256(65)), bytes1(0), bytes32(uint256(messageHash.length)), messageHash);
-        approvedSignatures[hash] = keccak256(abi.encode(messageHash, 1));
+        approvedSignatures[keccak256(messageHash)] = 1;
         emit SignatureCreated(signature, hash);
     }
 
