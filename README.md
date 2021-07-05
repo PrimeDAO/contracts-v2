@@ -1,6 +1,6 @@
 [![banner](https://i.ibb.co/BqjcRGG/Prime-DAO-Github-Contracts-Banner.png)](https://www.prime.xyz/)
 
-#  [![codecov](https://codecov.io/gh/PrimeDAO/contracts-v2/branch/main/graph/badge.svg?token=XNGL2Z8CBE)](https://codecov.io/gh/PrimeDAO/contracts-v2)  ![build&tests](https://github.com/PrimeDAO/contracts-v2/actions/workflows/ci-config.yml/badge.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+#  [![codecov](https://codecov.io/gh/PrimeDAO/contracts-v2/branch/main/graph/badge.svg?token=XNGL2Z8CBE)](https://codecov.io/gh/PrimeDAO/contracts-v2) ![build&tests](https://github.com/PrimeDAO/contracts-v2/actions/workflows/ci-config.yml/badge.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 # PrimeDAO Smart Contracts v2  
 
