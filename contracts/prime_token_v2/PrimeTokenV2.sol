@@ -18,7 +18,7 @@ contract PrimeTokenV2 is ERC20Capped {
     constructor(
     	address genesisMultisig
     )
-    ERC20("PrimeDAO Token V2", "PRIMEv2")
+    ERC20("Prime", "PRIME")
     ERC20Capped(100000000*10**18)
     {
         ERC20._mint(genesisMultisig, 100000000*10**18);
