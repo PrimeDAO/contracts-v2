@@ -123,7 +123,7 @@ contract Signer {
      */
     function _getFunctionHashFromData(bytes memory data) private pure returns(bytes4 functionHash) {
         assembly {
-            _functionHash := mload(add(data, 32))
+            functionHash := mload(add(data, 32))
         }
     }
 
