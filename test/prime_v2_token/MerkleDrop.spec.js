@@ -9,11 +9,12 @@ const commonState = {
 };
 
 describe(">> MerkleDrop", () => {
-  let merkleDropInstance, tranche, tree, proof, alice;
+  let merkleDropInstance, tranche, tree, proof, alice, bob;
 
   before(async () => {
     const signers = await ethers.getSigners();
     alice = signers[2];
+    bob = signers[3];
   });
 
   describe("# claimTranche", () => {
@@ -81,6 +82,7 @@ describe(">> MerkleDrop", () => {
           expectedBalance,
           proof
         );
+
         expect(duplicateClaim).to.be.revertedWith("LP has already claimed");
       });
     });
@@ -93,6 +95,30 @@ describe(">> MerkleDrop", () => {
         thresholdInPast: true,
         withProof: true,
       };
+
+      beforeEach(async () => {
+        ({
+          merkleDropInstance,
+          v2TokenInstance,
+          tree,
+          proof,
+          trancheIdx,
+          expectedBalance,
+        } = await setupFixture({
+          initialState,
+        }));
+      });
+
+      it("returns true", async () => {
+        const verifiedBeforeExpiration = await merkleDropInstance.verifyClaim(
+          alice.address,
+          trancheIdx,
+          expectedBalance,
+          proof
+        );
+
+        expect(verifiedBeforeExpiration).to.eq(true);
+      });
     });
   });
 });
