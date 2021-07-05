@@ -50,7 +50,7 @@ contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
         onlyWhitelisted
         returns (uint256 trancheId)
     {
-        token.safeTransferFrom(msg.sender, address(this), _totalAllocation);
+        token.transferFrom(msg.sender, address(this), _totalAllocation);
 
         trancheId = tranches;
         merkleRoots[trancheId] = _merkleRoot;

@@ -1,12 +1,11 @@
 const { deployments, network } = require("hardhat");
 const BN = require("bn.js");
-const { constants, BigNumber, utils } = require("ethers");
+const { BigNumber, utils } = require("ethers");
 const init = require("../../test-init.js");
 const rawAllocations = require("./primeV2Distribution.json");
 const {
   getTranche,
   createTreeWithAccounts,
-  parseToBnArr,
   getAccountBalanceProof,
 } = require("../merkle");
 
@@ -34,14 +33,10 @@ const mineBlocks = async (blockAmount) => {
   }
 };
 
-const deploy = async (initialState) => {
+const deploy = async () => {
   const setup = await init.initialize(await ethers.getSigners());
   const merkleDropInstance = await init.merkleDrop(setup);
-  const v2TokenInstance = await init.primeTokenV2({
-    ...setup,
-    ...initialState,
-  });
-
+  const { seedToken: v2TokenInstance } = await init.tokens(setup);
   return { merkleDropInstance, v2TokenInstance };
 };
 
@@ -49,32 +44,24 @@ const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
     await deployments.fixture();
     const { initialState } = options;
-    const contractInstances = await deploy(initialState);
-    const [_, prime] = await ethers.getSigners();
+    const contractInstances = await deploy();
 
-    // TODO: call setupInitialState
-    const stateInfo = await setupInitialState(
-      contractInstances,
-      initialState
-    );
+    const stateInfo = await setupInitialState(contractInstances, initialState);
 
     return { ...contractInstances, ...stateInfo };
   }
 );
 
-const setupInitialState = async (
-  contractInstances,
-  initialState
-) => {
+const setupInitialState = async (contractInstances, initialState) => {
   const trancheIdx = "0";
-  const {merkleDropInstance, v2TokenInstance} = contractInstances
+  const { merkleDropInstance, v2TokenInstance } = contractInstances;
   const {
     thresholdInPast,
     withProof,
     trancheExpired,
     forwardBlocks,
     zeroAllocation,
-    incorrectProof
+    incorrectProof,
   } = initialState;
 
   let parsedAllocations = getParsedAllocations(rawAllocations);
@@ -84,7 +71,7 @@ const setupInitialState = async (
   await mineBlocks(forwardBlocks);
 
   // get signers
-  const [_, prime, alice, bob] = await ethers.getSigners();
+  const [root, prime, alice, bob] = await ethers.getSigners();
   const currentBlock = await ethers.provider.getBlockNumber();
 
   // check if claiming date should be in the future
@@ -96,17 +83,16 @@ const setupInitialState = async (
   await merkleDropInstance
     .connect(prime)
     .initialize(
-      prime.address,
-      [prime.address],
+      root.address,
+      [prime.address, root.address],
       v2TokenInstance.address,
       BigNumber.from(thresholdBlockNumber)
     );
 
   // get cumulative allocation amount and approve
-  await v2TokenInstance.approve(
-    merkleDropInstance.address,
-    cumulativeAllocation
-  );
+  await v2TokenInstance
+    .connect(root)
+    .approve(merkleDropInstance.address, cumulativeAllocation);
 
   // create tranche (tranch is a parsed group of claimable address/amount pairs)
   const tranche = getTranche(...Object.entries(rawAllocations));
@@ -148,7 +134,7 @@ const setupInitialState = async (
 
   // pass merkle root and cumulativeAllocation to MerkleDrop (seedNewAllocation)
   await merkleDropInstance
-    .connect(prime)
+    .connect(root)
     .seedNewAllocations(merkleRoot, cumulativeAllocation);
 
   // expire tranche if required for test

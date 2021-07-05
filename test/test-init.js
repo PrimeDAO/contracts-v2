@@ -3,6 +3,7 @@ const { parseEther } = ethers.utils;
 const PROXY_CREATION = "ProxyCreation";
 const PRIME_CAP = parseEther("90000000").toString();
 const PRIME_SUPPLY = parseEther("21000000").toString();
+const PRIME_SUPPLY_V2 = parseEther("100000000").toString();
 
 const initialize = async (accounts) => {
   const setup = {};
@@ -86,23 +87,6 @@ const tokens = async (setup) => {
   return { seedToken, fundingToken };
 };
 
-const primeV2Token = async (setup) => {
-  const PrimeV2Token = await ethers.getContractFactory(
-    "PrimeV2Token",
-    setup.roles.prime
-  );
-  const token = await PrimeV2Token.deploy();
-};
-
-const primeTokenV2 = async (setup) => {
-  const { roles, initialPrimeV2Supply } = setup;
-  const { prime } = roles;
-
-  const PrimeTokenV2 = await ethers.getContractFactory("PrimeTokenV2", prime);
-  const token = await PrimeTokenV2.deploy(initialPrimeV2Supply, prime.address);
-  return token;
-};
-
 const merkleDrop = async (setup) => {
   const MerkleDrop = await ethers.getContractFactory(
     "MerkleDrop",
@@ -120,7 +104,5 @@ module.exports = {
   seedFactory,
   seedMasterCopy,
   tokens,
-  primeV2Token,
   merkleDrop,
-  primeTokenV2,
 };
