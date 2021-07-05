@@ -10,18 +10,23 @@ const {
   getAccountBalanceProof,
 } = require("../merkle");
 
-const parsedAllocations = Object.fromEntries(
-  Object.entries(rawAllocations).map(([address, allocation]) => {
-    return [address, utils.parseEther(allocation)];
-  })
-);
+const getParsedAllocations = (rawAllocations) =>
+  Object.fromEntries(
+    Object.entries(rawAllocations).map(([address, allocation]) => {
+      return [address, utils.parseEther(allocation)];
+    })
+  );
 
-const cumulativeAllocation = Object.entries(parsedAllocations).reduce(
-  (accumulator, [_, allocation]) => {
-    return accumulator.add(allocation);
-  },
-  BigNumber.from(0)
-);
+const getCumulativeAllocation = (rawAllocations) => {
+  const parsedAllocations = getParsedAllocations(rawAllocations);
+
+  return Object.entries(parsedAllocations).reduce(
+    (accumulator, [_, allocation]) => {
+      return accumulator.add(allocation);
+    },
+    BigNumber.from(0)
+  );
+};
 
 const mineBlocks = async (blockAmount) => {
   for (let i = 0; i < blockAmount; i++) {
@@ -63,11 +68,19 @@ const setupInitialState = async (
   v2TokenInstance,
   initialState
 ) => {
-  // go some blocks in the future
-  const { thresholdInPast, withProof, trancheExpired } = initialState;
   const trancheIdx = "0";
+  const {
+    thresholdInPast,
+    withProof,
+    trancheExpired,
+    forwardBlocks,
+    zeroAllocation,
+  } = initialState;
 
-  const { forwardBlocks } = initialState;
+  let parsedAllocations = getParsedAllocations(rawAllocations);
+  let cumulativeAllocation = getCumulativeAllocation(rawAllocations);
+
+  // go some blocks in the future
   await mineBlocks(forwardBlocks);
 
   // get signers
@@ -99,16 +112,11 @@ const setupInitialState = async (
   const tranche = getTranche(...Object.entries(rawAllocations));
 
   // create tree
-  const tree = createTreeWithAccounts(tranche);
-  const merkleRoot = tree.hexRoot;
-
-  // pass merkle root and cumulativeAllocation to MerkleDrop (seedNewAllocation)
-  await merkleDropInstance
-    .connect(prime)
-    .seedNewAllocations(merkleRoot, cumulativeAllocation);
+  let tree = createTreeWithAccounts(tranche);
+  let merkleRoot = tree.hexRoot;
 
   // create proof if required for test
-  const { proof, expectedBalance } =
+  let { proof, expectedBalance } =
     withProof &&
     generateProof(
       tree,
@@ -116,7 +124,25 @@ const setupInitialState = async (
       new BN(parsedAllocations[alice.address].toString())
     );
 
-  console.log("trancheExpired: ", trancheExpired);
+  // change allocation to zero if required for test
+  if (zeroAllocation) {
+    const modifiedAllocations = { ...rawAllocations, [alice.address]: "0" };
+    const modifiedTranche = getTranche(...Object.entries(modifiedAllocations));
+    tree = createTreeWithAccounts(modifiedTranche);
+    ({ proof, expectedBalance } = generateProof(
+      tree,
+      alice.address,
+      new BN(0)
+    ));
+    merkleRoot = tree.hexRoot;
+    cumulativeAllocation = getCumulativeAllocation(modifiedAllocations);
+  }
+
+  // pass merkle root and cumulativeAllocation to MerkleDrop (seedNewAllocation)
+  await merkleDropInstance
+    .connect(prime)
+    .seedNewAllocations(merkleRoot, cumulativeAllocation);
+
   // expire tranche if required for test
   trancheExpired &&
     (await merkleDropInstance.connect(prime).expireTranche(trancheIdx));
@@ -126,7 +152,9 @@ const setupInitialState = async (
 
 const generateProof = (tree, address, balance) => ({
   proof: getAccountBalanceProof(tree, address, balance),
-  expectedBalance: parsedAllocations[address],
+  expectedBalance: balance.isZero()
+    ? BigNumber.from(0)
+    : getParsedAllocations(rawAllocations)[address],
 });
 
 module.exports = {
@@ -134,5 +162,4 @@ module.exports = {
   deploy,
   setupFixture,
   setupInitialState,
-  parsedAllocations,
 };

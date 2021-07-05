@@ -25,14 +25,12 @@ describe(">> MerkleDrop", () => {
         withProof: true,
       };
 
-      beforeEach(async () => {
+      it("reverts", async () => {
         ({ merkleDropInstance, proof, trancheIdx, expectedBalance } =
           await setupFixture({
             initialState,
           }));
-      });
 
-      it("reverts", async () => {
         const claim = merkleDropInstance
           .connect(alice)
           .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
@@ -81,6 +79,32 @@ describe(">> MerkleDrop", () => {
         );
       });
     });
+
+    describe("$ allocation is zero", () => {
+      const initialState = {
+        ...commonState,
+        thresholdInPast: true,
+        withProof: true,
+        zeroAllocation: true,
+      };
+
+      it("reverts", async () => {
+        ({ merkleDropInstance, proof, trancheIdx, expectedBalance } =
+          await setupFixture({
+            initialState,
+          }));
+        const zeroClaim = merkleDropInstance.claimTranche(
+          alice.address,
+          trancheIdx,
+          expectedBalance,
+          proof
+        );
+
+        await expect(zeroClaim).to.be.revertedWith(
+          "No balance would be transferred - not going to waste your gas"
+        );
+      });
+    });
   });
 
   describe("# verifyClaim", () => {
@@ -125,7 +149,7 @@ describe(">> MerkleDrop", () => {
           }));
       });
 
-      it.only("returns false", async () => {
+      it("returns false", async () => {
         const verifiedAfterExpiration = await merkleDropInstance.verifyClaim(
           alice.address,
           trancheIdx,
