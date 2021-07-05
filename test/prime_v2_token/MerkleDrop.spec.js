@@ -74,7 +74,7 @@ describe(">> MerkleDrop", () => {
           proof
         );
 
-        await expect(duplicateClaim).to.be.revertedWith(
+       expect(duplicateClaim).to.be.revertedWith(
           "LP has already claimed"
         );
       });

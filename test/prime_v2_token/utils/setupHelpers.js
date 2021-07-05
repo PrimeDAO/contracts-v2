@@ -37,38 +37,38 @@ const mineBlocks = async (blockAmount) => {
 const deploy = async (initialState) => {
   const setup = await init.initialize(await ethers.getSigners());
   const merkleDropInstance = await init.merkleDrop(setup);
+  const nexusInstance = await init.nexus({...setup, merkleDropAddress: merkleDropInstance.address});
   const v2TokenInstance = await init.primeTokenV2({
     ...setup,
     ...initialState,
   });
 
-  return { merkleDropInstance, v2TokenInstance };
+  return { merkleDropInstance, v2TokenInstance, nexusInstance };
 };
 
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
     await deployments.fixture();
     const { initialState } = options;
+    const contractInstances = await deploy(initialState);
     const [_, prime] = await ethers.getSigners();
-    const { merkleDropInstance, v2TokenInstance } = await deploy(initialState);
 
     // TODO: call setupInitialState
     const stateInfo = await setupInitialState(
-      merkleDropInstance,
-      v2TokenInstance,
+      contractInstances,
       initialState
     );
 
-    return { merkleDropInstance, v2TokenInstance, ...stateInfo };
+    return { ...contractInstances, ...stateInfo };
   }
 );
 
 const setupInitialState = async (
-  merkleDropInstance,
-  v2TokenInstance,
+  contractInstances,
   initialState
 ) => {
   const trancheIdx = "0";
+  const {merkleDropInstance, v2TokenInstance, nexusInstance} = contractInstances
   const {
     thresholdInPast,
     withProof,
@@ -96,7 +96,7 @@ const setupInitialState = async (
   await merkleDropInstance
     .connect(prime)
     .initialize(
-      prime.address,
+      nexusInstance.address,
       [prime.address],
       v2TokenInstance.address,
       BigNumber.from(thresholdBlockNumber)

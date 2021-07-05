@@ -69,33 +69,6 @@ contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
         emit TrancheExpired(_trancheId);
     }
 
-    /**
-     * @dev Allows the mStable governance to add a new Funder
-     * @param _address  Funder to add
-     */
-    function addFunder(address _address)
-        external
-        onlyGovernor
-    {
-        _addWhitelist(_address);
-    }
-
-    /**
-     * @dev Allows the mStable governance to remove inactive Funder
-     * @param _address  Funder to remove
-     */
-    function removeFunder(address _address)
-        external
-        onlyGovernor
-    {
-        require(_address != address(0), "Address is zero");
-        require(whitelist[_address], "Address is not whitelisted");
-
-        whitelist[_address] = false;
-
-        emit RemovedFunder(_address);
-    }
-
 
     /***************************************
                   CLAIMING
