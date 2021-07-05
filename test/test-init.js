@@ -85,13 +85,21 @@ const tokens = async (setup) => {
 
   return { seedToken, fundingToken };
 };
+
 const primeV2Token = async (setup) => {
   const PrimeV2Token = await ethers.getContractFactory(
     "PrimeV2Token",
     setup.roles.prime
   );
   const token = await PrimeV2Token.deploy();
+};
 
+const primeTokenV2 = async (setup) => {
+  const { roles, initialPrimeV2Supply } = setup;
+  const { prime } = roles;
+
+  const PrimeTokenV2 = await ethers.getContractFactory("PrimeTokenV2", prime);
+  const token = await PrimeTokenV2.deploy(initialPrimeV2Supply, prime.address);
   return token;
 };
 
@@ -114,4 +122,5 @@ module.exports = {
   tokens,
   primeV2Token,
   merkleDrop,
+  primeTokenV2,
 };

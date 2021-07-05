@@ -49,7 +49,7 @@ class MerkleTree {
     return elements.reduce((layer, el, idx, arr) => {
       if (idx % 2 === 0) {
         // Hash the current element with its pair element
-        layer.push(MerkleTree.combinedHash(el, arr[idx + 1]));
+        layer.push(this.combinedHash(el, arr[idx + 1]));
       }
 
       return layer;
@@ -64,7 +64,7 @@ class MerkleTree {
       return first;
     }
 
-    return keccak256(MerkleTree.sortAndConcat(first, second));
+    return keccak256(this.sortAndConcat(first, second));
   }
 
   getLayers() {
@@ -77,7 +77,7 @@ class MerkleTree {
 
     // Get next layer until we reach the root
     while (layers[layers.length - 1].length > 1) {
-      layers.push(MerkleTree.getNextLayer(layers[layers.length - 1]));
+      layers.push(this.getNextLayer(layers[layers.length - 1]));
     }
 
     return layers;
@@ -113,14 +113,14 @@ class MerkleTree {
   }
 
   getProof(el) {
-    let idx = MerkleTree.bufIndexOf(el, this.elements);
+    let idx = this.bufIndexOf(el, this.elements);
 
     if (idx === -1) {
       throw new Error("Element does not exist in Merkle tree");
     }
 
     return this.layers.reduce((proof, layer) => {
-      const pairElement = MerkleTree.getPairElement(idx, layer);
+      const pairElement = this.getPairElement(idx, layer);
 
       if (pairElement) {
         proof.push(pairElement);
@@ -138,7 +138,7 @@ class MerkleTree {
 
     const proof = this.getProof(el);
 
-    return MerkleTree.bufArrToHexArr(proof);
+    return this.bufArrToHexArr(proof);
   }
 }
 

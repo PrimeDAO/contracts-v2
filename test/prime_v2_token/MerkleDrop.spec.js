@@ -1,41 +1,55 @@
-const { deployments, network } = require("hardhat");
-const { constants, BigNumber } = require("ethers");
+const { expect } = require("chai");
+const { utils } = require("ethers");
+const BN = require("bn.js");
+const { setupFixture, parsedAllocations } = require("./utils/setupHelpers");
 const {
-  mineBlocks,
-  deploy,
-  setupFixture,
-  setupInitialState,
-} = require("./utils/setupHelpers");
-const { getTranche } = require("./merkle/math");
-
-const MAX_BIG_INT = constants.MaxUint256;
+  parseToBnArr,
+  createTreeWithAccounts,
+  getTranche,
+  getAccountBalanceProof,
+} = require("./merkle");
+const { ethers } = require("hardhat");
 
 const commonState = {
-  initialPrimeV2Supply: BigNumber.from(10 ** 7),
+  initialPrimeV2Supply: utils.parseEther("100000000"),
   forwardBlocks: 100,
 };
 
-describe("MerkleDrop", () => {
-  let merkleDropInstance, v2TokenInstance;
+describe(">> MerkleDrop", () => {
+  let merkleDropInstance, tranche, tree, proof, alice;
 
-  describe("thresholdBlock lies in the past", () => {
-    const initialState = { ...commonState, thresholdInPast: true };
-
-    beforeEach("", async () => {
-      ({ merkleDropInstance, v2TokenInstance } = await setupFixture({
-        initialState,
-      }));
-    });
-
-    it("bla", async () => {
-      // console.log(await merkleDropInstance.token());
-    });
+  before(async () => {
+    const signers = await ethers.getSigners();
+    alice = signers[3];
   });
 
-  // describe("initialization", () => {
-  //   it("bla", async () => {
-  //     console.log(merkleDropInstance);
-  //     // console.log(await merkleDropInstance.token());
-  //   });
-  // });
+  describe("$ thresholdBlock lies in the future", () => {
+    let expectedBalance;
+    const initialState = { ...commonState, thresholdInPast: false };
+
+    beforeEach(async () => {
+      ({ merkleDropInstance, v2TokenInstance, tree } = await setupFixture({
+        initialState,
+      }));
+      proof = getAccountBalanceProof(
+        tree,
+        alice.address,
+        new BN(parsedAllocations[alice.address].toString())
+      );
+      tranche = "0";
+      expectedBalance = parsedAllocations[alice.address];
+    });
+
+    it("reverts", async () => {
+      const claim = merkleDropInstance
+        .connect(alice)
+        .claimTranche(
+          alice.address,
+          tranche,
+          parsedAllocations[alice.address],
+          proof
+        );
+      expect(claim).to.be.revertedWith("Rewards are not yet claimable");
+    });
+  });
 });

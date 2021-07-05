@@ -1,6 +1,9 @@
 const BN = require("bn.js");
 const { simpleToExactAmount } = require("./math");
-const { createTreeWithAccounts } = require("./merkleTree");
+const {
+  createTreeWithAccounts,
+  getAccountBalanceProof,
+} = require("./merkleTree");
 
 const parseToBnArr = (allocations) =>
   Object.entries(allocations).map(([address, allocation]) => {
@@ -8,9 +11,7 @@ const parseToBnArr = (allocations) =>
   });
 
 const getTranche = (...allocations) => {
-  const parsedAllocations = parseToBnArr(allocations);
-
-  return parsedAllocations.reduce(
+  return allocations.reduce(
     (prev, [account, balance, claimed]) => ({
       ...prev,
       [account]: { balance: simpleToExactAmount(balance), claimed },
@@ -19,4 +20,9 @@ const getTranche = (...allocations) => {
   );
 };
 
-module.exports = { getTranche, createTreeWithAccounts };
+module.exports = {
+  getTranche,
+  createTreeWithAccounts,
+  getAccountBalanceProof,
+  parseToBnArr,
+};
