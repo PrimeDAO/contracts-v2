@@ -64,7 +64,8 @@ const setupInitialState = async (
   initialState
 ) => {
   // go some blocks in the future
-  const { thresholdInPast, withProof } = initialState;
+  const { thresholdInPast, withProof, trancheExpired } = initialState;
+  const trancheIdx = "0";
 
   const { forwardBlocks } = initialState;
   await mineBlocks(forwardBlocks);
@@ -107,7 +108,7 @@ const setupInitialState = async (
     .seedNewAllocations(merkleRoot, cumulativeAllocation);
 
   // create proof if required for test
-  const { proof, trancheIdx, expectedBalance } =
+  const { proof, expectedBalance } =
     withProof &&
     generateProof(
       tree,
@@ -115,12 +116,16 @@ const setupInitialState = async (
       new BN(parsedAllocations[alice.address].toString())
     );
 
+  console.log("trancheExpired: ", trancheExpired);
+  // expire tranche if required for test
+  trancheExpired &&
+    (await merkleDropInstance.connect(prime).expireTranche(trancheIdx));
+
   return { tree, proof, trancheIdx, expectedBalance };
 };
 
 const generateProof = (tree, address, balance) => ({
   proof: getAccountBalanceProof(tree, address, balance),
-  trancheIdx: "0",
   expectedBalance: parsedAllocations[address],
 });
 

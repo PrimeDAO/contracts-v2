@@ -26,16 +26,10 @@ describe(">> MerkleDrop", () => {
       };
 
       beforeEach(async () => {
-        ({
-          merkleDropInstance,
-          v2TokenInstance,
-          tree,
-          proof,
-          trancheIdx,
-          expectedBalance,
-        } = await setupFixture({
-          initialState,
-        }));
+        ({ merkleDropInstance, proof, trancheIdx, expectedBalance } =
+          await setupFixture({
+            initialState,
+          }));
       });
 
       it("reverts", async () => {
@@ -57,7 +51,6 @@ describe(">> MerkleDrop", () => {
         ({
           merkleDropInstance,
           v2TokenInstance,
-          tree,
           proof,
           trancheIdx,
           expectedBalance,
@@ -83,7 +76,9 @@ describe(">> MerkleDrop", () => {
           proof
         );
 
-        expect(duplicateClaim).to.be.revertedWith("LP has already claimed");
+        await expect(duplicateClaim).to.be.revertedWith(
+          "LP has already claimed"
+        );
       });
     });
   });
@@ -92,21 +87,15 @@ describe(">> MerkleDrop", () => {
     describe("$ claim is valid", () => {
       const initialState = {
         ...commonState,
-        thresholdInPast: true,
+        thresholdInPast: false,
         withProof: true,
       };
 
       beforeEach(async () => {
-        ({
-          merkleDropInstance,
-          v2TokenInstance,
-          tree,
-          proof,
-          trancheIdx,
-          expectedBalance,
-        } = await setupFixture({
-          initialState,
-        }));
+        ({ merkleDropInstance, proof, trancheIdx, expectedBalance } =
+          await setupFixture({
+            initialState,
+          }));
       });
 
       it("returns true", async () => {
@@ -118,6 +107,33 @@ describe(">> MerkleDrop", () => {
         );
 
         expect(verifiedBeforeExpiration).to.eq(true);
+      });
+    });
+
+    describe("$ tranche is expired", () => {
+      const initialState = {
+        ...commonState,
+        thresholdInPast: false,
+        withProof: true,
+        trancheExpired: true,
+      };
+
+      beforeEach(async () => {
+        ({ merkleDropInstance, proof, trancheIdx, expectedBalance } =
+          await setupFixture({
+            initialState,
+          }));
+      });
+
+      it.only("returns false", async () => {
+        const verifiedAfterExpiration = await merkleDropInstance.verifyClaim(
+          alice.address,
+          trancheIdx,
+          expectedBalance,
+          proof
+        );
+
+        expect(verifiedAfterExpiration).to.eq(false);
       });
     });
   });
