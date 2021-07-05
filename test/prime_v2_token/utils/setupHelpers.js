@@ -64,7 +64,7 @@ const setupInitialState = async (
   initialState
 ) => {
   // go some blocks in the future
-  const { thresholdInPast, generateProof } = initialState;
+  const { thresholdInPast, withProof } = initialState;
 
   const { forwardBlocks } = initialState;
   await mineBlocks(forwardBlocks);
@@ -106,22 +106,23 @@ const setupInitialState = async (
     .connect(prime)
     .seedNewAllocations(merkleRoot, cumulativeAllocation);
 
-  // generate proof if
-  let proof, trancheIdx, expectedBalance;
-  if (generateProof) {
-    proof = getAccountBalanceProof(
+  // create proof if required for test
+  const { proof, trancheIdx, expectedBalance } =
+    withProof &&
+    generateProof(
       tree,
       alice.address,
       new BN(parsedAllocations[alice.address].toString())
     );
-    trancheIdx = "0";
-    expectedBalance = parsedAllocations[alice.address];
-  }
 
   return { tree, proof, trancheIdx, expectedBalance };
 };
 
-const prepareMerkleDrop = () => {};
+const generateProof = (tree, address, balance) => ({
+  proof: getAccountBalanceProof(tree, address, balance),
+  trancheIdx: "0",
+  expectedBalance: parsedAllocations[address],
+});
 
 module.exports = {
   mineBlocks,

@@ -27,7 +27,7 @@ describe(">> MerkleDrop", () => {
     const initialState = {
       ...commonState,
       thresholdInPast: false,
-      generateProof: true,
+      withProof: true,
     };
 
     beforeEach(async () => {
@@ -55,7 +55,7 @@ describe(">> MerkleDrop", () => {
     const initialState = {
       ...commonState,
       thresholdInPast: true,
-      generateProof: true,
+      withProof: true,
     };
 
     beforeEach(async () => {
