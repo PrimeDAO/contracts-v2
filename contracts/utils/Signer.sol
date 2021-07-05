@@ -65,7 +65,7 @@ contract Signer {
     }
 
     /**
-     * @dev                   Signer Constructor
+     * @dev                   Signature generator
      * @param _to             receiver address.
      * @param _value          value in wei.
      * @param _data           encoded transaction data.
@@ -118,7 +118,7 @@ contract Signer {
     }
 
     /**
-     * @dev                Get the byte hash of function call i.e. first four bytes of data
+     * @dev               Get the byte hash of function call i.e. first four bytes of data
      * @param data        encoded transaction data.
      */
     function _getFunctionHashFromData(bytes memory data) private pure returns(bytes4 functionHash) {
