@@ -74,9 +74,7 @@ describe(">> MerkleDrop", () => {
           proof
         );
 
-       expect(duplicateClaim).to.be.revertedWith(
-          "LP has already claimed"
-        );
+        expect(duplicateClaim).to.be.revertedWith("LP has already claimed");
       });
     });
 
@@ -158,6 +156,30 @@ describe(">> MerkleDrop", () => {
         );
 
         expect(verifiedAfterExpiration).to.eq(false);
+      });
+    });
+
+    describe("$ merkle proof is incorrect", () => {
+      const initialState = {
+        ...commonState,
+        thresholdInPast: true,
+        withProof: true,
+        incorrectProof: true,
+      };
+
+      it("reverts", async () => {
+        ({ merkleDropInstance, proof, trancheIdx, expectedBalance } =
+          await setupFixture({
+            initialState,
+          }));
+
+        const claimWithIncorrectProof = merkleDropInstance
+          .connect(alice)
+          .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
+
+        await expect(claimWithIncorrectProof).to.be.revertedWith(
+          "Incorrect merkle proof"
+        );
       });
     });
   });

@@ -37,13 +37,12 @@ const mineBlocks = async (blockAmount) => {
 const deploy = async (initialState) => {
   const setup = await init.initialize(await ethers.getSigners());
   const merkleDropInstance = await init.merkleDrop(setup);
-  const nexusInstance = await init.nexus({...setup, merkleDropAddress: merkleDropInstance.address});
   const v2TokenInstance = await init.primeTokenV2({
     ...setup,
     ...initialState,
   });
 
-  return { merkleDropInstance, v2TokenInstance, nexusInstance };
+  return { merkleDropInstance, v2TokenInstance };
 };
 
 const setupFixture = deployments.createFixture(
@@ -68,13 +67,14 @@ const setupInitialState = async (
   initialState
 ) => {
   const trancheIdx = "0";
-  const {merkleDropInstance, v2TokenInstance, nexusInstance} = contractInstances
+  const {merkleDropInstance, v2TokenInstance} = contractInstances
   const {
     thresholdInPast,
     withProof,
     trancheExpired,
     forwardBlocks,
     zeroAllocation,
+    incorrectProof
   } = initialState;
 
   let parsedAllocations = getParsedAllocations(rawAllocations);
@@ -84,7 +84,7 @@ const setupInitialState = async (
   await mineBlocks(forwardBlocks);
 
   // get signers
-  const [_, prime, alice] = await ethers.getSigners();
+  const [_, prime, alice, bob] = await ethers.getSigners();
   const currentBlock = await ethers.provider.getBlockNumber();
 
   // check if claiming date should be in the future
@@ -96,7 +96,7 @@ const setupInitialState = async (
   await merkleDropInstance
     .connect(prime)
     .initialize(
-      nexusInstance.address,
+      prime.address,
       [prime.address],
       v2TokenInstance.address,
       BigNumber.from(thresholdBlockNumber)
@@ -136,6 +136,14 @@ const setupInitialState = async (
     ));
     merkleRoot = tree.hexRoot;
     cumulativeAllocation = getCumulativeAllocation(modifiedAllocations);
+  }
+
+  if (incorrectProof) {
+    ({ proof } = generateProof(
+      tree,
+      bob.address,
+      new BN(parsedAllocations[bob.address].toString())
+    ));
   }
 
   // pass merkle root and cumulativeAllocation to MerkleDrop (seedNewAllocation)
