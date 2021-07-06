@@ -11,6 +11,8 @@ This repo contains the smart contracts making up PrimeDAO.
 - `/contracts/test/`- contracts used for tests.
 - `/contracts/seed/`- Prime Launch seed module contracts.
 - `/contracts/utils/`- utility contracts.
+- `/docs/`- additional documentation.
+
 
 ## Development
 
@@ -43,6 +45,67 @@ to run coverage
 ```
 npm run coverage
 ```
+
+## Enviornment setup
+
+please prepare ```.env``` file
+
+```bash
+touch .env
+```
+
+and add the following
+
+```
+PROVIDER = infura-provider-key
+MNEMONIC = private-key-or-mnemonic
+```
+
+then create ```config.json```
+
+```bash
+touch config.json
+```
+
+and update it with the following information
+
+```
+{
+    "SAFE": "gnosis safe address",
+    "ADMIN": "seed admin address",
+    "BENEFICIARY": "prime dao address"
+}
+```
+
+
+Note:- ```config.json``` and ```.env``` should be created in root directory.
+
+## Rinkeby Deployment
+
+to deploy contracts
+
+```
+npm run deploy:contracts:rinkeby
+```
+
+to change seed factory owner to gnosis safe
+
+```
+npm run change:factoryOwner:rinkeby
+```
+
+to add signer contract as delegate
+
+```
+npm run add:delegate:rinkeby
+```
+
+to send a test transaction to safe
+
+```
+npm run send:safeTrx:rinkeby
+```
+
 
 ## Contributing to PrimeDAO
 If you wish to contribute to PrimeDAO, check out our [Contributor Onboarding documentation](https://docs.primedao.io/primedao/call-for-contributors).

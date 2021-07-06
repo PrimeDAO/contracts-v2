@@ -6,6 +6,7 @@
   "scripts": {
     "deploy:contracts:rinkeby": "npx hardhat run scripts/deploy_contracts.js --network rinkeby",
     "change:factoryOwner:rinkeby": "npx hardhat run scripts/change_owner.js --network rinkeby",
+    "add:delegate:rinkeby": "npx hardhat run scripts/add_delegate.js --network rinkeby",
     "send:safeTrx:rinkeby": "npx hardhat run scripts/add_tx_to_safe.js --network rinkeby",
     "compile": "hardhat compile",
     "lint": "eslint . --ext .js && solium --no-soliumignore --dir ./contracts",
