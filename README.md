@@ -27,24 +27,8 @@ PROVIDER = infura-provider-key
 MNEMONIC = private-key-or-mnemonic
 ```
 
-for ```.config.json```
 
-```bash
-touch config.json
-```
-
-add following to ```config.json```
-
-```
-{
-    "SAFE": "gnosis safe address",
-    "ADMIN": "seed admin address",
-    "BENEFICIARY": "prime dao address"
-}
-```
-
-
-Note:- ```config.json``` and ```.env``` should be created in root directory.
+Note:- ```.env``` should be created in root directory.
 
 ## Development
 

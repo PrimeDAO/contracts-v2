@@ -2,6 +2,8 @@ require('dotenv').config({path:'./.env'});
 const {['4']: {SeedFactory: SEED_FACTORY, Signer: SIGNER, Safe: SAFE}} = require('../contract-addresses.json');
 const { api } = require('./utils/gnosis_url_generator.js');
 const {
+    ADMIN,
+    BENEFICIARY,
     WETH,
     PRIME,
     softCap,
@@ -18,9 +20,6 @@ const {
 const { ethers } = require('ethers');
 const {PROVIDER_KEY, MNEMONIC} = process.env;
 const gnosis = api(SAFE);
-
-const ADMIN = "0x7589116F8dA3ef3934b6A7b6D398c46348d0A718";
-const BENEFICIARY = "0x67BE2C36e75B7439ffc2DCb99dBdF4fbB2455930";
 
 const main = async () => {
     const rinkeby = new ethers.providers.InfuraProvider('rinkeby', PROVIDER_KEY);
