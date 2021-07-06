@@ -61,22 +61,9 @@ PROVIDER = infura-provider-key
 MNEMONIC = private-key-or-mnemonic
 ```
 
-then create ```config.json```
-
-```bash
-touch config.json
-```
-
-and update it with the following information
-
-```
-{
-    "SAFE": "gnosis safe address",
-}
-```
 
 
-Note:- ```config.json``` and ```.env``` should be created in root directory.
+Note:```.env``` should be created in root directory.
 
 ## Rinkeby Deployment
 
