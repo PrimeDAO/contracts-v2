@@ -6,7 +6,7 @@
 
 This repo contains the smart contracts making up PrimeDAO.
 
-`/contracts/` is organized as follows:
+Repository is organized as follows:
 
 - `/contracts/test/`- contracts used for tests.
 - `/contracts/seed/`- Prime Launch seed module contracts.
@@ -72,8 +72,6 @@ and update it with the following information
 ```
 {
     "SAFE": "gnosis safe address",
-    "ADMIN": "seed admin address",
-    "BENEFICIARY": "prime dao address"
 }
 ```
 
