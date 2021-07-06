@@ -44,6 +44,31 @@ to run coverage
 npm run coverage
 ```
 
+to deploy contracts
+
+```
+npm run deploy:contracts:rinkeby
+```
+
+to change seed factory owner to gnosis safe
+
+```
+npm run change:factoryOwner:rinkeby
+```
+
+to add signer contract as delegate
+
+```
+npm run add:delegate:rinkeby
+```
+
+to send a test transaction to safe
+
+```
+npm run send:safeTrx:rinkeby
+```
+
+
 ## Contributing to PrimeDAO
 If you wish to contribute to PrimeDAO, check out our [Contributor Onboarding documentation](https://docs.primedao.io/primedao/call-for-contributors).
 

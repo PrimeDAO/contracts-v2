@@ -20,7 +20,13 @@ const main = async () => {
         label,
         signature
     };
-    await gnosis.addDelegate(payload);
+    const result = await gnosis.addDelegate(payload);
+    if(result.status == 201){
+        console.log("Successfully added");
+        return;
+    }
+    console.log(result);
+    return;
 }
 
 main();
