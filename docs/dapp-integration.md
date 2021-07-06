@@ -378,7 +378,7 @@ transaction.safe = safe.address;
 // eg. seedArguments = [ //parameters needed for call to deploySeed()
 //     BENEFICIARY,
 //     ADMIN,
-//     [PRIME,WETH],
+//     [seedTokenAddress,fundingTokenAddress],
 //     [softCap,hardCap],
 //     price,
 //     startTime,
@@ -413,7 +413,7 @@ transaction.nonce = await gnosis.getCurrentNonce();
 6. Call(), send details to Signer contract to generate hash and sign the hash.
 ```js
 // I hope it returns an object
-const [signature, hash] = await signer.callStatic.generateSignature(
+const {hash, signature} = await signer.callStatic.generateSignature(
 			transaction.to,
 			transaction.value,
 			transaction.data,
