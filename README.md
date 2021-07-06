@@ -61,7 +61,7 @@ PROVIDER = infura-provider-key
 MNEMONIC = private-key-or-mnemonic
 ```
 
-then create ```.config.json```
+then create ```config.json```
 
 ```bash
 touch config.json
