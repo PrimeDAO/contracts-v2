@@ -1,9 +1,8 @@
 require('dotenv').config({path:'./.env'});
-const {SAFE} = require('../config.json');
-const {['4']: {SIGNER: signer}} = require('../contract-addresses.json');
+const {['4']: {Signer: signer, Safe}} = require('../contract-addresses.json');
 const { api } = require('./utils/gnosis_url_generator.js');
 const {PROVIDER_KEY, MNEMONIC} = process.env;
-const gnosis = api(SAFE);
+const gnosis = api(Safe);
 
 const main = async () => {
     const rinkeby = new ethers.providers.InfuraProvider('rinkeby', PROVIDER_KEY);

@@ -18,7 +18,7 @@ contract Enum {
     enum Operation {Call, DelegateCall}
 }
 
-interface ISAFE{
+interface Safe{
     function getTransactionHash(
         address to,
         uint256 value,
