@@ -14,14 +14,26 @@ This repo contains the smart contracts making up PrimeDAO.
 
 ## Enviornment setup
 
-create ```.env``` file and add following details
+for ```.env```
+
+```bash
+touch .env
+```
+
+add following to ```.env```
 
 ```
-PROVIDER =
-MNEMONIC =
+PROVIDER = infura-provider-key
+MNEMONIC = private-key-or-mnemonic
 ```
 
-create ```config.json``` file and add following details
+for ```.config.json```
+
+```bash
+touch config.json
+```
+
+add following to ```config.json```
 
 ```
 {
@@ -31,9 +43,8 @@ create ```config.json``` file and add following details
 }
 ```
 
-create an empty ```contract-addresses.json``` file
 
-Note:- ```config.json```, ```.env``` and ```contract-addresses.json``` should be created in root directory.
+Note:- ```config.json``` and ```.env``` should be created in root directory.
 
 ## Development
 
