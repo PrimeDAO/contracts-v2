@@ -46,7 +46,7 @@ to run coverage
 npm run coverage
 ```
 
-## Enviornment setup
+## Environment setup
 
 please prepare ```.env``` file
 
