@@ -13,9 +13,13 @@ const main = async () => {
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
     const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, wallet);
 
-    await seedFactory.connect(wallet).transferOwnership(SAFE);
-
-    console.log("New Owner:- ",await seedFactory.owner());
+    seedFactory.once("OwnershipTransferred", (prev, next) => {
+        console.log(`
+        Previous Owner:- ${prev}.
+        New Owner:- ${next}
+        `);
+    });
+    await seedFactory.connect(wallet).transferOwnership(SAFE)
 }
 
 main().then().catch(console.log);
