@@ -18,13 +18,13 @@ import "./interface/ISAFE.sol";
 
 /**
  * @title PrimeDAO Signer Contract
- * @dev   Enable signing SeedFactory.deploySeed() transaction to help integrate Gnosis Safe.
+ * @dev   Enables signing SeedFactory.deploySeed() transaction before sending it to Gnosis Safe.
  */
 contract Signer {
 
-    // EIP1271 magic value - this should be returned to validate the signature
+    // EIP1271 magic value - should be returned to validate the signature
     bytes4 internal constant EIP1271_MAGIC_VALUE       = 0x20c13b0b;
-    // the byte hash of SeedFactory.deploySeed()
+    // SeedFactory.deploySeed() byte hash
     bytes4 internal constant SEED_FACTORY_MAGIC_VALUE  = 0x4a7eb3c2;
     bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH =
     0x7a9f5b2bf4dbb53eb85e012c6094a3d71d76e5bfe821f44ab63ed59311264e35;
@@ -40,8 +40,8 @@ contract Signer {
 
     /**
      * @dev                Signer Constructor
-     * @param _safe        The address of the gnosis safe.
-     * @param _seedFactory The address of the seed factory.
+     * @param _safe        Gnosis Safe address.
+     * @param _seedFactory Seed Factory address.
      */
     constructor (address _safe, address _seedFactory) {
         require(
@@ -53,9 +53,9 @@ contract Signer {
     }
 
     /**
-     * @dev                validate signature using EIP1271
+     * @dev                Validate signature using EIP1271
      * @param _hash        Encoded transaction hash supplied to verify signature.
-     * @param _signature   Signature which needs to be verified.
+     * @param _signature   Signature that needs to be verified.
      */
     function isValidSignature(bytes memory _hash, bytes memory _signature) external view returns(bytes4) {
         if (approvedSignatures[keccak256(_signature)] == 1) {
@@ -90,11 +90,11 @@ contract Signer {
         uint256 _nonce
         ) external returns(bytes memory signature, bytes32 hash) {
 
-        // check if the transaction is for correct seed factory and correct function (deploySeed()) function is called
+        // check if transaction parameters are correct
         require(_to == seedFactory, "Signer: cannot sign invalid transaction");
         require(_getFunctionHashFromData(_data) == SEED_FACTORY_MAGIC_VALUE, "Signer: cannot sign invalid function call");
 
-        // get the contractTransactionHash from gnosis safe
+        // get contractTransactionHash from gnosis safe
         hash = ISAFE(safe).getTransactionHash(
             _to,
             _value,
