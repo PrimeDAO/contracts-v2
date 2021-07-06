@@ -12,6 +12,29 @@ This repo contains the smart contracts making up PrimeDAO.
 - `/contracts/seed/`- Prime Launch seed module contracts.
 - `/contracts/utils/`- utility contracts.
 
+## Enviornment setup
+
+create ```.env``` file and add following details
+
+```
+PROVIDER =
+MNEMONIC =
+```
+
+create ```config.json``` file and add following details
+
+```
+{
+    "SAFE": "gnosis safe address",
+    "ADMIN": "seed admin address",
+    "BENEFICIARY": "prime dao address"
+}
+```
+
+create an empty ```contract-addresses.json``` file
+
+Note:- ```config.json```, ```.env``` and ```contract-addresses.json``` should be created in root directory.
+
 ## Development
 
 requires 
