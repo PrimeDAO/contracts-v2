@@ -1,8 +1,8 @@
 const fs = require('fs');
 const hre = require("hardhat");
 require('dotenv').config({path: './.env'});
-const DeployedContracts = require('../contract-addresses.json');
-const {'4': {Safe:SAFE}} = require('../contract-addresses.json');
+const DeployedContracts = require('../contractAddresses.json');
+const {'rinkeby': {Safe:SAFE}} = require('../contractAddresses.json');
 
 const main = async () => {
 
@@ -44,13 +44,13 @@ const main = async () => {
 
     let {chainId} = await ethers.provider.getNetwork();
 
-    DeployedContracts[chainId] = DeployedContracts[chainId] || {};
-    DeployedContracts[chainId].SEED_FACTORY = seedFactory.address;
-    DeployedContracts[chainId].SEED = seed.address;
-    DeployedContracts[chainId].SIGNER = signer.address;
+    DeployedContracts.rinkeby = DeployedContracts[chainId] || {};
+    DeployedContracts.rinkeby.SEED_FACTORY = seedFactory.address;
+    DeployedContracts.rinkeby.SEED = seed.address;
+    DeployedContracts.rinkeby.SIGNER = signer.address;
 
     fs.writeFileSync(
-      `./contract-addresses.json`,
+      `./contractAddresses.json`,
       JSON.stringify(DeployedContracts), 
       (err) => {
       if(err) throw err;
