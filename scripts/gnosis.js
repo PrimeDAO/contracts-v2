@@ -35,12 +35,7 @@ const getEstimate = async (payload, safe) => {
 
 const getCurrentNonce = async (safe) => {
     const transactions = await get('getNonce', safe);
-    const previousNonce = transactions.results.find(
-        trx => {
-            return trx.confirmations.length !== 0 ;
-        }
-    ).nonce;
-    return previousNonce+1;
+    return transactions.countUniqueNonce;
 }
 
 const sendTransaction = async (payload, safe) => await post('sendTransaction', payload, safe);
