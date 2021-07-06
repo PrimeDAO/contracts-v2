@@ -3,38 +3,32 @@
 const url = `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/`
 
 const post = async (method, payload, safe) => {
-    const res = await fetch(
+    const res = await axios.post(
         `${url}${safe}${methods[method]}`,
-        {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
-        }
+        payload
     );
-    return await res.json();
+    return res;
 }
 
 const get = async (method, safe) => {
-    const res = await fetch(
+    const res = await axios.get(
         `${url}${safe}${methods[method]}`
     );
-    return await res.json();
+    // console.log(res.data);
+    return res.data;
 }
 
 const getEstimate = async (payload, safe) => {
-    const res = await fetch(
+    const res = await axios.post(
         `https://safe-relay.rinkeby.gnosis.io/api/v2/safes/${safe}/transactions/estimate/`,
-        {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
-        }
+        payload
     );
-    return await res.json();
+    return res;
 }
 
 const getCurrentNonce = async (safe) => {
     const transactions = await get('getNonce', safe);
+    // console.log(transactions);
     return transactions.countUniqueNonce;
 }
 
@@ -62,4 +56,5 @@ const methods = {
     'getDelegates': `/delegates/`
 }
 
-module.exports =  {api};
+// eslint-disable
+// export {api};
