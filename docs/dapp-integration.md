@@ -1,34 +1,41 @@
-## About the Approach:-
-### Problem Statement:-
+## PrimeDAO Gnosis Safe integration
+
+### High level overview
 The dApp should send the deploySeed() transaction request to Gnosis, where the Multi-sig Owners can sign and execute transactions.
 
-## Approach:-
+## Approach
 Gnosis provides two services
 1) Gnosis Safe Transactions Service [GTS]:- Keeps track of transactions sent via Gnosis Safe contracts. https://docs.gnosis.io/safe/docs/services_transactions/
-2) Gnosis Safe Relay Service [GRS]:- The transaction relay service acts as a proxy, paying for the transaction fees and getting it back. https://docs.gnosis.io/safe/docs/services_relay/
+2) Gnosis Safe Relay Service [GRS]:- The transaction relay service that acts as a proxy, paying for the transaction fees and getting it back. https://docs.gnosis.io/safe/docs/services_relay/
 
-The Transactions can be sent to the GTS, where it verifies the transaction signatures. The transaction can be sent with or without signatures. When Transactions are sent without signatures, the Gnosis UI doesn't read this transaction, as it will think it as a spam. When transactions are sent with signatures, the Gnosis UI will read this transaction and allow owners to sign & execute transaction from Gnosis UI.
+The Transactions can be sent to the GTS, where it verifies the transaction signatures. The transaction can be sent with or without signatures. When Transactions are sent without signatures, the Gnosis UI doesn't read this transaction, as it will assume it's a spam. When transactions are sent with signatures, the Gnosis UI will read this transaction and allow owners to sign & execute transaction from Gnosis UI.
 
-We have a contract `Signer`, which will act as a delegate for the GTS. The Signer contract will be added as a delegate by any one of the Safe owner. Now the transactions will be sent to GTS, signed by `Signer` contract. As it is signed by delegate, the Gnosis UI will fetch this transaction and enable other owners to sign and execute this transactions.
+We have a contract `Signer`, that acts as a delegate for the GTS. The `Signer` contract should be added as a delegate by any of the Safe owners,  so the transactions could be sent to GTS, signed by `Signer` contract. As it is signed by delegate, the Gnosis UI will fetch this transaction and enable other owners to sign and execute this transactions.
 
+Architecture overview:
 <img src="./architecture.jpg"
     alt="Architecture">
 
 
-## Setup Gnosis API:-
+## Gnosis API Setup
+
 1. Import Gnosis.js
 ```js
 import {api} from 'Gnosis.js';
 ```
+
 2. Instantiate the `api` object
 ```js
 const safe = api(_gnosisSafeAddress_);
 ```
+
 3. Ready to go!
 
-## Gnosis APIs:-
+## Gnosis API Interaction
+
 ### `sendTransaction`
 It is used to send transaction to Gnosis API. It needs to be signed by `owner` or `delegates` of the Safe.
+
 #### Input
 1. `payload`: Object
     ```js
@@ -76,6 +83,7 @@ It is used to send transaction to Gnosis API. It needs to be signed by `owner` o
         value: 0 ,
     }
     ```
+
 #### Output
 1. Status Code: Number
 
@@ -107,6 +115,7 @@ await gnosis.sendTransaction(payload);
 
 ### `addDelegate`
 It is used to add `delegate` for Gnosis API. This delegate can send transaction to Gnosis API but they are not the owner of safe so delegate's signature cannot be used to execute the transaction.
+
 #### Input
 1. `payload`: Object
     ```js
@@ -117,6 +126,7 @@ It is used to add `delegate` for Gnosis API. This delegate can send transaction 
         label: "an identifier for this delegate [required]"
     }
     ```
+
 #### Output
 1. Status Code: Number
 
@@ -189,6 +199,7 @@ await gnosis.getDelegates();
 
 ### `getTransactionHistory`
 Fetch all the transactions from Gnosis API for the supplied safe address.
+
 #### Output
 1. Array of Object. Latest Transaction on zeroth index and so on.
     ```js
@@ -198,6 +209,7 @@ Fetch all the transactions from Gnosis API for the supplied safe address.
         }
     ]
     ```
+
 #### Example
 ```js
 // Gnosis API object should be instantiated
@@ -227,6 +239,7 @@ await gnosis.getTransactionHistory();
 
 ### `getEstimate`
 Gets estimate from Relay Service for a transaction
+
 #### Input
 1. `params`: Object
     ```js
@@ -238,6 +251,7 @@ Gets estimate from Relay Service for a transaction
         data: "", // encoded data for this transaction, for us mostly encoded deploySeed(...arguments)
     }
     ```
+
 #### Output 
 1. `response`: Object 
     ```js
@@ -253,6 +267,7 @@ Gets estimate from Relay Service for a transaction
         safeTxGas: "455162"
     }
     ```
+
 #### Example
 ```js
 // Gnosis API object should be instantiated
@@ -286,8 +301,10 @@ const safeTxGas = estimate.safeTxGas;
 
 ### `getCurrentNonce`
 Gets current valid nonce for the safe transactions
+
 #### Output
 1. `nonce`: Number
+
 #### Example
 ```js
 // Gnosis API object should be instantiated
@@ -301,13 +318,13 @@ await gnosis.getCurrentNonce();
 
 ## Configurations
 1. Please add the following details in `.env` file.
-    1. PROVIDER_KEY - Infura api key for rinkeby test network
-    2. MNEMONIC - To generate wallet, so the transactions can be signed.
+    1. PROVIDER_KEY - Infura api key
+    2. MNEMONIC - EOA private key or mnemonic phrase.
 
 2. Please add following details in `config.js` file.
-    1. ADMIN - Address of project admin, for simulation
-    2. SAFE - Gnosis Safe Address
-    3. BENEFICIARY - Address of beneficiary for simulation 
+    1. ADMIN - Seed admin address
+    2. SAFE - Gnosis Safe address
+    3. BENEFICIARY - Beneficiary address 
 
 ## For Front-end
 
