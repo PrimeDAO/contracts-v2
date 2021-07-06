@@ -316,24 +316,14 @@ await gnosis.getCurrentNonce();
 // 66
 ```
 
-## Configurations
-1. Please add the following details in `.env` file.
-    1. PROVIDER_KEY - Infura api key
-    2. MNEMONIC - EOA private key or mnemonic phrase.
-
-2. Please add following details in `config.js` file.
-    1. ADMIN - Seed admin address
-    2. SAFE - Gnosis Safe address
-    3. BENEFICIARY - Beneficiary address 
-
-## For Front-end
-
 ### How to add Delegate
 
 1. Setup parameters
 ```js
+
 const delegate = signer;
 const label = "Signer";
+//SAFE will be provided in contract-addresses.json
 const safe = SAFE;
 const totp = Math.floor(Math.floor(Date.now()/1000) / 3600);
 ```
@@ -357,6 +347,8 @@ const payload = {
 await gnosis.addDelegate(payload);
 ```
 
+## For Front-end
+
 ### How to Send transaction.
 
 0. Import Gnosis file created in-house
@@ -364,21 +356,39 @@ await gnosis.addDelegate(payload);
 import {api} from './Gnosis';
 ```
 
-1. Setup gnosis api for a SAFE:-
+1. Setup gnosis api for a Safe:-
 ```js
-const SAFE = 'Address of gnosis safe';
-const gnosis = api(SAFE);
+// this will mostly be provided in contract-addresses.json
+const Safe = 'Address of gnosis safe';
+const gnosis = api(Safe);
 ```
 
 2. Start populating transaction object:-
 ```js
 const transaction = {};
 
-transaction.to = this.seedFactory.options.address;
+// seedFactory - Seed Factory contract instance
+// safe - Safe contract instance. Artifacts will be provided
+// signer - Signer contract instance
+transaction.to = seedFactory.address;
 transaction.value = 0;
 transaction.operation = 0;
-transaction.safe = this.safe.options.address;
-transaction.data = this.seedFactory.methods.deploySeed(...seedArguments).encodeABI();
+transaction.safe = safe.address;
+// seedArguments - array of arguments to be passed on to deploySeed
+// eg. seedArguments = [ //parameters needed for call to deploySeed()
+//     BENEFICIARY,
+//     ADMIN,
+//     [PRIME,WETH],
+//     [softCap,hardCap],
+//     price,
+//     startTime,
+//     endTime,
+//     [vestingDuration, vestingCliff],
+//     isPermissioned,
+//     fee,
+//     metadata
+// ]
+transaction.data = seedFactory.populateTransaction.deploySeed(...seedArguments);
 ```
 
 3. Get transaction estimate:-
@@ -402,7 +412,8 @@ transaction.nonce = await gnosis.getCurrentNonce();
 
 6. Call(), send details to Signer contract to generate hash and sign the hash.
 ```js
-const {hash, signature} = await this.signerContract.methods.generateSignature(
+// I'm confused with the equivalent of this in ethersjs
+const {hash, signature} = await signer.methods.generateSignature(
 			transaction.to,
 			transaction.value,
 			transaction.data,
@@ -418,14 +429,14 @@ const {hash, signature} = await this.signerContract.methods.generateSignature(
 		transaction.signature = signature;
 ```
 
-7. Send signatureContract.generateSignature() to do a transaction and store signature in contract
+7. Send signer.generateSignature() to do a transaction and store signature in contract
 ```js
-await signatureContract.methods.generateSignature(transaction.contractTransactionHash).send(options));
+await signer.generateSignature(transaction.contractTransactionHash);
 ```
 
 9. Add sender to the transaction object
 ```js
-transaction.sender = signatureContract.options.address;
+transaction.sender = signer.address;
 ```
 
 10. Send the transaction object to Gnosis Safe Transaction service

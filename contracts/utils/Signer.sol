@@ -14,7 +14,7 @@
 // solium-disable linebreak-style
 pragma solidity ^0.8.0;
 
-import "./interface/ISAFE.sol";
+import "./interface/Safe.sol";
 
 /**
  * @title PrimeDAO Signer Contract
@@ -95,7 +95,7 @@ contract Signer {
         require(_getFunctionHashFromData(_data) == SEED_FACTORY_MAGIC_VALUE, "Signer: cannot sign invalid function call");
 
         // get contractTransactionHash from gnosis safe
-        hash = ISAFE(safe).getTransactionHash(
+        hash = Safe(safe).getTransactionHash(
             _to,
             _value,
             _data,

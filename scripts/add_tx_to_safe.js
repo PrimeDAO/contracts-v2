@@ -1,8 +1,9 @@
 require('dotenv').config({path:'./.env'});
-const {SAFE, ADMIN, BENEFICIARY,} = require('../config.json');
-const {['4']: {SEED_FACTORY, SIGNER}} = require('../contract-addresses.json');
+const {['4']: {SeedFactory: SEED_FACTORY, Signer: SIGNER, Safe: SAFE}} = require('../contract-addresses.json');
 const { api } = require('./utils/gnosis_url_generator.js');
 const {
+    ADMIN,
+    BENEFICIARY,
     WETH,
     PRIME,
     softCap,

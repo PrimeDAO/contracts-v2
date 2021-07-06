@@ -2,7 +2,7 @@ const fs = require('fs');
 const hre = require("hardhat");
 require('dotenv').config({path: './.env'});
 const DeployedContracts = require('../contract-addresses.json');
-const {SAFE} = require('../config.json');
+const {'4': {Safe:SAFE}} = require('../contract-addresses.json');
 
 const main = async () => {
 
