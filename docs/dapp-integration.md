@@ -412,7 +412,7 @@ transaction.nonce = await gnosis.getCurrentNonce();
 
 6. Call(), send details to Signer contract to generate hash and sign the hash.
 ```js
-// I hope it returns an object
+// It returns an array object.
 const {hash, signature} = await signer.callStatic.generateSignature(
 			transaction.to,
 			transaction.value,

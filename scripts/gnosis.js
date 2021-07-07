@@ -28,7 +28,6 @@ const getEstimate = async (payload, safe) => {
 
 const getCurrentNonce = async (safe) => {
     const transactions = await get('getNonce', safe);
-    // console.log(transactions);
     return transactions.countUniqueNonce;
 }
 
