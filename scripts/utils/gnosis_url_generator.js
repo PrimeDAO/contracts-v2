@@ -15,7 +15,6 @@ const get = async (method, safe) => {
     const res = await axios.get(
         `${url}${safe}${methods[method]}`
     );
-    // console.log(res.data);
     return res.data;
 }
 
@@ -29,7 +28,6 @@ const getEstimate = async (payload, safe) => {
 
 const getCurrentNonce = async (safe) => {
     const transactions = await get('getNonce', safe);
-    // console.log(transactions);
     return transactions.countUniqueNonce;
 }
 

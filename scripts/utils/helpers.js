@@ -13,7 +13,6 @@ const send = async (trx, sender) => {
         sender,
         signature: trx.signature
       }
-    //   console.log(JSON.stringify(options));
       const res = await axios.post(generateUrl(api.sendTransaction), options);
       console.log(res.status);
 }

@@ -1,5 +1,5 @@
 require('dotenv').config({path:'./.env'});
-const {['rinkeby']: {Signer: signer, Safe}} = require('../contracAddresses.json');
+const {[`${process.env.NETWORK}`]: {Signer: signer, Safe}} = require('../contracAddresses.json');
 const { api } = require('./utils/gnosis_url_generator.js');
 const {PROVIDER_KEY, MNEMONIC} = process.env;
 const gnosis = api(Safe);

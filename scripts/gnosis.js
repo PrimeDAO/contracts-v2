@@ -14,7 +14,6 @@ const get = async (method, safe) => {
     const res = await axios.get(
         `${url}${safe}${methods[method]}`
     );
-    // console.log(res.data);
     return res.data;
 }
 
