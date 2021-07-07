@@ -378,7 +378,7 @@ transaction.safe = safe.address;
 // eg. seedArguments = [ //parameters needed for call to deploySeed()
 //     BENEFICIARY,
 //     ADMIN,
-//     [PRIME,WETH],
+//     [seedTokenAddress,fundingTokenAddress],
 //     [softCap,hardCap],
 //     price,
 //     startTime,
@@ -388,13 +388,13 @@ transaction.safe = safe.address;
 //     fee,
 //     metadata
 // ]
-transaction.data = seedFactory.populateTransaction.deploySeed(...seedArguments);
+transaction.data = (await seedFactory.populateTransaction.deploySeed(...seedArguments)).data;
 ```
 
 3. Get transaction estimate:-
 ```js
 const estimate = await gnosis.getEstimate(transaction);
-transaction.safeTxGas = estimate.safeTxGas;
+transaction.safeTxGas = estimate.data.safeTxGas;
 ```
 
 4. Add payment related details
@@ -412,8 +412,8 @@ transaction.nonce = await gnosis.getCurrentNonce();
 
 6. Call(), send details to Signer contract to generate hash and sign the hash.
 ```js
-// I'm confused with the equivalent of this in ethersjs
-const {hash, signature} = await signer.methods.generateSignature(
+// It returns an array object.
+const {hash, signature} = await signer.callStatic.generateSignature(
 			transaction.to,
 			transaction.value,
 			transaction.data,
@@ -424,14 +424,24 @@ const {hash, signature} = await signer.methods.generateSignature(
 			transaction.gasToken,
 			transaction.refundReceiver,
 			transaction.nonce
-		).call();
-		transaction.contractTransactionHash = hash;
-		transaction.signature = signature;
+		);
+transaction.contractTransactionHash = hash;
+transaction.signature = signature;
 ```
 
 7. Send signer.generateSignature() to do a transaction and store signature in contract
 ```js
-await signer.generateSignature(transaction.contractTransactionHash);
+await signer.generateSignature(
+            transaction.to,
+			transaction.value,
+			transaction.data,
+			transaction.operation,
+			transaction.safeTxGas,
+			transaction.baseGas,
+			transaction.gasPrice,
+			transaction.gasToken,
+			transaction.refundReceiver,
+			transaction.nonce);
 ```
 
 9. Add sender to the transaction object

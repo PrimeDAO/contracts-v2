@@ -1,7 +1,7 @@
 require('dotenv').config({path:'./.env'});
 const hre = require('hardhat');
 const {PROVIDER_KEY, MNEMONIC} = process.env;
-const {'4': {SeedFactory: SEED_FACTORY, Safe}} = require('../contract-addresses.json');
+const {[`${process.env.NETWORK}`]: {SeedFactory: SEED_FACTORY, Safe}} = require('../contractAddresses.json');
 const ethers = hre.ethers;
 
 const main = async () => {
