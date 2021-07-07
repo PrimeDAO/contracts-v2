@@ -57,6 +57,7 @@ touch .env
 and add the following
 
 ```
+NETWORK = network-name
 PROVIDER = infura-provider-key
 MNEMONIC = private-key-or-mnemonic
 ```
