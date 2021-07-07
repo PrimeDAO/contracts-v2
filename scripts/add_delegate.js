@@ -1,5 +1,5 @@
 require('dotenv').config({path:'./.env'});
-const {[`${process.env.NETWORK}`]: {Signer: signer, Safe}} = require('../contracAddresses.json');
+const {[`${process.env.NETWORK}`]: {Signer: signer, Safe}} = require('../contractAddresses.json');
 const { api } = require('./utils/gnosis_url_generator.js');
 const {PROVIDER_KEY, MNEMONIC} = process.env;
 const gnosis = api(Safe);
@@ -10,7 +10,7 @@ const main = async () => {
 
     const delegate = signer;
     const label = "Signer";
-    const safe = SAFE;
+    const safe = Safe;
     const totp = Math.floor(Math.floor(Date.now()/1000) / 3600);
     const signature = await wallet.signMessage(delegate+totp.toString());
     const payload = {

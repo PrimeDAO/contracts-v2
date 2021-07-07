@@ -42,12 +42,10 @@ const main = async () => {
 
     console.log(`Saving contract addresses`);
 
-    let {chainId} = await ethers.provider.getNetwork();
-
-    DeployedContracts.rinkeby = DeployedContracts[chainId] || {};
-    DeployedContracts.rinkeby.SEED_FACTORY = seedFactory.address;
-    DeployedContracts.rinkeby.SEED = seed.address;
-    DeployedContracts.rinkeby.SIGNER = signer.address;
+    DeployedContracts.rinkeby = DeployedContracts.rinkeby || {};
+    DeployedContracts.rinkeby.SeedFactory = seedFactory.address;
+    DeployedContracts.rinkeby.Seed = seed.address;
+    DeployedContracts.rinkeby.Signer = signer.address;
 
     fs.writeFileSync(
       `./contractAddresses.json`,
