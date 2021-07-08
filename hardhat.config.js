@@ -7,7 +7,7 @@ require("@nomiclabs/hardhat-solhint");
 require('solidity-coverage');
 // require("hardhat-gas-reporter");
 
-const {MNEMONIC} = process.env;
+const {MNEMONIC,PROVIDER} = process.env;
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -36,7 +36,11 @@ module.exports = {
     hardhat: {
       allowUnlimitedContractSize: true,
       blockGasLimit: 100000000,
-      gas: 100000000
+      gas: 2000000
+    },
+    mainnet: {
+      url: PROVIDER,
+      accounts: [MNEMONIC]
     },
     ganache: {
       url: "http://127.0.0.1:7545",
@@ -45,7 +49,7 @@ module.exports = {
       }
     },
     rinkeby: {
-      url: "https://rinkeby.infura.io/v3/c77020f1ad294f6a95b4e1203ffbe3ba",
+      url: PROVIDER,
       accounts: {
         mnemonic: MNEMONIC || "hello darkness my old friend"
       }
