@@ -1,5 +1,8 @@
-
 const { parseEther } = ethers.utils
+const constants = require("@openzeppelin/test-helpers/src/constants");
+const LBP = require("../imports/LiquidityBootstrappingPool.json");
+const LBPFactory = require('../imports/LiquidityBootstrappingPoolFactory.json');
+const Vault = require("../imports/Vault.json");
 
 const PROXY_CREATION = 'ProxyCreation';
 const PRIME_CAP = parseEther('90000000').toString();
@@ -68,14 +71,19 @@ const seedMasterCopy = async (setup) => {
     return seed;
 };
 
-const lbpFactory = async (setup) => {
-    const Lbp_Factory = await ethers.getContractFactory(
-        "LiquidityBootstrappingPoolFactory",
-        setup.vault.address
-    );
-    const lbpFactory = await Lbp_Factory.deploy();
+const Lbp = (setup) => new ethers.ContractFactory(LBP.abi, LBP.bytecode, setup.roles.root);
 
+const deployLBPFactory = async (setup) => {
+    const LBPFactory_Factory = new ethers.ContractFactory(LBPFactory.abi, LBPFactory.bytecode, setup.roles.root);
+    const lbpFactory = await LBPFactory_Factory.deploy(setup.vault.address);
     return lbpFactory;
+}
+
+const deployVault = async (setup) => {
+    const Vault_factory = new ethers.ContractFactory(Vault.abi, Vault.bytecode, setup.roles.root);
+    const vault = await Vault_factory.deploy(constants.ZERO_ADDRESS, constants.ZERO_ADDRESS, 0, 0);
+
+    return vault;
 }
 
 const tokens = async (setup) => {
@@ -91,8 +99,9 @@ const tokens = async (setup) => {
         setup.roles.root
     );
     const fundingToken = await ERC20_Factory.deploy('DAI Stablecoin', 'DAI');
+    const fundingToken2 = await ERC20_Factory.deploy('Wrapped Ether', 'WETH');
 
-    return { seedToken, fundingToken }
+    return { seedToken, fundingToken, fundingToken2 }
 }
 
 module.exports = {
@@ -101,7 +110,9 @@ module.exports = {
     gnosisProxy,
     seedFactory,
     seedMasterCopy,
-    lbpFactory,
+    deployLBPFactory,
+    Lbp,
+    deployVault,
     tokens,
 };
 

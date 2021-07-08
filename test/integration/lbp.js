@@ -1,19 +1,21 @@
 const {expect} = require('chai');
 const { ethers } = require("hardhat");
-const { Contract } = require('ethers');
+const { parseEther } = ethers.utils;
 
 const init = require("../test-init.js");
-const { VaultFactory }= require('../helpers/VaultFactory')
-const { TokenList } = require('../helpers/TokenList')
+const {constants} = require('@openzeppelin/test-helpers');
+const expectEvent = require('@openzeppelin/test-helpers/src/expectEvent');
 
 const deploy = async () => {
 	const setup = await init.initialize(await ethers.getSigners());
 
-	// setup.vault = VaultFactory.deployVault(setup);
+	setup.vault = await init.deployVault(setup);
 
-	// setup.lbpFactory = await init.lbpFactory(setup);
+	setup.lbpFactory = await init.deployLBPFactory(setup);
 
-	setup.tokens = await init.tokens(setup);
+	setup.Lbp = init.Lbp(setup);
+
+	setup.token = await init.tokens(setup);
 
 	return setup
 }
@@ -22,32 +24,25 @@ describe("LbpFactory", async () => {
 	let vault;
 	let setup;
 	let poolTokens;
+	let lbp;
 
-	describe("test factory", async () => {
+	context("test factory", async () => {
 		before('setup', async () => {
 			setup = await deploy();
-
-			poolTokens = await TokenList.create(['Dai', 'Prime'], setup.roles.prime)
-
-			//example from balancer test
-
-			// async function createPool(swapsEnabled = true) {
-			// 	const receipt = await (
-			// 	  await factory.create(
-			// 		NAME,
-			// 		SYMBOL,
-			// 		tokens.addresses,
-			// 		WEIGHTS,
-			// 		POOL_SWAP_FEE_PERCENTAGE,
-			// 		ZERO_ADDRESS,
-			// 		swapsEnabled
-			// 	  )
-			// 	).wait();
-
 		});
-		it('random'), async () => {
-			// const log = vault§
-			console.log(vault.address)
-		}
+		it('deploys new LBP pool', async () => {
+			setup.lbpFactory.PoolCreated
+			await expect(
+				setup.lbpFactory.create(
+					"Test",
+					"TT",
+					[setup.token.fundingToken.address, setup.token.fundingToken2.address],
+					[parseEther('0.6').toString(), parseEther('0.4')],
+					parseEther('0.01').toString(),
+					constants.ZERO_ADDRESS,
+					true
+				)
+			  ).to.emit(setup.lbpFactory, 'PoolCreated');
+		});
 	});
 });
