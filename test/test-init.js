@@ -68,6 +68,16 @@ const seedMasterCopy = async (setup) => {
     return seed;
 };
 
+const lbpFactory = async (setup) => {
+    const Lbp_Factory = await ethers.getContractFactory(
+        "LiquidityBootstrappingPoolFactory",
+        setup.vault.address
+    );
+    const lbpFactory = await Lbp_Factory.deploy();
+
+    return lbpFactory;
+}
+
 const tokens = async (setup) => {
     const PrimeToken_Factory = await ethers.getContractFactory(
         "PrimeToken",
@@ -91,6 +101,7 @@ module.exports = {
     gnosisProxy,
     seedFactory,
     seedMasterCopy,
+    lbpFactory,
     tokens,
 };
 

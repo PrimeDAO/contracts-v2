@@ -1,6 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
 require("dotenv").config({path: "./.env"});
-require("hardhat-deploy");
+// require("hardhat-deploy");
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-solhint");
@@ -66,4 +66,7 @@ module.exports = {
       { version: "0.5.17" },
     ]
   },
+  paths: {
+        imports: 'imports'
+    }
 };
