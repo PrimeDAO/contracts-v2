@@ -31,18 +31,19 @@ describe("LbpFactory", async () => {
 			setup = await deploy();
 		});
 		it('deploys new LBP pool', async () => {
-			setup.lbpFactory.PoolCreated
-			await expect(
-				setup.lbpFactory.create(
-					"Test",
-					"TT",
-					[setup.token.fundingToken.address, setup.token.fundingToken2.address],
-					[parseEther('0.6').toString(), parseEther('0.4')],
-					parseEther('0.01').toString(),
-					constants.ZERO_ADDRESS,
-					true
-				)
-			  ).to.emit(setup.lbpFactory, 'PoolCreated');
+			const receipt = await (await setup.lbpFactory.create(
+				"Test",
+				"TT",
+				[setup.token.fundingToken.address, setup.token.fundingToken2.address],
+				[parseEther('0.6').toString(), parseEther('0.4')],
+				parseEther('0.01').toString(),
+				constants.ZERO_ADDRESS,
+				true
+			)).wait();
+			const poolAddress = receipt.events.filter((data) => {return data.event === 'PoolCreated'})[0].args.pool;
+			setup.lbp = setup.Lbp.attach(poolAddress);
+			expect(await setup.lbp.name()).to.equal("Test");
+			expect(await setup.lbp.symbol()).to.equal("TT");
 		});
 	});
 });
