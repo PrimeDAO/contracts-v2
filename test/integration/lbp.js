@@ -9,7 +9,7 @@ const { TokenList } = require('../helpers/TokenList')
 const deploy = async () => {
 	const setup = await init.initialize(await ethers.getSigners());
 
-	// setup.vault = await VaultFactory.deployVault(setup);
+	// setup.vault = VaultFactory.deployVault(setup);
 
 	// setup.lbpFactory = await init.lbpFactory(setup);
 
@@ -44,10 +44,10 @@ describe("LbpFactory", async () => {
 			// 	  )
 			// 	).wait();
 
+		});
 		it('random'), async () => {
 			// const log = vault§
 			console.log(vault.address)
 		}
-	});
 	});
 });
