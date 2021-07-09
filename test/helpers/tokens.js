@@ -12,7 +12,7 @@ const ERC20TokenList = async (params, from, tokenFactory) => {
 	params = typeof params === 'number' ? Array(params).fill({}) : params;
 	if (!Array.isArray(params)) params = [params];
 
-	// Formates an objects with keys for symbol, name and signer from the list created above.
+	// Formates an objects with keys for symbol and name from the list created above.
 	params = params.map((param, i) => {
 
 		if (typeof param === 'string') param = { symbol: param };
