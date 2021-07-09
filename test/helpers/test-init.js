@@ -80,9 +80,8 @@ const tokens = async (setup) => {
         setup.roles.root
     );
     const fundingToken = await ERC20_Factory.deploy('DAI Stablecoin', 'DAI');
-    const fundingToken2 = await ERC20_Factory.deploy('Wrapped Ether', 'WETH');
 
-    return { seedToken, fundingToken, fundingToken2 }
+    return { seedToken, fundingToken}
 }
 
 module.exports = {

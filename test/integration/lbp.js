@@ -4,19 +4,21 @@ const { parseEther } = ethers.utils;
 
 const init = require("../helpers/test-init.js");
 const balancer = require("../helpers/balancer.js");
+const tokens = require("../helpers/tokens.js");
 const {constants} = require('@openzeppelin/test-helpers');
 const expectEvent = require('@openzeppelin/test-helpers/src/expectEvent');
 
 const deploy = async () => {
 	const setup = await init.initialize(await ethers.getSigners());
 
+	
 	setup.vault = await balancer.deployVault(setup);
-
+	
 	setup.lbpFactory = await balancer.LBPFactory(setup);
-
+	
 	setup.Lbp = balancer.Lbp(setup);
 
-	setup.token = await init.tokens(setup);
+	setup.tokenList = await tokens.ERC20TokenList(2, setup.roles.root);
 
 	return setup
 }
@@ -36,9 +38,9 @@ describe("LbpFactory", async () => {
 		before('setup', async () => {
 
 			setup = await deploy();
-			
+
 			swapsEnabled = true;
-			tokenAddresses = [setup.token.fundingToken.address, setup.token.fundingToken2.address];
+			tokenAddresses = [setup.tokenList[0].address, setup.tokenList[1].address];
 		
 		});
 		it('deploys new LBP pool', async () => {
@@ -51,6 +53,7 @@ describe("LbpFactory", async () => {
 				ZERO_ADDRESS,
 				swapsEnabled
 			)).wait();
+			console.log("test2")
 
 			const poolAddress = receipt.events.filter((data) => {return data.event === 'PoolCreated'})[0].args.pool;
 			setup.lbp = setup.Lbp.attach(poolAddress);
