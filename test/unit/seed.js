@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 const { time, expectRevert, BN } = require('@openzeppelin/test-helpers');
 const { parseEther } = ethers.utils;
 
-const init = require("../test-init.js");
+const init = require("../helpers/test-init.js");
 
 const deploy = async () => {
     const setup = await init.initialize(await ethers.getSigners());;

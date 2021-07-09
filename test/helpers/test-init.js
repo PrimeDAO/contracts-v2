@@ -1,8 +1,4 @@
 const { parseEther } = ethers.utils
-const constants = require("@openzeppelin/test-helpers/src/constants");
-const LBP = require("../imports/LiquidityBootstrappingPool.json");
-const LBPFactory = require('../imports/LiquidityBootstrappingPoolFactory.json');
-const Vault = require("../imports/Vault.json");
 
 const PROXY_CREATION = 'ProxyCreation';
 const PRIME_CAP = parseEther('90000000').toString();
@@ -71,21 +67,6 @@ const seedMasterCopy = async (setup) => {
     return seed;
 };
 
-const Lbp = (setup) => new ethers.ContractFactory(LBP.abi, LBP.bytecode, setup.roles.root);
-
-const deployLBPFactory = async (setup) => {
-    const LBPFactory_Factory = new ethers.ContractFactory(LBPFactory.abi, LBPFactory.bytecode, setup.roles.root);
-    const lbpFactory = await LBPFactory_Factory.deploy(setup.vault.address);
-    return lbpFactory;
-}
-
-const deployVault = async (setup) => {
-    const Vault_factory = new ethers.ContractFactory(Vault.abi, Vault.bytecode, setup.roles.root);
-    const vault = await Vault_factory.deploy(constants.ZERO_ADDRESS, constants.ZERO_ADDRESS, 0, 0);
-
-    return vault;
-}
-
 const tokens = async (setup) => {
     const PrimeToken_Factory = await ethers.getContractFactory(
         "PrimeToken",
@@ -110,9 +91,5 @@ module.exports = {
     gnosisProxy,
     seedFactory,
     seedMasterCopy,
-    deployLBPFactory,
-    Lbp,
-    deployVault,
     tokens,
 };
-
