@@ -7,7 +7,11 @@ require("@nomiclabs/hardhat-solhint");
 require('solidity-coverage');
 // require("hardhat-gas-reporter");
 
-const {MNEMONIC,PROVIDER} = process.env;
+let {MNEMONIC,PROVIDER} = process.env;
+console.log(typeof MNEMONIC, typeof Provider);
+MNEMONIC = MNEMONIC || "";
+PROVIDER = PROVIDER || "";
+console.log(typeof MNEMONIC, typeof PROVIDER);
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
