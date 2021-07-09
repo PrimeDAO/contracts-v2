@@ -53,7 +53,6 @@ describe("LbpFactory", async () => {
 				ZERO_ADDRESS,
 				swapsEnabled
 			)).wait();
-			console.log("test2")
 
 			const poolAddress = receipt.events.filter((data) => {return data.event === 'PoolCreated'})[0].args.pool;
 			setup.lbp = setup.Lbp.attach(poolAddress);
