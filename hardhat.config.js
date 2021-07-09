@@ -20,10 +20,6 @@ task("accounts", "Prints the list of accounts", async () => {
 });
 
 
-const primarySolidityVersion = "0.8.4";
-const soliditySettings = undefined;
-
-
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -39,9 +35,9 @@ module.exports = {
       gas: 2000000
     },
     mainnet: {
-      url: PROVIDER,
+      url: PROVIDER || '',
       accounts: {
-        mnemonic: MNEMONIC
+        mnemonic: MNEMONIC || ""
       }
     },
     ganache: {
@@ -51,7 +47,7 @@ module.exports = {
       }
     },
     rinkeby: {
-      url: PROVIDER,
+      url: PROVIDER || "",
       accounts: {
         mnemonic: MNEMONIC || "hello darkness my old friend"
       }
