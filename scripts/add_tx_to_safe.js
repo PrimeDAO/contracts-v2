@@ -1,6 +1,7 @@
 require('dotenv').config({path:'./.env'});
-const {[`${process.env.NETWORK}`]: {SeedFactory: SEED_FACTORY, Signer: SIGNER, Safe: SAFE}} = require('../contractAddresses.json');
-const { api } = require('./utils/gnosis_url_generator.js');
+const DeployedContracts = require('../contractAddresses.json');
+const { api } = require('./utils/gnosis.js');
+const {getNetwork} = require('./utils/helpers.js');
 const {
     ADMIN,
     BENEFICIARY,
@@ -17,13 +18,18 @@ const {
     fee,
     metadata,
 } = require('../test/test-сonfig.json');
-const { ethers } = require('ethers');
-const {PROVIDER_KEY, MNEMONIC} = process.env;
-const gnosis = api(SAFE);
+const {PROVIDER, MNEMONIC} = process.env;
 
 const main = async () => {
-    const rinkeby = new ethers.providers.InfuraProvider('rinkeby', PROVIDER_KEY);
+    const network = await getNetwork();
+    const key = PROVIDER.split('/')[PROVIDER.split('/').length-1];
+    const rinkeby = new ethers.providers.InfuraProvider(network, key);
     const wallet = await (new ethers.Wallet.fromMnemonic(MNEMONIC)).connect(rinkeby);
+
+    const SEED_FACTORY = DeployedContracts[network].SeedFactory;
+    const SIGNER = DeployedContracts[network].Signer;
+    const SAFE = DeployedContracts[network].Safe;
+    const gnosis = api(SAFE);
 
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
     const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, wallet);

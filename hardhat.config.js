@@ -7,7 +7,9 @@ require("@nomiclabs/hardhat-solhint");
 require('solidity-coverage');
 // require("hardhat-gas-reporter");
 
-const {MNEMONIC} = process.env;
+let {MNEMONIC,PROVIDER} = process.env;
+MNEMONIC = MNEMONIC || "hello darkness my old friend";
+PROVIDER = PROVIDER || "https://rinkeby.infura.io";
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -18,10 +20,6 @@ task("accounts", "Prints the list of accounts", async () => {
     console.log(account.address);
   }
 });
-
-
-const primarySolidityVersion = "0.8.4";
-const soliditySettings = undefined;
 
 
 // You need to export an object to set up your config
@@ -36,18 +34,24 @@ module.exports = {
     hardhat: {
       allowUnlimitedContractSize: true,
       blockGasLimit: 100000000,
-      gas: 100000000
+      gas: 2000000
+    },
+    mainnet: {
+      url: PROVIDER,
+      accounts: {
+        mnemonic: MNEMONIC
+      }
     },
     ganache: {
       url: "http://127.0.0.1:7545",
       accounts: {
-        mnemonic: MNEMONIC || "hello darkness my old friend"
+        mnemonic: MNEMONIC
       }
     },
     rinkeby: {
-      url: "https://rinkeby.infura.io/v3/c77020f1ad294f6a95b4e1203ffbe3ba",
+      url: PROVIDER,
       accounts: {
-        mnemonic: MNEMONIC || "hello darkness my old friend"
+        mnemonic: MNEMONIC
       }
     }
   },
