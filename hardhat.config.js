@@ -40,7 +40,9 @@ module.exports = {
     },
     mainnet: {
       url: PROVIDER,
-      accounts: [MNEMONIC]
+      accounts: {
+        mnemonic: MNEMONIC
+      }
     },
     ganache: {
       url: "http://127.0.0.1:7545",
