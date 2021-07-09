@@ -35,9 +35,9 @@ module.exports = {
       gas: 2000000
     },
     mainnet: {
-      url: PROVIDER || '',
+      url: PROVIDER,
       accounts: {
-        mnemonic: MNEMONIC || ""
+        mnemonic: MNEMONIC
       }
     },
     ganache: {
@@ -47,7 +47,7 @@ module.exports = {
       }
     },
     rinkeby: {
-      url: PROVIDER || "",
+      url: PROVIDER,
       accounts: {
         mnemonic: MNEMONIC || "hello darkness my old friend"
       }
