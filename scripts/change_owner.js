@@ -1,14 +1,16 @@
 require('dotenv').config({path:'./.env'});
-const hre = require('hardhat');
-const {PROVIDER_KEY, MNEMONIC} = process.env;
-const {[`${process.env.NETWORK}`]: {SeedFactory: SEED_FACTORY, Safe}} = require('../contractAddresses.json');
-const ethers = hre.ethers;
+const {PROVIDER, MNEMONIC} = process.env;
+const DeployedContracts = require('../contractAddresses.json');
+const {getNetwork} = require('./utils/helpers.js');
 
 const main = async () => {
-    
-    const rinkeby = new ethers.providers.InfuraProvider('rinkeby', PROVIDER_KEY);
+    const network = await getNetwork();
+    const key = PROVIDER.split('/')[PROVIDER.split('/').length-1];
+    const rinkeby = new ethers.providers.InfuraProvider(network, key);
     const wallet = await (new ethers.Wallet.fromMnemonic(MNEMONIC)).connect(rinkeby);
 
+    const SEED_FACTORY = DeployedContracts[network].SeedFactory;
+    const Safe = DeployedContracts[network].Safe;
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
     const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, wallet);
 

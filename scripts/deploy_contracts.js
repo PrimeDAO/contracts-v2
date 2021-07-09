@@ -2,9 +2,12 @@ const fs = require('fs');
 const hre = require("hardhat");
 require('dotenv').config({path: './.env'});
 const DeployedContracts = require('../contractAddresses.json');
-const {[`${process.env.NETWORK}`]: {Safe:SAFE}} = require('../contractAddresses.json');
+const {getNetwork} = require('./utils/helpers');
 
 const main = async () => {
+
+	const network = await getNetwork();
+	const SAFE = DeployedContracts[network].Safe;
 
     console.log("--------------------------------------------------------------\n")
 
@@ -42,10 +45,10 @@ const main = async () => {
 
     console.log(`Saving contract addresses`);
 
-    DeployedContracts.rinkeby = DeployedContracts.rinkeby || {};
-    DeployedContracts.rinkeby.SeedFactory = seedFactory.address;
-    DeployedContracts.rinkeby.Seed = seed.address;
-    DeployedContracts.rinkeby.Signer = signer.address;
+    DeployedContracts[network] = DeployedContracts[network] || {};
+    DeployedContracts[network].SeedFactory = seedFactory.address;
+    DeployedContracts[network].Seed = seed.address;
+    DeployedContracts[network].Signer = signer.address;
 
     fs.writeFileSync(
       `./contractAddresses.json`,
