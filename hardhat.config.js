@@ -8,10 +8,8 @@ require('solidity-coverage');
 // require("hardhat-gas-reporter");
 
 let {MNEMONIC,PROVIDER} = process.env;
-console.log(typeof MNEMONIC, typeof Provider);
 MNEMONIC = MNEMONIC || "hello darkness my old friend";
-PROVIDER = PROVIDER || "";
-console.log(typeof MNEMONIC, typeof PROVIDER);
+PROVIDER = PROVIDER || "https://rinkeby.infura.io";
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
