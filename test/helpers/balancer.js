@@ -9,7 +9,7 @@ const LBPFactory = async (setup) => {
     return lbpFactory;
 }
 
-const deployVault = async (setup) => {
+const Vault = async (setup) => {
     const Vault_factory = new ethers.ContractFactory(VaultArtifact.abi, VaultArtifact.bytecode, setup.roles.root);
     const vault = await Vault_factory.deploy(constants.ZERO_ADDRESS, constants.ZERO_ADDRESS, 0, 0);
 
@@ -20,6 +20,6 @@ const Lbp = (setup) => new ethers.ContractFactory(LBPArtifact.abi, LBPArtifact.b
 
 module.exports = {
 	LBPFactory,
-	deployVault,
+	Vault,
 	Lbp
 }

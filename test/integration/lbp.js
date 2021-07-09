@@ -12,7 +12,7 @@ const deploy = async () => {
 	const setup = await init.initialize(await ethers.getSigners());
 
 	
-	setup.vault = await balancer.deployVault(setup);
+	setup.vault = await balancer.Vault(setup);
 	
 	setup.lbpFactory = await balancer.LBPFactory(setup);
 	
