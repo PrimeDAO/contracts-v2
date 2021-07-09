@@ -9,7 +9,7 @@ require('solidity-coverage');
 
 let {MNEMONIC,PROVIDER} = process.env;
 console.log(typeof MNEMONIC, typeof Provider);
-MNEMONIC = MNEMONIC || "";
+MNEMONIC = MNEMONIC || "hello darkness my old friend";
 PROVIDER = PROVIDER || "";
 console.log(typeof MNEMONIC, typeof PROVIDER);
 
@@ -47,13 +47,13 @@ module.exports = {
     ganache: {
       url: "http://127.0.0.1:7545",
       accounts: {
-        mnemonic: MNEMONIC || "hello darkness my old friend"
+        mnemonic: MNEMONIC
       }
     },
     rinkeby: {
       url: PROVIDER,
       accounts: {
-        mnemonic: MNEMONIC || "hello darkness my old friend"
+        mnemonic: MNEMONIC
       }
     }
   },
