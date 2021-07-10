@@ -1,3 +1,5 @@
+// For Trial/Test - Sends transaction signer by Signer Contract to the Gnosis Safe API
+
 require('dotenv').config({path:'./.env'});
 const DeployedContracts = require('../contractAddresses.json');
 const { api } = require('./utils/gnosis.js');

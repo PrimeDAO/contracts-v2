@@ -1,3 +1,5 @@
+// Changes SeedFactory Owner from the deployer to Gnosis Safe
+
 require('dotenv').config({path:'./.env'});
 const DeployedContracts = require('../contractAddresses.json');
 const {getNetwork} = require('./utils/helpers.js');

@@ -1,3 +1,5 @@
+// adds Signer contract as a delegate for Gnosis Safe
+
 require('dotenv').config({path:'./.env'});
 const DeployedContracts = require('../contractAddresses.json');
 const { api } = require('./utils/gnosis.js');
