@@ -1,5 +1,5 @@
 const getNetwork = async () => {
-  const {chainId} = await ethers.provider.getNetwork();
+  const {chainId} = await this.provider.getNetwork();
   switch(chainId){
       case 1: return "mainnet";
       case 4: return "rinkeby";

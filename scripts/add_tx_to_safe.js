@@ -18,13 +18,10 @@ const {
     fee,
     metadata,
 } = require('../test/test-сonfig.json');
-const {PROVIDER, MNEMONIC} = process.env;
 
 const main = async () => {
     const network = await getNetwork();
-    const key = PROVIDER.split('/')[PROVIDER.split('/').length-1];
-    const rinkeby = new ethers.providers.InfuraProvider(network, key);
-    const wallet = await (new ethers.Wallet.fromMnemonic(MNEMONIC)).connect(rinkeby);
+    const account = (await ethers.getSigners())[0];
 
     const SEED_FACTORY = DeployedContracts[network].SeedFactory;
     const SIGNER = DeployedContracts[network].Signer;
@@ -32,10 +29,10 @@ const main = async () => {
     const gnosis = api(SAFE);
 
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
-    const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, wallet);
+    const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, account);
 
     const Signer = await hre.artifacts.readArtifact("Signer");
-    const signer = await new ethers.Contract(SIGNER, Signer.abi, wallet);
+    const signer = await new ethers.Contract(SIGNER, Signer.abi, account);
 
     const {data, to} = await seedFactory.populateTransaction.deploySeed(
         BENEFICIARY,
