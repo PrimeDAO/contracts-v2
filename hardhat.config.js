@@ -7,7 +7,9 @@ require("@nomiclabs/hardhat-solhint");
 require('solidity-coverage');
 // require("hardhat-gas-reporter");
 
-const {MNEMONIC,PROVIDER} = process.env;
+let {MNEMONIC,PROVIDER} = process.env;
+MNEMONIC = MNEMONIC || "hello darkness my old friend";
+PROVIDER = PROVIDER || "https://rinkeby.infura.io";
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -43,13 +45,13 @@ module.exports = {
     ganache: {
       url: "http://127.0.0.1:7545",
       accounts: {
-        mnemonic: MNEMONIC || "hello darkness my old friend"
+        mnemonic: MNEMONIC
       }
     },
     rinkeby: {
       url: PROVIDER,
       accounts: {
-        mnemonic: MNEMONIC || "hello darkness my old friend"
+        mnemonic: MNEMONIC
       }
     }
   },
