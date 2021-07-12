@@ -429,27 +429,25 @@ transaction.contractTransactionHash = hash;
 transaction.signature = signature;
 ```
 
-7. Send signer.generateSignature() to do a transaction and store signature in contract
-```js
-await signer.generateSignature(
-            transaction.to,
-			transaction.value,
-			transaction.data,
-			transaction.operation,
-			transaction.safeTxGas,
-			transaction.baseGas,
-			transaction.gasPrice,
-			transaction.gasToken,
-			transaction.refundReceiver,
-			transaction.nonce);
-```
-
-9. Add sender to the transaction object
+7. Add sender to the transaction object
 ```js
 transaction.sender = signer.address;
 ```
 
-10. Send the transaction object to Gnosis Safe Transaction service
+8. Send signer.generateSignature() to do a transaction and wait for the receipt, once we receive receipt, we send transaction.
 ```js
-const response = await gnosis.sendTransaction(transaction);
+(await signer.generateSignature(
+    transaction.to,
+	transaction.value,
+	transaction.data,
+	transaction.operation,
+	transaction.safeTxGas,
+	transaction.baseGas,
+	transaction.gasPrice,
+	transaction.gasToken,
+	transaction.refundReceiver,
+	transaction.nonce)).wait()
+    .then(
+        async () => await gnosis.sendTransaction(transaction);
+    );
 ```
