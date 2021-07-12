@@ -448,6 +448,6 @@ transaction.sender = signer.address;
 	transaction.refundReceiver,
 	transaction.nonce)).wait()
     .then(
-        async () => await gnosis.sendTransaction(transaction);
+        async () => await gnosis.sendTransaction(transaction)
     );
 ```

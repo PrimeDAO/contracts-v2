@@ -28,6 +28,8 @@ const main = async () => {
     const SEED_FACTORY = DeployedContracts[network].SeedFactory;
     const SIGNER = DeployedContracts[network].Signer;
     const SAFE = DeployedContracts[network].Safe;
+
+    // Step 1 
     const gnosis = api(SAFE);
 
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
@@ -36,7 +38,13 @@ const main = async () => {
     const Signer = await hre.artifacts.readArtifact("Signer");
     const signer = await new ethers.Contract(SIGNER, Signer.abi, account);
 
-    const {data, to} = await seedFactory.populateTransaction.deploySeed(
+    // step 2
+    const transaction = {};
+    transaction.to = seedFactory.address;
+    transaction.value = 0;
+    transaction.operation = 0;
+    transaction.safe = SAFE;
+    const {data} = await seedFactory.populateTransaction.deploySeed(
         BENEFICIARY,
         ADMIN,
         [PRIME,WETH],
@@ -49,61 +57,55 @@ const main = async () => {
         fee,
         metadata
     );
-    const trx = {
-        to,
-        value: 0,
-        data: data,
-        gasToken: '0x0000000000000000000000000000000000000000',
-        refundReceiver: '0x0000000000000000000000000000000000000000',
-        operation: 0,
-        safe: SAFE,
-    }
+    transaction.data = data;
 
-    const {data: estimate} = await gnosis.getEstimate({
-        safe: SAFE,
-        to: trx.to,
-        value: trx.value,
-        data: trx.data,
-        operation: trx.operation
-    });
-    trx.safeTxGas = estimate.safeTxGas;
-    trx.baseGas = 0,
-    trx.gasPrice = 0,
-    trx.nonce = await gnosis.getCurrentNonce();
+    // step 3
+    const estimate = await gnosis.getEstimate(transaction);
+    transaction.safeTxGas = estimate.data.safeTxGas;
 
-    await signer.once('SignatureCreated',async (signature, hash)=> {
-        trx.signature= signature;
-        const options = {
-            safe: trx.safe,
-            to: trx.to,
-            value: trx.value,
-            data: trx.data,
-            operation: trx.operation,
-            safeTxGas: trx.safeTxGas,
-            baseGas: trx.baseGas,
-            gasPrice: trx.gasPrice,
-            gasToken: trx.gasToken,
-            refundReceiver: trx.refundReceiver,
-            nonce: trx.nonce,
-            contractTransactionHash: hash,
-            sender: signer.address,
-            signature: trx.signature
-          }
-          await gnosis.sendTransaction(options);
-    });
+    // step 4
+    transaction.baseGas        = 0;
+    transaction.gasPrice       = 0;
+    transaction.gasToken       = '0x0000000000000000000000000000000000000000';
+    transaction.refundReceiver = '0x0000000000000000000000000000000000000000';
 
-    await signer.generateSignature(
-        trx.to,
-		trx.value,
-		trx.data,
-		trx.operation,
-		trx.safeTxGas,
-		trx.baseGas,
-		trx.gasPrice,
-		trx.gasToken,
-		trx.refundReceiver,
-		trx.nonce
+    // step 5
+    transaction.nonce = await gnosis.getCurrentNonce();
+
+    // step 6
+    const {hash, signature} = await signer.callStatic.generateSignature(
+        transaction.to,
+        transaction.value,
+        transaction.data,
+        transaction.operation,
+        transaction.safeTxGas,
+        transaction.baseGas,
+        transaction.gasPrice,
+        transaction.gasToken,
+        transaction.refundReceiver,
+        transaction.nonce
     );
+    transaction.contractTransactionHash = hash;
+    transaction.signature = signature;
+
+    // step 7
+    transaction.sender = signer.address;
+
+    //step 8
+    (await signer.generateSignature(
+        transaction.to,
+        transaction.value,
+        transaction.data,
+        transaction.operation,
+        transaction.safeTxGas,
+        transaction.baseGas,
+        transaction.gasPrice,
+        transaction.gasToken,
+        transaction.refundReceiver,
+        transaction.nonce)).wait()
+        .then(
+            async () => await gnosis.sendTransaction(transaction)
+        );
 }
 
 main().then().catch(console.log);
