@@ -1,17 +1,24 @@
 const axios = require('axios');
 
 /* eslint-disable */
-const url = process.env.NODE_ENV === "development"?
-    `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/`
-    :
-    `https://safe-transaction.gnosis.io/api/v1/safes/`;
+const getUrl = (network) => {
+    switch(network){
+        case 'mainnet': return `https://safe-transaction.gnosis.io/api/v1/safes/`;
+        case 'rinkeby': return `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/`;
+        default: return `${network}, is not supported yet`;
+    }
+}
 
-const relayUrl = process.env.NODE_ENV === "development"?
-    `https://safe-relay.rinkeby.gnosis.io/api/v2/safes/`
-    :
-    `https://safe-relay.gnosis.io/api/v2/safes/`;
+const getRelayUrl = (network) => {
+    switch(network) {
+        case 'mainnet': return `https://safe-relay.gnosis.io/api/v2/safes/`;
+        case 'rinkeby': return `https://safe-relay.rinkeby.gnosis.io/api/v2/safes/`;
+        default:  `${network}, is not supported yet`;
+    }
+}
 
-const post = async (method, payload, safe) => {
+const post = async (method, payload, safe, url) => {
+    console.log("Post",url);
     const res = await axios.post(
         `${url}${safe}${methods[method]}`,
         payload
@@ -19,40 +26,46 @@ const post = async (method, payload, safe) => {
     return res;
 }
 
-const get = async (method, safe) => {
+const get = async (method, safe, url) => {
+    console.log("Get",url);
     const res = await axios.get(
         `${url}${safe}${methods[method]}`
     );
     return res.data;
 }
 
-const getEstimate = async (payload, safe) => {
+const getEstimate = async (payload, safe, url) => {
+    console.log(url);
     const res = await axios.post(
-        `${relayUrl}${safe}/transactions/estimate/`,
+        `${url}${safe}/transactions/estimate/`,
         payload
     );
     return res;
 }
 
-const getCurrentNonce = async (safe) => {
-    const transactions = await get('getNonce', safe);
+const getCurrentNonce = async (safe, url) => {
+    const transactions = await get('getNonce', safe, url);
     return transactions.countUniqueNonce;
 }
 
-const sendTransaction = async (payload, safe) => await post('sendTransaction', payload, safe);
-const getTransactionHistory = async (safe) => await get('getTransactionHistory', safe);
+const sendTransaction = async (payload, safe, url) => await post('sendTransaction', payload, safe, url);
+const getTransactionHistory = async (safe, url) => await get('getTransactionHistory', safe, url);
 
-const addDelegate = async (payload, safe) => await post('addDelegate', payload, safe);
-const getDelegates = async (safe) => (await get('getDelegates', safe)).results;
+const addDelegate = async (payload, safe, url) => await post('addDelegate', payload, safe, url);
+const getDelegates = async (safe, url) => (await get('getDelegates', safe, url)).results;
 
-const api = (safe) => ({
-    sendTransaction: async (payload) => await sendTransaction(payload, safe),
-    addDelegate: async (payload) => await await addDelegate(payload, safe),
-    getEstimate: async (payload) => await getEstimate(payload, safe),
-    getTransactionHistory: async () => await getTransactionHistory(safe),
-    getCurrentNonce: async () => await getCurrentNonce(safe),
-    getDelegates: async () => await getDelegates(safe)
-});
+const api = (safe, network) => {
+    const url = getUrl(network);
+    const relayUrl = getRelayUrl(network);
+    return {
+        sendTransaction: async (payload) => await sendTransaction(payload, safe, url),
+        addDelegate: async (payload) => await await addDelegate(payload, safe, url),
+        getEstimate: async (payload) => await getEstimate(payload, safe, relayUrl),
+        getTransactionHistory: async () => await getTransactionHistory(safe, url),
+        getCurrentNonce: async () => await getCurrentNonce(safe, url),
+        getDelegates: async () => await getDelegates(safe, url)
+    }
+};
 
 const methods = {
     'sendTransaction': `/multisig-transactions/`,

@@ -9,9 +9,10 @@ const main = async () => {
     const network = await getNetwork();
     const account = (await ethers.getSigners())[0];
 
+    console.log(process.env.NODE_ENV, network);
     const safe = DeployedContracts[network].Safe;
     const delegate = DeployedContracts[network].Signer;
-    const gnosis = api(safe);
+    const gnosis = api(safe, network);
     const label = "Signer";
     const totp = Math.floor(Math.floor(Date.now()/1000) / 3600);
     const signature = await account.signMessage(delegate+totp.toString());

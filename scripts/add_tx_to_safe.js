@@ -30,7 +30,7 @@ const main = async () => {
     const SAFE = DeployedContracts[network].Safe;
 
     // Step 1 
-    const gnosis = api(SAFE);
+    const gnosis = api(SAFE, network);
 
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
     const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, account);

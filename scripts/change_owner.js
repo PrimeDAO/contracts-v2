@@ -19,7 +19,7 @@ const main = async () => {
         New Owner:- ${next}
         `);
     });
-    await seedFactory.connect(account).transferOwnership(Safe)
+    await seedFactory.connect(account).transferOwnership(Safe);
 }
 
 main().then().catch(console.log);
