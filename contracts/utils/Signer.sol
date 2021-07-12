@@ -112,7 +112,7 @@ contract Signer {
         bytes memory messageHash = _encodeMessageHash(hash);
         // check if transaction is not signed before
         require(
-            approvedSignatures[keccak256(approvedSignatures[keccak256(messageHash)])] == 0,
+            approvedSignatures[keccak256(messageHash)] == 0,
             "Signer: transaction already signed"
             );
 
