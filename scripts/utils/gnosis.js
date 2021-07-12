@@ -1,5 +1,30 @@
 const axios = require('axios');
 
+const parseErrorData = (data) => {
+    return Object.values(data).reduce(
+        (accumulator, error) => `${accumulator}${accumulator.length == 0?'':' , '}${error}`, ''
+    );
+}
+
+const errorHandler = (error) => {
+    let errorMsg = {};
+    if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        errorMsg.message = `HTTP status ${error.response.status}. Message received: ${parseErrorData(error.response.data)}`
+        errorMsg.data = error.response.data;
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        errorMsg.message = `No response: ${error.message}`;
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        errorMsg.message = `Unknown error: ${error.message}`;
+      }
+      return errorMsg;
+}
+
 /* eslint-disable */
 const getUrl = (network) => {
     switch(network){
@@ -18,26 +43,38 @@ const getRelayUrl = (network) => {
 }
 
 const post = async (method, payload, safe, url) => {
-    const res = await axios.post(
-        `${url}${safe}${methods[method]}`,
-        payload
-    );
-    return res;
+    try{
+        const res = await axios.post(
+            `${url}${safe}${methods[method]}`,
+            payload
+        );
+        return res;
+    } catch (error) {
+        throw Error(errorHandler(error).message);
+    }
 }
 
 const get = async (method, safe, url) => {
-    const res = await axios.get(
-        `${url}${safe}${methods[method]}`
-    );
-    return res.data;
+    try{
+        const res = await axios.get(
+            `${url}${safe}${methods[method]}`
+        );
+        return res.data;
+    } catch (error) {
+        throw Error(errorHandler(error).message);
+    }
 }
 
 const getEstimate = async (payload, safe, url) => {
-    const res = await axios.post(
-        `${url}${safe}/transactions/estimate/`,
-        payload
-    );
-    return res;
+    try {
+        const res = await axios.post(
+            `${url}${safe}/transactions/estimate/`,
+            payload
+        );
+        return res;
+    } catch (error) {
+        throw Error(errorHandler(error).message);
+    }
 }
 
 const getCurrentNonce = async (safe, url) => {
