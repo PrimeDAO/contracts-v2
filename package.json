@@ -34,7 +34,7 @@
     "eslint": "^7.28.0",
     "ethereum-waffle": "^3.3.0",
     "ethers": "^5.4.0",
-    "hardhat": "^2.4.1",
+    "hardhat": "^2.4.3",
     "hardhat-deploy": "^0.7.0-beta.46",
     "hardhat-gas-reporter": "^1.0.4",
     "solidity-coverage": "^0.7.16",
