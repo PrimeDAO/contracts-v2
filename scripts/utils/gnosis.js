@@ -18,7 +18,6 @@ const getRelayUrl = (network) => {
 }
 
 const post = async (method, payload, safe, url) => {
-    console.log("Post",url);
     const res = await axios.post(
         `${url}${safe}${methods[method]}`,
         payload
@@ -27,7 +26,6 @@ const post = async (method, payload, safe, url) => {
 }
 
 const get = async (method, safe, url) => {
-    console.log("Get",url);
     const res = await axios.get(
         `${url}${safe}${methods[method]}`
     );
@@ -35,7 +33,6 @@ const get = async (method, safe, url) => {
 }
 
 const getEstimate = async (payload, safe, url) => {
-    console.log(url);
     const res = await axios.post(
         `${url}${safe}/transactions/estimate/`,
         payload
