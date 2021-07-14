@@ -1,4 +1,3 @@
-
 const { parseEther } = ethers.utils
 
 const PROXY_CREATION = 'ProxyCreation';
@@ -82,7 +81,7 @@ const tokens = async (setup) => {
     );
     const fundingToken = await ERC20_Factory.deploy('DAI Stablecoin', 'DAI');
 
-    return { seedToken, fundingToken }
+    return { seedToken, fundingToken}
 }
 
 module.exports = {
@@ -93,4 +92,3 @@ module.exports = {
     seedMasterCopy,
     tokens,
 };
-

@@ -16,7 +16,7 @@ const {
     metadata,
 } = require('../test-сonfig.json');
 
-const init = require("../test-init.js");
+const init = require("../helpers/test-init.js");
 
 const zero = 0;
 const oneMillion = 1000000;
