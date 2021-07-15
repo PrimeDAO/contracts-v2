@@ -18,12 +18,9 @@ if (PK) {
   };
 }
 
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
+// hardhat tasks
+require("./tasks/seedFactory");
 
-/**
- * @type import('hardhat/config').HardhatUserConfig
- */
 module.exports = {
   paths: {
     artifacts: "build/artifacts",

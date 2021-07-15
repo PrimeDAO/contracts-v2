@@ -19,5 +19,8 @@
     },
     "hardhat": {
         "Safe": "0xc54Ad3e73BDE767738335809A5f20F9BB80Be8D3"
+    },
+    "localhost": {
+        "Safe": "0xc54Ad3e73BDE767738335809A5f20F9BB80Be8D3"
     }
 }
