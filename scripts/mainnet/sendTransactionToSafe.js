@@ -1,9 +1,8 @@
 // For Trial/Test - Sends transaction signer by Signer Contract to the Gnosis Safe API
 
 require('dotenv').config({path:'./.env'});
-const DeployedContracts = require('../contractAddresses.json');
-const { api } = require('./utils/gnosis.js');
-const {getNetwork} = require('./utils/helpers.js');
+const DeployedContracts = require('../../contractAddresses.json');
+const { api } = require('../utils/gnosis.js');
 const {
     ADMIN,
     BENEFICIARY,
@@ -19,18 +18,18 @@ const {
     isPermissioned,
     fee,
     metadata,
-} = require('../test/test-сonfig.json');
+} = require('../../test/test-сonfig.json');
 
 const main = async () => {
-    const network = await getNetwork();
+    console.log("Using Mainnet\n");
     const account = (await ethers.getSigners())[0];
 
-    const SEED_FACTORY = DeployedContracts[network].SeedFactory;
-    const SIGNER = DeployedContracts[network].Signer;
-    const SAFE = DeployedContracts[network].Safe;
+    const SEED_FACTORY = DeployedContracts.mainnet.SeedFactory;
+    const SIGNER = DeployedContracts.mainnet.Signer;
+    const SAFE = DeployedContracts.mainnet.Safe;
 
     // Step 1 
-    const gnosis = api(SAFE, network);
+    const gnosis = api(SAFE, "mainnet");
 
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
     const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, account);
