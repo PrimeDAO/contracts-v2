@@ -1,25 +1,22 @@
-require("@nomiclabs/hardhat-waffle");
 require("dotenv").config({ path: "./.env" });
-require("hardhat-deploy");
 require("@nomiclabs/hardhat-ethers");
+require("hardhat-deploy");
 require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-solhint");
 require("solidity-coverage");
 // require("hardhat-gas-reporter");
 
-let { MNEMONIC, PROVIDER } = process.env;
-MNEMONIC = MNEMONIC || "hello darkness my old friend";
-PROVIDER = PROVIDER || "https://rinkeby.infura.io";
+const { INFURA_KEY, MNEMONIC, ETHERSCAN_API_KEY, PK } = process.env;
+const DEFAULT_MNEMONIC = "hello darkness my old friend";
 
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async () => {
-  const accounts = await ethers.getSigners();
-
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
+const sharedNetworkConfig = {};
+if (PK) {
+  sharedNetworkConfig.accounts = [PK];
+} else {
+  sharedNetworkConfig.accounts = {
+    mnemonic: MNEMONIC || DEFAULT_MNEMONIC,
+  };
+}
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -28,35 +25,34 @@ task("accounts", "Prints the list of accounts", async () => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
+  paths: {
+    artifacts: "build/artifacts",
+    cache: "build/cache",
+    deploy: "deploy",
+    sources: "contracts",
+  },
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
-      allowUnlimitedContractSize: true,
+      ...sharedNetworkConfig,
       blockGasLimit: 100000000,
       gas: 2000000,
     },
     mainnet: {
-      url: PROVIDER,
-      accounts: {
-        mnemonic: MNEMONIC,
-      },
-    },
-    ganache: {
-      url: "http://127.0.0.1:7545",
-      accounts: {
-        mnemonic: MNEMONIC,
-      },
+      ...sharedNetworkConfig,
+      url: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
     },
     rinkeby: {
-      url: PROVIDER,
-      accounts: {
-        mnemonic: MNEMONIC,
-      },
+      ...sharedNetworkConfig,
+      url: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
+    },
+    ganache: {
+      ...sharedNetworkConfig,
+      url: "http://127.0.0.1:7545",
     },
   },
   solidity: {
     compilers: [
-      { version: "0.8.6" },
       {
         version: "0.8.4",
         settings: {
@@ -66,7 +62,13 @@ module.exports = {
           },
         },
       },
-      { version: "0.5.16" },
+      { version: "0.6.12" },
+      { version: "0.5.17" },
     ],
+  },
+  namedAccounts: {
+    root: 0,
+    prime: 1,
+    beneficiary: 2,
   },
 };
