@@ -30,22 +30,26 @@ module.exports = {
   },
   defaultNetwork: "hardhat",
   networks: {
-    hardhat: {
+    localhost: {
       ...sharedNetworkConfig,
       blockGasLimit: 100000000,
       gas: 2000000,
+      saveDeployments: true,
     },
     mainnet: {
       ...sharedNetworkConfig,
       url: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+      saveDeployments: true,
     },
     rinkeby: {
       ...sharedNetworkConfig,
       url: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
+      saveDeployments: true,
     },
     ganache: {
       ...sharedNetworkConfig,
       url: "http://127.0.0.1:7545",
+      saveDeployments: true,
     },
   },
   solidity: {
