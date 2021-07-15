@@ -3,17 +3,14 @@ const DeployedContracts = require("../contractAddresses.json");
 
 const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
   const { V2_INITIAL_SUPPLY } = process.env;
-  const GENESIS_MULTISIG = DeployedContracts[network.name].Safe;
+  const { Safe } = DeployedContracts[network.name];
   const { parseEther } = utils;
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
+
   await deploy("PrimeToken", {
     from: root,
-    args: [
-      parseEther(V2_INITIAL_SUPPLY),
-      parseEther(V2_INITIAL_SUPPLY),
-      GENESIS_MULTISIG,
-    ],
+    args: [parseEther(V2_INITIAL_SUPPLY), parseEther(V2_INITIAL_SUPPLY), Safe],
     log: true,
   });
 
