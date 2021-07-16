@@ -26,7 +26,9 @@ import {api} from 'Gnosis.js';
 
 2. Instantiate the `api` object
 ```js
-const safe = api(_gnosisSafeAddress_);
+const safeAddress = "0x2E46E481d57477A0663a7Ec61E7eDc65F4cb7F5C"
+const network = 'mainnet'; // the network you want to interact with. Supports mainnet and rinkeby
+const safe = api(safeAddress, network);
 ```
 
 3. Ready to go!
@@ -91,7 +93,8 @@ It is used to send transaction to Gnosis API. It needs to be signed by `owner` o
 ```js
 // Gnosis API object should be instantiated
 const safeAddress = "0x2E46E481d57477A0663a7Ec61E7eDc65F4cb7F5C"
-const gnosis = api(safeAddress);
+const network = 'mainnet'; // the network you want to interact with. Supports mainnet and rinkeby
+const gnosis = api(safeAddress, network);
 
 const payload = {
     baseGas: 0,
@@ -138,7 +141,8 @@ const safeAddress = "0x2E46E481d57477A0663a7Ec61E7eDc65F4cb7F5C";
 const label = "Signer";
 
 // instantiate Gnosis Api
-const gnosis = api(safeAddress);
+const network = 'mainnet'; // the network you want to interact with. Supports mainnet and rinkeby
+const gnosis = api(safeAddress, network);
 
 // generate a totp - as mentioned by Gnosis
 // totp = current timestamp (in seconds) / 3600 [natural division, no floating point]
@@ -183,8 +187,9 @@ Fetch all the delegates and the delegators[person who added them as a delegate] 
 #### Example
 ```js
 // Gnosis API object should be instantiated
-const safeAddress = "0x2E46E481d57477A0663a7Ec61E7eDc65F4cb7F5C"
-const gnosis = api(safeAddress);
+const safeAddress = "0x2E46E481d57477A0663a7Ec61E7eDc65F4cb7F5C";
+const network = 'mainnet'; // the network you want to interact with. Supports mainnet and rinkeby
+const gnosis = api(safeAddress, network);
 
 // call gnosis.getDelegates to fetch delegates
 await gnosis.getDelegates();
@@ -214,7 +219,8 @@ Fetch all the transactions from Gnosis API for the supplied safe address.
 ```js
 // Gnosis API object should be instantiated
 const safeAddress = "0x2E46E481d57477A0663a7Ec61E7eDc65F4cb7F5C"
-const gnosis = api(safeAddress);
+const network = 'mainnet'; // the network you want to interact with. Supports mainnet and rinkeby
+const gnosis = api(safeAddress, network);
 
 // call gnosis.getTransactionHistory()
 await gnosis.getTransactionHistory();
@@ -238,7 +244,7 @@ await gnosis.getTransactionHistory();
 ```
 
 ### `getEstimate`
-Gets estimate from Relay Service for a transaction
+Gets estimate from Transaction Service for a transaction
 
 #### Input
 1. `params`: Object
@@ -247,7 +253,6 @@ Gets estimate from Relay Service for a transaction
         to: "address ", // for us mostly seedFactory
         value: ,// Number; in wei; for us mostly 0,
         operation: , // Number; type of call being made; for us mostly 0
-        safe: "address of gnosis safe",
         data: "", // encoded data for this transaction, for us mostly encoded deploySeed(...arguments)
     }
     ```
@@ -257,13 +262,6 @@ Gets estimate from Relay Service for a transaction
     ```js
     // All we need from below object is safeTxGas
     {
-        baseGas: "58936",
-        dataGas: "58936",
-        gasPrice: "4266666667",
-        gasToken: "0x0000000000000000000000000000000000000000",
-        lastUsedNonce: 65,
-        operationalGas: "0",
-        refundReceiver: "0x07fd2865c8DE725B4e1f4E2B72E5c654baA7c4b3",
         safeTxGas: "455162"
     }
     ```
@@ -272,31 +270,24 @@ Gets estimate from Relay Service for a transaction
 ```js
 // Gnosis API object should be instantiated
 const safeAddress = "0x2E46E481d57477A0663a7Ec61E7eDc65F4cb7F5C"
-const gnosis = api(safeAddress);
+const network = 'mainnet'; // the network you want to interact with. Supports mainnet and rinkeby
+const gnosis = api(safeAddress, network);
 
 const params = {
     to: "0x455C45006C3872d8de9afd4733dBb9b3B2Ade525",
     value: 0,
     operation: 0,
-    safe: "0x2E46E481d57477A0663a7Ec61E7eDc65F4cb7F5C",
     data: "0x815c5d4a...",
 }
 
 // call gnosis.getEstimate() with params
 const estimate = await gnosis.getEstimate(params);
-// {
-//     baseGas: "58936",
-//     dataGas: "58936",
-//     gasPrice: "6666666667",
-//     gasToken: "0x0000000000000000000000000000000000000000",
-//     lastUsedNonce: 65,
-//     operationalGas: "0",
-//     refundReceiver: "0x07fd2865c8DE725B4e1f4E2B72E5c654baA7c4b3",
+// data: {
 //     safeTxGas: "455162"
 // }
 
 // All we might need is this
-const safeTxGas = estimate.safeTxGas;
+const safeTxGas = estimate.data.safeTxGas;
 ```
 
 ### `getCurrentNonce`
@@ -309,7 +300,8 @@ Gets current valid nonce for the safe transactions
 ```js
 // Gnosis API object should be instantiated
 const safeAddress = "0x2E46E481d57477A0663a7Ec61E7eDc65F4cb7F5C"
-const gnosis = api(safeAddress);
+const network = 'mainnet'; // the network you want to interact with. Supports mainnet and rinkeby
+const gnosis = api(safeAddress, network);
 
 // call gnosis.getCurrentNonce() to get current valid nonce
 await gnosis.getCurrentNonce();
@@ -359,8 +351,9 @@ import {api} from './Gnosis';
 1. Setup gnosis api for a Safe:-
 ```js
 // this will mostly be provided in contract-addresses.json
-const Safe = 'Address of gnosis safe';
-const gnosis = api(Safe);
+const safeAddress = 'Address of gnosis safe';
+const network = 'mainnet'; // the network you want to interact with. Supports mainnet and rinkeby
+const gnosis = api(safeAddress, network);
 ```
 
 2. Start populating transaction object:-
@@ -373,7 +366,6 @@ const transaction = {};
 transaction.to = seedFactory.address;
 transaction.value = 0;
 transaction.operation = 0;
-transaction.safe = safe.address;
 // seedArguments - array of arguments to be passed on to deploySeed
 // eg. seedArguments = [ //parameters needed for call to deploySeed()
 //     BENEFICIARY,
@@ -397,7 +389,12 @@ const estimate = await gnosis.getEstimate(transaction);
 transaction.safeTxGas = estimate.data.safeTxGas;
 ```
 
-4. Add payment related details
+4. Set Safe address:-
+```js
+transaction.safe = safe.address;
+```
+
+5. Add payment related details
 ```js
 transaction.baseGas        = 0;
 transaction.gasPrice       = 0;
@@ -405,12 +402,12 @@ transaction.gasToken       = '0x0000000000000000000000000000000000000000';
 transaction.refundReceiver = '0x0000000000000000000000000000000000000000';
 ```
 
-5. Get Nonce
+6. Get Nonce
 ```js
 transaction.nonce = await gnosis.getCurrentNonce();
 ```
 
-6. Call(), send details to Signer contract to generate hash and sign the hash.
+7. Call(), send details to Signer contract to generate hash and sign the hash.
 ```js
 // It returns an array object.
 const {hash, signature} = await signer.callStatic.generateSignature(
@@ -429,7 +426,7 @@ transaction.contractTransactionHash = hash;
 transaction.signature = signature;
 ```
 
-7. Send signer.generateSignature() to do a transaction and store signature in contract
+8. Send signer.generateSignature() to do a transaction and store signature in contract
 ```js
 await signer.generateSignature(
             transaction.to,
@@ -444,12 +441,12 @@ await signer.generateSignature(
 			transaction.nonce);
 ```
 
-9. Add sender to the transaction object
+10. Add sender to the transaction object
 ```js
 transaction.sender = signer.address;
 ```
 
-10. Send the transaction object to Gnosis Safe Transaction service
+11. Send the transaction object to Gnosis Safe Transaction service
 ```js
 const response = await gnosis.sendTransaction(transaction);
 ```
