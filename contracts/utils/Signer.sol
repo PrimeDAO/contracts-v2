@@ -15,31 +15,33 @@
 pragma solidity ^0.8.0;
 
 import "./interface/ISAFE.sol";
+import "openzeppelin-solidity/contracts/access/Ownable.sol";
 
 
-contract Signer {
+contract Signer is Ownable {
 
     bytes4 internal constant EIP1271_MAGIC_VALUE       = 0x20c13b0b;
-    bytes4 internal constant SEED_FACTORY_MAGIC_VALUE  = 0x4a7eb3c2;
+    // bytes4 internal constant SEED_FACTORY_MAGIC_VALUE  = 0x4a7eb3c2;
     bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH =
     0x7a9f5b2bf4dbb53eb85e012c6094a3d71d76e5bfe821f44ab63ed59311264e35;
     bytes32 private constant SEED_MSG_TYPEHASH         =
     0xa1a7ad659422d5fc08fdc481fd7d8af8daf7993bc4e833452b0268ceaab66e5d;
 
     mapping(bytes32 => bytes32) public approvedSignatures;
+    mapping(address => bytes4) public approvedFactories; // What size bytes do I need?
 
     address public safe;
-    address public seedFactory;
 
     event SignatureCreated(bytes signature, bytes32 hash);
 
-    constructor (address _safe, address _seedFactory) {
+    constructor (address _safe) {
+        // Only assign Gnosis safe address when calling contstructor
         require(
-            _safe != address(0) && _seedFactory != address(0),
-            "Signer: Safe and SeedFactory address cannot be zero"
+            _safe != address(0),
+            "Signer: Safe address cannot be zero"
             );
         safe = _safe;
-        seedFactory = _seedFactory;
+        // factory = _factory;
     }
 
     function isValidSignature(bytes memory _hash, bytes memory _signature) external view returns(bytes4) {
@@ -47,6 +49,15 @@ contract Signer {
             return EIP1271_MAGIC_VALUE;
         }
         return "0x";
+    }
+
+    function addFactory(address _factory, bytes4 _hash) external onlyOwner {
+        // Can we check for a valid hash? Maybe see if we can call it or something?
+        require(
+            _factory != address(0) && _hash != 0,
+            "Signer: Factory address and function selector hash can not be zero");
+        approvedFactories[_factory] = _hash;
+        
     }
 
     function generateSignature(
@@ -62,8 +73,8 @@ contract Signer {
         uint256 _nonce
         ) external returns(bytes memory signature, bytes32 hash) {
 
-        require(to == seedFactory, "Signer: cannot sign invalid transaction");
-        require(getFunctionHashFromData(data) == SEED_FACTORY_MAGIC_VALUE, "Signer: cannot sign invalid function call");
+        require(approvedFactories[to] > 0, "Signer: cannot sign invalid transaction");
+        require(getFunctionHashFromData(data) == approvedFactories[to], "Signer: cannot sign invalid function call");
 
         hash = ISAFE(safe).getTransactionHash(
             to,

@@ -28,6 +28,8 @@ const deploy = async () => {
 
 	setup.tokenList = await tokens.ERC20TokenList(2, setup.roles.root);
 
+	setup.data = {};
+
 	return setup
 }
 
@@ -36,28 +38,53 @@ describe("LbpFactory", async () => {
 	let swapsEnabled;
 	let tokenAddresses;
 	let Signer_Factory;
+	let lbpFactoryFunctionSelector;
+	let nonce = 0;
 
 	const NAME = "Test";
 	const SYMBOL = "TT";
 	const WEIGHTS = [parseEther('0.6').toString(), parseEther('0.4')];
 	const POOL_SWAP_FEE_PERCENTAGE = parseEther('0.01').toString()
-	const ZERO_ADDRESS = constants.ZERO_ADDRESS
+	const ZERO_ADDRESS = constants.ZERO_ADDRESS;
+	const zero = 0;
+	const oneMillion = 1000000;
+	const SIGNATURE_CREATED = 'SignatureCreated';
+	const signaturePosition = 196;
+
+
 
 	context("test factory EOA", async () => {
 		before('setup', async () => {
 
 			setup = await deploy();
-			// Signer_Factory = await ethers.getContractFactory(
-			// 	"Signer",
-			// 	setup.roles.root
-			// );
-
+			
 			swapsEnabled = true;
 			tokenAddresses = [setup.tokenList[0].address, setup.tokenList[1].address];
+
+			// Get function selector from lbpFactory.create
+			const {data} = await setup.lbpFactory.populateTransaction.create(
+				NAME,
+				SYMBOL,
+				tokenAddresses,
+				WEIGHTS,
+				POOL_SWAP_FEE_PERCENTAGE,
+				ZERO_ADDRESS,
+				swapsEnabled
+				);
+				lbpFactoryFunctionSelector = data.substring(0, 10);
+				// console.log(lbpFactoryFunctionSelector.toString())
+			
+			// Deploy signer contract with lbpFactoryFunctionSelector
+			Signer_Factory = await ethers.getContractFactory(
+				"Signer",
+				setup.roles.root
+			);
+			setup.signer = await Signer_Factory.deploy(setup.proxySafe.address);
+			setup.signer.addFactory(setup.lbpFactory.address, lbpFactoryFunctionSelector)
 		
 		});
 		it('deploys new LBP pool', async () => {
-			const receipt = await (await setup.lbpFactory.create(
+			const { data, to } = await setup.lbpFactory.populateTransaction.create(
 				NAME,
 				SYMBOL,
 				tokenAddresses,
@@ -65,42 +92,61 @@ describe("LbpFactory", async () => {
 				POOL_SWAP_FEE_PERCENTAGE,
 				setup.proxySafe.address,
 				swapsEnabled
-			)).wait();
+			);
+			const trx = [
+				to,
+				zero,
+				data,
+				zero,
+				oneMillion,
+				oneMillion,
+				zero,
+				ZERO_ADDRESS,
+				ZERO_ADDRESS
+			];
+            const transaction = await setup.signer.generateSignature(...trx, nonce);
+			const hashData = await setup.proxySafe.encodeTransactionData(...trx, nonce);
+			// console.log(hashData);
+			nonce++;
+            const receipt = await transaction.wait();
+			const {signature, hash} = receipt.events.filter((data) => {return data.event === SIGNATURE_CREATED})[0].args;
+            trx.push(signature);
+            setup.data.trx = trx;
+            setup.data.hash = hash;
+			// console.log('\n' + `0x${signature}`);
+            // checking if the signature produced can correctly be verified by signer contract.
+            expect(await setup.signer.isValidSignature(hashData,`0x${signature.slice(signaturePosition)}`)).to.equal(lbpFactoryFunctionSelector);
 
-			const poolAddress = receipt.events.filter((data) => {return data.event === 'PoolCreated'})[0].args.pool;
-			setup.lbp = setup.Lbp.attach(poolAddress);
-			expect(await setup.lbp.name()).to.equal(NAME);
-			expect(await setup.lbp.symbol()).to.equal(SYMBOL);
-			expect(await setup.lbp.getSwapEnabled()).to.be.true;
-			await setup.lbp.connect(setup.proxySafe.address).setSwapEnabled(false);
-			expect(await setup.lbp.getSwapEnabled()).to.be.false;
+			// console.log(receipt);
+
+			// const poolAddress = receipt.events.filter((data) => {return data.event === 'PoolCreated'})[0].args.pool;
+			// setup.lbp = setup.Lbp.attach(poolAddress);
+			// expect(await setup.lbp.name()).to.equal(NAME);
+			// expect(await setup.lbp.symbol()).to.equal(SYMBOL);
+			// expect(await setup.lbp.getSwapEnabled()).to.be.true;
+			// await setup.lbp.connect(setup.proxySafe.address).setSwapEnabled(false);
+			// expect(await setup.lbp.getSwapEnabled()).to.be.false;
 
 		});
+		// it('deploys new LBP pool', async () => {
+		// 	const receipt = await (await setup.lbpFactory.create(
+		// 		NAME,
+		// 		SYMBOL,
+		// 		tokenAddresses,
+		// 		WEIGHTS,
+		// 		POOL_SWAP_FEE_PERCENTAGE,
+		// 		setup.proxySafe.address,
+		// 		swapsEnabled
+		// 	)).wait();
+
+		// 	const poolAddress = receipt.events.filter((data) => {return data.event === 'PoolCreated'})[0].args.pool;
+		// 	setup.lbp = setup.Lbp.attach(poolAddress);
+		// 	expect(await setup.lbp.name()).to.equal(NAME);
+		// 	expect(await setup.lbp.symbol()).to.equal(SYMBOL);
+		// 	// expect(await setup.lbp.getSwapEnabled()).to.be.true;
+		// 	// await setup.lbp.connect(setup.proxySafe.address).setSwapEnabled(false);
+		// 	// expect(await setup.lbp.getSwapEnabled()).to.be.false;
+
+		// });
 	});
-	// context("test factory GnosisSafeProxi", async () => {
-	// 	before('setup', async () => {
-
-	// 		setup = await deploy();
-
-	// 		swapsEnabled = true;
-	// 		tokenAddresses = [setup.tokenList[0].address, setup.tokenList[1].address];
-		
-	// 	});
-	// 	it('deploys new LBP pool', async () => {
-	// 		const receipt = await (await setup.lbpFactory.create(
-	// 			NAME,
-	// 			SYMBOL,
-	// 			tokenAddresses,
-	// 			WEIGHTS,
-	// 			POOL_SWAP_FEE_PERCENTAGE,
-	// 			ZERO_ADDRESS,
-	// 			swapsEnabled
-	// 		)).wait();
-
-	// 		const poolAddress = receipt.events.filter((data) => {return data.event === 'PoolCreated'})[0].args.pool;
-	// 		setup.lbp = setup.Lbp.attach(poolAddress);
-	// 		expect(await setup.lbp.name()).to.equal(NAME);
-	// 		expect(await setup.lbp.symbol()).to.equal(SYMBOL);
-	// 	});
-	// });
 });

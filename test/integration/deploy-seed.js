@@ -21,6 +21,7 @@ const init = require("../helpers/test-init.js");
 const zero = 0;
 const oneMillion = 1000000;
 const magicValue = `0x20c13b0b`;
+const seedFactoryMagicValue = 0x4a7eb3c2;
 const signaturePosition = 196;
 const EXECUTION_SUCCESS = 'ExecutionSuccess';
 const SIGNATURE_CREATED = 'SignatureCreated';
@@ -65,7 +66,8 @@ describe('>> Deploy new seed with gnosis safe', async () => {
                 "Signer",
                 setup.roles.prime
             );
-            setup.signer = await Signer_Factory.deploy(setup.proxySafe.address, setup.seedFactory.address);
+            setup.signer = await Signer_Factory.deploy(setup.proxySafe.address);
+            setup.signer.addFactory(setup.seedFactory.address, seedFactoryMagicValue)
         });
         it('setup gnosis proxy', async () => {
             // setting up safe with two owners, 1) prime 2) signer contract
