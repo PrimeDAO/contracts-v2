@@ -4,6 +4,10 @@
   "description": "new experimental version of PrimeDAO contracts",
   "main": "index.js",
   "scripts": {
+    "deploy:contracts:mainnet": "npx hardhat run scripts/deploy_contracts.js --network mainnet",
+    "change:factoryOwner:mainnet": "npx hardhat run scripts/change_owner.js --network mainnet",
+    "add:delegate:mainnet": "npx hardhat run scripts/add_delegate.js --network mainnet",
+    "send:safeTrx:mainnet": "npx hardhat run scripts/add_tx_to_safe.js --network mainnet",
     "deploy:contracts:rinkeby": "npx hardhat run scripts/deploy_contracts.js --network rinkeby",
     "change:factoryOwner:rinkeby": "npx hardhat run scripts/change_owner.js --network rinkeby",
     "add:delegate:rinkeby": "npx hardhat run scripts/add_delegate.js --network rinkeby",
