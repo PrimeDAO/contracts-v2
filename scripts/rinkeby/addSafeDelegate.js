@@ -5,7 +5,7 @@ const DeployedContracts = require('../../contractAddresses.json');
 const { api } = require('../utils/gnosis.js');
 
 const main = async () => {
-    console.log("Using Rinkeby\n");
+    console.log("Using rinkeby\n");
     const account = (await ethers.getSigners())[0];
 
     const safe = DeployedContracts.rinkeby.Safe;

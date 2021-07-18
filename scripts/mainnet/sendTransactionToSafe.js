@@ -21,9 +21,8 @@ const {
 } = require('../../test/test-сonfig.json');
 
 const main = async () => {
-    console.log("Using Mainnet\n");
+    console.log("Using mainnet\n");
     const account = (await ethers.getSigners())[0];
-
     const SEED_FACTORY = DeployedContracts.mainnet.SeedFactory;
     const SIGNER = DeployedContracts.mainnet.Signer;
     const SAFE = DeployedContracts.mainnet.Safe;
@@ -42,7 +41,6 @@ const main = async () => {
     transaction.to = seedFactory.address;
     transaction.value = 0;
     transaction.operation = 0;
-    transaction.safe = SAFE;
     const {data} = await seedFactory.populateTransaction.deploySeed(
         BENEFICIARY,
         ADMIN,
@@ -61,6 +59,8 @@ const main = async () => {
     // step 3
     const estimate = await gnosis.getEstimate(transaction);
     transaction.safeTxGas = estimate.data.safeTxGas;
+
+    transaction.safe = SAFE;
 
     // step 4
     transaction.baseGas        = 0;

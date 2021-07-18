@@ -5,10 +5,10 @@ const DeployedContracts = require('../../contractAddresses.json');
 
 const main = async () => {
     console.log("Using rinkeby\n");
+    const account = (await ethers.getSigners())[0];
+    
     const SEED_FACTORY = DeployedContracts.rinkeby.SeedFactory;
     const Safe = DeployedContracts.rinkeby.Safe;
-    const account = (await ethers.getSigners())[0];
-
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
     const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, account);
 

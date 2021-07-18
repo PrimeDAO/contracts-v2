@@ -4,7 +4,7 @@ require('dotenv').config({path:'./.env'});
 const DeployedContracts = require('../../contractAddresses.json');
 
 const main = async () => {
-    console.log("Using Mainnet\n");
+    console.log("Using mainnet\n");
     const account = (await ethers.getSigners())[0];
 
     const SEED_FACTORY = DeployedContracts.mainnet.SeedFactory;

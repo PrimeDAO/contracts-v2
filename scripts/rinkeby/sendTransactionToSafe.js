@@ -22,10 +22,10 @@ const {
 
 const main = async () => {
     console.log("Using rinkeby\n");
+    const account = (await ethers.getSigners())[0];
     const SEED_FACTORY = DeployedContracts.rinkeby.SeedFactory;
     const SIGNER = DeployedContracts.rinkeby.Signer;
     const SAFE = DeployedContracts.rinkeby.Safe;
-    const account = (await ethers.getSigners())[0];
 
     // Step 1 
     const gnosis = api(SAFE, "rinkeby");
@@ -41,7 +41,6 @@ const main = async () => {
     transaction.to = seedFactory.address;
     transaction.value = 0;
     transaction.operation = 0;
-    transaction.safe = SAFE;
     const {data} = await seedFactory.populateTransaction.deploySeed(
         BENEFICIARY,
         ADMIN,
@@ -60,6 +59,8 @@ const main = async () => {
     // step 3
     const estimate = await gnosis.getEstimate(transaction);
     transaction.safeTxGas = estimate.data.safeTxGas;
+
+    transaction.safe = SAFE;
 
     // step 4
     transaction.baseGas        = 0;
