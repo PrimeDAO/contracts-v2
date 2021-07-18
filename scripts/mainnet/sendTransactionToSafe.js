@@ -27,14 +27,14 @@ const main = async () => {
     const SIGNER = DeployedContracts.mainnet.Signer;
     const SAFE = DeployedContracts.mainnet.Safe;
 
-    // Step 1 
-    const gnosis = api(SAFE, "mainnet");
-
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
     const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, account);
 
     const Signer = await hre.artifacts.readArtifact("Signer");
     const signer = await new ethers.Contract(SIGNER, Signer.abi, account);
+
+    // Step 1 
+    const gnosis = api(SAFE, "mainnet");
 
     // step 2
     const transaction = {};
@@ -60,18 +60,19 @@ const main = async () => {
     const estimate = await gnosis.getEstimate(transaction);
     transaction.safeTxGas = estimate.data.safeTxGas;
 
+    // step 4
     transaction.safe = SAFE;
 
-    // step 4
+    // step 5
     transaction.baseGas        = 0;
     transaction.gasPrice       = 0;
     transaction.gasToken       = '0x0000000000000000000000000000000000000000';
     transaction.refundReceiver = '0x0000000000000000000000000000000000000000';
 
-    // step 5
+    // step 6
     transaction.nonce = await gnosis.getCurrentNonce();
 
-    // step 6
+    // step 7
     const {hash, signature} = await signer.callStatic.generateSignature(
         transaction.to,
         transaction.value,
@@ -87,10 +88,10 @@ const main = async () => {
     transaction.contractTransactionHash = hash;
     transaction.signature = signature;
 
-    // step 7
+    // step 8
     transaction.sender = signer.address;
 
-    //step 8
+    // step 9
     (await signer.generateSignature(
         transaction.to,
         transaction.value,
