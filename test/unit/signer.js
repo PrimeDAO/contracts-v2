@@ -168,6 +168,37 @@ describe("Contract: Signer", async () => {
                 expect(await setup.signer.isValidSignature(hashData,`0x${signature.slice(signaturePosition)}`)).to.equal(magicValue);
             });
         });
+        context("transaction already signed", async () => {
+            it("reverts", async () => {
+                const {data, to} = await setup.seedFactory.populateTransaction.deploySeed(
+                    BENEFICIARY,
+                    ADMIN,
+                    [PRIME,WETH],
+                    [softCap,hardCap],
+                    price,
+                    startTime,
+                    endTime,
+                    [vestingDuration, vestingCliff],
+                    isPermissioned,
+                    fee,
+                    metadata
+                );
+                const trx = [
+                    to,
+                    zero,
+                    data,
+                    zero,
+                    oneMillion,
+                    oneMillion,
+                    zero,
+                    constants.ZERO_ADDRESS,
+                    constants.ZERO_ADDRESS
+                ];
+                // once transaction object is created, we send the transaction data along with nonce to generate safeTrx hash
+                // and verify if the transaction is valid or not, and sign the hash.
+                await expect(setup.signer.generateSignature(...trx, (nonce-1))).to.revertedWith("Signer: transaction already signed");
+            });
+        });
     });
     context(">> isValidSignature", async () => {
         context("signature is invalid", async () => {
