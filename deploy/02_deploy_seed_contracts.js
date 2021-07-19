@@ -29,4 +29,4 @@ const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
 };
 
 module.exports = deployFunction;
-module.exports.tags = ["Seeds"];
+module.exports.tags = ["Seed", "MainDeploy"];
