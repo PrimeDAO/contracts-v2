@@ -75,7 +75,7 @@ describe("Contract: Seed", async () => {
       ({
         root,
         beneficiary,
-        admin,
+        prime: admin,
         buyer1,
         buyer2,
         buyer3,
@@ -116,8 +116,7 @@ describe("Contract: Seed", async () => {
 
     context("» contract is not initialized yet", () => {
       context("» parameters are valid", () => {
-        it("it initializes seed", async () => {
-          // emulate creation & initialization via seedfactory & fund with seedTokens
+        beforeEach(async () => {
           await seed.initialize(
             beneficiary.address,
             admin.address,
@@ -131,7 +130,10 @@ describe("Contract: Seed", async () => {
             permissionedSeed,
             fee
           );
+        });
 
+        it("it initializes seed", async () => {
+          // emulate creation & initialization via seedfactory & fund with seedTokens
           expect(await seed.initialized()).to.equal(true);
           expect(await seed.beneficiary()).to.equal(beneficiary.address);
           expect(await seed.admin()).to.equal(admin.address);
@@ -161,7 +163,7 @@ describe("Contract: Seed", async () => {
 
         it("it reverts on double initialization", async () => {
           await expectRevert(
-            setup.seed.initialize(
+            seed.initialize(
               beneficiary.address,
               admin.address,
               [seedToken.address, fundingToken.address],
@@ -177,23 +179,27 @@ describe("Contract: Seed", async () => {
             "Seed: contract already initialized"
           );
         });
-        it("reverts when trying to add/remove whitelist", async () => {
+
+        it.only("reverts when trying to add/remove whitelist", async () => {
           await expectRevert(
-            setup.seed
+            seed
               .connect(admin)
               .whitelistBatch([buyer1.address, buyer2.address]),
             "Seed: module is not whitelisted"
           );
           await expectRevert(
-            setup.seed.connect(admin).unwhitelist(buyer1.address),
+            seed.connect(admin).unwhitelist(buyer1.address),
             "Seed: module is not whitelisted"
           );
         });
       });
     });
+
     context("# buy", () => {
       context("» generics", () => {
         before("!! top up buyer1 balance", async () => {
+          console.log(root);
+          console.log(buyer1);
           await fundingToken
             .connect(root)
             .transfer(buyer1.address, hundredTwoETH);
@@ -211,12 +217,14 @@ describe("Contract: Seed", async () => {
             .mul(new BN(fee))
             .div(new BN(PPM100));
         });
+
         it("it cannot buy if not funded", async () => {
           await expectRevert(
-            setup.seed.connect(buyer1).buy(buyAmount),
+            seed.connect(buyer1).buy(buyAmount),
             "Seed: sufficient seeds not provided"
           );
         });
+
         it("it funds the Seed contract with Seed Token", async () => {
           await seedToken
             .connect(root)

@@ -56,8 +56,8 @@ describe("SeedFactory", () => {
         uninitializedSeedFactory,
         seedToken,
         fundingToken,
-        dao,
-        admin,
+        root: dao,
+        prime: admin,
         buyer1,
         buyer2,
       } = await setupTest());
