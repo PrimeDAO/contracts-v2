@@ -7,7 +7,7 @@ const { parseEther } = ethers.utils;
 
 use(solidity);
 
-describe.only("Contract: Seed", async () => {
+describe("Contract: Seed", async () => {
   let setup,
     root,
     admin,
