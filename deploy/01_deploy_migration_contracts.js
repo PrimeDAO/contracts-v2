@@ -1,16 +1,18 @@
 const { utils } = require("ethers");
 const DeployedContracts = require("../contractAddresses.json");
 
+const { parseEther } = utils;
+const PRIME_SUPPLY_V2 = parseEther("100000000").toString();
+
 const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
   const { V2_INITIAL_SUPPLY } = process.env;
   const { Safe } = DeployedContracts[network.name];
-  const { parseEther } = utils;
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
 
   await deploy("PrimeToken", {
     from: root,
-    args: [parseEther(V2_INITIAL_SUPPLY), parseEther(V2_INITIAL_SUPPLY), Safe],
+    args: [parseEther(PRIME_SUPPLY_V2), parseEther(PRIME_SUPPLY_V2), Safe],
     log: true,
   });
 
