@@ -24,7 +24,7 @@ const deploy = async () => {
 
     setup.proxySafe = await init.gnosisProxy(setup);
 	
-	setup.Lbp = balancer.Lbp(setup);
+	// setup.Lbp = balancer.Lbp(setup);
 
 	setup.tokenList = await tokens.ERC20TokenList(2, setup.roles.root);
 
@@ -47,9 +47,11 @@ describe("LbpFactory", async () => {
 	const POOL_SWAP_FEE_PERCENTAGE = parseEther('0.01').toString()
 	const ZERO_ADDRESS = constants.ZERO_ADDRESS;
 	const zero = 0;
+	const fiveHundredThousand = 500000;
 	const oneMillion = 1000000;
 	const SIGNATURE_CREATED = 'SignatureCreated';
 	const signaturePosition = 196;
+	const magicValue = `0x20c13b0b`;
 
 
 
@@ -73,7 +75,7 @@ describe("LbpFactory", async () => {
 				);
 				lbpFactoryFunctionSelector = data.substring(0, 10);
 				// console.log(lbpFactoryFunctionSelector.toString())
-			
+			// await setup.lbpFactory.connect(setup.roles.prime).transferOwnership(setup.proxySafe.address)
 			// Deploy signer contract with lbpFactoryFunctionSelector
 			Signer_Factory = await ethers.getContractFactory(
 				"Signer",
@@ -81,9 +83,23 @@ describe("LbpFactory", async () => {
 			);
 			setup.signer = await Signer_Factory.deploy(setup.proxySafe.address);
 			setup.signer.addFactory(setup.lbpFactory.address, lbpFactoryFunctionSelector)
+
+
 		
 		});
 		it('deploys new LBP pool', async () => {
+			await setup.proxySafe.connect(setup.roles.prime).setup(
+				[setup.lbpFactory.address],
+				1,
+				setup.proxySafe.address,
+				'0x',
+				constants.ZERO_ADDRESS,
+				constants.ZERO_ADDRESS,
+				0,
+				setup.roles.prime.address
+			);
+			console.log(await setup.proxySafe.isOwner(setup.lbpFactory.address));
+
 			const { data, to } = await setup.lbpFactory.populateTransaction.create(
 				NAME,
 				SYMBOL,
@@ -114,11 +130,14 @@ describe("LbpFactory", async () => {
             setup.data.trx = trx;
             setup.data.hash = hash;
 			// console.log('\n' + `0x${signature}`);
+
             // checking if the signature produced can correctly be verified by signer contract.
-            expect(await setup.signer.isValidSignature(hashData,`0x${signature.slice(signaturePosition)}`)).to.equal(lbpFactoryFunctionSelector);
+            expect(await setup.signer.isValidSignature(hashData,`0x${signature.slice(signaturePosition)}`)).to.equal(magicValue);
+			console.log(">>test1")
+			console.log(setup.data.trx)
+			const receipt1 = await setup.proxySafe.connect(setup.roles.prime).execTransaction(...setup.data.trx);
 
-			// console.log(receipt);
-
+		
 			// const poolAddress = receipt.events.filter((data) => {return data.event === 'PoolCreated'})[0].args.pool;
 			// setup.lbp = setup.Lbp.attach(poolAddress);
 			// expect(await setup.lbp.name()).to.equal(NAME);
