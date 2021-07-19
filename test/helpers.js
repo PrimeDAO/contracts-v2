@@ -3,18 +3,13 @@ const { deployments } = require("hardhat");
 const setupTest = deployments.createFixture(
   async ({ deployments, ethers }, options) => {
     await deployments.fixture(["Seed", "Test"]);
-    const {
-      prime: admin,
-      root: dao,
-      buyer1,
-      buyer2,
-    } = await ethers.getNamedSigners();
+    const { prime, root, buyer1, buyer2 } = await ethers.getNamedSigners();
     const Seed = await ethers.getContract("Seed");
     const seedFactory = await ethers.getContract("SeedFactory");
     const { deploy } = deployments;
     await deploy("TestSeedFactory", {
       contract: "SeedFactory",
-      from: dao.address,
+      from: root.address,
       args: [],
       log: true,
     });
@@ -29,8 +24,8 @@ const setupTest = deployments.createFixture(
       seedToken,
       seedFactory,
       uninitializedSeedFactory,
-      admin,
-      dao,
+      prime,
+      root,
       buyer1,
       buyer2,
     };
