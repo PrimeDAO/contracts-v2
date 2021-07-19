@@ -1,7 +1,7 @@
 const { deployments, network } = require("hardhat");
 const BN = require("bn.js");
 const { BigNumber, utils } = require("ethers");
-const init = require("../../test-init.js");
+const init = require("../../helpers/test-init.js");
 const rawAllocations = require("./primeV2Distribution.json");
 const {
   getTranche,
