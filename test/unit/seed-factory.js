@@ -1,7 +1,10 @@
-const {expect} = require('chai');
+const {expect, use} = require('chai');
+const {solidity} = require("ethereum-waffle")
 const { ethers } = require("hardhat");
 const { constants, time, expectRevert, BN } = require('@openzeppelin/test-helpers');
 const { parseEther } = ethers.utils
+
+use(solidity);
 
 const init = require("../test-init.js");
 

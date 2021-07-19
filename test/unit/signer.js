@@ -1,4 +1,5 @@
-const {expect} = require('chai');
+const {expect, use} = require('chai');
+const {solidity} = require("ethereum-waffle")
 const {constants} = require('@openzeppelin/test-helpers');
 const {
     ADMIN,
@@ -16,6 +17,9 @@ const {
     fee,
     metadata,
 } = require('../test-сonfig.json');
+
+use(solidity);
+
 const init = require("../test-init.js");
 
 const zero = 0;
