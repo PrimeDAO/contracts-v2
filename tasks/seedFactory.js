@@ -19,15 +19,6 @@ const {
 } = require("../test/test-сonfig.json");
 const DeployedContracts = require("../contractAddresses.json");
 
-task("setMasterCopy", "sets the master copy")
-  .addParam("address", "address of master copy", undefined)
-  .setAction(async ({ address }, { ethers }) => {
-    console.log(`set master copy of SeedFactory to ${address}`);
-    const seedFactoryInstance = await ethers.getContract("SeedFactory");
-    const tx = await seedFactoryInstance.setMasterCopy(address);
-    console.log("Transaction:", tx.hash);
-  });
-
 task("changeOwner", "changes owner of seed factory")
   .addParam("address", "new owner address", undefined)
   .setAction(async ({ address }, { ethers }) => {

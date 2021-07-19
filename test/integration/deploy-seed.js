@@ -1,5 +1,4 @@
-const { expect, use } = require("chai");
-const { solidity } = require("ethereum-waffle");
+const { expect } = require("chai");
 const { constants } = require("@openzeppelin/test-helpers");
 const {
   ADMIN,
