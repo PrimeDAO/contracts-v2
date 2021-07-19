@@ -95,6 +95,21 @@ describe("SeedFactory", () => {
                 await seedFactory.connect(dao).setMasterCopy(newSeed.address);
                 expect(await seedFactory.masterCopy()).to.equal(newSeed.address);
             });
+            it("it reverts when masterCopy is zero address", async () => {
+                await expectRevert(seedFactory.deploySeed(
+                    dao.address,
+                    admin.address,
+                    [seedToken.address, fundingToken.address],
+                    [softCap, hardCap],
+                    price,
+                    startTime.toNumber(),
+                    endTime.toNumber(),
+                    [vestingDuration.toNumber()],
+                    isWhitelisted,
+                    fee,
+                    metadata
+                ), "SeedFactory: Hasn't provided both vesting duration and cliff");
+            });
             it("reverts when fundingToken == seedToken", async () => {
                 await expectRevert(
                     seedFactory.deploySeed(

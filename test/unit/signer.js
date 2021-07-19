@@ -1,21 +1,22 @@
-// const {expect} = require('chai');
-// const {constants} = require('@openzeppelin/test-helpers');
-// const {BENEFICIARY, ADMIN} = require('../../config.json');
-// const {
-//     WETH,
-//     PRIME,
-//     softCap,
-//     hardCap,
-//     price,
-//     startTime,
-//     endTime,
-//     vestingDuration,
-//     vestingCliff,
-//     isPermissioned,
-//     fee,
-//     metadata,
-// } = require('../test-сonfig.json');
-// const init = require("../helpers/test-init.js");
+const {expect} = require('chai');
+const {constants} = require('@openzeppelin/test-helpers');
+const {
+    ADMIN,
+    BENEFICIARY,
+    WETH,
+    PRIME,
+    softCap,
+    hardCap,
+    price,
+    startTime,
+    endTime,
+    vestingDuration,
+    vestingCliff,
+    isPermissioned,
+    fee,
+    metadata,
+} = require('../test-сonfig.json');
+const init = require("../helpers/test-init.js");
 
 // const zero = 0;
 // const oneMillion = 1000000;

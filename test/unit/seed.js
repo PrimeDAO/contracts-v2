@@ -161,6 +161,16 @@ describe('Contract: Seed', async () => {
                         "Seed: contract already initialized"
                     );
                 });
+                it("reverts when trying to add/remove whitelist", async () => {
+                    await expectRevert(
+                        setup.seed.connect(admin).whitelistBatch([buyer1.address, buyer2.address]),
+                        "Seed: module is not whitelisted"
+                    );
+                    await expectRevert(
+                        setup.seed.connect(admin).unwhitelist(buyer1.address),
+                        "Seed: module is not whitelisted"
+                    );
+                });
             });
         });
         context("# buy", () => {
@@ -212,6 +222,12 @@ describe('Contract: Seed', async () => {
                         ((buySeedAmount * price) / pct_base).toString()
                     );
 
+                });
+                it("cannot buy more than maximum target", async () => {
+                    await expectRevert(
+                        setup.seed.connect(buyer1).buy(parseEther('1').add(buyAmount)),
+                        "Seed: amount exceeds contract sale hardCap"
+                    )
                 });
                 it("minimumReached == true", async () => {
                     expect(await setup.seed.minimumReached()).to.equal(true);
@@ -922,6 +938,12 @@ describe('Contract: Seed', async () => {
                     await seed.connect(admin).unwhitelist(buyer1.address);
                     expect(await seed.checkWhitelisted(buyer1.address)).to.equal(false);
                 });
+                it("reverts when unwhitelist account buys", async () => {
+                    await expectRevert(
+                        seed.connect(buyer1).buy(parseEther('1').toString()),
+                        "Seed: sender has no rights"
+                        );
+                })
             });
             context("» whitelistBatch", () => {
                 it("can only be called by admin", async () => {

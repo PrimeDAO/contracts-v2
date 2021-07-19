@@ -1,7 +1,8 @@
 const {expect} = require('chai');
 const {constants} = require('@openzeppelin/test-helpers');
-const {BENEFICIARY, ADMIN} = require('../../config.json');
 const {
+    ADMIN,
+    BENEFICIARY,
     WETH,
     PRIME,
     softCap,

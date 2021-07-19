@@ -1,11 +1,10 @@
 require('dotenv').config({path:'./.env'});
-const hre = require('hardhat');
-const {SAFE, ADMIN, BENEFICIARY,} = require('../config.json');
-const {['4']: {SEED_FACTORY, SIGNER}} = require('../contract-addresses.json');
-const axios = require('axios');
-const { generateUrlFor, api } = require('./utils/gnosis_url_generator.js');
-const {send} = require('./utils/helpers.js');
+const DeployedContracts = require('../contractAddresses.json');
+const { api } = require('./utils/gnosis.js');
+const {getNetwork} = require('./utils/helpers.js');
 const {
+    ADMIN,
+    BENEFICIARY,
     WETH,
     PRIME,
     softCap,
@@ -18,17 +17,19 @@ const {
     isPermissioned,
     fee,
     metadata,
-} = require('../testSeedDetails.json');
-const {PROVIDER_KEY, MNEMONIC} = process.env;
-const generateUrl = generateUrlFor(SAFE);
-const ethers = hre.ethers;
+} = require('../test/test-сonfig.json');
+const {PROVIDER, MNEMONIC} = process.env;
 
 const main = async () => {
-    const rinkeby = new ethers.providers.InfuraProvider('rinkeby', PROVIDER_KEY);
+    const network = await getNetwork();
+    const key = PROVIDER.split('/')[PROVIDER.split('/').length-1];
+    const rinkeby = new ethers.providers.InfuraProvider(network, key);
     const wallet = await (new ethers.Wallet.fromMnemonic(MNEMONIC)).connect(rinkeby);
 
-    const Safe = await hre.artifacts.readArtifact("ISafe");
-    const safe = await new ethers.Contract(SAFE, Safe.abi, wallet);
+    const SEED_FACTORY = DeployedContracts[network].SeedFactory;
+    const SIGNER = DeployedContracts[network].Signer;
+    const SAFE = DeployedContracts[network].Safe;
+    const gnosis = api(SAFE);
 
     const SeedFactory = await hre.artifacts.readArtifact("SeedFactory");
     const seedFactory = await new ethers.Contract(SEED_FACTORY, SeedFactory.abi, wallet);
@@ -59,8 +60,8 @@ const main = async () => {
         safe: SAFE,
     }
 
-    const {data: estimate} = await axios.post(generateUrl(api.getEstimate), {
-        safe: '0x2E46E481d57477A0663a7Ec61E7eDc65F4cb7F5C',
+    const {data: estimate} = await gnosis.getEstimate({
+        safe: SAFE,
         to: trx.to,
         value: trx.value,
         data: trx.data,
@@ -69,26 +70,41 @@ const main = async () => {
     trx.safeTxGas = estimate.safeTxGas;
     trx.baseGas = 0,
     trx.gasPrice = 0,
-    trx.nonce = estimate.lastUsedNonce+1;
+    trx.nonce = await gnosis.getCurrentNonce();
 
-    trx.hash = await safe.getTransactionHash(
-        trx.to,
-        trx.value,
-        trx.data,
-        trx.operation,
-        trx.safeTxGas,
-        trx.baseGas,
-        trx.gasPrice,
-        trx.gasToken,
-        trx.refundReceiver,
-        trx.nonce);
-
-    await signer.once('SignatureCreated',async (signature)=> {
+    await signer.once('SignatureCreated',async (signature, hash)=> {
         trx.signature= signature;
-        send(trx,SEED_SIGNATURE);
-    })
+        const options = {
+            safe: trx.safe,
+            to: trx.to,
+            value: trx.value,
+            data: trx.data,
+            operation: trx.operation,
+            safeTxGas: trx.safeTxGas,
+            baseGas: trx.baseGas,
+            gasPrice: trx.gasPrice,
+            gasToken: trx.gasToken,
+            refundReceiver: trx.refundReceiver,
+            nonce: trx.nonce,
+            contractTransactionHash: hash,
+            sender: signer.address,
+            signature: trx.signature
+          }
+          await gnosis.sendTransaction(options);
+    });
 
-    await signer.generateSignature(trx.hash);
+    await signer.generateSignature(
+        trx.to,
+		trx.value,
+		trx.data,
+		trx.operation,
+		trx.safeTxGas,
+		trx.baseGas,
+		trx.gasPrice,
+		trx.gasToken,
+		trx.refundReceiver,
+		trx.nonce
+    );
 }
 
 main().then().catch(console.log);

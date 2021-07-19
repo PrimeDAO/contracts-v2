@@ -1,9 +1,13 @@
 const fs = require('fs');
 const hre = require("hardhat");
 require('dotenv').config({path: './.env'});
-const DeployedContracts = require('../contract-addresses.json');
+const DeployedContracts = require('../contractAddresses.json');
+const {getNetwork} = require('./utils/helpers');
 
 const main = async () => {
+
+	const network = await getNetwork();
+	const SAFE = DeployedContracts[network].Safe;
 
     console.log("--------------------------------------------------------------\n")
 
@@ -33,7 +37,7 @@ const main = async () => {
 
     console.log("Deploying Signer contract");
     const Signer_Factory = await hre.ethers.getContractFactory("Signer");
-    const signer = await Signer_Factory.deploy();
+    const signer = await Signer_Factory.deploy(SAFE, seedFactory.address);
 
     console.log(`Signer deployed to: ${signer.address}\n`);
 
@@ -41,12 +45,10 @@ const main = async () => {
 
     console.log(`Saving contract addresses`);
 
-    let {chainId} = await ethers.provider.getNetwork();
-
-    DeployedContracts[chainId] = DeployedContracts[chainId] || {};
-    DeployedContracts[chainId].SEED_FACTORY = seedFactory.address;
-    DeployedContracts[chainId].SEED = seed.address;
-    DeployedContracts[chainId].SIGNER = signer.address;
+    DeployedContracts[network] = DeployedContracts[network] || {};
+    DeployedContracts[network].SeedFactory = seedFactory.address;
+    DeployedContracts[network].Seed = seed.address;
+    DeployedContracts[network].Signer = signer.address;
 
     fs.writeFileSync(
       `./contractAddresses.json`,
