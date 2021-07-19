@@ -72,5 +72,8 @@ module.exports = {
     root: 0,
     prime: 1,
     beneficiary: 2,
+    buyer1: 3,
+    buyer2: 4,
+    buyer3: 5,
   },
 };

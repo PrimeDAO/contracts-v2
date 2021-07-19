@@ -1,6 +1,7 @@
 const { expect, use } = require("chai");
 const { solidity } = require("ethereum-waffle");
 const { ethers, deployments } = require("hardhat");
+const { setupTest } = require("../helpers");
 const {
   constants,
   time,
@@ -11,8 +12,6 @@ const { parseEther } = ethers.utils;
 
 use(solidity);
 
-const init = require("../test-init.js");
-
 const toHex = (str) => {
   let hex = "";
   for (let i = 0; i < str.length; i++) {
@@ -21,41 +20,13 @@ const toHex = (str) => {
   return hex;
 };
 
-const setupTest = deployments.createFixture(
-  async ({ deployments, ethers }, options) => {
-    await deployments.fixture(["Seed", "Test"]);
-    const { prime: admin, root: dao } = await ethers.getNamedSigners();
-    const Seed = await ethers.getContract("Seed");
-    const seedFactory = await ethers.getContract("SeedFactory");
-    const { deploy } = deployments;
-    await deploy("TestSeedFactory", {
-      contract: "SeedFactory",
-      from: dao.address,
-      args: [],
-      log: true,
-    });
-    const uninitializedSeedFactory = await ethers.getContract(
-      "TestSeedFactory"
-    );
-    const fundingToken = await ethers.getContract("FundingToken");
-    const seedToken = await ethers.getContract("PrimeToken");
-    return {
-      Seed,
-      fundingToken,
-      seedToken,
-      seedFactory,
-      admin,
-      dao,
-      uninitializedSeedFactory,
-    };
-  }
-);
-
-describe("SeedFactory", () => {
+describe.only("SeedFactory", () => {
   let tx,
     setup,
     dao,
     admin,
+    buyer1,
+    buyer2,
     seedToken,
     fundingToken,
     hardCap,
@@ -77,16 +48,18 @@ describe("SeedFactory", () => {
 
   const pct_base = new BN("1000000000000000000"); // 10**18
 
-  context.only("» creator is owner", () => {
+  context("» creator is owner", () => {
     beforeEach("!! deploy setup", async () => {
       ({
         Seed,
         seedFactory,
         uninitializedSeedFactory,
-        dao,
-        admin,
         seedToken,
         fundingToken,
+        dao,
+        admin,
+        buyer1,
+        buyer2,
       } = await setupTest());
       hardCap = parseEther("100").toString();
       price = parseEther("0.01").toString();
@@ -259,12 +232,6 @@ describe("SeedFactory", () => {
     });
 
     context("» changeOwner", () => {
-      let buyer1, buyer2;
-
-      beforeEach(async () => {
-        [root, prime, beneficiary, buyer1, buyer2] = await ethers.getSigners();
-      });
-
       it("only Owner can change owner", async () => {
         await expectRevert(
           seedFactory.connect(admin).transferOwnership(buyer1.address),
