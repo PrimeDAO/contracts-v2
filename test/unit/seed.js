@@ -7,20 +7,6 @@ const { parseEther } = ethers.utils;
 
 use(solidity);
 
-const init = require("../test-init.js");
-
-const deploy = async () => {
-  const setup = await init.initialize(await ethers.getSigners());
-
-  seed = await init.seedMasterCopy(setup);
-
-  token = await init.tokens(setup);
-
-  data = {};
-
-  return setup;
-};
-
 describe.only("Contract: Seed", async () => {
   let setup,
     root,
@@ -1069,11 +1055,14 @@ describe.only("Contract: Seed", async () => {
         });
       });
       context("» withdraw", () => {
+        const data = {};
+
         before("!! deploy new contract", async () => {
+          ({ Seed: seed } = await setupTest());
           let newStartTime = await time.latest();
           let newEndTime = await newStartTime.add(await time.duration.days(7));
 
-          data.seed = await init.seedMasterCopy(setup);
+          data.seed = seed;
 
           await seedToken
             .connect(root)
@@ -1131,20 +1120,19 @@ describe.only("Contract: Seed", async () => {
   });
   context("creator is avatar -- whitelisted contract", () => {
     before("!! deploy setup", async () => {
-      setup = await deploy();
-
-      // Tokens used
-      fundingToken = token.fundingToken;
-      seedToken = token.seedToken;
-
-      // // Roles
-      root = roles.root;
-      beneficiary = roles.beneficiary;
-      admin = roles.prime;
-      buyer1 = roles.buyer1;
-      buyer2 = roles.buyer2;
-      buyer3 = roles.buyer3;
-      buyer4 = roles.buyer3;
+      ({
+        Seed: seed,
+        fundingToken,
+        seedToken,
+        seedFactory,
+        root,
+        beneficiary,
+        prime: admin,
+        buyer1,
+        buyer2,
+        buyer3,
+        buyer4,
+      } = await setupTest());
 
       // // Parameters to initialize seed contract
       softCap = parseEther("10").toString();
@@ -1167,11 +1155,25 @@ describe.only("Contract: Seed", async () => {
         .div(new BN(PPM100));
       requiredSeedAmount = seedForDistribution.add(seedForFee);
     });
+
     context("» contract is not initialized yet", () => {
       context("» parameters are valid", () => {
         before("!! deploy new contract", async () => {
-          seed = await init.seedMasterCopy(setup);
+          ({
+            Seed: seed,
+            fundingToken,
+            seedToken,
+            seedFactory,
+            root,
+            beneficiary,
+            prime: admin,
+            buyer1,
+            buyer2,
+            buyer3,
+            buyer4,
+          } = await setupTest());
         });
+
         it("initializes", async () => {
           // emulate creation & initialization via seedfactory & fund with seedTokens
           await seedToken
