@@ -2,7 +2,6 @@ const { expect, use } = require("chai");
 const { solidity } = require("ethereum-waffle");
 const { ethers } = require("hardhat");
 const { time, expectRevert, BN } = require("@openzeppelin/test-helpers");
-const { setupTest } = require("../helpers");
 const { parseEther } = ethers.utils;
 
 use(solidity);
@@ -72,18 +71,19 @@ describe("Contract: Seed", async () => {
 
   context("» creator is avatar", () => {
     before("!! setup", async () => {
-      ({
-        root,
-        beneficiary,
-        admin,
-        buyer1,
-        buyer2,
-        buyer3,
-        fundingToken,
-        seedToken,
-        Seed: seed,
-      } = await setupTest());
-      //   setup = await deploy();
+      setup = await deploy();
+
+      // Tokens used
+      fundingToken = setup.token.fundingToken;
+      seedToken = setup.token.seedToken;
+
+      // // Roles
+      root = setup.roles.root;
+      beneficiary = setup.roles.beneficiary;
+      admin = setup.roles.prime;
+      buyer1 = setup.roles.buyer1;
+      buyer2 = setup.roles.buyer2;
+      buyer3 = setup.roles.buyer3;
 
       // // Parameters to initialize seed contract
       softCap = parseEther("10").toString();
@@ -118,7 +118,8 @@ describe("Contract: Seed", async () => {
       context("» parameters are valid", () => {
         it("it initializes seed", async () => {
           // emulate creation & initialization via seedfactory & fund with seedTokens
-          await seed.initialize(
+
+          await setup.seed.initialize(
             beneficiary.address,
             admin.address,
             [seedToken.address, fundingToken.address],
@@ -132,33 +133,38 @@ describe("Contract: Seed", async () => {
             fee
           );
 
-          expect(await seed.initialized()).to.equal(true);
-          expect(await seed.beneficiary()).to.equal(beneficiary.address);
-          expect(await seed.admin()).to.equal(admin.address);
-          expect(await seed.seedToken()).to.equal(seedToken.address);
-          expect(await seed.fundingToken()).to.equal(fundingToken.address);
-          expect((await seed.softCap()).toString()).to.equal(
+          expect(await setup.seed.initialized()).to.equal(true);
+          expect(await setup.seed.beneficiary()).to.equal(beneficiary.address);
+          expect(await setup.seed.admin()).to.equal(admin.address);
+          expect(await setup.seed.seedToken()).to.equal(seedToken.address);
+          expect(await setup.seed.fundingToken()).to.equal(
+            fundingToken.address
+          );
+          expect((await setup.seed.softCap()).toString()).to.equal(
             softCap.toString()
           );
-          expect((await seed.price()).toString()).to.equal(price.toString());
-          expect(await seed.permissionedSeed()).to.equal(permissionedSeed);
-          expect((await seed.fee()).toString()).to.equal(fee.toString());
-          expect(await seed.closed()).to.equal(false);
-          expect((await seed.seedAmountRequired()).toString()).to.equal(
+          expect((await setup.seed.price()).toString()).to.equal(
+            price.toString()
+          );
+          expect(await setup.seed.permissionedSeed()).to.equal(
+            permissionedSeed
+          );
+          expect((await setup.seed.fee()).toString()).to.equal(fee.toString());
+          expect(await setup.seed.closed()).to.equal(false);
+          expect((await setup.seed.seedAmountRequired()).toString()).to.equal(
             seedForDistribution.toString()
           );
-          expect((await seed.feeAmountRequired()).toString()).to.equal(
+          expect((await setup.seed.feeAmountRequired()).toString()).to.equal(
             seedForFee.toString()
           );
-          expect((await seed.seedRemainder()).toString()).to.equal(
+          expect((await setup.seed.seedRemainder()).toString()).to.equal(
             seedForDistribution.toString()
           );
-          expect((await seed.feeRemainder()).toString()).to.equal(
+          expect((await setup.seed.feeRemainder()).toString()).to.equal(
             seedForFee.toString()
           );
-          expect((await seed.isFunded()).toString()).to.equal("false");
+          expect((await setup.seed.isFunded()).toString()).to.equal("false");
         });
-
         it("it reverts on double initialization", async () => {
           await expectRevert(
             setup.seed.initialize(

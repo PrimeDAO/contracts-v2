@@ -6,7 +6,6 @@ const setupTest = deployments.createFixture(
     const {
       prime: admin,
       root: dao,
-      beneficiary,
       buyer1,
       buyer2,
     } = await ethers.getNamedSigners();
@@ -32,7 +31,6 @@ const setupTest = deployments.createFixture(
       uninitializedSeedFactory,
       admin,
       dao,
-      beneficiary,
       buyer1,
       buyer2,
     };
