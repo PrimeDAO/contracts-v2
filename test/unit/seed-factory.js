@@ -20,7 +20,7 @@ const toHex = (str) => {
   return hex;
 };
 
-describe.only("SeedFactory", () => {
+describe("SeedFactory", () => {
   let tx,
     setup,
     dao,

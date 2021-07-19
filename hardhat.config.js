@@ -75,5 +75,6 @@ module.exports = {
     buyer1: 3,
     buyer2: 4,
     buyer3: 5,
+    buyer4: 6,
   },
 };

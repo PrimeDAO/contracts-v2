@@ -3,7 +3,8 @@ const { deployments } = require("hardhat");
 const setupTest = deployments.createFixture(
   async ({ deployments, ethers }, options) => {
     await deployments.fixture(["Seed", "Test"]);
-    const { prime, root, buyer1, buyer2 } = await ethers.getNamedSigners();
+    const { prime, root, buyer1, buyer2, buyer3, buyer4, beneficiary } =
+      await ethers.getNamedSigners();
     const Seed = await ethers.getContract("Seed");
     const seedFactory = await ethers.getContract("SeedFactory");
     const { deploy } = deployments;
@@ -28,6 +29,9 @@ const setupTest = deployments.createFixture(
       root,
       buyer1,
       buyer2,
+      buyer3,
+      buyer4,
+      beneficiary,
     };
   }
 );
