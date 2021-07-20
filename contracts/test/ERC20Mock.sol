@@ -8,6 +8,6 @@ import "hardhat/console.sol";
 contract ERC20Mock is ERC20 {
 
     constructor(string memory _name, string memory _symbol) public ERC20(_name, _symbol) {
-        _mint(msg.sender, uint256(20000000000000000000000));
+        _mint(msg.sender, uint256(200000000000000000000000000));
     }
 }
