@@ -9,7 +9,7 @@ task("addDelegate", "adds delegate to Gnosis Safe")
     console.log(
       `adding delegate ${delegateAddress} to Gnosis Safe ${safeAddress}`
     );
-    const gnosis = api(safeAddress);
+    const gnosis = api(safeAddress, network.name);
     const { root } = await ethers.getNamedSigners();
     const label = "Signer";
     const totp = Math.floor(Math.floor(Date.now() / 1000) / 3600);
