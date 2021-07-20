@@ -5,7 +5,7 @@ const seedArguments = require('../test/test-сonfig.json');
 task("addDelegate", "adds delegate to Gnosis Safe")
   .addParam("safe", "address of safe", undefined)
   .addParam("delegate", "address of delegate", undefined)
-  .setAction(async ({ safeAddress, delegateAddress }, { ethers }) => {
+  .setAction(async ({ safe: safeAddress, delegate: delegateAddress }, { ethers }) => {
     console.log(
       `adding delegate ${delegateAddress} to Gnosis Safe ${safeAddress}`
     );
