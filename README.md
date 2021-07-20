@@ -62,36 +62,25 @@ PROVIDER = infura-provider-key
 MNEMONIC = private-key-or-mnemonic
 ```
 
-
-
 Note:```.env``` should be created in root directory.
 
-## Rinkeby Deployment
+## Deployment
 
-to deploy contracts
+This project uses the hardhat-deploy plugin to deploy contracts. To deploy contracts in general you can run `npx hardhat deploy --network <network_name>`. This will deploy all contracts in the `deploy` directory. The deployed contracts will then be saved within the `deployments` directory. Since not all contracts need to be deployed to mainnet, there are two custom scripts for `mainnet` and `rinkeby` to make sure we don't deploy any test contracts to the mainnet. These can be executed the following way:
 
-```
-npm run deploy:contracts:rinkeby
-```
+**Mainnet Deployment:**  `deploy:contracts:mainnet`
+**Rinkeby Deployment:**  `deploy:contracts:rinkeby`
 
-to change seed factory owner to gnosis safe
+The mainnet deployment script will only execute those deployment functions that contain the `MainDeploy` tag.
 
-```
-npm run change:factoryOwner:rinkeby
-```
+## Interacting with contracts
 
-to add signer contract as delegate
+To interact with contracts, this project uses hardhat tasks. The associated scripts can be found in the `tasks` directory. To get an overview of all existing tasks you can run `npx hardhat`.
 
-```
-npm run add:delegate:rinkeby
-```
+To get more information on specific tasks (what they do, which parameters they require etc.) you can run `npx hardhat help <task_name>`.
 
-to send a test transaction to safe
-
-```
-npm run send:safeTrx:rinkeby
-```
-
+Here's an example of a command to execute a task on rinkeby: 
+`npx hardhat --network rinkeby changeOwner --address <0xsome_address>`
 
 ## Contributing to PrimeDAO
 If you wish to contribute to PrimeDAO, check out our [Contributor Onboarding documentation](https://docs.primedao.io/primedao/call-for-contributors).
