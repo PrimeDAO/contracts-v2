@@ -24,4 +24,4 @@ const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
 };
 
 module.exports = deployFunction;
-module.exports.tags = ["Migration"];
+module.exports.tags = ["Migration", "MainDeploy"];

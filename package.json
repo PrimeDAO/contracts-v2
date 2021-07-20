@@ -4,10 +4,8 @@
   "description": "new experimental version of PrimeDAO contracts",
   "main": "index.js",
   "scripts": {
-    "deploy:contracts:rinkeby": "npx hardhat run scripts/deploy_contracts.js --network rinkeby",
-    "change:factoryOwner:rinkeby": "npx hardhat run scripts/change_owner.js --network rinkeby",
-    "add:delegate:rinkeby": "npx hardhat run scripts/add_delegate.js --network rinkeby",
-    "send:safeTrx:rinkeby": "npx hardhat run scripts/add_tx_to_safe.js --network rinkeby",
+    "deploy:contracts:rinkeby": "npx hardhat deploy --network rinkeby",
+    "deploy:contracts:mainnet": "npx hardhat deploy --network mainnet --tags MainDeploy",
     "compile": "hardhat compile",
     "lint": "eslint . --ext .js && solium --no-soliumignore --dir ./contracts",
     "test": "hardhat test",
