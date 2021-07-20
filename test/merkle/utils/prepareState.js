@@ -9,15 +9,15 @@ const {
   getAccountBalanceProof,
 } = require("../merkle");
 
-const getParsedAllocations = (rawAllocations) =>
+const getParsedAllocations = (addresses, rawAllocations) =>
   Object.fromEntries(
-    Object.entries(rawAllocations).map(([address, allocation]) => {
-      return [address, utils.parseEther(allocation)];
+    rawAllocations.map((allocation, index) => {
+      return [addresses[index], utils.parseEther(allocation)];
     })
   );
 
-const getCumulativeAllocation = (rawAllocations) => {
-  const parsedAllocations = getParsedAllocations(rawAllocations);
+const getCumulativeAllocation = (addresses, rawAllocations) => {
+  const parsedAllocations = getParsedAllocations(addresses, rawAllocations);
 
   return Object.entries(parsedAllocations).reduce(
     (accumulator, [_, allocation]) => {
@@ -49,7 +49,9 @@ const setupFixture = deployments.createFixture(
 const setupInitialState = async (contractInstances, initialState) => {
   const trancheIdx = "0";
 
-  const [root, prime, alice, bob] = await ethers.getSigners();
+  const signers = await ethers.getSigners();
+  const [root, prime, alice, bob] = signers;
+  const addresses = signers.map(signer=>signer.address);
   const { merkleDropInstance, v2TokenInstance } = contractInstances;
 
   const {
@@ -61,8 +63,8 @@ const setupInitialState = async (contractInstances, initialState) => {
     incorrectProof,
   } = initialState;
 
-  let parsedAllocations = getParsedAllocations(rawAllocations);
-  let cumulativeAllocation = getCumulativeAllocation(rawAllocations);
+  let parsedAllocations = getParsedAllocations(addresses, rawAllocations);
+  let cumulativeAllocation = getCumulativeAllocation(addresses, rawAllocations);
 
   // go some blocks in the future
   await mineBlocks(forwardBlocks);
@@ -90,7 +92,7 @@ const setupInitialState = async (contractInstances, initialState) => {
     .approve(merkleDropInstance.address, cumulativeAllocation);
 
   // create tranche (tranch is a parsed group of claimable address/amount pairs)
-  const tranche = getTranche(...Object.entries(rawAllocations));
+  const tranche = getTranche(...rawAllocations.map((balance, index)=>[addresses[index],balance]));
 
   // create tree
   let tree = createTreeWithAccounts(tranche);
@@ -102,28 +104,33 @@ const setupInitialState = async (contractInstances, initialState) => {
     generateProof(
       tree,
       alice.address,
-      new BN(parsedAllocations[alice.address].toString())
+      new BN(parsedAllocations[alice.address].toString()),
+      addresses
     );
 
   // change allocation to zero if required for test
   if (zeroAllocation) {
-    const modifiedAllocations = { ...rawAllocations, [alice.address]: "0" };
-    const modifiedTranche = getTranche(...Object.entries(modifiedAllocations));
+    const modifiedAllocations = [ ...rawAllocations, "0" ];
+    const modifiedAddresses = [...addresses];
+    modifiedAddresses[modifiedAllocations.length-1] = alice.address;
+    const modifiedTranche = getTranche(...modifiedAllocations.map((balance, index)=>[modifiedAddresses[index],balance]));
     tree = createTreeWithAccounts(modifiedTranche);
     ({ proof, expectedBalance } = generateProof(
       tree,
       alice.address,
-      new BN(0)
+      new BN(0),
+      modifiedAddresses
     ));
     merkleRoot = tree.hexRoot;
-    cumulativeAllocation = getCumulativeAllocation(modifiedAllocations);
+    cumulativeAllocation = getCumulativeAllocation(modifiedAddresses, modifiedAllocations);
   }
 
   if (incorrectProof) {
     ({ proof } = generateProof(
       tree,
       bob.address,
-      new BN(parsedAllocations[bob.address].toString())
+      new BN(parsedAllocations[bob.address].toString()),
+      addresses
     ));
   }
 
@@ -138,11 +145,11 @@ const setupInitialState = async (contractInstances, initialState) => {
   return { tree, proof, trancheIdx, expectedBalance };
 };
 
-const generateProof = (tree, address, balance) => ({
+const generateProof = (tree, address, balance, addresses) => ({
   proof: getAccountBalanceProof(tree, address, balance),
   expectedBalance: balance.isZero()
     ? BigNumber.from(0)
-    : getParsedAllocations(rawAllocations)[address],
+    : getParsedAllocations(addresses, rawAllocations)[address],
 });
 
 module.exports = {
