@@ -18,8 +18,8 @@ if (PK) {
   };
 }
 
-// hardhat tasks
-require("./tasks/seedFactory");
+require("./tasks/seedManagement");
+require("./tasks/gnosisManagement");
 
 module.exports = {
   paths: {
@@ -31,6 +31,12 @@ module.exports = {
   defaultNetwork: "hardhat",
   networks: {
     localhost: {
+      ...sharedNetworkConfig,
+      blockGasLimit: 100000000,
+      gas: 2000000,
+      saveDeployments: true,
+    },
+    hardhat: {
       ...sharedNetworkConfig,
       blockGasLimit: 100000000,
       gas: 2000000,
