@@ -87,16 +87,6 @@ const tokens = async (setup) => {
   return { seedToken, fundingToken };
 };
 
-const merkleDrop = async (setup) => {
-  const MerkleDrop = await ethers.getContractFactory(
-    "MerkleDrop",
-    setup.roles.prime
-  );
-  const merkleDrop = await MerkleDrop.deploy();
-
-  return merkleDrop;
-};
-
 module.exports = {
   initialize,
   gnosisSafe,
@@ -104,5 +94,4 @@ module.exports = {
   seedFactory,
   seedMasterCopy,
   tokens,
-  merkleDrop,
 };
