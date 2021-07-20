@@ -33,17 +33,14 @@ const mineBlocks = async (blockAmount) => {
   }
 };
 
-const deploy = async () => {
-  const setup = await init.initialize(await ethers.getSigners());
-  const merkleDropInstance = await init.merkleDrop(setup);
-  const { seedToken: v2TokenInstance } = await init.tokens(setup);
-  return { merkleDropInstance, v2TokenInstance };
-};
-
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
     await deployments.fixture();
-    const contractInstances = await deploy();
+
+    const contractInstances = {
+      merkleDropInstance: await ethers.getContract("MerkleDrop"),
+      v2TokenInstance: await ethers.getContract("TestToken"),
+    };
 
     return { ...contractInstances };
   }
@@ -51,7 +48,10 @@ const setupFixture = deployments.createFixture(
 
 const setupInitialState = async (contractInstances, initialState) => {
   const trancheIdx = "0";
+
+  const [root, prime, alice, bob] = await ethers.getSigners();
   const { merkleDropInstance, v2TokenInstance } = contractInstances;
+
   const {
     thresholdInPast,
     withProof,
@@ -66,10 +66,8 @@ const setupInitialState = async (contractInstances, initialState) => {
 
   // go some blocks in the future
   await mineBlocks(forwardBlocks);
-
-  // get signers
-  const [root, prime, alice, bob] = await ethers.getSigners();
   const currentBlock = await ethers.provider.getBlockNumber();
+  // get signers
 
   // check if claiming date should be in the future
   const thresholdBlockNumber = thresholdInPast
@@ -137,7 +135,6 @@ const setupInitialState = async (contractInstances, initialState) => {
   // expire tranche if required for test
   trancheExpired &&
     (await merkleDropInstance.connect(prime).expireTranche(trancheIdx));
-
   return { tree, proof, trancheIdx, expectedBalance };
 };
 
@@ -150,7 +147,6 @@ const generateProof = (tree, address, balance) => ({
 
 module.exports = {
   mineBlocks,
-  deploy,
   setupFixture,
   setupInitialState,
 };

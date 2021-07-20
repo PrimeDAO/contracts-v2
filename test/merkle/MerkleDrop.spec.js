@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { utils } = require("ethers");
-const { setupFixture } = require("./utils/setupHelpers");
+const { setupFixture, setupInitialState } = require("./utils/prepareState");
 const { ethers } = require("hardhat");
 
 const commonState = {
@@ -9,7 +9,7 @@ const commonState = {
 };
 
 describe(">> MerkleDrop", () => {
-  let merkleDropInstance, tranche, tree, proof, alice, bob;
+  let merkleDropInstance, v2TokenInstance, contractInstances, alice, bob;
 
   before(async () => {
     const signers = await ethers.getSigners();
@@ -17,7 +17,14 @@ describe(">> MerkleDrop", () => {
     bob = signers[3];
   });
 
+  beforeEach(async () => {
+    contractInstances = await setupFixture();
+    ({ merkleDropInstance, v2TokenInstance } = contractInstances);
+  });
+
   describe("# claimTranche", () => {
+    let proof, trancheIdx, expectedBalance;
+
     describe("$ thresholdBlock lies in the future", () => {
       const initialState = {
         ...commonState,
@@ -26,11 +33,10 @@ describe(">> MerkleDrop", () => {
       };
 
       it("reverts", async () => {
-        ({ merkleDropInstance, proof, trancheIdx, expectedBalance } =
-          await setupFixture({
-            initialState,
-          }));
-
+        ({ proof, trancheIdx, expectedBalance } = await setupInitialState(
+          contractInstances,
+          initialState
+        ));
         const claim = merkleDropInstance
           .connect(alice)
           .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
@@ -39,6 +45,7 @@ describe(">> MerkleDrop", () => {
     });
 
     describe("$ thresholdBlock lies in the past", () => {
+      let proof, trancheIdx, expectedBalance;
       const initialState = {
         ...commonState,
         thresholdInPast: true,
@@ -46,16 +53,10 @@ describe(">> MerkleDrop", () => {
       };
 
       beforeEach(async () => {
-        ({
-          merkleDropInstance,
-          v2TokenInstance,
-          proof,
-          trancheIdx,
-          expectedBalance,
-        } = await setupFixture({
-          initialState,
-        }));
-
+        ({ proof, trancheIdx, expectedBalance } = await setupInitialState(
+          contractInstances,
+          initialState
+        ));
         await merkleDropInstance
           .connect(alice)
           .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
@@ -79,6 +80,8 @@ describe(">> MerkleDrop", () => {
     });
 
     describe("$ allocation is zero", () => {
+      let proof, trancheIdx, expectedBalance;
+
       const initialState = {
         ...commonState,
         thresholdInPast: true,
@@ -87,10 +90,10 @@ describe(">> MerkleDrop", () => {
       };
 
       it("reverts", async () => {
-        ({ merkleDropInstance, proof, trancheIdx, expectedBalance } =
-          await setupFixture({
-            initialState,
-          }));
+        ({ proof, trancheIdx, expectedBalance } = await setupInitialState(
+          contractInstances,
+          initialState
+        ));
         const zeroClaim = merkleDropInstance.claimTranche(
           alice.address,
           trancheIdx,
@@ -107,6 +110,8 @@ describe(">> MerkleDrop", () => {
 
   describe("# verifyClaim", () => {
     describe("$ claim is valid", () => {
+      let proof, trancheIdx, expectedBalance;
+
       const initialState = {
         ...commonState,
         thresholdInPast: false,
@@ -114,10 +119,10 @@ describe(">> MerkleDrop", () => {
       };
 
       beforeEach(async () => {
-        ({ merkleDropInstance, proof, trancheIdx, expectedBalance } =
-          await setupFixture({
-            initialState,
-          }));
+        ({ proof, trancheIdx, expectedBalance } = await setupInitialState(
+          contractInstances,
+          initialState
+        ));
       });
 
       it("returns true", async () => {
@@ -133,6 +138,8 @@ describe(">> MerkleDrop", () => {
     });
 
     describe("$ tranche is expired", () => {
+      let proof, trancheIdx, expectedBalance;
+
       const initialState = {
         ...commonState,
         thresholdInPast: false,
@@ -141,10 +148,10 @@ describe(">> MerkleDrop", () => {
       };
 
       beforeEach(async () => {
-        ({ merkleDropInstance, proof, trancheIdx, expectedBalance } =
-          await setupFixture({
-            initialState,
-          }));
+        ({ proof, trancheIdx, expectedBalance } = await setupInitialState(
+          contractInstances,
+          initialState
+        ));
       });
 
       it("returns false", async () => {
@@ -160,6 +167,8 @@ describe(">> MerkleDrop", () => {
     });
 
     describe("$ merkle proof is incorrect", () => {
+      let proof, trancheIdx, expectedBalance;
+
       const initialState = {
         ...commonState,
         thresholdInPast: true,
@@ -168,10 +177,10 @@ describe(">> MerkleDrop", () => {
       };
 
       it("reverts", async () => {
-        ({ merkleDropInstance, proof, trancheIdx, expectedBalance } =
-          await setupFixture({
-            initialState,
-          }));
+        ({ proof, trancheIdx, expectedBalance } = await setupInitialState(
+          contractInstances,
+          initialState
+        ));
 
         const claimWithIncorrectProof = merkleDropInstance
           .connect(alice)
