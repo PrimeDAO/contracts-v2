@@ -15,8 +15,8 @@ task("addDelegate", "adds delegate to Gnosis Safe")
     const totp = Math.floor(Math.floor(Date.now() / 1000) / 3600);
     const signature = await root.signMessage(delegateAddress + totp.toString());
     const payload = {
-      safeAddress,
-      delegateAddress,
+      safe: safeAddress,
+      delegate: delegateAddress,
       label,
       signature,
     };
