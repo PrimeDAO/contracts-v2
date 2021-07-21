@@ -66,12 +66,10 @@ Note:```.env``` should be created in root directory.
 
 ## Deployment
 
-This project uses the hardhat-deploy plugin to deploy contracts. To deploy contracts in general you can run `npx hardhat deploy --network <network_name>`. This will deploy all contracts in the `deploy` directory. The deployed contracts will then be saved within the `deployments` directory. Since not all contracts need to be deployed to mainnet, there are two custom scripts for `mainnet` and `rinkeby` to make sure we don't deploy any test contracts to the mainnet. These can be executed the following way:
+This project uses the hardhat-deploy plugin to deploy contracts. To deploy contracts in general you can run `npx hardhat deploy --network <network_name>`. This will deploy all contracts in the `deploy` directory. The deployed contracts will then be saved within the `deployments` directory. To deploy run the following command:
 
-**Mainnet Deployment:**  `deploy:contracts:mainnet`
-**Rinkeby Deployment:**  `deploy:contracts:rinkeby`
+`npx hardhat deploy --network <network_name>`
 
-The mainnet deployment script will only execute those deployment functions that contain the `MainDeploy` tag.
 
 ## Interacting with contracts
 
