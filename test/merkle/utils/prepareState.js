@@ -36,7 +36,14 @@ const mineBlocks = async (blockAmount) => {
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
     await deployments.fixture();
-
+    const { deploy } = deployments;
+    const { root } = await ethers.getNamedSigners();
+    await deploy("TestToken", {
+      contract: "ERC20Mock",
+      from: root.address,
+      args: ["TTOKEN", "TToken"],
+      log: true,
+    });
     const contractInstances = {
       merkleDropInstance: await ethers.getContract("MerkleDrop"),
       v2TokenInstance: await ethers.getContract("TestToken"),
@@ -51,7 +58,7 @@ const setupInitialState = async (contractInstances, initialState) => {
 
   const signers = await ethers.getSigners();
   const [root, prime, alice, bob] = signers;
-  const addresses = signers.map(signer=>signer.address);
+  const addresses = signers.map((signer) => signer.address);
   const { merkleDropInstance, v2TokenInstance } = contractInstances;
 
   const {
@@ -92,7 +99,9 @@ const setupInitialState = async (contractInstances, initialState) => {
     .approve(merkleDropInstance.address, cumulativeAllocation);
 
   // create tranche (tranch is a parsed group of claimable address/amount pairs)
-  const tranche = getTranche(...rawAllocations.map((balance, index)=>[addresses[index],balance]));
+  const tranche = getTranche(
+    ...rawAllocations.map((balance, index) => [addresses[index], balance])
+  );
 
   // create tree
   let tree = createTreeWithAccounts(tranche);
@@ -110,10 +119,15 @@ const setupInitialState = async (contractInstances, initialState) => {
 
   // change allocation to zero if required for test
   if (zeroAllocation) {
-    const modifiedAllocations = [ ...rawAllocations, "0" ];
+    const modifiedAllocations = [...rawAllocations, "0"];
     const modifiedAddresses = [...addresses];
-    modifiedAddresses[modifiedAllocations.length-1] = alice.address;
-    const modifiedTranche = getTranche(...modifiedAllocations.map((balance, index)=>[modifiedAddresses[index],balance]));
+    modifiedAddresses[modifiedAllocations.length - 1] = alice.address;
+    const modifiedTranche = getTranche(
+      ...modifiedAllocations.map((balance, index) => [
+        modifiedAddresses[index],
+        balance,
+      ])
+    );
     tree = createTreeWithAccounts(modifiedTranche);
     ({ proof, expectedBalance } = generateProof(
       tree,
@@ -122,7 +136,10 @@ const setupInitialState = async (contractInstances, initialState) => {
       modifiedAddresses
     ));
     merkleRoot = tree.hexRoot;
-    cumulativeAllocation = getCumulativeAllocation(modifiedAddresses, modifiedAllocations);
+    cumulativeAllocation = getCumulativeAllocation(
+      modifiedAddresses,
+      modifiedAllocations
+    );
   }
 
   if (incorrectProof) {
