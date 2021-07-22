@@ -453,6 +453,9 @@ contract Seed {
 
         require(_seedAmount >= vestingDuration, "Seed: amountVestedPerSecond > 0");
 
+        if (funders[_recipient].seedAmount==0) {
+            totalFunderCount++;
+        }
         funders[_recipient] = FunderPortfolio({
             seedAmount: _seedAmount,
             totalClaimed: 0,
@@ -460,6 +463,5 @@ contract Seed {
             fee: _fee,
             feeClaimed: 0
         });
-        totalFunderCount++;
     }
 }
