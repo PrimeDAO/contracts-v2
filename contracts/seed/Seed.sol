@@ -43,7 +43,7 @@ contract Seed {
 
     bytes   public metadata;           // IPFS Hash
 
-    uint256 constant internal PCT_BASE        = 10 ** 18;  // // 0% = 0; 1% = 10 ** 16; 100% = 10 ** 18
+    uint256 constant internal PRICE_PRECISION = 10 ** 18;  // 0% = 0; 1% = 10 ** 16; 100% = 10 ** 18
 
     // Contract logic
     bool    public closed;                 // is the distribution closed
@@ -177,7 +177,7 @@ contract Seed {
         fundingToken      = IERC20(_tokens[1]);
         fee               = _fee;
 
-        seedAmountRequired = (hardCap*PCT_BASE) / _price;
+        seedAmountRequired = (hardCap*PRICE_PRECISION) / _price;
         feeAmountRequired  = (seedAmountRequired*_fee) / 100;
         seedRemainder      = seedAmountRequired;
         feeRemainder       = feeAmountRequired;
@@ -194,7 +194,7 @@ contract Seed {
             isFunded = true;
         }
         // fundingAmount is an amount of fundingTokens required to buy _seedAmount of SeedTokens
-        uint256 seedAmount = (_fundingAmount*PCT_BASE)/price;
+        uint256 seedAmount = (_fundingAmount*PRICE_PRECISION)/price;
 
         // Funding Token balance of this contract;
         uint256 fundingBalance = fundingCollected;
