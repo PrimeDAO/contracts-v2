@@ -252,11 +252,10 @@ contract Seed {
         require(amountClaimable >= _claimAmount, "Seed: request is greater than claimable amount");
         uint256 feeAmountOnClaim = (_claimAmount * fee) / 100;
 
-        FunderPortfolio memory tokenFunder = funders[_funder];
+        FunderPortfolio storage tokenFunder = funders[_funder];
 
         tokenFunder.totalClaimed    += _claimAmount;
         tokenFunder.feeClaimed      += feeAmountOnClaim;
-        funders[_funder] = tokenFunder;
 
         seedClaimed += _claimAmount;
         feeClaimed  += feeAmountOnClaim;
@@ -274,14 +273,13 @@ contract Seed {
     */
     function retrieveFundingTokens() external allowedToRetrieve returns(uint256) {
         require(funders[msg.sender].fundingAmount > 0, "Seed: zero funding amount");
-        FunderPortfolio memory tokenFunder = funders[msg.sender];
+        FunderPortfolio storage tokenFunder = funders[msg.sender];
         uint256 fundingAmount = tokenFunder.fundingAmount;
         seedRemainder += tokenFunder.seedAmount;
         feeRemainder += tokenFunder.fee;
         tokenFunder.seedAmount    = 0;
         tokenFunder.fee           = 0;
         tokenFunder.fundingAmount = 0;
-        funders[msg.sender]  = tokenFunder;
         fundingCollected -= fundingAmount;
         require(
             fundingToken.transfer(msg.sender, fundingAmount),
@@ -393,7 +391,7 @@ contract Seed {
       * @param _funder           Address of funder to find the maximum claim
     */
     function calculateClaim(address _funder) public view returns(uint256) {
-        FunderPortfolio memory tokenFunder = funders[_funder];
+        FunderPortfolio storage tokenFunder = funders[_funder];
 
         if (_currentTime() < vestingStartTime) {
             return 0;
