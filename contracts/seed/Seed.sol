@@ -28,12 +28,12 @@ contract Seed {
     address public admin;
     uint256 public softCap;
     uint256 public hardCap;
-    uint256 public seedAmountRequired;    // Amount of seed required for distribution
-    uint256 public feeAmountRequired;     // Amount of seed required for fee
-    uint256 public price;
+    uint256 public seedAmountRequired; // Amount of seed required for distribution
+    uint256 public feeAmountRequired;  // Amount of seed required for fee
+    uint256 public price;              // price of a SeedToken, expressed in fundingTokens, with precision of 10**18
     uint256 public startTime;
-    uint256 public endTime;               // set by project admin, this is the last resort endTime to be applied when
-                                          //     maximumReached has not been reached by then
+    uint256 public endTime;            // set by project admin, this is the last resort endTime to be applied when
+                                       //     maximumReached has not been reached by then
     bool    public permissionedSeed;
     uint32  public vestingDuration;
     uint32  public vestingCliff;
@@ -130,10 +130,10 @@ contract Seed {
       * @param _tokens                Array containing two params:
                                         - The address of the seed token being distributed.
       *                                 - The address of the funding token being exchanged for seed token.
-      * @param _softHardThresholds     Array containing two params:
+      * @param _softHardThresholds    Array containing two params:
                                         - the minimum funding token collection threshold in wei denomination.
                                         - the highest possible funding token amount to be raised in wei denomination.
-      * @param _price                 The price in wei of fundingTokens when exchanged for seedTokens.
+      * @param _price                 price of a SeedToken, expressed in fundingTokens, with precision of 10**18
       * @param _startTime             Distribution start time in unix timecode.
       * @param _endTime               Distribution end time in unix timecode.
       * @param _vestingDuration       Vesting period duration in seconds.
