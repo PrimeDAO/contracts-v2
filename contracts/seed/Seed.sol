@@ -231,7 +231,10 @@ contract Seed {
             );
 
         // Here we are sending amount of tokens to pay for seed tokens to purchase
-        require(fundingToken.transferFrom(msg.sender, address(this), _fundingAmount), "Seed: no tokens");
+        require(
+            fundingToken.transferFrom(msg.sender, address(this), _fundingAmount),
+            "Seed: funding token transferFrom failed"
+        );
 
         // buyer, seed token purchased in this transaction (not the total amount of seed purchased)
         emit SeedsPurchased(msg.sender, seedAmount);
@@ -259,8 +262,8 @@ contract Seed {
 
         seedClaimed += _claimAmount;
         feeClaimed  += feeAmountOnClaim;
-        require(seedToken.transfer(beneficiary, feeAmountOnClaim), "Seed: cannot transfer to beneficiary");
-        require(seedToken.transfer(_funder, _claimAmount), "Seed: no tokens");
+        require(seedToken.transfer(beneficiary, feeAmountOnClaim), "Seed: seed token transfer failed");
+        require(seedToken.transfer(_funder, _claimAmount), "Seed: seed token transfer failed");
 
         emit TokensClaimed(_funder, _claimAmount, beneficiary, feeAmountOnClaim);
 
