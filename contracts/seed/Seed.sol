@@ -153,7 +153,7 @@ contract Seed {
         uint32  _vestingCliff,
         bool    _permissionedSeed,
         uint8   _fee
-    ) public initializer
+    ) external initializer
     {
 
         // parameter check
@@ -187,7 +187,7 @@ contract Seed {
       * @dev                     Buy seed tokens.
       * @param _fundingAmount    The amount of funding tokens to contribute.
     */
-    function buy(uint256 _fundingAmount) public isActive allowedToBuy returns(uint256, uint256) {
+    function buy(uint256 _fundingAmount) external isActive allowedToBuy returns(uint256, uint256) {
         if (!isFunded) {
             require(seedToken.balanceOf(address(this)) >= seedAmountRequired + feeAmountRequired,
                 "Seed: sufficient seeds not provided");
@@ -246,7 +246,7 @@ contract Seed {
       * @param _funder           Address of funder to calculate seconds and amount claimable
       * @param _claimAmount      The amount of seed token a users wants to claim.
     */
-    function claim(address _funder, uint256 _claimAmount) public allowedToClaim returns(uint256) {
+    function claim(address _funder, uint256 _claimAmount) external allowedToClaim returns(uint256) {
         uint256 amountClaimable;
 
         amountClaimable = calculateClaim(_funder);
@@ -274,7 +274,7 @@ contract Seed {
     /**
       * @dev         Returns funding tokens to user.
     */
-    function retrieveFundingTokens() public allowedToRetrieve returns(uint256) {
+    function retrieveFundingTokens() external allowedToRetrieve returns(uint256) {
         require(funders[msg.sender].fundingAmount > 0, "Seed: zero funding amount");
         FunderPortfolio memory tokenFunder = funders[msg.sender];
         uint256 fundingAmount = tokenFunder.fundingAmount;
@@ -299,14 +299,14 @@ contract Seed {
     /**
       * @dev                     Pause distribution.
     */
-    function pause() public onlyAdmin isActive {
+    function pause() external onlyAdmin isActive {
         paused = true;
     }
 
     /**
       * @dev                     Unpause distribution.
     */
-    function unpause() public onlyAdmin {
+    function unpause() external onlyAdmin {
         require(closed != true, "Seed: should not be closed");
         require(paused == true, "Seed: should be paused");
 
@@ -316,7 +316,7 @@ contract Seed {
     /**
       * @dev                     Close distribution.
     */
-    function close() public onlyAdmin isActive {
+    function close() external onlyAdmin isActive {
         // transfer seed tokens back to admin
         if (minimumReached) {
             // remaining seeds = seedRemainder + feeRemainder
@@ -340,7 +340,7 @@ contract Seed {
       * @dev                     Add address to whitelist.
       * @param _buyer            Address which needs to be whitelisted
     */
-    function whitelist(address _buyer) public onlyAdmin isActive {
+    function whitelist(address _buyer) external onlyAdmin isActive {
         require(permissionedSeed == true, "Seed: module is not whitelisted");
 
         whitelisted[_buyer] = true;
@@ -350,7 +350,7 @@ contract Seed {
       * @dev                     Add multiple addresses to whitelist.
       * @param _buyers           Array of addresses to whitelist addresses in batch
     */
-    function whitelistBatch(address[] memory _buyers) public onlyAdmin isActive {
+    function whitelistBatch(address[] memory _buyers) external onlyAdmin isActive {
         require(permissionedSeed == true, "Seed: module is not whitelisted");
         for (uint256 i = 0; i < _buyers.length; i++) {
             whitelisted[_buyers[i]] = true;
@@ -361,7 +361,7 @@ contract Seed {
       * @dev                     Remove address from whitelist.
       * @param buyer             Address which needs to be unwhitelisted
     */
-    function unwhitelist(address buyer) public onlyAdmin isActive {
+    function unwhitelist(address buyer) external onlyAdmin isActive {
         require(permissionedSeed == true, "Seed: module is not whitelisted");
 
         whitelisted[buyer] = false;
@@ -370,7 +370,7 @@ contract Seed {
     /**
       * @dev                     Withdraw funds from the contract
     */
-    function withdraw() public onlyAdmin allowedToWithdraw {
+    function withdraw() external onlyAdmin allowedToWithdraw {
         uint pendingFundingBalance = fundingCollected - fundingWithdrawn;
         fundingWithdrawn = fundingCollected;
         fundingToken.transfer(msg.sender, pendingFundingBalance);
@@ -380,7 +380,7 @@ contract Seed {
       * @dev                     Updates metadata.
       * @param _metadata         Seed contract metadata, that is IPFS Hash
     */
-    function updateMetadata(bytes memory _metadata) public {
+    function updateMetadata(bytes memory _metadata) external {
         require(
             initialized != true || msg.sender == admin,
             "Seed: contract should not be initialized or caller should be admin"

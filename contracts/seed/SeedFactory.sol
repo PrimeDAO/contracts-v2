@@ -35,7 +35,7 @@ contract SeedFactory is CloneFactory, Ownable {
      * @dev               Set Seed contract which works as a base for clones.
      * @param _masterCopy The address of the new Seed basis.
      */
-    function setMasterCopy(Seed _masterCopy) public onlyOwner {
+    function setMasterCopy(Seed _masterCopy) external onlyOwner {
         require(address(_masterCopy) != address(0), "SeedFactory: new mastercopy cannot be zero address");
         masterCopy = _masterCopy;
     }
@@ -73,7 +73,7 @@ contract SeedFactory is CloneFactory, Ownable {
         bool  _permissionedSeed,
         uint8 _fee,
         bytes memory _metadata
-    ) public onlyOwner returns (address)
+    ) external onlyOwner returns (address)
     {
         {
             require(address(masterCopy) != address(0), "SeedFactory: mastercopy cannot be zero address");
