@@ -105,7 +105,7 @@ contract Seed {
 
     modifier allowedToClaim() {
         require(minimumReached, "Seed: minimum funding amount not met");
-        require(endTime <= block.timestamp || maximumReached,"Seed: the distribution has not yet finished");
+        require(endTime < block.timestamp || maximumReached,"Seed: the distribution has not yet finished");
         _;
     }
 
