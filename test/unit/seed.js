@@ -164,11 +164,11 @@ describe('Contract: Seed', async () => {
                 it("reverts when trying to add/remove whitelist", async () => {
                     await expectRevert(
                         setup.seed.connect(admin).whitelistBatch([buyer1.address, buyer2.address]),
-                        "Seed: module is not whitelisted"
+                        "Seed: seed is not whitelisted"
                     );
                     await expectRevert(
                         setup.seed.connect(admin).unwhitelist(buyer1.address),
-                        "Seed: module is not whitelisted"
+                        "Seed: seed is not whitelisted"
                     );
                 });
             });
@@ -765,7 +765,7 @@ describe('Contract: Seed', async () => {
                 it("reverts: can only be called on whitelisted contract", async () => {
                     await expectRevert(
                         setup.seed.connect(admin).whitelist(buyer1.address),
-                        "Seed: module is not whitelisted"
+                        "Seed: seed is not whitelisted"
                     );
                 });
             });
@@ -776,7 +776,7 @@ describe('Contract: Seed', async () => {
                 it("reverts: can only be called on whitelisted contract", async () => {
                     await expectRevert(
                         setup.seed.connect(admin).whitelist(buyer1.address),
-                        "Seed: module is not whitelisted"
+                        "Seed: seed is not whitelisted"
                     );
                 });
             });

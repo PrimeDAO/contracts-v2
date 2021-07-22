@@ -339,8 +339,9 @@ contract Seed {
       * @dev                     Add address to whitelist.
       * @param _buyer            Address which needs to be whitelisted
     */
-    function whitelist(address _buyer) external onlyAdmin isActive {
-        require(permissionedSeed == true, "Seed: module is not whitelisted");
+    function whitelist(address _buyer) external onlyAdmin {
+        require(!closed, "Seed: should not be closed");
+        require(permissionedSeed == true, "Seed: seed is not whitelisted");
 
         whitelisted[_buyer] = true;
     }
@@ -349,8 +350,9 @@ contract Seed {
       * @dev                     Add multiple addresses to whitelist.
       * @param _buyers           Array of addresses to whitelist addresses in batch
     */
-    function whitelistBatch(address[] memory _buyers) external onlyAdmin isActive {
-        require(permissionedSeed == true, "Seed: module is not whitelisted");
+    function whitelistBatch(address[] memory _buyers) external onlyAdmin {
+        require(!closed, "Seed: should not be closed");
+        require(permissionedSeed == true, "Seed: seed is not whitelisted");
         for (uint256 i = 0; i < _buyers.length; i++) {
             whitelisted[_buyers[i]] = true;
         }
@@ -360,8 +362,9 @@ contract Seed {
       * @dev                     Remove address from whitelist.
       * @param buyer             Address which needs to be unwhitelisted
     */
-    function unwhitelist(address buyer) external onlyAdmin isActive {
-        require(permissionedSeed == true, "Seed: module is not whitelisted");
+    function unwhitelist(address buyer) external onlyAdmin {
+        require(!closed, "Seed: should not be closed");
+        require(permissionedSeed == true, "Seed: seed is not whitelisted");
 
         whitelisted[buyer] = false;
     }
