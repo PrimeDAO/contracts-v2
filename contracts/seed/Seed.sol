@@ -227,9 +227,7 @@ contract Seed {
             msg.sender,
             (funders[msg.sender].seedAmount + seedAmount),         // Previous Seed Amount + new seed amount
             (funders[msg.sender].fundingAmount + _fundingAmount),  // Previous Funding Amount + new funding amount
-            funders[msg.sender].totalClaimed,
-            (funders[msg.sender].fee + feeAmount),                  // Previous Fee + new fee
-            funders[msg.sender].feeClaimed
+            (funders[msg.sender].fee + feeAmount)                  // Previous Fee + new fee
             );
 
         // Here we are sending amount of tokens to pay for seed tokens to purchase
@@ -438,16 +436,13 @@ contract Seed {
       * @param _recipient         Address of funder recipient
       * @param _seedAmount        seed amount of the funder
       * @param _fundingAmount     funding amount contributed
-      * @param _totalClaimed      total seed token amount claimed
       * @param _fee               fee on seed amount bought
     */
     function _addFunder(
         address _recipient,
         uint256 _seedAmount,
         uint256 _fundingAmount,
-        uint256 _totalClaimed,
-        uint256 _fee,
-        uint256 _feeClaimed
+        uint256 _fee
     )
     internal
     {
@@ -456,10 +451,10 @@ contract Seed {
 
         funders[_recipient] = FunderPortfolio({
             seedAmount: _seedAmount,
-            totalClaimed: _totalClaimed,
+            totalClaimed: 0,
             fundingAmount: _fundingAmount,
             fee: _fee,
-            feeClaimed: _feeClaimed
+            feeClaimed: 0
         });
         totalFunderCount++;
     }
