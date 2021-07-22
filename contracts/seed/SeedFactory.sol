@@ -29,7 +29,7 @@ contract SeedFactory is CloneFactory, Ownable {
 
     Seed public masterCopy;
 
-    event SeedCreated(address indexed newSeed, address indexed admin);
+    event SeedCreated(address indexed newSeed, address indexed beneficiary);
 
     /**
      * @dev               Set Seed contract which works as a base for clones.
@@ -100,7 +100,7 @@ contract SeedFactory is CloneFactory, Ownable {
             _fee
         );
 
-        emit SeedCreated(address(_newSeed), _admin);
+        emit SeedCreated(address(_newSeed), msg.sender);
 
         return _newSeed;
     }
