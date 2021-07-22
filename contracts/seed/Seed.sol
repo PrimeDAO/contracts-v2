@@ -215,9 +215,6 @@ contract Seed {
         seedRemainder -= seedAmount;
         feeRemainder  -= feeAmount;
 
-        // Here we are sending amount of tokens to pay for seed tokens to purchase
-        require(fundingToken.transferFrom(msg.sender, address(this), _fundingAmount), "Seed: no tokens");
-
         if (fundingCollected >= softCap) {
             minimumReached = true;
         }
@@ -234,6 +231,9 @@ contract Seed {
             (funders[msg.sender].fee + feeAmount),                  // Previous Fee + new fee
             funders[msg.sender].feeClaimed
             );
+
+        // Here we are sending amount of tokens to pay for seed tokens to purchase
+        require(fundingToken.transferFrom(msg.sender, address(this), _fundingAmount), "Seed: no tokens");
 
         // buyer, seed token purchased in this transaction (not the total amount of seed purchased)
         emit SeedsPurchased(msg.sender, seedAmount);
