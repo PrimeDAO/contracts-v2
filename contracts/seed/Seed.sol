@@ -10,6 +10,7 @@
 */
 
 // SPDX-License-Identifier: GPL-3.0-or-later
+// solium-disable operator-whitespace
 /* solhint-disable space-after-comma */
 /* solhint-disable max-states-count */
 // solium-disable linebreak-style

@@ -14,16 +14,17 @@
 // solium-disable linebreak-style
 pragma solidity ^0.8.0;
 
+
 import "./interface/Safe.sol";
+import "@gnosis.pm/safe-contracts/contracts/interfaces/ISignatureValidator.sol";
+
 
 /**
  * @title PrimeDAO Signer Contract
  * @dev   Enables signing SeedFactory.deploySeed() transaction before sending it to Gnosis Safe.
  */
-contract Signer {
+contract Signer is ISignatureValidator {
 
-    // EIP1271 magic value - should be returned to validate the signature
-    bytes4 internal constant EIP1271_MAGIC_VALUE       = 0x20c13b0b;
     // SeedFactory.deploySeed() byte hash
     bytes4 internal constant SEED_FACTORY_MAGIC_VALUE  = 0x4a7eb3c2;
     bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH =
@@ -50,18 +51,6 @@ contract Signer {
             );
         safe = _safe;
         seedFactory = _seedFactory;
-    }
-
-    /**
-     * @dev                Validate signature using EIP1271
-     * @param _hash        Encoded transaction hash supplied to verify signature.
-     * @param _signature   Signature that needs to be verified.
-     */
-    function isValidSignature(bytes memory _hash, bytes memory _signature) external view returns(bytes4) {
-        if (approvedSignatures[keccak256(_signature)] == 1) {
-            return EIP1271_MAGIC_VALUE;
-        }
-        return "0x";
     }
 
     /**
@@ -122,6 +111,18 @@ contract Signer {
         signature = bytes.concat(paddedAddress, bytes32(uint256(65)), bytes1(0), bytes32(uint256(messageHash.length)), messageHash);
         approvedSignatures[keccak256(messageHash)] = 1;
         emit SignatureCreated(signature, hash);
+    }
+
+    /**
+     * @dev                Validate signature using EIP1271
+     * @param _data        Encoded transaction hash supplied to verify signature.
+     * @param _signature   Signature that needs to be verified.
+     */
+    function isValidSignature(bytes memory _data, bytes memory _signature) public virtual override view returns(bytes4) {
+        if (approvedSignatures[keccak256(_signature)] == 1) {
+            return EIP1271_MAGIC_VALUE;
+        }
+        return "0x";
     }
 
     /**

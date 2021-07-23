@@ -42,6 +42,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 pragma solidity 0.8.4;
 
+
 contract CloneFactory {
 
     function createClone(address target) internal returns (address result) {
