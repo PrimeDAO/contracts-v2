@@ -141,6 +141,7 @@ describe('>> Contract LBPDeployer', async () => {
 				
 				const transaction = await setup.lbpDeployer.generateSignature(...trx.slice(1), nonce);
 				const hashData = await setup.proxySafe.encodeTransactionData(...trx, nonce);
+				
 				nonce++;
 				const receipt = await transaction.wait();
 				const {signature, hash} = receipt.events.filter((data) => {return data.event === SIGNATURE_CREATED})[0].args;
@@ -153,7 +154,6 @@ describe('>> Contract LBPDeployer', async () => {
 
 
 				await setup.proxySafe.connect(setup.roles.prime).execTransaction(...(setup.data.trx));
-				
 			});	
 		})
 
