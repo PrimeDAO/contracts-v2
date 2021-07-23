@@ -94,7 +94,7 @@ describe("Contract: Signer", async () => {
                 ];
                 // once transaction object is created, we send the transaction data along with nonce to generate safeTrx hash
                 // and verify if the transaction is valid or not, and sign the hash.
-                await expect(setup.signer.generateSignature(...trx, nonce)).to.be.revertedWith("Signer: cannot sign invalid function call");
+                await expect(setup.signer.generateSignature(...trx, nonce)).to.be.revertedWith("Signer: can only sign calls to deploySeed");
             });
             it("reverts on invalid to field", async () => {
                 // here we create a transaction object
@@ -124,7 +124,7 @@ describe("Contract: Signer", async () => {
                     constants.ZERO_ADDRESS,
                     constants.ZERO_ADDRESS
                 ];
-                await expect(setup.signer.generateSignature(...trx, nonce)).to.be.revertedWith("Signer: cannot sign invalid transaction");
+                await expect(setup.signer.generateSignature(...trx, nonce)).to.be.revertedWith("Signer: cannot sign transaction transaction to invalid seedFactory");
             });
         });
         context("valid arguments", async () => {
