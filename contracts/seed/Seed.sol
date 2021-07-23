@@ -220,7 +220,7 @@ contract Seed {
         }
         if (fundingCollected >= hardCap) {
             maximumReached = true;
-            vestingStartTime = _currentTime();
+            vestingStartTime = block.timestamp;
         }
 
         _addFunder(
@@ -399,12 +399,12 @@ contract Seed {
     function calculateClaim(address _funder) public view returns(uint256) {
         FunderPortfolio storage tokenFunder = funders[_funder];
 
-        if (_currentTime() < vestingStartTime) {
+        if (block.timestamp < vestingStartTime) {
             return 0;
         }
 
         // Check cliff was reached
-        uint256 elapsedSeconds = _currentTime() - vestingStartTime;
+        uint256 elapsedSeconds = block.timestamp - vestingStartTime;
 
         if (elapsedSeconds < vestingCliff) {
             return 0;
@@ -425,14 +425,6 @@ contract Seed {
     */
     function checkWhitelisted(address _buyer) public view returns(bool) {
         return whitelisted[_buyer];
-    }
-
-    // INTERNAL FUNCTIONS
-    /**
-      * @dev                      get current time or block.timestamp
-    */
-    function _currentTime() internal view returns(uint256) {
-        return block.timestamp;
     }
 
     /**
