@@ -88,11 +88,18 @@ contract Signer {
         address _gasToken,
         address _refundReceiver,
         uint256 _nonce
-        ) external returns(bytes memory signature, bytes32 hash) {
+    ) external returns(bytes memory signature, bytes32 hash)
+    {
 
         // check if transaction parameters are correct
-        require(_to == seedFactory, "Signer: cannot sign invalid transaction");
-        require(_getFunctionHashFromData(_data) == SEED_FACTORY_MAGIC_VALUE, "Signer: cannot sign invalid function call");
+        require(
+            _to == seedFactory,
+            "Signer: cannot sign transaction transaction to invalid seedFactory"
+        );
+        require(
+            _getFunctionHashFromData(_data) == SEED_FACTORY_MAGIC_VALUE,
+            "Signer: can only sign calls to deploySeed"
+        );
 
         // get contractTransactionHash from gnosis safe
         hash = Safe(safe).getTransactionHash(
