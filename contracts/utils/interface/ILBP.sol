@@ -14,17 +14,22 @@
 /* solium-disable */
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+interface ILBP{
+	// function getSwapEnabled() external view returns (bool);
+	
+	function getGradualWeightUpdateParams() external view returns (
+		uint256 startTime,
+		uint256 endTime,
+		uint256[] memory endWeights
+	);
 
+	// function setSwapEnabled(
+	// 	bool swapEnabled
+	// 	) external authenticate whenNotPaused nonReentrant;
 
-interface ILBPFactory{
-    function create(
-        string memory name,
-        string memory symbol,
-        IERC20[] memory tokens,
-        uint256[] memory weights,
-        uint256 swapFeePercentage,
-        address owner,
-        bool swapEnabledOnStart
-    ) external view returns (address);
+	function updateWeightsGradually(
+        uint256 startTime,
+        uint256 endTime,
+        uint256[] memory endWeights
+    ) external; // Had to remove the modifiers, was that correct?
 }
