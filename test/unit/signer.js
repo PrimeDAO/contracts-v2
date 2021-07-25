@@ -19,7 +19,7 @@ const {
 const init = require("../test-init.js");
 
 const zero = 0;
-const oneMillion = 1000000;
+const oneMillion = 555162;
 const magicValue = `0x20c13b0b`;
 const signaturePosition = 196;
 const SIGNATURE_CREATED = 'SignatureCreated';
@@ -87,7 +87,7 @@ describe("Contract: Signer", async () => {
                     data,
                     zero,
                     oneMillion,
-                    oneMillion,
+                    zero,
                     zero,
                     constants.ZERO_ADDRESS,
                     constants.ZERO_ADDRESS
@@ -165,6 +165,7 @@ describe("Contract: Signer", async () => {
                 setup.data.hash = hash;
                 setup.data.hashData = hashData;
                 // checking if the signature produced can correctly be verified by signer contract.
+                expect(await setup.signer.isValidSignature(hash, `0x${signature.slice(signaturePosition)}`)).to.equal(magicValue);
                 expect(await setup.signer.isValidSignature(hashData,`0x${signature.slice(signaturePosition)}`)).to.equal(magicValue);
             });
         });
@@ -176,4 +177,76 @@ describe("Contract: Signer", async () => {
             });
         })
     });
+    context(">> check if signature is accepted by gnosis safe", async () => {
+        before('!! new setup', async () => {
+            setup = await deploy();
+            Signer_Factory.connect(setup.roles.root);
+            setup.signer = await Signer_Factory.deploy(setup.proxySafe.address, setup.seedFactory.address);
+            await setup.proxySafe.setup(
+                [setup.signer.address],
+                1,
+                setup.proxySafe.address,
+                '0x',
+                constants.ZERO_ADDRESS,
+                constants.ZERO_ADDRESS,
+                0,
+                setup.roles.prime.address
+            );
+        });
+        it("Signer contract is safe owner", async () => {
+            expect(await setup.proxySafe.isOwner(setup.signer.address)).to.equal(true);
+        });
+        it("safe should accept signer's signature", async ()=>{
+            const {data, to} = await setup.seedFactory.populateTransaction.deploySeed(
+                BENEFICIARY,
+                ADMIN,
+                [PRIME,WETH],
+                [softCap,hardCap],
+                price,
+                startTime,
+                endTime,
+                [vestingDuration, vestingCliff],
+                isPermissioned,
+                fee,
+                metadata
+            );
+            let gas = await setup.seedFactory.estimateGas.deploySeed(
+                BENEFICIARY,
+                ADMIN,
+                [PRIME,WETH],
+                [softCap,hardCap],
+                price,
+                startTime,
+                endTime,
+                [vestingDuration, vestingCliff],
+                isPermissioned,
+                fee,
+                metadata
+            );
+            // gas = gas.add(ethers.BigNumber.from(10000));
+            const trx = [
+                to,
+                zero,
+                data,
+                zero,
+                gas,
+                gas,
+                zero,
+                constants.ZERO_ADDRESS,
+                constants.ZERO_ADDRESS
+            ];
+            const nonce = await setup.proxySafe.nonce();
+            const transaction = await setup.signer.generateSignature(...trx, nonce);
+            const receipt = await transaction.wait();
+            const {signature, hash} = receipt.events.filter((data) => {return data.event === SIGNATURE_CREATED})[0].args;
+            trx.push(signature);
+            setup.data.trx = trx;
+            setup.data.hash = hash;
+            // const response = await (await setup.proxySafe.connect(setup.roles.prime).execTransaction(...(setup.data.trx))).wait();
+            // console.log(response);
+            await expect(
+                setup.proxySafe.connect(setup.roles.prime).execTransaction(...(setup.data.trx))
+            ).to.not.reverted;
+        });
+    })
 });
