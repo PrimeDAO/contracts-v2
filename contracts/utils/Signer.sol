@@ -32,7 +32,7 @@ contract Signer is ISignatureValidator {
     bytes32 private constant SEED_MSG_TYPEHASH         =
     0xa1a7ad659422d5fc08fdc481fd7d8af8daf7993bc4e833452b0268ceaab66e5d;
 
-    mapping(bytes32 => uint8) public approvedSignatures;
+    mapping(bytes32 => bytes32) public approvedSignatures;
 
     address public safe;
     address public seedFactory;
@@ -109,7 +109,7 @@ contract Signer is ISignatureValidator {
 
         // generate signature and add it to approvedSignatures mapping
         signature = bytes.concat(paddedAddress, bytes32(uint256(65)), bytes1(0), bytes32(uint256(messageHash.length)), messageHash);
-        approvedSignatures[keccak256(messageHash)] = 1;
+        approvedSignatures[hash] = keccak256(messageHash);
         emit SignatureCreated(signature, hash);
     }
 
@@ -119,8 +119,18 @@ contract Signer is ISignatureValidator {
      * @param _signature   Signature that needs to be verified.
      */
     function isValidSignature(bytes memory _data, bytes memory _signature) public virtual override view returns(bytes4) {
-        if (approvedSignatures[keccak256(_signature)] == 1) {
-            return EIP1271_MAGIC_VALUE;
+        if (_data.length==32) {
+            bytes32 hash;
+            assembly {
+                hash := mload(add(_data, 32))
+            }
+            if (approvedSignatures[hash] == keccak256(_signature)) {
+                return EIP1271_MAGIC_VALUE;
+            }
+        } else {
+            if (approvedSignatures[keccak256(_data)] == keccak256(_signature)) {
+                return EIP1271_MAGIC_VALUE;
+            }
         }
         return "0x";
     }
