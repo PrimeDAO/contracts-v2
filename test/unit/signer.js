@@ -173,6 +173,7 @@ describe("Contract: Signer", async () => {
     context(">> isValidSignature", async () => {
         context("signature is invalid", async () => {
             it("doesn't returns magic value", async () => {
+                expect(await setup.signer.isValidSignature(setup.data.hash, setup.data.hashData)).to.equal("0x30780000");
                 expect(await setup.signer.isValidSignature(setup.data.hashData, setup.data.hashData)).to.equal("0x30780000");
             });
         })
