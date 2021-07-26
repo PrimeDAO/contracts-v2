@@ -7,7 +7,7 @@ const {
   getTranche,
   createTreeWithAccounts,
   getAccountBalanceProof,
-} = require("../merkle");
+} = require("../../../tasks/utils/merkle");
 
 const getParsedAllocations = (addresses, rawAllocations) =>
   Object.fromEntries(
