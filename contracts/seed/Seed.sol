@@ -16,7 +16,7 @@
 // solium-disable linebreak-style
 pragma solidity 0.8.4;
 
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 
 
 /**
