@@ -339,13 +339,10 @@ describe('Contract: Seed', async () => {
         });
         context("# claim", () => {
             context("» softCap not reached", () => {
-                let alternativeSetup, alternativeSeedToken;
+                let alternativeSetup;
                 
-                const alternativehardCap        = parseEther("200").toString();
                 beforeEach(async () => {
                     alternativeSetup = await deploy();
-                    // alternativeFundingToken = alternativeSetup.token.alternativeFundingToken;
-                    // alternativeSeedToken = alternativeSetup.token.seedToken
 
                     await alternativeSetup.seed.initialize(
                         beneficiary.address,
@@ -570,7 +567,35 @@ describe('Contract: Seed', async () => {
             });
         });
         context("# retrieveFundingTokens", () => {
+            context("» Seed: distribution hasn't started", () => {
+
+                it("reverts 'Seed: distribution haven't started' ", async ()  => {
+         
+                    let futureStartTime = (await time.latest()).add(await time.duration.days(2));
+                    let futureEndTime = await futureStartTime.add(await time.duration.days(7));
+                    
+                    const alternativeSetup = await deploy();
+                    await alternativeSetup.seed.initialize(
+                        beneficiary.address,
+                        admin.address,
+                        [seedToken.address, fundingToken.address],
+                        [softCap, hardCap],
+                        price,
+                        futureStartTime.toNumber(),
+                        futureEndTime.toNumber(),
+                        vestingDuration.toNumber(),
+                        vestingCliff.toNumber(),
+                        permissionedSeed,
+                        fee
+                    );
+
+                    await expectRevert(
+                        alternativeSetup.seed.connect(buyer1).retrieveFundingTokens(), "Seed: distribution haven't started");
+                })
+            })
+
             context("» generics", () => {
+
                 before("!! deploy new contract + top up buyer balance", async () => {
                     let newStartTime = await time.latest();
                     let newEndTime = await newStartTime.add(await time.duration.days(7));
