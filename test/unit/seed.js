@@ -110,6 +110,34 @@ describe('Contract: Seed', async () => {
         });
         context("» contract is not initialized yet", () => {
             context("» parameters are valid", () => {
+                context("» distribution period not yet started", () => {
+                    beforeEach(async () => {
+                        altSetup = await deploy();
+                        await altSetup.seed.initialize(
+                            beneficiary.address,
+                            admin.address,
+                            [seedToken.address, fundingToken.address],
+                            [softCap, hardCap],
+                            price,
+                            (await startTime.add(await time.duration.days(2))).toNumber(),
+                            endTime.toNumber(),
+                            vestingDuration.toNumber(),
+                            vestingCliff.toNumber(),
+                            permissionedSeed,
+                            fee
+                        );
+                    })
+
+                    it("is not possible to buy", async ()  => {
+                        const signers = await ethers.getSigners()
+                        const randomSigner = signers[9]
+                        await expectRevert(
+                            altSetup.seed.connect(randomSigner).buy(parseEther('1').add(buyAmount)),
+                            "Seed: only allowed during distribution period"
+                        )
+                    })
+                })
+
                 it("it initializes seed", async () => {
                 // emulate creation & initialization via seedfactory & fund with seedTokens
 
