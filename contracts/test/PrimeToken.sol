@@ -13,7 +13,7 @@
 
 pragma solidity 0.8.4;
 
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
+import "openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Capped.sol";
 
 
 contract PrimeToken is ERC20Capped {
