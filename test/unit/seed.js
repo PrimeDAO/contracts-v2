@@ -111,9 +111,11 @@ describe('Contract: Seed', async () => {
         context("» contract is not initialized yet", () => {
             context("» parameters are valid", () => {
                 context("» distribution period not yet started", () => {
+                    let alternativeSetup;
+
                     beforeEach(async () => {
-                        altSetup = await deploy();
-                        await altSetup.seed.initialize(
+                        alternativeSetup = await deploy();
+                        await alternativeSetup.seed.initialize(
                             beneficiary.address,
                             admin.address,
                             [seedToken.address, fundingToken.address],
@@ -132,7 +134,7 @@ describe('Contract: Seed', async () => {
                         const signers = await ethers.getSigners()
                         const randomSigner = signers[9]
                         await expectRevert(
-                            altSetup.seed.connect(randomSigner).buy(parseEther('1').add(buyAmount)),
+                            alternativeSetup.seed.connect(randomSigner).buy(parseEther('1').add(buyAmount)),
                             "Seed: only allowed during distribution period"
                         )
                     })
@@ -336,6 +338,43 @@ describe('Contract: Seed', async () => {
             });
         });
         context("# claim", () => {
+            context("» softCap not reached", () => {
+                let alternativeSetup, alternativeSeedToken;
+                
+                const alternativehardCap        = parseEther("200").toString();
+                beforeEach(async () => {
+                    alternativeSetup = await deploy();
+                    // alternativeFundingToken = alternativeSetup.token.alternativeFundingToken;
+                    // alternativeSeedToken = alternativeSetup.token.seedToken
+
+                    await alternativeSetup.seed.initialize(
+                        beneficiary.address,
+                        admin.address,
+                        [seedToken.address, fundingToken.address],
+                        [softCap, hardCap],
+                        price,
+                        startTime.toNumber(),
+                        endTime.toNumber(),
+                        vestingDuration.toNumber(),
+                        vestingCliff.toNumber(),
+                        permissionedSeed,
+                        fee
+                    );
+                    await fundingToken.connect(root).transfer(buyer1.address, hundredTwoETH);
+                    await fundingToken.connect(buyer1).approve(alternativeSetup.seed.address, hundredTwoETH);
+                    await seedToken.connect(root).transfer(
+                        alternativeSetup.seed.address, requiredSeedAmount.toString());
+                    await alternativeSetup.seed.connect(buyer1).buy(parseEther("5"))
+                })
+
+                it("is not possible to buy", async ()  => {
+                    await expectRevert(
+                        alternativeSetup.seed.connect(buyer1).claim(buyer1.address, parseEther("5")),
+                        "Seed: minimum funding amount not met"
+                    );
+                })
+            })
+
             context("» generics", () => {
                 it("claim = 0 when not currentTime<endTime", async () => {
                     expect((await setup.seed.calculateClaim(buyer2.address)).toString()).to.equal('0');
