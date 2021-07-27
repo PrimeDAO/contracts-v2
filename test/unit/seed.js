@@ -575,12 +575,11 @@ describe("Contract: Seed", async () => {
                     // const receipt = await expectEvent.inTransaction(setup.data.tx.tx, setup.data.seed, "TokensClaimed");
                     // expect(await receipt.args[1].toString()).to.equal(new BN(buySeedAmount).mul(twoBN).toString());
                 });
-                // get totalClaimed to calculate feeClaimed and get fundingAmount to get fee and do test
-                // it("it claims all the fee for a buyer's claim", async () => {
-                //     const fee = (await setup.data.seed.feeForFunder(buyer2.address));
-                //     const feeClaimed = (await setup.data.seed.feeClaimedForFunder(buyer2.address));
-                //     expect(fee.toString()).to.equal(feeClaimed.toString());
-                // });
+                it("it claims all the fee for a buyer's claim", async () => {
+                    const fee = (await setup.data.seed.feeForFunder(buyer2.address));
+                    const feeClaimed = (await setup.data.seed.feeClaimedForFunder(buyer2.address));
+                    expect(fee.toString()).to.equal(feeClaimed.toString());
+                });
                 it("it claims all the fee", async () => {
                     const feeAmountRequired = await setup.data.seed.feeAmountRequired();
                     const feeClaimed = await setup.data.seed.feeClaimed();
