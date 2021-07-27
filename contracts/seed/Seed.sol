@@ -72,10 +72,10 @@ contract Seed {
     event MetadataUpdated(bytes indexed metadata);
 
     struct FunderPortfolio {
-        uint256 seedAmount;                 // Total amount of seed tokens bought
+        // uint256 seedAmount;                 // Total amount of seed tokens bought
         uint256 totalClaimed;               // Total amount of seed tokens claimed
         uint256 fundingAmount;              // Total amount of funding tokens contributed
-        uint256 fee;                        // Total amount of fee in seed amount for this portfolio
+        // uint256 fee;                        // Total amount of fee in seed amount for this portfolio
         // uint256 feeClaimed;                 // Total amount of fee sent to beneficiary for this portfolio
     }
 
@@ -203,6 +203,11 @@ contract Seed {
         // feeAmount is an amount of fee we are going to get in seedTokens
         uint256 feeAmount = (seedAmount*fee) / 100;
 
+        // seed amount vested per second > zero, i.e. amountVestedPerSecond = seedAmount/vestingDuration
+        require(
+            seedAmount >= vestingDuration,
+            "Seed: amountVestedPerSecond > 0");
+
         // total fundingAmount should not be greater than the hardCap
         require( fundingBalance + _fundingAmount <= hardCap,
             "Seed: amount exceeds contract sale hardCap");
@@ -226,9 +231,9 @@ contract Seed {
 
         _addFunder(
             msg.sender,
-            (funders[msg.sender].seedAmount + seedAmount),         // Previous Seed Amount + new seed amount
-            (funders[msg.sender].fundingAmount + _fundingAmount),  // Previous Funding Amount + new funding amount
-            (funders[msg.sender].fee + feeAmount)                  // Previous Fee + new fee
+            // (funders[msg.sender].seedAmount + seedAmount),         // Previous Seed Amount + new seed amount
+            (funders[msg.sender].fundingAmount + _fundingAmount)  // Previous Funding Amount + new funding amount
+            // (funders[msg.sender].fee + feeAmount)                  // Previous Fee + new fee
             );
 
         // Here we are sending amount of tokens to pay for seed tokens to purchase
@@ -279,10 +284,10 @@ contract Seed {
         require(funders[msg.sender].fundingAmount > 0, "Seed: zero funding amount");
         FunderPortfolio storage tokenFunder = funders[msg.sender];
         uint256 fundingAmount = tokenFunder.fundingAmount;
-        seedRemainder += tokenFunder.seedAmount;
-        feeRemainder += tokenFunder.fee;
-        tokenFunder.seedAmount    = 0;
-        tokenFunder.fee           = 0;
+        seedRemainder += seedAmountForFunder(msg.sender);
+        feeRemainder += feeForFunder(msg.sender);
+        // tokenFunder.seedAmount    = 0;
+        // tokenFunder.fee           = 0;
         tokenFunder.fundingAmount = 0;
         fundingCollected -= fundingAmount;
         require(
@@ -425,9 +430,9 @@ contract Seed {
 
         // If over vesting duration, all tokens vested
         if (elapsedSeconds >= vestingDuration) {
-            return tokenFunder.seedAmount - tokenFunder.totalClaimed;
+            return seedAmountForFunder(_funder) - tokenFunder.totalClaimed;
         } else {
-            uint256 amountVested = (elapsedSeconds*tokenFunder.seedAmount) / vestingDuration;
+            uint256 amountVested = (elapsedSeconds*seedAmountForFunder(_funder)) / vestingDuration;
             return amountVested - tokenFunder.totalClaimed;
         }
     }
@@ -441,31 +446,51 @@ contract Seed {
     }
 
     /**
+      * @dev                     get fee claimed for funder
+      * @param _funder           address of funder to check fee claimed
+    */
+    function feeClaimedForFunder(address _funder) public view returns(uint256) {
+        return (funders[_funder].totalClaimed*fee)/100;
+    }
+
+    /**
+      * @dev                     get fee for funder
+      * @param _funder           address of funder to check fee
+    */
+    function feeForFunder(address _funder) public view returns(uint256) {
+        return (seedAmountForFunder(_funder)*fee)/100;
+    }
+
+    /**
+      * @dev                     get seed amount for funder
+      * @param _funder           address of funder to seed amount
+    */
+    function seedAmountForFunder(address _funder) public view returns(uint256) {
+        return (funders[_funder].fundingAmount*PRICE_PRECISION)/price;
+    }
+
+    /**
       * @dev                      add/update funder portfolio
       * @param _recipient         Address of funder recipient
-      * @param _seedAmount        seed amount of the funder
       * @param _fundingAmount     funding amount contributed
-      * @param _fee               fee on seed amount bought
     */
     function _addFunder(
         address _recipient,
-        uint256 _seedAmount,
-        uint256 _fundingAmount,
-        uint256 _fee
+        // uint256 _seedAmount,
+        uint256 _fundingAmount
+        // uint256 _fee
     )
     internal
     {
 
-        require(_seedAmount >= vestingDuration, "Seed: amountVestedPerSecond > 0");
-
-        if (funders[_recipient].seedAmount==0) {
+        if (funders[_recipient].fundingAmount==0) {
             totalFunderCount++;
         }
         funders[_recipient] = FunderPortfolio({
-            seedAmount: _seedAmount,
+            // seedAmount: _seedAmount,
             totalClaimed: 0,
-            fundingAmount: _fundingAmount,
-            fee: _fee
+            fundingAmount: _fundingAmount
+            // fee: _fee
             // feeClaimed: 0
         });
     }
