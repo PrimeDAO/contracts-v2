@@ -67,7 +67,7 @@ contract Seed {
 
     event SeedsPurchased(address indexed recipient, uint256 amountPurchased);
     event TokensClaimed(address indexed recipient,uint256 amount,address indexed beneficiary,uint256 feeAmount);
-    event FundingRetrieved(address indexed recipient, uint256 amountReclaimed);
+    event FundingReclaimed(address indexed recipient, uint256 amountReclaimed);
     event MetadataUpdated(bytes indexed metadata);
 
     struct FunderPortfolio {
@@ -278,7 +278,7 @@ contract Seed {
             fundingToken.transfer(msg.sender, fundingAmount),
             "Seed: cannot return funding tokens to msg.sender"
         );
-        emit FundingRetrieved(msg.sender, fundingAmount);
+        emit FundingReclaimed(msg.sender, fundingAmount);
 
         return fundingAmount;
     }
