@@ -19,7 +19,6 @@ contract CustomERC20Mock is ERC20 {
         uint256 amount
     ) public virtual override returns (bool) {
         bool success = _customTransfer(_msgSender(), recipient, amount);
-        console.log(success);
         return success;
     }
 
@@ -39,7 +38,6 @@ contract CustomERC20Mock is ERC20 {
             }
             /* solium-enable */
         }
-
         return true;
     }
 
@@ -70,7 +68,6 @@ contract CustomERC20Mock is ERC20 {
         }
         _balances[recipient] += amount;
         emit Transfer(sender, recipient, amount);
-        return true;
     }
 
     function _approve(
