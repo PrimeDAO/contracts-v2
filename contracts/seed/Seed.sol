@@ -313,10 +313,10 @@ contract Seed {
     }
 
     /**
-      * @dev                     refund remaining seed tokens back to project.
+      * @dev                     retrieve remaining seed tokens back to project.
       * @param _refundReceiver   refund receiver address
     */
-    function refundSeedTokens(address _refundReceiver) external onlyAdmin {
+    function retrieveSeedTokens(address _refundReceiver) external onlyAdmin {
         // transfer seed tokens back to admin
         bool isValidTimeToRefund = block.timestamp > endTime;
         require(

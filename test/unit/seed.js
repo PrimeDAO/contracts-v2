@@ -823,7 +823,7 @@ describe("Contract: Seed", async () => {
                     await expectRevert(setup.data.seed.connect(buyer1).close(), "Seed: caller should be admin");
                 });
                 it("does not refund anything when, closed == false", async () => {
-                    await expect(setup.data.seed.connect(admin).refundSeedTokens(admin.address)).to.be.revertedWith(
+                    await expect(setup.data.seed.connect(admin).retrieveSeedTokens(admin.address)).to.be.revertedWith(
                         "Seed: refund seed tokens only when seed distribution is closed or after distribution end time."
                     );
                 });
@@ -834,7 +834,7 @@ describe("Contract: Seed", async () => {
                 });
                 it("refunds remaining seed tokens", async () => {
                     let stBalance = await seedToken.balanceOf(setup.data.seed.address);
-                    await setup.data.seed.connect(admin).refundSeedTokens(admin.address);
+                    await setup.data.seed.connect(admin).retrieveSeedTokens(admin.address);
                     expect((await seedToken.balanceOf(admin.address)).toString()).to.equal(stBalance.toString());
                 });
                 it("paused == false", async () => {
@@ -890,7 +890,7 @@ describe("Contract: Seed", async () => {
                     );
                 });
                 it("does not refund anything when, currentTime < endTime", async () => {
-                    await expect(setup.data.seed.connect(admin).refundSeedTokens(admin.address)).to.be.revertedWith(
+                    await expect(setup.data.seed.connect(admin).retrieveSeedTokens(admin.address)).to.be.revertedWith(
                         "Seed: refund seed tokens only when seed distribution is closed or after distribution end time."
                     );
                 });
@@ -898,7 +898,7 @@ describe("Contract: Seed", async () => {
                     const buyFee = new BN(buySeedAmount).mul(new BN(fee)).div(new BN(PRECISION.toString()).mul(hundredBn));
                     const prevBal = await seedToken.balanceOf(admin.address);
                     await time.increase(await time.duration.days(7));
-                    await setup.data.seed.connect(admin).refundSeedTokens(admin.address);
+                    await setup.data.seed.connect(admin).retrieveSeedTokens(admin.address);
                     expect((await seedToken.balanceOf(admin.address)).toString()).to.equal(
                         requiredSeedAmount
                             .add(new BN(prevBal.toString()))
