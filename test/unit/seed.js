@@ -1069,6 +1069,48 @@ describe("Contract: Seed", async () => {
                 });
             });
             context("» unpause", () => {
+                context("seed is paused/closed", async () => {
+                    let alternativeSeed;
+
+                    beforeEach(async () => {
+                        let newStartTime = await time.latest();
+                        let newEndTime = await newStartTime.add(await time.duration.days(7));
+
+                        alternativeSeed = await init.seedMasterCopy(setup);
+                        await seedToken.connect(root).transfer(alternativeSeed.address, requiredSeedAmount.toString());
+
+                        alternativeSeed.initialize(
+                            beneficiary.address,
+                            admin.address,
+                            [seedToken.address, fundingToken.address],
+                            [softCap, hardCap],
+                            price,
+                            newStartTime.toNumber(),
+                            newEndTime.toNumber(),
+                            vestingDuration.toNumber(),
+                            vestingCliff.toNumber(),
+                            permissionedSeed,
+                            fee
+                        );
+                    })
+
+                    it("reverts: 'Seed: should not be closed'", async () => {
+                        await time.increase(tenDaysInSeconds);
+                        await alternativeSeed.close();
+                        await expectRevert(
+                            alternativeSeed.connect(admin).unpause(),
+                            "Seed: should not be closed"
+                        );
+                    })
+
+                    it("reverts: 'Seed: should be paused'", async () => {
+                        await expectRevert(
+                            alternativeSeed.connect(admin).unpause(),
+                            "Seed: should be paused"
+                        );
+                    })
+                })
+
                 it("can only be called by admin", async () => {
                     await expectRevert(setup.seed.connect(buyer1).unpause(), "Seed: caller should be admin");
                 });
@@ -1078,6 +1120,37 @@ describe("Contract: Seed", async () => {
                 });
             });
             context("» unwhitelist", () => {
+                context("seed is closed", async () => {
+                    it("reverts: 'Seed: should not be closed'", async () => {
+                        const newStartTime = await time.latest();
+                        const newEndTime = await newStartTime.add(await time.duration.days(7));
+
+                        const alternativeSeed = await init.seedMasterCopy(setup);
+                        await seedToken.connect(root).transfer(alternativeSeed.address, requiredSeedAmount.toString());
+
+                        alternativeSeed.initialize(
+                            beneficiary.address,
+                            admin.address,
+                            [seedToken.address, fundingToken.address],
+                            [softCap, hardCap],
+                            price,
+                            newStartTime.toNumber(),
+                            newEndTime.toNumber(),
+                            vestingDuration.toNumber(),
+                            vestingCliff.toNumber(),
+                            permissionedSeed,
+                            fee
+                        );
+                        await time.increase(tenDaysInSeconds);
+                        await alternativeSeed.close();
+                        await expectRevert(
+                            alternativeSeed.connect(admin).unwhitelist(
+                                buyer1.address
+                            ),
+                            "Seed: should not be closed"
+                        );
+                    })
+                })
                 it("can only be called by admin", async () => {
                     await expectRevert(
                         setup.seed.connect(buyer1).unwhitelist(buyer1.address),
@@ -1092,6 +1165,35 @@ describe("Contract: Seed", async () => {
                 });
             });
             context("» whitelist", () => {
+                context("seed is closed", async () => {
+                    it("reverts: 'Seed: should not be closed'", async () => {
+                        const newStartTime = await time.latest();
+                        const newEndTime = await newStartTime.add(await time.duration.days(7));
+
+                        const alternativeSeed = await init.seedMasterCopy(setup);
+                        await seedToken.connect(root).transfer(alternativeSeed.address, requiredSeedAmount.toString());
+
+                        alternativeSeed.initialize(
+                            beneficiary.address,
+                            admin.address,
+                            [seedToken.address, fundingToken.address],
+                            [softCap, hardCap],
+                            price,
+                            newStartTime.toNumber(),
+                            newEndTime.toNumber(),
+                            vestingDuration.toNumber(),
+                            vestingCliff.toNumber(),
+                            permissionedSeed,
+                            fee
+                        );
+                        await time.increase(tenDaysInSeconds);
+                        await alternativeSeed.close();
+                        await expectRevert(
+                            alternativeSeed.connect(admin).whitelist(buyer1.address),
+                            "Seed: should not be closed"
+                        );
+                    })
+                })
                 it("can only be called by admin", async () => {
                     await expectRevert(
                         setup.seed.connect(buyer1).whitelist(buyer1.address),
@@ -1268,6 +1370,37 @@ describe("Contract: Seed", async () => {
                 });
             });
             context("» whitelistBatch", () => {
+                context("seed is closed", async () => {
+                    it("reverts: 'Seed: should not be closed'", async () => {
+                        const newStartTime = await time.latest();
+                        const newEndTime = await newStartTime.add(await time.duration.days(7));
+
+                        const alternativeSeed = await init.seedMasterCopy(setup);
+                        await seedToken.connect(root).transfer(alternativeSeed.address, requiredSeedAmount.toString());
+
+                        alternativeSeed.initialize(
+                            beneficiary.address,
+                            admin.address,
+                            [seedToken.address, fundingToken.address],
+                            [softCap, hardCap],
+                            price,
+                            newStartTime.toNumber(),
+                            newEndTime.toNumber(),
+                            vestingDuration.toNumber(),
+                            vestingCliff.toNumber(),
+                            permissionedSeed,
+                            fee
+                        );
+                        await time.increase(tenDaysInSeconds);
+                        await alternativeSeed.close();
+                        await expectRevert(
+                            alternativeSeed.connect(admin).whitelistBatch(
+                                [buyer1.address, buyer2.address]
+                            ),
+                            "Seed: should not be closed"
+                        );
+                    })
+                })
                 it("can only be called by admin", async () => {
                     await expectRevert(
                         seed.connect(buyer1).whitelistBatch([buyer1.address, buyer2.address]),
@@ -1288,11 +1421,28 @@ describe("Contract: Seed", async () => {
         context("# hardCap", () => {
             context("» check hardCap", () => {
                 it("cannot buy more than hardCap", async () => {
+                    const newStartTime = await time.latest();
+                    const newEndTime = await newStartTime.add(await time.duration.days(7));
+                    const alternativeSetup = await deploy();
+                    await alternativeSetup.seed.initialize(
+                        beneficiary.address,
+                        admin.address,
+                        [seedToken.address, fundingToken.address],
+                        [softCap, hardCap],
+                        price,
+                        newStartTime.toNumber(),
+                        newEndTime.toNumber(),
+                        vestingDuration.toNumber(),
+                        vestingCliff.toNumber(),
+                        permissionedSeed,
+                        fee
+                    );
+                    await seedToken.connect(root).transfer(alternativeSetup.seed.address, requiredSeedAmount.toString());
                     await fundingToken.connect(root).transfer(buyer2.address, hundredTwoETH);
-                    await fundingToken.connect(buyer2).approve(seed.address, hundredTwoETH);
-                    await seed.connect(admin).whitelist(buyer2.address);
-                    await seed.connect(buyer2).buy(hundredTwoETH);
-                    await expectRevert(seed.connect(buyer2).buy(twoHundredFourETH), "Seed: maximum funding reached");
+                    await fundingToken.connect(buyer2).approve(alternativeSetup.seed.address, hundredTwoETH);
+                    await alternativeSetup.seed.connect(admin).whitelist(buyer2.address);
+                    await alternativeSetup.seed.connect(buyer2).buy(hundredTwoETH);
+                    await expectRevert(alternativeSetup.seed.connect(buyer2).buy(twoHundredFourETH), "Seed: maximum funding reached");
                 });
             });
         });
