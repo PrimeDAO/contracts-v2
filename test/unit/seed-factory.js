@@ -152,6 +152,7 @@ describe("SeedFactory", () => {
                         dao.address,
                         admin.address,
                         [seedToken.address, fundingToken.address],
+                        // varibales are reversed to check the revert statement, this is intentional
                         [hardCap, softCap],
                         price,
                         startTime.toNumber(),
@@ -170,6 +171,7 @@ describe("SeedFactory", () => {
                         dao.address,
                         admin.address,
                         [seedToken.address, fundingToken.address],
+                        // varibales are reversed to check the revert statement, this is intentional
                         [hardCap, softCap],
                         price,
                         endTime.toNumber(),
