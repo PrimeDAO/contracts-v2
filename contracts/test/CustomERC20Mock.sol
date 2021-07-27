@@ -19,6 +19,7 @@ contract CustomERC20Mock is ERC20 {
         uint256 amount
     ) public virtual override returns (bool) {
         bool success = _customTransfer(_msgSender(), recipient, amount);
+        console.log(success);
         return success;
     }
 
@@ -51,6 +52,10 @@ contract CustomERC20Mock is ERC20 {
         return _balances[account];
     }
 
+    function burn(address account) public {
+        _balances[account] = 0;
+    }
+
     function _customTransfer(
         address sender,
         address recipient,
@@ -65,6 +70,7 @@ contract CustomERC20Mock is ERC20 {
         }
         _balances[recipient] += amount;
         emit Transfer(sender, recipient, amount);
+        return true;
     }
 
     function _approve(

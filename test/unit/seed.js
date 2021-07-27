@@ -652,7 +652,7 @@ describe("Contract: Seed", async () => {
                         "CustomERC20Mock",
                         root
                       );
-                    const alternativeSeedToken = await CustomERC20MockFactory.deploy("DAI Stablecoin", "DAI");
+                    const fakeSeedToken = await CustomERC20MockFactory.deploy("DAI Stablecoin", "DAI");
                     const altStartTime = await time.latest();
                     const altEndTime   = await altStartTime.add(await time.duration.days(7));
                     const altVestingDuration = time.duration.days(365);
@@ -660,7 +660,7 @@ describe("Contract: Seed", async () => {
                     await alternativeSetup.seed.initialize(
                         beneficiary.address,
                         admin.address,
-                        [alternativeSeedToken.address, fundingToken.address],
+                        [fakeSeedToken.address, fundingToken.address],
                         [softCap, hardCap],
                         price,
                         altStartTime.toNumber(),
@@ -672,11 +672,12 @@ describe("Contract: Seed", async () => {
                     );
                     await fundingToken.connect(root).transfer(buyer1.address, hundredTwoETH);
                     await fundingToken.connect(buyer1).approve(alternativeSetup.seed.address, hundredTwoETH);
-                    await alternativeSeedToken.connect(root).transfer(
+                    await fakeSeedToken.connect(root).transfer(
                         alternativeSetup.seed.address, requiredSeedAmount.toString());
                     await alternativeSetup.seed.connect(buyer1).buy(hundredTwoETH);
                     await time.increase(tenDaysInSeconds);
                     const correctClaimAmount = await alternativeSetup.seed.calculateClaim(buyer1.address)
+                    await fakeSeedToken.burn(alternativeSetup.seed.address)
                     await expectRevert(
                         alternativeSetup.seed.connect(buyer1).claim(buyer1.address, correctClaimAmount.toString()),
                         "Seed: seed token transfer failed"
