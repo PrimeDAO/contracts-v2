@@ -14,18 +14,13 @@
 /* solium-disable */
 pragma solidity ^0.8.0;
 
-interface ILBP{
-	// function getSwapEnabled() external view returns (bool);
+interface ILBP {
 	
-	function getGradualWeightUpdateParams() external view returns (
-		uint256 startTime,
-		uint256 endTime,
-		uint256[] memory endWeights
-	);
-
-	// function setSwapEnabled(
-	// 	bool swapEnabled
-	// 	) external authenticate whenNotPaused nonReentrant;
+	// function getGradualWeightUpdateParams() external view returns (
+	// 	uint256 startTime,
+	// 	uint256 endTime,
+	// 	uint256[] memory endWeights
+	// );
 
 	function updateWeightsGradually(
         uint256 startTime,

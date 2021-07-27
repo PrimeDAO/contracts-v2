@@ -65,9 +65,9 @@ contract LBPDeployer {
             uint256 _swapFeePercentage
         ) {
 
+        safe = _safe;
         LBPFactory = _LBPFactory;
         swapFeePercentage = _swapFeePercentage;
-        safe = _safe;
         isInitialized = true;
     }
 
@@ -90,11 +90,11 @@ contract LBPDeployer {
                 safe,
                 _swapEnabledOnStart
             );
-        ILBP(lbp).updateWeightsGradually(
-                _startTime,
-                _endTime,
-                _endWeights
-            );
+        // ILBP(lbp).updateWeightsGradually(
+        //         _startTime,
+        //         _endTime,
+        //         _endWeights
+        //     );
     }
 
     function setSwapFeePercentage(uint256 _swapFeePercentage) public onlySafe {
@@ -105,17 +105,17 @@ contract LBPDeployer {
         LBPFactory = _LBPFactory;
     }
 
-    /**
-     * @dev                Validate signature using EIP1271
-     * @param _hash        Encoded transaction hash supplied to verify signature.
-     * @param _signature   Signature that needs to be verified.
-     */
-    function isValidSignature(bytes memory _hash, bytes memory _signature) external view returns(bytes4) {
-        if (approvedSignatures[keccak256(_signature)] == 1) {
-            return EIP1271_MAGIC_VALUE;
-        }
-        return "0x";
-    }
+    // /**
+    //  * @dev                Validate signature using EIP1271
+    //  * @param _hash        Encoded transaction hash supplied to verify signature.
+    //  * @param _signature   Signature that needs to be verified.
+    //  */
+    // function isValidSignature(bytes memory _hash, bytes memory _signature) external view returns(bytes4) {
+    //     if (approvedSignatures[keccak256(_signature)] == 1) {
+    //         return EIP1271_MAGIC_VALUE;
+    //     }
+    //     return "0x";
+    // }
 
     /**
      * @dev                   Signature generator

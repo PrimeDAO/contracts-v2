@@ -16,8 +16,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-
-interface ILBPFactory{
+interface ILBPFactory {
     function create(
         string memory name,
         string memory symbol,
@@ -26,5 +25,5 @@ interface ILBPFactory{
         uint256 swapFeePercentage,
         address owner,
         bool swapEnabledOnStart
-    ) external view returns (address);
+    ) external returns (address);
 }
