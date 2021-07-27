@@ -34,8 +34,10 @@ contract Signer is ISignatureValidator {
 
     mapping(bytes32 => bytes32) public approvedSignatures;
 
-    address public safe;
-    address public seedFactory;
+    /* solium-disable */
+    address public immutable safe;
+    address public immutable seedFactory;
+    /* solium-enable */
 
     event SignatureCreated(bytes signature, bytes32 hash);
 
