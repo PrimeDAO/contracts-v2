@@ -108,13 +108,13 @@ contract Seed {
     }
 
     modifier allowedToRetrieve() {
-        require(!paused, "Seed: should not be paused");
         require(startTime <= block.timestamp, "Seed: distribution haven't started");
         require(!minimumReached, "Seed: minimum already met");
         _;
     }
 
     modifier allowedToWithdraw() {
+        require(!paused, "Seed: should not be paused");
         require(minimumReached, "Seed: minimum funding amount not met");
         _;
     }
