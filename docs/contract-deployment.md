@@ -9,14 +9,14 @@ to deploy ```SeedFactory```, ```Seed```, ```Signer``` and set mastercopy at ```S
 npm run deploy:contracts:mainnet
 ```
 
-to transferOwnership to Safe
+to transferOwnership of seedFactory contract to Safe
 ```bash
-npm run change:factoryOwner:mainnet
+npm run change:factoryOwnerToSafe:mainnet
 ```
 
 to add Signer contract as delegate for Safe
 ```bash
-npm run add:delegate:mainnet
+npm run add:safeDelegate:mainnet
 ```
 
 ### For rinkeby
@@ -26,12 +26,12 @@ to deploy ```SeedFactory```, ```Seed```, ```Signer``` and set mastercopy at ```S
 npm run deploy:contracts:rinkeby
 ```
 
-to transferOwnership to Safe
+to transferOwnership of seedFactory contract to Safe
 ```bash
-npm run change:factoryOwner:rinkeby
+npm run change:factoryOwnerToSafe:rinkeby
 ```
 
 to add Signer contract as delegate for Safe
 ```bash
-npm run add:delegate:rinkeby
+npm run add:safeDelegate:rinkeby
 ```
