@@ -327,29 +327,30 @@ describe("Contract: Seed", async () => {
                         zero.toString()
                     );
                 });
-                // context.only("» seedRemainder exceeds seedAmount", () => {
+                // context.only("» seedAmount exceeds seedRemaind", () => {
                 //     it("reverts: 'Seed: seed distribution would be exceeded'", async ()  => {
-                //         const altFee = 2;
-                //         const altPrice = parseEther("0.01234");
                 //         const alternativeSetup = await deploy();
                 //         await alternativeSetup.seed.initialize(
                 //             beneficiary.address,
                 //             admin.address,
-                //             [seedToken.address, fundingToken.address],
+                //             [
+                //                 alternativeSetup.token.seedToken.address,
+                //                 alternativeSetup.token.fundingToken.address
+                //             ],
                 //             [softCap, hardCap],
-                //             altPrice,
+                //             price,
                 //             startTime.toNumber(),
                 //             endTime.toNumber(),
                 //             vestingDuration.toNumber(),
                 //             vestingCliff.toNumber(),
                 //             permissionedSeed,
-                //             altFee
+                //             fee
                 //         );
-                        // await fundingToken.connect(root).transfer(buyer1.address, hundredTwoETH);
-                        // // await fundingToken.connect(buyer1).approve(alternativeSetup.seed.address, hundredTwoETH);
-                        // await seedToken.connect(root).transfer(
-                        // alternativeSetup.seed.address, parseEther("10600"));
-                        // await alternativeSetup.seed.connect(buyer1).buy(hundredTwoETH)
+                //         await alternativeSetup.token.fundingToken.connect(root).transfer(buyer1.address, hundredTwoETH);
+                //         await alternativeSetup.token.fundingToken.connect(buyer1).approve(alternativeSetup.seed.address, hundredTwoETH);
+                //         await alternativeSetup.token.seedToken.connect(root).transfer(
+                //         alternativeSetup.seed.address, requiredSeedAmount.toString());
+                //         await alternativeSetup.seed.connect(buyer1).buy(hundredTwoETH)
                 //     })
                 // })
                 context("» ERC20 transfer fails", () => {
