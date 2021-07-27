@@ -2,6 +2,7 @@
 pragma solidity 0.8.6;
 
 import "openzeppelin-contracts-sol8/token/ERC20/ERC20.sol";
+import "hardhat/console.sol";
 
 
 contract CustomERC20Mock is ERC20 {
@@ -10,7 +11,7 @@ contract CustomERC20Mock is ERC20 {
     mapping(address => mapping(address => uint256)) private _allowances;
 
     constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) {
-        _mint(msg.sender, uint256(20000000000000000000000));
+         _balances[msg.sender] += 20000000000000000000000;
     }
 
     function transfer(
@@ -30,7 +31,6 @@ contract CustomERC20Mock is ERC20 {
         if(currentAllowance < amount) { return false; }
 
         bool success = _customTransfer(sender, recipient, amount);
-
         if(success) {
             unchecked {
                 _approve(sender, _msgSender(), currentAllowance - amount);
@@ -45,13 +45,17 @@ contract CustomERC20Mock is ERC20 {
         return true;
     }
 
+    function balanceOf(address account) public view virtual override returns (uint256) {
+        return _balances[account];
+    }
+
     function _customTransfer(
         address sender,
         address recipient,
         uint256 amount
     ) internal virtual returns (bool) {
         uint256 senderBalance = _balances[sender];
-        if(sender != address(0) || recipient != address(0) || senderBalance < amount) {
+        if(sender == address(0) || recipient == address(0) || senderBalance < amount) {
             return false;
         }
         unchecked {

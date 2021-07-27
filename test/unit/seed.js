@@ -615,6 +615,44 @@ describe('Contract: Seed', async () => {
                     delete setup.data.prevBalance;
                 });
             });
+            context("» ERC20 transfer fails", () => {
+                it("reverts 'Seed: seed token transfer failed' ", async ()  => {
+                    const alternativeSetup = await deploy();
+                    const CustomERC20MockFactory = await ethers.getContractFactory(
+                        "CustomERC20Mock",
+                        root
+                      );
+                    const alternativeSeedToken = await CustomERC20MockFactory.deploy("DAI Stablecoin", "DAI");
+                    const altStartTime = await time.latest();
+                    const altEndTime   = await altStartTime.add(await time.duration.days(7));
+                    const altVestingDuration = time.duration.days(365);
+                    const altVestingCliff    = time.duration.days(9);
+                    await alternativeSetup.seed.initialize(
+                        beneficiary.address,
+                        admin.address,
+                        [alternativeSeedToken.address, fundingToken.address],
+                        [softCap, hardCap],
+                        price,
+                        altStartTime.toNumber(),
+                        altEndTime.toNumber(),
+                        altVestingDuration.toNumber(),
+                        altVestingCliff.toNumber(),
+                        permissionedSeed,
+                        fee
+                    );
+                    await fundingToken.connect(root).transfer(buyer1.address, hundredTwoETH);
+                    await fundingToken.connect(buyer1).approve(alternativeSetup.seed.address, hundredTwoETH);
+                    await alternativeSeedToken.connect(root).transfer(
+                        alternativeSetup.seed.address, requiredSeedAmount.toString());
+                    await alternativeSetup.seed.connect(buyer1).buy(hundredTwoETH);
+                    await time.increase(tenDaysInSeconds);
+                    const correctClaimAmount = await alternativeSetup.seed.calculateClaim(buyer1.address)
+                    await expectRevert(
+                        alternativeSetup.seed.connect(buyer1).claim(buyer1.address, correctClaimAmount.toString()),
+                        "Seed: seed token transfer failed"
+                    );
+                })
+            })
         });
         context("# retrieveFundingTokens", () => {
             context("» Seed: distribution hasn't started", () => {
