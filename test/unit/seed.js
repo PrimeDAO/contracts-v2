@@ -432,12 +432,7 @@ describe("Contract: Seed", async () => {
                         claimAmount.toString()
                     );
                 });
-                it("updates fee claimed", async () => {
-                    expect((await setup.seed.funders(buyer1.address)).feeClaimed.toString()).to.equal(
-                        feeAmount.toString()
-                    );
-                });
-                it("funds dao with fee", async () => {
+                it("transfers correct fee to beneficiary", async () => {
                     expect((await seedToken.balanceOf(beneficiary.address)).toString()).to.equal(feeAmount.toString());
                 });
                 it("updates the amount of seed claimed by the claim amount", async () => {
@@ -509,11 +504,6 @@ describe("Contract: Seed", async () => {
                             feeAmountOnClaim.toString()
                         );
                 });
-                it("it claims all the fee for a buyer's claim", async () => {
-                    const fee = (await setup.data.seed.funders(buyer2.address)).fee;
-                    const feeClaimed = (await setup.data.seed.funders(buyer2.address)).feeClaimed;
-                    expect(fee.toString()).to.equal(feeClaimed.toString());
-                });
                 it("it claims all the fee", async () => {
                     const feeAmountRequired = await setup.data.seed.feeAmountRequired();
                     const feeClaimed = await setup.data.seed.feeClaimed();
@@ -575,14 +565,6 @@ describe("Contract: Seed", async () => {
                             beneficiary.address,
                             feeAmountOnClaim.toString()
                         );
-
-                    // const receipt = await expectEvent.inTransaction(setup.data.tx.tx, setup.data.seed, "TokensClaimed");
-                    // expect(await receipt.args[1].toString()).to.equal(new BN(buySeedAmount).mul(twoBN).toString());
-                });
-                it("it claims all the fee for a buyer's claim", async () => {
-                    const fee = (await setup.data.seed.funders(buyer2.address)).fee;
-                    const feeClaimed = (await setup.data.seed.funders(buyer2.address)).feeClaimed;
-                    expect(fee.toString()).to.equal(feeClaimed.toString());
                 });
                 it("it claims all the fee", async () => {
                     const feeAmountRequired = await setup.data.seed.feeAmountRequired();
