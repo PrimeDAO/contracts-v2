@@ -916,7 +916,7 @@ describe("Contract: Seed", async () => {
             context("» checkWhitelisted", () => {
                 it("returns correct bool", async () => {
                     // default false - contract not whitelist contract
-                    expect(await setup.seed.checkWhitelisted(buyer1.address)).to.equal(false);
+                    expect(await setup.seed.whitelisted(buyer1.address)).to.equal(false);
                 });
             });
             context("» getAmount", () => {
@@ -1163,16 +1163,16 @@ describe("Contract: Seed", async () => {
         context("# admin whitelist functions", () => {
             context("» whitelist", () => {
                 it("adds a user to the whitelist", async () => {
-                    expect(await seed.checkWhitelisted(buyer1.address)).to.equal(false);
+                    expect(await seed.whitelisted(buyer1.address)).to.equal(false);
                     await seed.connect(admin).whitelist(buyer1.address);
-                    expect(await seed.checkWhitelisted(buyer1.address)).to.equal(true);
+                    expect(await seed.whitelisted(buyer1.address)).to.equal(true);
                 });
             });
             context("» unwhitelist", () => {
                 it("removes a user from the whitelist", async () => {
-                    expect(await seed.checkWhitelisted(buyer1.address)).to.equal(true);
+                    expect(await seed.whitelisted(buyer1.address)).to.equal(true);
                     await seed.connect(admin).unwhitelist(buyer1.address);
-                    expect(await seed.checkWhitelisted(buyer1.address)).to.equal(false);
+                    expect(await seed.whitelisted(buyer1.address)).to.equal(false);
                 });
                 it("reverts when unwhitelist account buys", async () => {
                     await expectRevert(
@@ -1189,13 +1189,13 @@ describe("Contract: Seed", async () => {
                     );
                 });
                 it("adds users to the whitelist", async () => {
-                    expect(await seed.checkWhitelisted(buyer3.address)).to.equal(false);
-                    expect(await seed.checkWhitelisted(buyer4.address)).to.equal(false);
+                    expect(await seed.whitelisted(buyer3.address)).to.equal(false);
+                    expect(await seed.whitelisted(buyer4.address)).to.equal(false);
 
                     await seed.connect(admin).whitelistBatch([buyer3.address, buyer4.address]);
 
-                    expect(await seed.checkWhitelisted(buyer3.address)).to.equal(true);
-                    expect(await seed.checkWhitelisted(buyer4.address)).to.equal(true);
+                    expect(await seed.whitelisted(buyer3.address)).to.equal(true);
+                    expect(await seed.whitelisted(buyer4.address)).to.equal(true);
                 });
             });
         });

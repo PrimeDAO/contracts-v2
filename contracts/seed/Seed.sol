@@ -425,14 +425,6 @@ contract Seed {
     }
 
     /**
-      * @dev                     check whitelist status of a buyer
-      * @param _buyer            address of buyer to check status
-    */
-    function checkWhitelisted(address _buyer) public view returns(bool) {
-        return whitelisted[_buyer];
-    }
-
-    /**
       * @dev                     Amount of seed tokens claimed as fee
     */
     function feeClaimed() public view returns(uint256) {
