@@ -32,9 +32,11 @@ contract CustomERC20Mock is ERC20 {
 
         bool success = _customTransfer(sender, recipient, amount);
         if(success) {
+            /* solium-disable */
             unchecked {
                 _approve(sender, _msgSender(), currentAllowance - amount);
             }
+            /* solium-enable */
         }
 
         return true;
