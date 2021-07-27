@@ -221,10 +221,12 @@ contract Seed {
             vestingStartTime = block.timestamp;
         }
 
-        _addFunder(
-            msg.sender,
-            (funders[msg.sender].fundingAmount + _fundingAmount)  // Previous Funding Amount + new funding amount
-            );
+        //functionality of addFunder
+        if (funders[msg.sender].fundingAmount==0) {
+            totalFunderCount++;
+        }
+        // totalClaimed is always going to be zero while buying
+        funders[msg.sender].fundingAmount = funders[msg.sender].fundingAmount + _fundingAmount;
 
         // Here we are sending amount of tokens to pay for seed tokens to purchase
         require(
@@ -453,25 +455,5 @@ contract Seed {
     */
     function seedAmountForFunder(address _funder) public view returns(uint256) {
         return (funders[_funder].fundingAmount*PRECISION)/price;
-    }
-
-    /**
-      * @dev                      add/update funder portfolio
-      * @param _recipient         Address of funder recipient
-      * @param _fundingAmount     funding amount contributed
-    */
-    function _addFunder(
-        address _recipient,
-        uint256 _fundingAmount
-    )
-    internal
-    {
-        if (funders[_recipient].fundingAmount==0) {
-            totalFunderCount++;
-        }
-        funders[_recipient] = FunderPortfolio({
-            totalClaimed: 0,
-            fundingAmount: _fundingAmount
-        });
     }
 }
