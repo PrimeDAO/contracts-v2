@@ -318,21 +318,33 @@ contract Seed {
     */
     function close() external onlyAdmin isActive {
         // transfer seed tokens back to admin
-        if (minimumReached) {
+        require(!minimumReached, "Seed: cannot close after minimum target is reached");
+        closed = true;
+        paused = false;
+    }
+
+    /**
+      * @dev                     refund remaining seed tokens back to project.
+      * @param _refundReceiver   refund receiver address
+    */
+    function refundSeedTokens(address _refundReceiver) external onlyAdmin {
+        // transfer seed tokens back to admin
+        bool isValidTimeToRefund = block.timestamp > endTime;
+        require(
+            closed || isValidTimeToRefund,
+            "Seed: refund seed tokens only when seed distribution is closed or after distribution end time."
+        );
+        if (isValidTimeToRefund) {
             // remaining seeds = seedRemainder + feeRemainder
-            uint256 seedToTransfer = seedRemainder+feeRemainder;
             require(
-                seedToken.transfer(admin, seedToTransfer),
-                "Seed: should transfer seed tokens to admin"
+                seedToken.transfer(_refundReceiver, seedRemainder+feeRemainder),
+                "Seed: should transfer seed tokens to refund receiver"
             );
-            paused = false;
-        } else {
+        } else{
             require(
-                seedToken.transfer(admin, seedAmountRequired+feeAmountRequired),
-                "Seed: should transfer seed tokens to admin"
+                seedToken.transfer(_refundReceiver, seedAmountRequired+feeAmountRequired),
+                "Seed: should transfer seed tokens to refund receiver"
             );
-            closed = true;
-            paused = false;
         }
     }
 
