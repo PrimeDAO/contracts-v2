@@ -679,7 +679,7 @@ describe("Contract: Seed", async () => {
                     const correctClaimAmount = await alternativeSetup.seed.calculateClaim(buyer1.address)
                     await expectRevert(
                         alternativeSetup.seed.connect(buyer1).claim(buyer1.address, correctClaimAmount.toString()),
-                        "Seed: seed token transfer failed"
+                        "Seed: seed token transfer to beneficiary failed"
                     );
                 })
             })
