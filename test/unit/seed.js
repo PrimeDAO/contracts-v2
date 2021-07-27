@@ -930,7 +930,7 @@ describe("Contract: Seed", async () => {
                     await alternativeSetup.seed.close();
                     await fakeSeedToken.burn(alternativeSetup.seed.address);
                     await expectRevert(
-                        alternativeSetup.seed.refundSeedTokens(root.address),
+                        alternativeSetup.seed.retrieveSeedTokens(root.address),
                         "Seed: should transfer seed tokens to refund receiver"
                     );
                 })
@@ -938,7 +938,7 @@ describe("Contract: Seed", async () => {
                 it("reverts 'Seed: should transfer seed tokens to refund receiver' when time to refund is NOT reached", async ()  => {
                     await time.increase(await time.duration.days(7));
                     await expectRevert(
-                        alternativeSetup.seed.refundSeedTokens(root.address),
+                        alternativeSetup.seed.retrieveSeedTokens(root.address),
                         "Seed: should transfer seed tokens to refund receiver"
                     );
                 })
