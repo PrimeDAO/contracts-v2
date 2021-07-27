@@ -928,8 +928,6 @@ describe("Contract: Seed", async () => {
 
                 it("reverts 'Seed: should transfer seed tokens to refund receiver' when time to refund is NOT reached", async ()  => {
                     await alternativeSetup.seed.close();
-                    // await alternativeSetup.seed.refundSeedTokens(root.address);
-                    // const correctClaimAmount = await alternativeSetup.seed.calculateClaim(buyer1.address)
                     await fakeSeedToken.burn(alternativeSetup.seed.address);
                     await expectRevert(
                         alternativeSetup.seed.refundSeedTokens(root.address),
