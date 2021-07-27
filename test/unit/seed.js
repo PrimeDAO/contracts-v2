@@ -111,10 +111,8 @@ describe('Contract: Seed', async () => {
         context("» contract is not initialized yet", () => {
             context("» parameters are valid", () => {
                 context("» distribution period not yet started", () => {
-                    let alternativeSetup;
-
-                    beforeEach(async () => {
-                        alternativeSetup = await deploy();
+                    it("is not possible to buy", async ()  => {
+                        const alternativeSetup = await deploy();
                         await alternativeSetup.seed.initialize(
                             beneficiary.address,
                             admin.address,
@@ -128,9 +126,6 @@ describe('Contract: Seed', async () => {
                             permissionedSeed,
                             fee
                         );
-                    })
-
-                    it("is not possible to buy", async ()  => {
                         const signers = await ethers.getSigners()
                         const randomSigner = signers[9]
                         await expectRevert(
@@ -335,6 +330,61 @@ describe('Contract: Seed', async () => {
                     expect((await setup.seed.funders(
                         buyer1.address)).totalClaimed.toString()).to.equal(zero.toString());
                 });
+                // context.only("» seedRemainder exceeds seedAmount", () => {
+                //     it("reverts: 'Seed: seed distribution would be exceeded'", async ()  => {
+                //         const altFee = 2;
+                //         const altPrice = parseEther("0.01234");
+                //         const alternativeSetup = await deploy();
+                //         await alternativeSetup.seed.initialize(
+                //             beneficiary.address,
+                //             admin.address,
+                //             [seedToken.address, fundingToken.address],
+                //             [softCap, hardCap],
+                //             altPrice,
+                //             startTime.toNumber(),
+                //             endTime.toNumber(),
+                //             vestingDuration.toNumber(),
+                //             vestingCliff.toNumber(),
+                //             permissionedSeed,
+                //             altFee
+                //         );
+                        // await fundingToken.connect(root).transfer(buyer1.address, hundredTwoETH);
+                        // // await fundingToken.connect(buyer1).approve(alternativeSetup.seed.address, hundredTwoETH);
+                        // await seedToken.connect(root).transfer(
+                        // alternativeSetup.seed.address, parseEther("10600"));
+                        // await alternativeSetup.seed.connect(buyer1).buy(hundredTwoETH)
+                //     })
+                // })
+                context("» ERC20 transfer fails", () => {
+                    it("reverts 'Seed: funding token transferFrom failed' ", async ()  => {
+                        const alternativeSetup = await deploy();
+                        const CustomERC20MockFactory = await ethers.getContractFactory(
+                            "CustomERC20Mock",
+                            setup.roles.prime
+                          );
+                        const alternativeFundingToken = await CustomERC20MockFactory.deploy("DAI Stablecoin", "DAI");
+                        await alternativeSetup.seed.initialize(
+                            beneficiary.address,
+                            admin.address,
+                            [seedToken.address, alternativeFundingToken.address],
+                            [softCap, hardCap],
+                            price,
+                            startTime.toNumber(),
+                            endTime.toNumber(),
+                            vestingDuration.toNumber(),
+                            vestingCliff.toNumber(),
+                            permissionedSeed,
+                            fee
+                        );
+                        await alternativeFundingToken.connect(root).transfer(buyer1.address, hundredTwoETH);
+                        await seedToken.connect(root).transfer(
+                            alternativeSetup.seed.address, requiredSeedAmount.toString());
+                        await expectRevert(
+                            alternativeSetup.seed.connect(buyer1).buy(parseEther("5")),
+                            "Seed: funding token transferFrom failed"
+                        );
+                    })
+                })
             });
         });
         context("# claim", () => {
@@ -364,7 +414,7 @@ describe('Contract: Seed', async () => {
                     await alternativeSetup.seed.connect(buyer1).buy(parseEther("5"))
                 })
 
-                it("is not possible to buy", async ()  => {
+                it("is not possible to claim", async ()  => {
                     await expectRevert(
                         alternativeSetup.seed.connect(buyer1).claim(buyer1.address, parseEther("5")),
                         "Seed: minimum funding amount not met"
