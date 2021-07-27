@@ -257,8 +257,7 @@ contract Seed {
         funders[_funder].totalClaimed    += _claimAmount;
 
         seedClaimed += _claimAmount;
-        require(seedToken.transfer(beneficiary, feeAmountOnClaim), "Seed: seed token transfer to beneficiary failed");
-        require(seedToken.transfer(_funder, _claimAmount), "Seed: seed token transfer to funder failed");
+        require(seedToken.transfer(beneficiary, feeAmountOnClaim) && seedToken.transfer(_funder, _claimAmount), "Seed: seed token transfer failed");
 
         emit TokensClaimed(_funder, _claimAmount, beneficiary, feeAmountOnClaim);
 
