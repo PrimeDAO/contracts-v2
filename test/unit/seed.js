@@ -120,9 +120,6 @@ describe("Contract: Seed", async () => {
                             permissionedSeed,
                             fee
                         );
-                    });
-
-                    it("is not possible to buy", async () => {
                         const signers = await ethers.getSigners();
                         const randomSigner = signers[9];
                         await expectRevert(
