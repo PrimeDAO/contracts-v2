@@ -306,7 +306,7 @@ contract Seed {
       * @dev                     Close distribution.
     */
     function close() external onlyAdmin isActive {
-        // transfer seed tokens back to admin
+        // close seed token distribution
         require(!minimumReached, "Seed: cannot close after minimum target is reached");
         closed = true;
         paused = false;
