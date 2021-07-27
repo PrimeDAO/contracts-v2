@@ -193,9 +193,6 @@ contract Seed {
         // fundingAmount is an amount of fundingTokens required to buy _seedAmount of SeedTokens
         uint256 seedAmount = (_fundingAmount*PRECISION)/price;
 
-        // Funding Token balance of this contract;
-        uint256 fundingBalance = fundingCollected;
-
         // feeAmount is an amount of fee we are going to get in seedTokens
         uint256 feeAmount = (seedAmount*fee) / (100*PRECISION);
 
@@ -205,13 +202,13 @@ contract Seed {
             "Seed: amountVestedPerSecond > 0");
 
         // total fundingAmount should not be greater than the hardCap
-        require( fundingBalance + _fundingAmount <= hardCap,
+        require( fundingCollected + _fundingAmount <= hardCap,
             "Seed: amount exceeds contract sale hardCap");
 
         require( seedRemainder >= seedAmount,
             "Seed: seed distribution would be exceeded");
 
-        fundingCollected = fundingBalance + _fundingAmount;
+        fundingCollected += _fundingAmount;
 
         // the amount of seed tokens still to be distributed
         seedRemainder -= seedAmount;
