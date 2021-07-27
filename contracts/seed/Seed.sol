@@ -44,7 +44,8 @@ contract Seed {
 
     bytes   public metadata;           // IPFS Hash
 
-    uint256 constant internal PRECISION = 10 ** 18;  // 0% = 0; 1% = 10 ** 16; 100% = 10 ** 18
+    uint256 constant internal PRECISION = 10 ** 18;  // 1 token = 10**18, 0.01 token = 10**16, 0 token = 0
+    uint256 constant internal PERCENT_PRECISION = 10 ** 20; // 100*PRECISION
 
     // Contract logic
     bool    public closed;                 // is the distribution closed
@@ -174,7 +175,7 @@ contract Seed {
         fee               = _fee;
 
         seedAmountRequired = (hardCap*PRECISION) / _price;
-        feeAmountRequired  = (seedAmountRequired*_fee) / (100*PRECISION);
+        feeAmountRequired  = (seedAmountRequired*_fee) / (PERCENT_PRECISION);
         seedRemainder      = seedAmountRequired;
         feeRemainder       = feeAmountRequired;
     }
@@ -193,7 +194,7 @@ contract Seed {
         uint256 seedAmount = (_fundingAmount*PRECISION)/price;
 
         // feeAmount is an amount of fee we are going to get in seedTokens
-        uint256 feeAmount = (seedAmount*fee) / (100*PRECISION);
+        uint256 feeAmount = (seedAmount*fee) / (PERCENT_PRECISION);
 
         // seed amount vested per second > zero, i.e. amountVestedPerSecond = seedAmount/vestingDuration
         require(
@@ -221,10 +222,12 @@ contract Seed {
             vestingStartTime = block.timestamp;
         }
 
-        _addFunder(
-            msg.sender,
-            (funders[msg.sender].fundingAmount + _fundingAmount)  // Previous Funding Amount + new funding amount
-            );
+        //functionality of addFunder
+        if (funders[msg.sender].fundingAmount==0) {
+            totalFunderCount++;
+        }
+        // totalClaimed is always going to be zero while buying
+        funders[msg.sender].fundingAmount = funders[msg.sender].fundingAmount + _fundingAmount;
 
         // Here we are sending amount of tokens to pay for seed tokens to purchase
         require(
@@ -249,7 +252,7 @@ contract Seed {
         amountClaimable = calculateClaim(_funder);
         require(amountClaimable > 0, "Seed: amount claimable is 0");
         require(amountClaimable >= _claimAmount, "Seed: request is greater than claimable amount");
-        uint256 feeAmountOnClaim = (_claimAmount * fee) / (100*PRECISION);
+        uint256 feeAmountOnClaim = (_claimAmount * fee) / (PERCENT_PRECISION);
 
         funders[_funder].totalClaimed    += _claimAmount;
 
@@ -305,17 +308,17 @@ contract Seed {
       * @dev                     Close distribution.
     */
     function close() external onlyAdmin isActive {
-        // transfer seed tokens back to admin
+        // close seed token distribution
         require(!minimumReached, "Seed: cannot close after minimum target is reached");
         closed = true;
         paused = false;
     }
 
     /**
-      * @dev                     refund remaining seed tokens back to project.
+      * @dev                     retrieve remaining seed tokens back to project.
       * @param _refundReceiver   refund receiver address
     */
-    function refundSeedTokens(address _refundReceiver) external onlyAdmin {
+    function retrieveSeedTokens(address _refundReceiver) external onlyAdmin {
         // transfer seed tokens back to admin
         bool isValidTimeToRefund = block.timestamp > endTime;
         require(
@@ -324,7 +327,6 @@ contract Seed {
         );
         if (isValidTimeToRefund) {
             // seed tokens to transfer = balance of seed tokens - totalSeedDistributed
-            // total seed distributed = (seedAmountRequired+feeAmountRequired)-(seedRemainder+feeRemainder)
             uint256 totalSeedDistributed = (seedAmountRequired+feeAmountRequired)-(seedRemainder+feeRemainder);
             uint256 amountToTransfer = seedToken.balanceOf(address(this))-totalSeedDistributed;
             require(
@@ -427,7 +429,7 @@ contract Seed {
       * @dev                     Amount of seed tokens claimed as fee
     */
     function feeClaimed() public view returns(uint256) {
-        return (seedClaimed*fee)/(100*PRECISION);
+        return (seedClaimed*fee)/(PERCENT_PRECISION);
     }
 
     /**
@@ -435,7 +437,7 @@ contract Seed {
       * @param _funder           address of funder to check fee claimed
     */
     function feeClaimedForFunder(address _funder) public view returns(uint256) {
-        return (funders[_funder].totalClaimed*fee)/(100*PRECISION);
+        return (funders[_funder].totalClaimed*fee)/(PERCENT_PRECISION);
     }
 
     /**
@@ -443,7 +445,7 @@ contract Seed {
       * @param _funder           address of funder to check fee
     */
     function feeForFunder(address _funder) public view returns(uint256) {
-        return (seedAmountForFunder(_funder)*fee)/(100*PRECISION);
+        return (seedAmountForFunder(_funder)*fee)/(PERCENT_PRECISION);
     }
 
     /**
@@ -452,25 +454,5 @@ contract Seed {
     */
     function seedAmountForFunder(address _funder) public view returns(uint256) {
         return (funders[_funder].fundingAmount*PRECISION)/price;
-    }
-
-    /**
-      * @dev                      add/update funder portfolio
-      * @param _recipient         Address of funder recipient
-      * @param _fundingAmount     funding amount contributed
-    */
-    function _addFunder(
-        address _recipient,
-        uint256 _fundingAmount
-    )
-    internal
-    {
-        if (funders[_recipient].fundingAmount==0) {
-            totalFunderCount++;
-        }
-        funders[_recipient] = FunderPortfolio({
-            totalClaimed: 0,
-            fundingAmount: _fundingAmount
-        });
     }
 }

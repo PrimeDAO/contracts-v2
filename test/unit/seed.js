@@ -681,7 +681,7 @@ describe("Contract: Seed", async () => {
                     await fakeSeedToken.burn(alternativeSetup.seed.address);
                     await expectRevert(
                         alternativeSetup.seed.connect(buyer1).claim(buyer1.address, correctClaimAmount.toString()),
-                        "Seed: seed token transfer failed"
+                        "Seed: seed token transfer to beneficiary failed"
                     );
                 })
             })
@@ -860,7 +860,7 @@ describe("Contract: Seed", async () => {
                     await expectRevert(setup.data.seed.connect(buyer1).close(), "Seed: caller should be admin");
                 });
                 it("does not refund anything when, closed == false", async () => {
-                    await expect(setup.data.seed.connect(admin).refundSeedTokens(admin.address)).to.be.revertedWith(
+                    await expect(setup.data.seed.connect(admin).retrieveSeedTokens(admin.address)).to.be.revertedWith(
                         "Seed: refund seed tokens only when seed distribution is closed or after distribution end time."
                     );
                 });
@@ -871,7 +871,7 @@ describe("Contract: Seed", async () => {
                 });
                 it("refunds remaining seed tokens", async () => {
                     let stBalance = await seedToken.balanceOf(setup.data.seed.address);
-                    await setup.data.seed.connect(admin).refundSeedTokens(admin.address);
+                    await setup.data.seed.connect(admin).retrieveSeedTokens(admin.address);
                     expect((await seedToken.balanceOf(admin.address)).toString()).to.equal(stBalance.toString());
                 });
                 it("paused == false", async () => {
@@ -931,7 +931,7 @@ describe("Contract: Seed", async () => {
                     await alternativeSetup.seed.close();
                     await fakeSeedToken.burn(alternativeSetup.seed.address);
                     await expectRevert(
-                        alternativeSetup.seed.refundSeedTokens(root.address),
+                        alternativeSetup.seed.retrieveSeedTokens(root.address),
                         "Seed: should transfer seed tokens to refund receiver"
                     );
                 })
@@ -939,7 +939,7 @@ describe("Contract: Seed", async () => {
                 it("reverts 'Seed: should transfer seed tokens to refund receiver' when time to refund is NOT reached", async ()  => {
                     await time.increase(await time.duration.days(7));
                     await expectRevert(
-                        alternativeSetup.seed.refundSeedTokens(root.address),
+                        alternativeSetup.seed.retrieveSeedTokens(root.address),
                         "Seed: should transfer seed tokens to refund receiver"
                     );
                 })
@@ -977,7 +977,7 @@ describe("Contract: Seed", async () => {
                     );
                 });
                 it("does not refund anything when, currentTime < endTime", async () => {
-                    await expect(setup.data.seed.connect(admin).refundSeedTokens(admin.address)).to.be.revertedWith(
+                    await expect(setup.data.seed.connect(admin).retrieveSeedTokens(admin.address)).to.be.revertedWith(
                         "Seed: refund seed tokens only when seed distribution is closed or after distribution end time."
                     );
                 });
@@ -985,7 +985,7 @@ describe("Contract: Seed", async () => {
                     const buyFee = new BN(buySeedAmount).mul(new BN(fee)).div(new BN(PRECISION.toString()).mul(hundredBn));
                     const prevBal = await seedToken.balanceOf(admin.address);
                     await time.increase(await time.duration.days(7));
-                    await setup.data.seed.connect(admin).refundSeedTokens(admin.address);
+                    await setup.data.seed.connect(admin).retrieveSeedTokens(admin.address);
                     expect((await seedToken.balanceOf(admin.address)).toString()).to.equal(
                         requiredSeedAmount
                             .add(new BN(prevBal.toString()))
