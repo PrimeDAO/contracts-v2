@@ -981,9 +981,6 @@ describe("Contract: Seed", async () => {
                         "Seed: should not be paused"
                     );
                 });
-                it("it cannot withdraw when closed", async () => {
-                    await expectRevert(setup.seed.connect(admin).withdraw(), "Seed: should not be paused");
-                });
             });
             context("» unpause", () => {
                 it("can only be called by admin", async () => {

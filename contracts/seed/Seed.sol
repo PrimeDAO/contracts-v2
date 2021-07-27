@@ -114,7 +114,6 @@ contract Seed {
     }
 
     modifier allowedToWithdraw() {
-        require(!paused, "Seed: should not be paused");
         require(minimumReached, "Seed: minimum funding amount not met");
         _;
     }
