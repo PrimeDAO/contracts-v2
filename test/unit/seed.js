@@ -893,6 +893,58 @@ describe("Contract: Seed", async () => {
                     );
                 });
             });
+            context("» ERC20 transfer failure", () => {
+                let alternativeSetup, fakeSeedToken;
+
+                beforeEach(async () => {
+                    alternativeSetup = await deploy();
+                    const CustomERC20MockFactory = await ethers.getContractFactory(
+                        "CustomERC20Mock",
+                        root
+                      );
+                    fakeSeedToken = await CustomERC20MockFactory.deploy("DAI Stablecoin", "DAI");
+                    const altStartTime = await time.latest();
+                    const altEndTime   = await altStartTime.add(await time.duration.days(7));
+                    const altVestingDuration = time.duration.days(365);
+                    const altVestingCliff    = time.duration.days(9);
+                    await alternativeSetup.seed.initialize(
+                        beneficiary.address,
+                        admin.address,
+                        [fakeSeedToken.address, fundingToken.address],
+                        [softCap, hardCap],
+                        price,
+                        altStartTime.toNumber(),
+                        altEndTime.toNumber(),
+                        altVestingDuration.toNumber(),
+                        altVestingCliff.toNumber(),
+                        permissionedSeed,
+                        fee
+                    );
+                    await fundingToken.connect(root).transfer(buyer1.address, hundredTwoETH);
+                    await fundingToken.connect(buyer1).approve(alternativeSetup.seed.address, hundredTwoETH);
+                    await fakeSeedToken.connect(root).transfer(
+                        alternativeSetup.seed.address, requiredSeedAmount.toString());
+                })
+
+                it("reverts 'Seed: should transfer seed tokens to refund receiver' when time to refund is NOT reached", async ()  => {
+                    await alternativeSetup.seed.close();
+                    // await alternativeSetup.seed.refundSeedTokens(root.address);
+                    // const correctClaimAmount = await alternativeSetup.seed.calculateClaim(buyer1.address)
+                    await fakeSeedToken.burn(alternativeSetup.seed.address);
+                    await expectRevert(
+                        alternativeSetup.seed.refundSeedTokens(root.address),
+                        "Seed: should transfer seed tokens to refund receiver"
+                    );
+                })
+
+                it("reverts 'Seed: should transfer seed tokens to refund receiver' when time to refund is NOT reached", async ()  => {
+                    await time.increase(await time.duration.days(7));
+                    await expectRevert(
+                        alternativeSetup.seed.refundSeedTokens(root.address),
+                        "Seed: should transfer seed tokens to refund receiver"
+                    );
+                })
+            })
             context("» close after minimum reached", () => {
                 before("!! deploy new contract + top up buyer balance", async () => {
                     let newStartTime = await time.latest();
