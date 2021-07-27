@@ -328,14 +328,17 @@ contract Seed {
             "Seed: refund seed tokens only when seed distribution is closed or after distribution end time."
         );
         if (isValidTimeToRefund) {
-            // remaining seeds = seedRemainder + feeRemainder
+            // seed tokens to transfer = balance of seed tokens - totalSeedDistributed
+            // total seed distributed = (seedAmountRequired+feeAmountRequired)-(seedRemainder+feeRemainder)
+            uint256 totalSeedDistributed = (seedAmountRequired+feeAmountRequired)-(seedRemainder+feeRemainder);
+            uint256 amountToTransfer = seedToken.balanceOf(address(this))-totalSeedDistributed;
             require(
-                seedToken.transfer(_refundReceiver, seedRemainder+feeRemainder),
+                seedToken.transfer(_refundReceiver, amountToTransfer),
                 "Seed: should transfer seed tokens to refund receiver"
             );
         } else {
             require(
-                seedToken.transfer(_refundReceiver, seedAmountRequired+feeAmountRequired),
+                seedToken.transfer(_refundReceiver, seedToken.balanceOf(address(this))),
                 "Seed: should transfer seed tokens to refund receiver"
             );
         }
