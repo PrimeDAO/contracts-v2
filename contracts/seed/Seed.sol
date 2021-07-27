@@ -340,7 +340,7 @@ contract Seed {
                 seedToken.transfer(_refundReceiver, seedRemainder+feeRemainder),
                 "Seed: should transfer seed tokens to refund receiver"
             );
-        } else if (closed) {
+        } else{
             require(
                 seedToken.transfer(_refundReceiver, seedAmountRequired+feeAmountRequired),
                 "Seed: should transfer seed tokens to refund receiver"
