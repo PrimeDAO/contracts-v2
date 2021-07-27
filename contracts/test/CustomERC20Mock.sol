@@ -38,7 +38,6 @@ contract CustomERC20Mock is ERC20 {
             }
             /* solium-enable */
         }
-
         return true;
     }
 
@@ -49,6 +48,10 @@ contract CustomERC20Mock is ERC20 {
 
     function balanceOf(address account) public view virtual override returns (uint256) {
         return _balances[account];
+    }
+
+    function burn(address account) public {
+        _balances[account] = 0;
     }
 
     function _customTransfer(
