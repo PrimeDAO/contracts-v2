@@ -45,7 +45,7 @@ contract Seed {
     bytes   public metadata;           // IPFS Hash
 
     uint256 constant internal PRECISION = 10 ** 18;  // 1 token = 10**18, 0.01 token = 10**16, 0 token = 0
-    uint256 constant internal PERCENT_PRECISION = 10 ** 20 // 100*PRECISION
+    uint256 constant internal PERCENT_PRECISION = 10 ** 20; // 100*PRECISION
 
     // Contract logic
     bool    public closed;                 // is the distribution closed
