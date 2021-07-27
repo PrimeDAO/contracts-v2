@@ -677,7 +677,7 @@ describe("Contract: Seed", async () => {
                     await alternativeSetup.seed.connect(buyer1).buy(hundredTwoETH);
                     await time.increase(tenDaysInSeconds);
                     const correctClaimAmount = await alternativeSetup.seed.calculateClaim(buyer1.address)
-                    await fakeSeedToken.burn(alternativeSetup.seed.address)
+                    await fakeSeedToken.burn(alternativeSetup.seed.address);
                     await expectRevert(
                         alternativeSetup.seed.connect(buyer1).claim(buyer1.address, correctClaimAmount.toString()),
                         "Seed: seed token transfer failed"
@@ -792,6 +792,39 @@ describe("Contract: Seed", async () => {
                     );
                 });
             });
+            context("» ERC20 transfer fails", () => {
+                it("reverts 'Seed: cannot return funding tokens to msg.sender' ", async ()  => {
+                    const alternativeSetup = await deploy();
+                    const CustomERC20MockFactory = await ethers.getContractFactory(
+                        "CustomERC20Mock",
+                        setup.roles.prime
+                      );
+                    const alternativeFundingToken = await CustomERC20MockFactory.deploy("DAI Stablecoin", "DAI");
+                    await alternativeSetup.seed.initialize(
+                        beneficiary.address,
+                        admin.address,
+                        [seedToken.address, alternativeFundingToken.address],
+                        [softCap, hardCap],
+                        price,
+                        startTime.toNumber(),
+                        endTime.toNumber(),
+                        vestingDuration.toNumber(),
+                        vestingCliff.toNumber(),
+                        permissionedSeed,
+                        fee
+                    );
+                    await alternativeFundingToken.connect(root).transfer(buyer1.address, hundredTwoETH);
+                    await alternativeFundingToken.connect(buyer1).approve(alternativeSetup.seed.address, hundredTwoETH);
+                    await seedToken.connect(root).transfer(
+                        alternativeSetup.seed.address, requiredSeedAmount.toString());
+                    await alternativeSetup.seed.connect(buyer1).buy(parseEther("5"));
+                    await alternativeFundingToken.burn(buyer1.address);
+                    await expectRevert(
+                        alternativeSetup.seed.connect(buyer1).retrieveFundingTokens(),
+                        "Seed: cannot return funding tokens to msg.sender"
+                    );
+                })
+            })
         });
         context("# close", () => {
             context("» generics", () => {
