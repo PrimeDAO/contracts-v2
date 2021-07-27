@@ -794,6 +794,8 @@ describe("Contract: Seed", async () => {
             });
             context("» ERC20 transfer fails", () => {
                 it("reverts 'Seed: cannot return funding tokens to msg.sender' ", async ()  => {
+                    const altStartTime = await time.latest();
+                    const altEndTime   = await altStartTime.add(await time.duration.days(7));
                     const alternativeSetup = await deploy();
                     const CustomERC20MockFactory = await ethers.getContractFactory(
                         "CustomERC20Mock",
@@ -806,8 +808,8 @@ describe("Contract: Seed", async () => {
                         [seedToken.address, alternativeFundingToken.address],
                         [softCap, hardCap],
                         price,
-                        startTime.toNumber(),
-                        endTime.toNumber(),
+                        altStartTime.toNumber(),
+                        altEndTime.toNumber(),
                         vestingDuration.toNumber(),
                         vestingCliff.toNumber(),
                         permissionedSeed,
