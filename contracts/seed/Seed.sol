@@ -44,7 +44,8 @@ contract Seed {
 
     bytes   public metadata;           // IPFS Hash
 
-    uint256 constant internal PRECISION = 10 ** 18;  // 0% = 0; 1% = 10 ** 16; 100% = 10 ** 18
+    uint256 constant internal PRECISION = 10 ** 18;  // 1 token = 10**18, 0.01 token = 10**16, 0 token = 0
+    uint256 constant internal PERCENT_PRECISION = 10 ** 20 // 100*PRECISION
 
     // Contract logic
     bool    public closed;                 // is the distribution closed
@@ -174,7 +175,7 @@ contract Seed {
         fee               = _fee;
 
         seedAmountRequired = (hardCap*PRECISION) / _price;
-        feeAmountRequired  = (seedAmountRequired*_fee) / (100*PRECISION);
+        feeAmountRequired  = (seedAmountRequired*_fee) / (PERCENT_PRECISION);
         seedRemainder      = seedAmountRequired;
         feeRemainder       = feeAmountRequired;
     }
@@ -193,7 +194,7 @@ contract Seed {
         uint256 seedAmount = (_fundingAmount*PRECISION)/price;
 
         // feeAmount is an amount of fee we are going to get in seedTokens
-        uint256 feeAmount = (seedAmount*fee) / (100*PRECISION);
+        uint256 feeAmount = (seedAmount*fee) / (PERCENT_PRECISION);
 
         // seed amount vested per second > zero, i.e. amountVestedPerSecond = seedAmount/vestingDuration
         require(
@@ -251,13 +252,13 @@ contract Seed {
         amountClaimable = calculateClaim(_funder);
         require(amountClaimable > 0, "Seed: amount claimable is 0");
         require(amountClaimable >= _claimAmount, "Seed: request is greater than claimable amount");
-        uint256 feeAmountOnClaim = (_claimAmount * fee) / (100*PRECISION);
+        uint256 feeAmountOnClaim = (_claimAmount * fee) / (PERCENT_PRECISION);
 
         funders[_funder].totalClaimed    += _claimAmount;
 
         seedClaimed += _claimAmount;
-        require(seedToken.transfer(beneficiary, feeAmountOnClaim), "Seed: seed token transfer failed");
-        require(seedToken.transfer(_funder, _claimAmount), "Seed: seed token transfer failed");
+        require(seedToken.transfer(beneficiary, feeAmountOnClaim), "Seed: seed token transfer to beneficiary failed");
+        require(seedToken.transfer(_funder, _claimAmount), "Seed: seed token transfer to funder failed");
 
         emit TokensClaimed(_funder, _claimAmount, beneficiary, feeAmountOnClaim);
 
@@ -327,7 +328,6 @@ contract Seed {
         );
         if (isValidTimeToRefund) {
             // seed tokens to transfer = balance of seed tokens - totalSeedDistributed
-            // total seed distributed = (seedAmountRequired+feeAmountRequired)-(seedRemainder+feeRemainder)
             uint256 totalSeedDistributed = (seedAmountRequired+feeAmountRequired)-(seedRemainder+feeRemainder);
             uint256 amountToTransfer = seedToken.balanceOf(address(this))-totalSeedDistributed;
             require(
@@ -430,7 +430,7 @@ contract Seed {
       * @dev                     Amount of seed tokens claimed as fee
     */
     function feeClaimed() public view returns(uint256) {
-        return (seedClaimed*fee)/(100*PRECISION);
+        return (seedClaimed*fee)/(PERCENT_PRECISION);
     }
 
     /**
@@ -438,7 +438,7 @@ contract Seed {
       * @param _funder           address of funder to check fee claimed
     */
     function feeClaimedForFunder(address _funder) public view returns(uint256) {
-        return (funders[_funder].totalClaimed*fee)/(100*PRECISION);
+        return (funders[_funder].totalClaimed*fee)/(PERCENT_PRECISION);
     }
 
     /**
@@ -446,7 +446,7 @@ contract Seed {
       * @param _funder           address of funder to check fee
     */
     function feeForFunder(address _funder) public view returns(uint256) {
-        return (seedAmountForFunder(_funder)*fee)/(100*PRECISION);
+        return (seedAmountForFunder(_funder)*fee)/(PERCENT_PRECISION);
     }
 
     /**
