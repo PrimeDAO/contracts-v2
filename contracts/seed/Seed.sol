@@ -59,7 +59,7 @@ contract Seed {
     uint256 public seedRemainder;          // Amount of seed tokens remaining to be distributed
     uint256 public seedClaimed;            // Amount of seed token claimed by the user.
     uint256 public feeRemainder;           // Amount of seed tokens remaining for the fee
-    uint256 public feeClaimed;             // Amount of seed tokens claimed as fee
+    // uint256 public feeClaimed;             // Amount of seed tokens claimed as fee
     uint256 public fundingCollected;       // Amount of funding tokens collected by the seed contract.
     uint256 public fundingWithdrawn;       // Amount of funding token withdrawn from the seed contract.
 
@@ -72,11 +72,8 @@ contract Seed {
     event MetadataUpdated(bytes indexed metadata);
 
     struct FunderPortfolio {
-        // uint256 seedAmount;                 // Total amount of seed tokens bought
         uint256 totalClaimed;               // Total amount of seed tokens claimed
         uint256 fundingAmount;              // Total amount of funding tokens contributed
-        // uint256 fee;                        // Total amount of fee in seed amount for this portfolio
-        // uint256 feeClaimed;                 // Total amount of fee sent to beneficiary for this portfolio
     }
 
     modifier initializer() {
@@ -231,9 +228,7 @@ contract Seed {
 
         _addFunder(
             msg.sender,
-            // (funders[msg.sender].seedAmount + seedAmount),         // Previous Seed Amount + new seed amount
             (funders[msg.sender].fundingAmount + _fundingAmount)  // Previous Funding Amount + new funding amount
-            // (funders[msg.sender].fee + feeAmount)                  // Previous Fee + new fee
             );
 
         // Here we are sending amount of tokens to pay for seed tokens to purchase
@@ -261,13 +256,9 @@ contract Seed {
         require(amountClaimable >= _claimAmount, "Seed: request is greater than claimable amount");
         uint256 feeAmountOnClaim = (_claimAmount * fee) / 100;
 
-        FunderPortfolio storage tokenFunder = funders[_funder];
-
-        tokenFunder.totalClaimed    += _claimAmount;
-        // tokenFunder.feeClaimed      += feeAmountOnClaim;
+        funders[_funder].totalClaimed    += _claimAmount;
 
         seedClaimed += _claimAmount;
-        feeClaimed  += feeAmountOnClaim;
         require(seedToken.transfer(beneficiary, feeAmountOnClaim), "Seed: seed token transfer failed");
         require(seedToken.transfer(_funder, _claimAmount), "Seed: seed token transfer failed");
 
@@ -286,8 +277,6 @@ contract Seed {
         uint256 fundingAmount = tokenFunder.fundingAmount;
         seedRemainder += seedAmountForFunder(msg.sender);
         feeRemainder += feeForFunder(msg.sender);
-        // tokenFunder.seedAmount    = 0;
-        // tokenFunder.fee           = 0;
         tokenFunder.fundingAmount = 0;
         fundingCollected -= fundingAmount;
         require(
@@ -345,7 +334,7 @@ contract Seed {
                 seedToken.transfer(_refundReceiver, seedRemainder+feeRemainder),
                 "Seed: should transfer seed tokens to refund receiver"
             );
-        } else{
+        } else {
             require(
                 seedToken.transfer(_refundReceiver, seedAmountRequired+feeAmountRequired),
                 "Seed: should transfer seed tokens to refund receiver"
@@ -446,6 +435,13 @@ contract Seed {
     }
 
     /**
+      * @dev                     Amount of seed tokens claimed as fee
+    */
+    function feeClaimed() public view returns(uint256) {
+        return (seedClaimed*fee)/100;
+    }
+
+    /**
       * @dev                     get fee claimed for funder
       * @param _funder           address of funder to check fee claimed
     */
@@ -476,22 +472,16 @@ contract Seed {
     */
     function _addFunder(
         address _recipient,
-        // uint256 _seedAmount,
         uint256 _fundingAmount
-        // uint256 _fee
     )
     internal
     {
-
         if (funders[_recipient].fundingAmount==0) {
             totalFunderCount++;
         }
         funders[_recipient] = FunderPortfolio({
-            // seedAmount: _seedAmount,
             totalClaimed: 0,
             fundingAmount: _fundingAmount
-            // fee: _fee
-            // feeClaimed: 0
         });
     }
 }
