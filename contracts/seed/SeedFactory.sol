@@ -71,7 +71,7 @@ contract SeedFactory is CloneFactory, Ownable {
         uint256 _endTime,
         uint32[] memory _vestingDurationAndCliff,
         bool  _permissionedSeed,
-        uint8 _fee,
+        uint256 _fee,
         bytes memory _metadata
     ) external onlyOwner returns (address)
     {

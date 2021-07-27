@@ -68,7 +68,7 @@ describe("SeedFactory", () => {
             vestingDuration = await time.duration.days(365); // 1 year
             vestingCliff = await time.duration.days(90); // 3 months
             isWhitelisted = false;
-            fee = 2;
+            fee = parseEther('2').toString();
             metadata = `0x${toHex('QmRCtyCWKnJTtTCy1RTXte8pY8vV58SU8YtAC9oa24C4Qg')}`;
 
             seedFactory = setup.seedFactory;

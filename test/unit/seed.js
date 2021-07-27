@@ -60,8 +60,9 @@ describe("Contract: Seed", async () => {
     const tenETH = parseEther("10").toString();
     const hundredTwoETH = parseEther("102").toString();
     const twoHundredFourETH = parseEther("204").toString();
+    const hundredBn = new BN(100);
     const twoBN = new BN(2);
-    const pct_base = ethers.constants.WeiPerEther;
+    const PRECISION = ethers.constants.WeiPerEther;
     const ninetyTwoDaysInSeconds = time.duration.days(92);
     const eightyNineDaysInSeconds = time.duration.days(89);
     const tenDaysInSeconds = time.duration.days(10);
@@ -94,12 +95,12 @@ describe("Contract: Seed", async () => {
             vestingDuration = time.duration.days(365); // 1 year
             vestingCliff = time.duration.days(90); // 3 months
             permissionedSeed = false;
-            fee = 2;
+            fee = parseEther("2").toString();
             metadata = `0x`;
 
-            buySeedFee = new BN(buySeedAmount).mul(new BN(PPM)).mul(new BN(fee)).div(new BN(PPM100));
-            seedForDistribution = new BN(hardCap).div(new BN(price)).mul(new BN(pct_base.toString()));
-            seedForFee = seedForDistribution.mul(new BN(PPM)).mul(new BN(fee)).div(new BN(PPM100));
+            buySeedFee = new BN(buySeedAmount).mul(new BN(fee)).div(new BN(PRECISION.toString()).mul(hundredBn));
+            seedForDistribution = new BN(hardCap).div(new BN(price)).mul(new BN(PRECISION.toString()));
+            seedForFee = seedForDistribution.mul(new BN(fee)).div(new BN(PRECISION.toString()).mul(hundredBn));
             requiredSeedAmount = seedForDistribution.add(seedForFee);
         });
         context("» contract is not initialized yet", () => {
@@ -201,7 +202,7 @@ describe("Contract: Seed", async () => {
                     claimAmount = new BN(ninetyTwoDaysInSeconds).mul(
                         new BN(buySeedAmount).mul(new BN(twoBN)).div(new BN(vestingDuration))
                     );
-                    feeAmount = new BN(claimAmount).mul(new BN(PPM)).mul(new BN(fee)).div(new BN(PPM100));
+                    feeAmount = new BN(claimAmount).mul(new BN(fee)).div(new BN(PRECISION.toString()).mul(hundredBn));
                 });
                 it("it cannot buy if not funded", async () => {
                     await expectRevert(
@@ -227,14 +228,14 @@ describe("Contract: Seed", async () => {
                     );
                 });
                 it("it buys tokens ", async () => {
-                    // seedAmount = (buyAmountt*PCT_BASE)/price;
-                    seedAmount = new BN(buyAmount).mul(new BN(pct_base.toString())).div(new BN(price));
+                    // seedAmount = (buyAmountt*PRECISION)/price;
+                    seedAmount = new BN(buyAmount).mul(new BN(PRECISION.toString())).div(new BN(price));
 
                     await expect(setup.seed.connect(buyer1).buy(buyAmount))
                         .to.emit(setup.seed, "SeedsPurchased")
                         .withArgs(buyer1.address, seedAmount);
                     expect((await fundingToken.balanceOf(setup.seed.address)).toString()).to.equal(
-                        ((buySeedAmount * price) / pct_base).toString()
+                        ((buySeedAmount * price) / PRECISION).toString()
                     );
                 });
                 it("cannot buy more than maximum target", async () => {
@@ -280,8 +281,8 @@ describe("Contract: Seed", async () => {
                     expect((await setup.seed.calculateClaim(buyer1.address)).toString()).to.equal("0");
                 });
                 it("updates lock when it buys tokens", async () => {
-                    // seedAmount = (buyAmountt*PCT_BASE)/price;
-                    seedAmount = new BN(buyAmount).mul(new BN(pct_base.toString())).div(new BN(price));
+                    // seedAmount = (buyAmountt*PRECISION)/price;
+                    seedAmount = new BN(buyAmount).mul(new BN(PRECISION.toString())).div(new BN(price));
 
                     // get fundingAmount to calculate seedAmount
                     let prevSeedAmount = (await setup.seed.seedAmountForFunder(buyer1.address));
@@ -476,7 +477,7 @@ describe("Contract: Seed", async () => {
                     // claim lock
 
                     // feeAmountOnClaim = (_claimAmount * fee) / 100;
-                    feeAmountOnClaim = new BN(claimAmount).mul(new BN(fee)).div(new BN(hundred));
+                    feeAmountOnClaim = new BN(claimAmount).mul(new BN(fee)).div(new BN(PRECISION.toString()).mul(hundredBn));
 
                     await expect(setup.seed.connect(buyer1).claim(buyer1.address, claimAmount.toString()))
                         .to.emit(setup.seed, "TokensClaimed")
@@ -499,7 +500,7 @@ describe("Contract: Seed", async () => {
                 });
                 it("calculates and claims exact seed amount", async () => {
                     const claim = await setup.seed.calculateClaim(buyer1.address);
-                    feeAmountOnClaim = new BN(claim.toString()).mul(new BN(fee)).div(new BN(hundred));
+                    feeAmountOnClaim = new BN(claim.toString()).mul(new BN(fee)).div(new BN(PRECISION.toString()).mul(hundredBn));
 
                     totalClaimedByBuyer1 = totalClaimedByBuyer1.add(new BN(claim.toString()));
 
@@ -548,7 +549,7 @@ describe("Contract: Seed", async () => {
                     setup.data.prevBalance = await seedToken.balanceOf(beneficiary.address);
 
                     const claimTemp = new BN(buySeedAmount).mul(new BN(twoBN)).toString();
-                    feeAmountOnClaim = new BN(claimTemp).mul(new BN(fee)).div(new BN(hundred));
+                    feeAmountOnClaim = new BN(claimTemp).mul(new BN(fee)).div(new BN(PRECISION.toString()).mul(hundredBn));
 
                     await expect(setup.data.seed.connect(buyer2).claim(buyer2.address, claimTemp.toString()))
                         .to.emit(setup.data.seed, "TokensClaimed")
@@ -611,7 +612,7 @@ describe("Contract: Seed", async () => {
                     setup.data.prevBalance = await seedToken.balanceOf(beneficiary.address);
 
                     const claimTemp = new BN(buySeedAmount).mul(new BN(twoBN)).toString();
-                    feeAmountOnClaim = new BN(claimTemp).mul(new BN(fee)).div(new BN(hundred));
+                    feeAmountOnClaim = new BN(claimTemp).mul(new BN(fee)).div(new BN(PRECISION.toString()).mul(hundredBn));
 
                     await expect(setup.data.seed.connect(buyer2).claim(buyer2.address, claimTemp.toString()))
                         .to.emit(setup.data.seed, "TokensClaimed")
@@ -894,7 +895,7 @@ describe("Contract: Seed", async () => {
                     );
                 });
                 it("it refunds only seed amount that are not bought", async () => {
-                    const buyFee = new BN(buySeedAmount).mul(new BN(PPM)).mul(new BN(fee)).div(new BN(PPM100));
+                    const buyFee = new BN(buySeedAmount).mul(new BN(fee)).div(new BN(PRECISION.toString()).mul(hundredBn));
                     const prevBal = await seedToken.balanceOf(admin.address);
                     await time.increase(await time.duration.days(7));
                     await setup.data.seed.connect(admin).refundSeedTokens(admin.address);
@@ -1096,10 +1097,10 @@ describe("Contract: Seed", async () => {
             vestingDuration = time.duration.days(365); // 1 year
             vestingCliff = time.duration.days(90); // 3 months
             permissionedSeed = true;
-            fee = 2;
+            fee = parseEther("2").toString();
 
-            seedForDistribution = new BN(hardCap).div(new BN(price)).mul(new BN(pct_base.toString()));
-            seedForFee = seedForDistribution.mul(new BN(PPM)).mul(new BN(fee)).div(new BN(PPM100));
+            seedForDistribution = new BN(hardCap).div(new BN(price)).mul(new BN(PRECISION.toString()));
+            seedForFee = seedForDistribution.mul(new BN(fee)).div(new BN(PRECISION.toString()).mul(hundredBn));
             requiredSeedAmount = seedForDistribution.add(seedForFee);
         });
         context("» contract is not initialized yet", () => {

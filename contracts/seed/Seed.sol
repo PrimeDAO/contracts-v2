@@ -40,11 +40,11 @@ contract Seed {
     uint32  public vestingCliff;
     IERC20  public seedToken;
     IERC20  public fundingToken;
-    uint8   public fee;
+    uint256 public fee;
 
     bytes   public metadata;           // IPFS Hash
 
-    uint256 constant internal PRICE_PRECISION = 10 ** 18;  // 0% = 0; 1% = 10 ** 16; 100% = 10 ** 18
+    uint256 constant internal PRECISION = 10 ** 18;  // 0% = 0; 1% = 10 ** 16; 100% = 10 ** 18
 
     // Contract logic
     bool    public closed;                 // is the distribution closed
@@ -59,7 +59,6 @@ contract Seed {
     uint256 public seedRemainder;          // Amount of seed tokens remaining to be distributed
     uint256 public seedClaimed;            // Amount of seed token claimed by the user.
     uint256 public feeRemainder;           // Amount of seed tokens remaining for the fee
-    // uint256 public feeClaimed;             // Amount of seed tokens claimed as fee
     uint256 public fundingCollected;       // Amount of funding tokens collected by the seed contract.
     uint256 public fundingWithdrawn;       // Amount of funding token withdrawn from the seed contract.
 
@@ -137,7 +136,7 @@ contract Seed {
       * @param _vestingDuration       Vesting period duration in seconds.
       * @param _vestingCliff          Cliff duration in seconds.
       * @param _permissionedSeed      Set to true if only whitelisted adresses are allowed to participate.
-      * @param _fee                   Success fee expressed as a % (e.g. 2 = 2% fee)
+      * @param _fee                   Success fee expressed as a % (e.g. 2*(10**18) = 2% fee)
     */
     function initialize(
         address _beneficiary,
@@ -150,7 +149,7 @@ contract Seed {
         uint32  _vestingDuration,
         uint32  _vestingCliff,
         bool    _permissionedSeed,
-        uint8   _fee
+        uint256   _fee
     ) external initializer
     {
 
@@ -175,8 +174,8 @@ contract Seed {
         fundingToken      = IERC20(_tokens[1]);
         fee               = _fee;
 
-        seedAmountRequired = (hardCap*PRICE_PRECISION) / _price;
-        feeAmountRequired  = (seedAmountRequired*_fee) / 100;
+        seedAmountRequired = (hardCap*PRECISION) / _price;
+        feeAmountRequired  = (seedAmountRequired*_fee) / (100*PRECISION);
         seedRemainder      = seedAmountRequired;
         feeRemainder       = feeAmountRequired;
     }
@@ -192,13 +191,13 @@ contract Seed {
             isFunded = true;
         }
         // fundingAmount is an amount of fundingTokens required to buy _seedAmount of SeedTokens
-        uint256 seedAmount = (_fundingAmount*PRICE_PRECISION)/price;
+        uint256 seedAmount = (_fundingAmount*PRECISION)/price;
 
         // Funding Token balance of this contract;
         uint256 fundingBalance = fundingCollected;
 
         // feeAmount is an amount of fee we are going to get in seedTokens
-        uint256 feeAmount = (seedAmount*fee) / 100;
+        uint256 feeAmount = (seedAmount*fee) / (100*PRECISION);
 
         // seed amount vested per second > zero, i.e. amountVestedPerSecond = seedAmount/vestingDuration
         require(
@@ -254,7 +253,7 @@ contract Seed {
         amountClaimable = calculateClaim(_funder);
         require(amountClaimable > 0, "Seed: amount claimable is 0");
         require(amountClaimable >= _claimAmount, "Seed: request is greater than claimable amount");
-        uint256 feeAmountOnClaim = (_claimAmount * fee) / 100;
+        uint256 feeAmountOnClaim = (_claimAmount * fee) / (100*PRECISION);
 
         funders[_funder].totalClaimed    += _claimAmount;
 
@@ -438,7 +437,7 @@ contract Seed {
       * @dev                     Amount of seed tokens claimed as fee
     */
     function feeClaimed() public view returns(uint256) {
-        return (seedClaimed*fee)/100;
+        return (seedClaimed*fee)/(100*PRECISION);
     }
 
     /**
@@ -446,7 +445,7 @@ contract Seed {
       * @param _funder           address of funder to check fee claimed
     */
     function feeClaimedForFunder(address _funder) public view returns(uint256) {
-        return (funders[_funder].totalClaimed*fee)/100;
+        return (funders[_funder].totalClaimed*fee)/(100*PRECISION);
     }
 
     /**
@@ -454,7 +453,7 @@ contract Seed {
       * @param _funder           address of funder to check fee
     */
     function feeForFunder(address _funder) public view returns(uint256) {
-        return (seedAmountForFunder(_funder)*fee)/100;
+        return (seedAmountForFunder(_funder)*fee)/(100*PRECISION);
     }
 
     /**
@@ -462,7 +461,7 @@ contract Seed {
       * @param _funder           address of funder to seed amount
     */
     function seedAmountForFunder(address _funder) public view returns(uint256) {
-        return (funders[_funder].fundingAmount*PRICE_PRECISION)/price;
+        return (funders[_funder].fundingAmount*PRECISION)/price;
     }
 
     /**
