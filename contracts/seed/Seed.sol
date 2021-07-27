@@ -76,7 +76,7 @@ contract Seed {
         uint256 totalClaimed;               // Total amount of seed tokens claimed
         uint256 fundingAmount;              // Total amount of funding tokens contributed
         uint256 fee;                        // Total amount of fee in seed amount for this portfolio
-        uint256 feeClaimed;                 // Total amount of fee sent to beneficiary for this portfolio
+        // uint256 feeClaimed;                 // Total amount of fee sent to beneficiary for this portfolio
     }
 
     modifier initializer() {
@@ -259,7 +259,7 @@ contract Seed {
         FunderPortfolio storage tokenFunder = funders[_funder];
 
         tokenFunder.totalClaimed    += _claimAmount;
-        tokenFunder.feeClaimed      += feeAmountOnClaim;
+        // tokenFunder.feeClaimed      += feeAmountOnClaim;
 
         seedClaimed += _claimAmount;
         feeClaimed  += feeAmountOnClaim;
@@ -465,8 +465,8 @@ contract Seed {
             seedAmount: _seedAmount,
             totalClaimed: 0,
             fundingAmount: _fundingAmount,
-            fee: _fee,
-            feeClaimed: 0
+            fee: _fee
+            // feeClaimed: 0
         });
     }
 }
