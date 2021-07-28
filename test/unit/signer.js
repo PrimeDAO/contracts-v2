@@ -19,7 +19,7 @@ const {
 const init = require("../test-init.js");
 
 const zero = 0;
-const oneMillion = 555162;
+const gasAmount = 555162;
 const magicValue = `0x20c13b0b`;
 const signaturePosition = 196;
 const SIGNATURE_CREATED = 'SignatureCreated';
@@ -86,7 +86,7 @@ describe("Contract: Signer", async () => {
                     zero,
                     data,
                     zero,
-                    oneMillion,
+                    gasAmount,
                     zero,
                     zero,
                     constants.ZERO_ADDRESS,
@@ -118,8 +118,8 @@ describe("Contract: Signer", async () => {
                     zero,
                     data,
                     zero,
-                    oneMillion,
-                    oneMillion,
+                    gasAmount,
+                    gasAmount,
                     zero,
                     constants.ZERO_ADDRESS,
                     constants.ZERO_ADDRESS
@@ -147,8 +147,8 @@ describe("Contract: Signer", async () => {
                     zero,
                     data,
                     zero,
-                    oneMillion,
-                    oneMillion,
+                    gasAmount,
+                    gasAmount,
                     zero,
                     constants.ZERO_ADDRESS,
                     constants.ZERO_ADDRESS
@@ -184,7 +184,7 @@ describe("Contract: Signer", async () => {
             Signer_Factory.connect(setup.roles.root);
             setup.signer = await Signer_Factory.deploy(setup.proxySafe.address, setup.seedFactory.address);
             await setup.proxySafe.setup(
-                [setup.signer.address],
+                [setup.signer.address, setup.roles.prime.address],
                 1,
                 setup.proxySafe.address,
                 '0x',
@@ -211,7 +211,7 @@ describe("Contract: Signer", async () => {
                 fee,
                 metadata
             );
-            let gas = await setup.seedFactory.estimateGas.deploySeed(
+            let gasEstimated = await setup.seedFactory.estimateGas.deploySeed(
                 BENEFICIARY,
                 ADMIN,
                 [PRIME,WETH],
@@ -224,14 +224,13 @@ describe("Contract: Signer", async () => {
                 fee,
                 metadata
             );
-            // gas = gas.add(ethers.BigNumber.from(10000));
             const trx = [
                 to,
                 zero,
                 data,
                 zero,
-                gas,
-                gas,
+                gasEstimated,
+                gasEstimated,
                 zero,
                 constants.ZERO_ADDRESS,
                 constants.ZERO_ADDRESS
@@ -243,8 +242,6 @@ describe("Contract: Signer", async () => {
             trx.push(signature);
             setup.data.trx = trx;
             setup.data.hash = hash;
-            // const response = await (await setup.proxySafe.connect(setup.roles.prime).execTransaction(...(setup.data.trx))).wait();
-            // console.log(response);
             await expect(
                 setup.proxySafe.connect(setup.roles.prime).execTransaction(...(setup.data.trx))
             ).to.not.reverted;
