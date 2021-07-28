@@ -189,8 +189,8 @@ describe("Contract: Signer", async () => {
                     zero,
                     data,
                     zero,
-                    oneMillion,
-                    oneMillion,
+                    gasAmount,
+                    gasAmount,
                     zero,
                     constants.ZERO_ADDRESS,
                     constants.ZERO_ADDRESS
