@@ -227,7 +227,7 @@ contract Seed {
             totalFunderCount++;
         }
         // totalClaimed is always going to be zero while buying
-        funders[msg.sender].fundingAmount = funders[msg.sender].fundingAmount + _fundingAmount;
+        funders[msg.sender].fundingAmount += _fundingAmount;
 
         // Here we are sending amount of tokens to pay for seed tokens to purchase
         require(
@@ -276,8 +276,8 @@ contract Seed {
         uint256 fundingAmount = tokenFunder.fundingAmount;
         seedRemainder += seedAmountForFunder(msg.sender);
         feeRemainder += feeForFunder(msg.sender);
-        tokenFunder.fundingAmount = 0;
         totalFunderCount--;
+        tokenFunder.fundingAmount = 0;
         fundingCollected -= fundingAmount;
         require(
             fundingToken.transfer(msg.sender, fundingAmount),
