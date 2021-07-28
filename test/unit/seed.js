@@ -681,7 +681,7 @@ describe("Contract: Seed", async () => {
                     await fakeSeedToken.burn(alternativeSetup.seed.address);
                     await expectRevert(
                         alternativeSetup.seed.connect(buyer1).claim(buyer1.address, correctClaimAmount.toString()),
-                        "Seed: seed token transfer to beneficiary failed"
+                        "Seed: seed token transfer failed"
                     );
                 })
             })
