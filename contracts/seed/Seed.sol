@@ -40,7 +40,7 @@ contract Seed {
     uint32  public vestingCliff;
     IERC20  public seedToken;
     IERC20  public fundingToken;
-    uint256 public fee;                 // fee percent with precision of 10**18 i.e. 1% = 10**18, 0.1% = 10**17
+    uint256 public fee;                // success fee percent with precision of 10**18 i.e. 1% = 10**18, 0.1% = 10**17
 
     bytes   public metadata;           // IPFS Hash
 
