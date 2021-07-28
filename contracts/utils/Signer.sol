@@ -12,7 +12,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // solium-disable linebreak-style
-pragma solidity ^0.8.0;
+pragma solidity 0.8.6;
 
 
 import "./interface/Safe.sol";
