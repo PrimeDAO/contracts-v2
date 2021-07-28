@@ -110,7 +110,7 @@ contract Signer is ISignatureValidator {
         bytes memory messageHash = _encodeMessageHash(hash);
         // check if transaction is not signed before
         require(
-            approvedSignatures[keccak256(messageHash)] == 0,
+            approvedSignatures[hash] != keccak256(messageHash),
             "Signer: transaction already signed"
             );
 
