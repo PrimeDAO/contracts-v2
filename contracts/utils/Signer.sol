@@ -39,7 +39,7 @@ contract Signer is ISignatureValidator {
     address public immutable seedFactory;
     /* solium-enable */
 
-    event SignatureCreated(bytes signature, bytes32 hash);
+    event SignatureCreated(bytes signature, bytes32 indexed hash);
 
     /**
      * @dev                Signer Constructor
@@ -108,6 +108,11 @@ contract Signer is ISignatureValidator {
 
         bytes memory paddedAddress = bytes.concat(bytes12(0), bytes20(address(this)));
         bytes memory messageHash = _encodeMessageHash(hash);
+        // check if transaction is not signed before
+        require(
+            approvedSignatures[keccak256(messageHash)] == 0,
+            "Signer: transaction already signed"
+            );
 
         // generate signature and add it to approvedSignatures mapping
         signature = bytes.concat(paddedAddress, bytes32(uint256(65)), bytes1(0), bytes32(uint256(messageHash.length)), messageHash);
