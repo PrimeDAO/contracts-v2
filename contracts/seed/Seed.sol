@@ -277,6 +277,7 @@ contract Seed {
         seedRemainder += seedAmountForFunder(msg.sender);
         feeRemainder += feeForFunder(msg.sender);
         tokenFunder.fundingAmount = 0;
+        totalFunderCount--;
         fundingCollected -= fundingAmount;
         require(
             fundingToken.transfer(msg.sender, fundingAmount),
