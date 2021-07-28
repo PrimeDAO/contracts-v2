@@ -193,8 +193,6 @@ describe("Contract: Signer", async () => {
                 0,
                 setup.roles.prime.address
             );
-            console.log(await setup.seedFactory.owner());
-            console.log(setup.roles.prime.address);
         });
         it("Signer contract is safe owner", async () => {
             expect(await setup.proxySafe.isOwner(setup.signer.address)).to.equal(true);
