@@ -58,7 +58,7 @@ contract SeedFactory is CloneFactory, Ownable {
                                                 - Vesting period duration in days.
                                                 - Cliff duration in days.
       * @param _permissionedSeed      Set to true if only whitelisted adresses are allowed to participate.
-      * @param _fee                   Success fee expressed in Wei as a % (e.g. 2 = 2% fee)
+      * @param _fee                   Success fee expressed as a % (e.g. 10**18 = 100% fee, 10**16 = 1%)
       * @param _metadata              Seed contract metadata, that is IPFS URI
     */
     function deploySeed(

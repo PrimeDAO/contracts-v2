@@ -40,12 +40,11 @@ contract Seed {
     uint32  public vestingCliff;
     IERC20  public seedToken;
     IERC20  public fundingToken;
-    uint256 public fee;                // success fee percent with precision of 10**18 i.e. 1% = 10**18, 0.1% = 10**17
+    uint256 public fee;                // Success fee expressed as a % (e.g. 10**18 = 100% fee, 10**16 = 1%)
 
     bytes   public metadata;           // IPFS Hash
 
     uint256 constant internal PRECISION = 10 ** 18;  // 1 token = 10**18, 0.01 token = 10**16, 0 token = 0
-    uint256 constant internal PERCENT_PRECISION = 10 ** 20; // 100*PRECISION
 
     // Contract logic
     bool    public closed;                 // is the distribution closed
@@ -136,7 +135,7 @@ contract Seed {
       * @param _vestingDuration       Vesting period duration in seconds.
       * @param _vestingCliff          Cliff duration in seconds.
       * @param _permissionedSeed      Set to true if only whitelisted adresses are allowed to participate.
-      * @param _fee                   Success fee expressed as a % (e.g. 2*(10**18) = 2% fee)
+      * @param _fee                   Success fee expressed as a % (e.g. 10**18 = 100% fee, 10**16 = 1%)
     */
     function initialize(
         address _beneficiary,
@@ -175,7 +174,7 @@ contract Seed {
         fee               = _fee;
 
         seedAmountRequired = (hardCap*PRECISION) / _price;
-        feeAmountRequired  = (seedAmountRequired*_fee) / (PERCENT_PRECISION);
+        feeAmountRequired  = (seedAmountRequired*_fee) / PRECISION;
         seedRemainder      = seedAmountRequired;
         feeRemainder       = feeAmountRequired;
     }
@@ -194,7 +193,7 @@ contract Seed {
         uint256 seedAmount = (_fundingAmount*PRECISION)/price;
 
         // feeAmount is an amount of fee we are going to get in seedTokens
-        uint256 feeAmount = (seedAmount*fee) / (PERCENT_PRECISION);
+        uint256 feeAmount = (seedAmount*fee) / PRECISION;
 
         // seed amount vested per second > zero, i.e. amountVestedPerSecond = seedAmount/vestingDuration
         require(
@@ -249,7 +248,7 @@ contract Seed {
         amountClaimable = calculateClaim(_funder);
         require(amountClaimable > 0, "Seed: amount claimable is 0");
         require(amountClaimable >= _claimAmount, "Seed: request is greater than claimable amount");
-        uint256 feeAmountOnClaim = (_claimAmount * fee) / (PERCENT_PRECISION);
+        uint256 feeAmountOnClaim = (_claimAmount * fee) / PRECISION;
 
         funders[_funder].totalClaimed    += _claimAmount;
 
@@ -428,7 +427,7 @@ contract Seed {
       * @dev                     Amount of seed tokens claimed as fee
     */
     function feeClaimed() public view returns(uint256) {
-        return (seedClaimed*fee)/(PERCENT_PRECISION);
+        return (seedClaimed*fee)/PRECISION;
     }
 
     /**
@@ -436,7 +435,7 @@ contract Seed {
       * @param _funder           address of funder to check fee claimed
     */
     function feeClaimedForFunder(address _funder) public view returns(uint256) {
-        return (funders[_funder].totalClaimed*fee)/(PERCENT_PRECISION);
+        return (funders[_funder].totalClaimed*fee)/PRECISION;
     }
 
     /**
@@ -444,7 +443,7 @@ contract Seed {
       * @param _funder           address of funder to check fee
     */
     function feeForFunder(address _funder) public view returns(uint256) {
-        return (seedAmountForFunder(_funder)*fee)/(PERCENT_PRECISION);
+        return (seedAmountForFunder(_funder)*fee)/PRECISION;
     }
 
     /**
