@@ -205,9 +205,6 @@ contract Seed {
         require( fundingCollected + _fundingAmount <= hardCap,
             "Seed: amount exceeds contract sale hardCap");
 
-        require( seedRemainder >= seedAmount,
-            "Seed: seed distribution would be exceeded");
-
         fundingCollected += _fundingAmount;
 
         // the amount of seed tokens still to be distributed
