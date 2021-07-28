@@ -193,6 +193,8 @@ describe("Contract: Signer", async () => {
                 0,
                 setup.roles.prime.address
             );
+            console.log(await setup.seedFactory.owner());
+            console.log(setup.roles.prime.address);
         });
         it("Signer contract is safe owner", async () => {
             expect(await setup.proxySafe.isOwner(setup.signer.address)).to.equal(true);
@@ -224,6 +226,8 @@ describe("Contract: Signer", async () => {
                 fee,
                 metadata
             );
+            // transafer seedFactory ownership to safe
+            await setup.seedFactory.connect(setup.roles.prime).transferOwnership(setup.proxySafe.address);
             const trx = [
                 to,
                 zero,
@@ -244,7 +248,7 @@ describe("Contract: Signer", async () => {
             setup.data.hash = hash;
             await expect(
                 setup.proxySafe.connect(setup.roles.prime).execTransaction(...(setup.data.trx))
-            ).to.not.reverted;
+            ).to.emit(setup.seedFactory, "SeedCreated");
         });
     })
 });
