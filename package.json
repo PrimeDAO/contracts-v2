@@ -9,7 +9,7 @@
     "add:delegate:rinkeby": "npx hardhat run scripts/add_delegate.js --network rinkeby",
     "send:safeTrx:rinkeby": "npx hardhat run scripts/add_tx_to_safe.js --network rinkeby",
     "compile": "hardhat compile",
-    "lint": "eslint . --ext .js && solium --no-soliumignore --dir ./contracts",
+    "lint": "eslint . --ext .js && solium --dir ./contracts",
     "test": "hardhat test",
     "coverage": "hardhat coverage"
   },
