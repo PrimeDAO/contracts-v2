@@ -257,7 +257,9 @@ contract Seed {
         funders[_funder].totalClaimed    += _claimAmount;
 
         seedClaimed += _claimAmount;
-        require(seedToken.transfer(beneficiary, feeAmountOnClaim) && seedToken.transfer(_funder, _claimAmount), "Seed: seed token transfer failed");
+        require(
+            seedToken.transfer(beneficiary, feeAmountOnClaim) && seedToken.transfer(_funder, _claimAmount),
+            "Seed: seed token transfer failed");
 
         emit TokensClaimed(_funder, _claimAmount, beneficiary, feeAmountOnClaim);
 
@@ -320,22 +322,21 @@ contract Seed {
     */
     function retrieveSeedTokens(address _refundReceiver) external onlyAdmin {
         // transfer seed tokens back to admin
-        bool isValidTimeToRefund = block.timestamp > endTime;
         require(
-            closed || isValidTimeToRefund,
+            closed || (block.timestamp > endTime),
             "Seed: refund seed tokens only when seed distribution is closed or after distribution end time."
         );
-        if (isValidTimeToRefund) {
+        if (closed) {
+            require(
+                seedToken.transfer(_refundReceiver, seedToken.balanceOf(address(this))),
+                "Seed: should transfer seed tokens to refund receiver"
+            );
+        } else {
             // seed tokens to transfer = balance of seed tokens - totalSeedDistributed
             uint256 totalSeedDistributed = (seedAmountRequired+feeAmountRequired)-(seedRemainder+feeRemainder);
             uint256 amountToTransfer = seedToken.balanceOf(address(this))-totalSeedDistributed;
             require(
                 seedToken.transfer(_refundReceiver, amountToTransfer),
-                "Seed: should transfer seed tokens to refund receiver"
-            );
-        } else {
-            require(
-                seedToken.transfer(_refundReceiver, seedToken.balanceOf(address(this))),
                 "Seed: should transfer seed tokens to refund receiver"
             );
         }
