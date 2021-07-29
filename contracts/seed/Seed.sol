@@ -135,7 +135,7 @@ contract Seed {
       * @param _vestingDuration       Vesting period duration in seconds.
       * @param _vestingCliff          Cliff duration in seconds.
       * @param _permissionedSeed      Set to true if only whitelisted adresses are allowed to participate.
-      * @param _fee                   Success fee expressed as a % (e.g. 10**18 = 100% fee, 10**16 = 1%)
+      * @param _fee                   Success fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
     */
     function initialize(
         address _beneficiary,
@@ -174,7 +174,9 @@ contract Seed {
         fee               = _fee;
 
         seedAmountRequired = (hardCap*PRECISION) / _price;
-        feeAmountRequired  = (seedAmountRequired*_fee) / PRECISION;
+        // (seedAmountRequired*fee) / (100*FEE_PRECISION) = (seedAmountRequired*fee) / PRECISION
+        //  where FEE_PRECISION = 10**16
+        feeAmountRequired  = (seedAmountRequired*fee) / PRECISION;
         seedRemainder      = seedAmountRequired;
         feeRemainder       = feeAmountRequired;
     }
