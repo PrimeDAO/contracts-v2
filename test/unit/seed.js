@@ -787,7 +787,7 @@ describe("Contract: Seed", async () => {
                     await setup.data.seed.connect(buyer2).buy(tenETH);
                     await expectRevert(
                         setup.data.seed.connect(buyer2).retrieveFundingTokens(),
-                        "Seed: minimum already met"
+                        "Seed: minimum funding amount met"
                     );
                 });
             });
