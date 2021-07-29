@@ -286,7 +286,12 @@ contract Seed {
     function close() external onlyAdmin {
         // close seed token distribution
         require(!closed, "Seed: should not be closed");
-        require(!minimumReached, "Seed: cannot close after minimum target is reached");
+        require(
+            !minimumReached ||
+            maximumReached ||
+            block.timestamp > endTime,
+            "Seed: can only be closed before minimum target reached or after distribution ends"
+        );
         closed = true;
         paused = false;
     }
@@ -298,10 +303,10 @@ contract Seed {
     function retrieveSeedTokens(address _refundReceiver) external onlyAdmin {
         // transfer seed tokens back to admin
         require(
-            closed || (block.timestamp > endTime),
-            "Seed: refund seed tokens only when seed distribution is closed or after distribution end time."
+            closed,
+            "Seed: needs to be closed before retrieving"
         );
-        if (closed) {
+        if (!minimumReached) {
             require(
                 seedToken.transfer(_refundReceiver, seedToken.balanceOf(address(this))),
                 "Seed: should transfer seed tokens to refund receiver"
