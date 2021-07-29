@@ -44,7 +44,7 @@ contract Seed {
 
     bytes   public metadata;           // IPFS Hash
 
-    uint256 constant internal PRECISION = 10 ** 18;  // 1 token = 10**18, 0.01 token = 10**16, 0 token = 0
+    uint256 constant internal PRECISION = 10 ** 18; // used for precision e.g. 1 ETH = 10**18 wei; toWei("1") = 10**18
 
     // Contract logic
     bool    public closed;                 // is the distribution closed
