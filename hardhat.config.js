@@ -32,8 +32,8 @@ module.exports = {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: true,
-      blockGasLimit: 100000000,
-      gas: 2000000,
+      blockGasLimit: 100000000000000,
+      gas: 20000000000,
     },
     mainnet: {
       url: PROVIDER,

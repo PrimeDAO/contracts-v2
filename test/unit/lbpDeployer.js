@@ -26,7 +26,7 @@ const deploy = async () => {
     return setup;
 }
 
-describe('Contract: LBPDeployer', async () => {
+describe("Contract: LBPDeployer", async () => {
 	let setup;
 	let swapEnabledOnStart;
 	let now;
@@ -57,7 +57,7 @@ describe('Contract: LBPDeployer', async () => {
 	const SIGNATURE_CREATED = 'SignatureCreated';
 	
 	context("» without Gnosis Safe", async () => {
-		before('!! setup', async () => {
+		before("!! setup", async () => {
 			setup = await deploy();
 	
 			tokenAddresses = [setup.tokenList[0].address, setup.tokenList[1].address];
