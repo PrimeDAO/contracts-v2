@@ -1060,9 +1060,6 @@ describe("Contract: Seed", async () => {
                 it("it cannot buy when paused", async () => {
                     await expectRevert(setup.seed.connect(buyer1).buy(buyAmount), "Seed: should not be paused");
                 });
-                it("it cannot withdraw when paused", async () => {
-                    await expectRevert(setup.seed.connect(admin).withdraw(), "Seed: should not be paused");
-                });
             });
             context("» unpause", () => {
                 context("seed is paused/closed", async () => {

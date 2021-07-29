@@ -106,18 +106,6 @@ contract Seed {
         _;
     }
 
-    modifier allowedToRetrieve() {
-        require(startTime <= block.timestamp, "Seed: distribution haven't started");
-        require(!minimumReached, "Seed: minimum already met");
-        _;
-    }
-
-    modifier allowedToWithdraw() {
-        require(!paused, "Seed: should not be paused");
-        require(minimumReached, "Seed: minimum funding amount not met");
-        _;
-    }
-
     /**
       * @dev                          Initialize Seed.
       * @param _beneficiary           The address that recieves fees.
@@ -268,7 +256,9 @@ contract Seed {
     /**
       * @dev         Returns funding tokens to user.
     */
-    function retrieveFundingTokens() external allowedToRetrieve returns(uint256) {
+    function retrieveFundingTokens() external returns(uint256) {
+        require(startTime <= block.timestamp, "Seed: distribution haven't started");
+        require(!minimumReached, "Seed: minimum already met");
         require(funders[msg.sender].fundingAmount > 0, "Seed: zero funding amount");
         FunderPortfolio storage tokenFunder = funders[msg.sender];
         uint256 fundingAmount = tokenFunder.fundingAmount;
@@ -308,8 +298,9 @@ contract Seed {
     /**
       * @dev                     Close distribution.
     */
-    function close() external onlyAdmin isActive {
+    function close() external onlyAdmin {
         // close seed token distribution
+        require(!closed, "Seed: should not be closed");
         require(!minimumReached, "Seed: cannot close after minimum target is reached");
         closed = true;
         paused = false;
@@ -378,7 +369,8 @@ contract Seed {
     /**
       * @dev                     Withdraw funds from the contract
     */
-    function withdraw() external onlyAdmin allowedToWithdraw {
+    function withdraw() external onlyAdmin {
+        require(minimumReached, "Seed: minimum funding amount not met");
         uint pendingFundingBalance = fundingCollected - fundingWithdrawn;
         fundingWithdrawn = fundingCollected;
         fundingToken.transfer(msg.sender, pendingFundingBalance);
