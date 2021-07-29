@@ -943,14 +943,6 @@ describe("Contract: Seed", async () => {
                         "Seed: should transfer seed tokens to refund receiver"
                     );
                 })
-
-                it("reverts 'Seed: can only be closed before minimum target reached or after distribution ends'", async () => {
-                    await alternativeSetup.seed.connect(buyer1).buy(buyAmount);
-                    await expectRevert(
-                        alternativeSetup.seed.connect(alternativeSetup.roles.prime).close(),
-                        "Seed: can only be closed before minimum target reached or after distribution ends"
-                    );
-                });
             })
             context("» close after minimum reached", () => {
                 before("!! deploy new contract + top up buyer balance", async () => {
@@ -979,20 +971,9 @@ describe("Contract: Seed", async () => {
                     await fundingToken.connect(buyer2).approve(setup.data.seed.address, buyAmount);
                     await setup.data.seed.connect(buyer2).buy(buyAmount);
                 });
-                // it("cannot close after minimum reached", async () => {
-                //     await expect(setup.data.seed.connect(admin).close()).to.be.revertedWith(
-                //         "Seed: cannot close after minimum target is reached"
-                //     );
-                // });
-                it("does not refund anything when, currentTime < endTime", async () => {
-                    await expect(setup.data.seed.connect(admin).retrieveSeedTokens(admin.address)).to.be.revertedWith(
-                        "Seed: needs to be closed before retrieving"
-                    );
-                });
                 it("it refunds only seed amount that are not bought", async () => {
                     const buyFee = new BN(buySeedAmount).mul(new BN(fee)).div(new BN(PRECISION.toString()));
                     const prevBal = await seedToken.balanceOf(admin.address);
-                    await time.increase(await time.duration.days(7));
                     await setup.data.seed.connect(admin).close();
                     await setup.data.seed.connect(admin).retrieveSeedTokens(admin.address);
                     expect((await seedToken.balanceOf(admin.address)).toString()).to.equal(

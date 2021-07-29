@@ -286,12 +286,6 @@ contract Seed {
     function close() external onlyAdmin {
         // close seed token distribution
         require(!closed, "Seed: should not be closed");
-        require(
-            !minimumReached ||
-            maximumReached ||
-            block.timestamp > endTime,
-            "Seed: can only be closed before minimum target reached or after distribution ends"
-        );
         closed = true;
         paused = false;
     }
