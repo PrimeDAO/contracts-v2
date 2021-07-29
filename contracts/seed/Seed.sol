@@ -75,12 +75,6 @@ contract Seed {
         uint256 fundingAmount;              // Total amount of funding tokens contributed
     }
 
-    modifier initializer() {
-        require(!initialized, "Seed: contract already initialized");
-        initialized = true;
-        _;
-    }
-
     modifier onlyAdmin() {
         require(msg.sender == admin, "Seed: caller should be admin");
         _;
@@ -89,31 +83,6 @@ contract Seed {
     modifier isActive() {
         require(!closed, "Seed: should not be closed");
         require(!paused, "Seed: should not be paused");
-        _;
-    }
-
-    modifier allowedToBuy() {
-        require(!maximumReached, "Seed: maximum funding reached");
-        require(!permissionedSeed || whitelisted[msg.sender], "Seed: sender has no rights");
-        require(endTime >= block.timestamp && startTime <= block.timestamp,
-            "Seed: only allowed during distribution period");
-        _;
-    }
-
-    modifier allowedToClaim() {
-        require(minimumReached, "Seed: minimum funding amount not met");
-        require(endTime < block.timestamp || maximumReached,"Seed: the distribution has not yet finished");
-        _;
-    }
-
-    modifier allowedToRetrieve() {
-        require(startTime <= block.timestamp, "Seed: distribution haven't started");
-        require(!minimumReached, "Seed: minimum funding amount met");
-        _;
-    }
-
-    modifier allowedToWithdraw() {
-        require(minimumReached, "Seed: minimum funding amount not met");
         _;
     }
 
@@ -148,8 +117,10 @@ contract Seed {
         uint32  _vestingCliff,
         bool    _permissionedSeed,
         uint256   _fee
-    ) external initializer
+    ) external
     {
+        require(!initialized, "Seed: contract already initialized");
+        initialized = true;
 
         // parameter check
         require(_tokens[0] != _tokens[1], "SeedFactory: seedToken cannot be fundingToken");
@@ -184,7 +155,11 @@ contract Seed {
       * @dev                     Buy seed tokens.
       * @param _fundingAmount    The amount of funding tokens to contribute.
     */
-    function buy(uint256 _fundingAmount) external isActive allowedToBuy returns(uint256, uint256) {
+    function buy(uint256 _fundingAmount) external isActive returns(uint256, uint256) {
+        require(!maximumReached, "Seed: maximum funding reached");
+        require(!permissionedSeed || whitelisted[msg.sender], "Seed: sender has no rights");
+        require(endTime >= block.timestamp && startTime <= block.timestamp,
+            "Seed: only allowed during distribution period");
         if (!isFunded) {
             require(seedToken.balanceOf(address(this)) >= seedAmountRequired + feeAmountRequired,
                 "Seed: sufficient seeds not provided");
@@ -243,7 +218,9 @@ contract Seed {
       * @param _funder           Address of funder to calculate seconds and amount claimable
       * @param _claimAmount      The amount of seed token a users wants to claim.
     */
-    function claim(address _funder, uint256 _claimAmount) external allowedToClaim returns(uint256) {
+    function claim(address _funder, uint256 _claimAmount) external returns(uint256) {
+        require(minimumReached, "Seed: minimum funding amount not met");
+        require(endTime < block.timestamp || maximumReached,"Seed: the distribution has not yet finished");
         uint256 amountClaimable;
 
         amountClaimable = calculateClaim(_funder);
@@ -267,7 +244,9 @@ contract Seed {
     /**
       * @dev         Returns funding tokens to user.
     */
-    function retrieveFundingTokens() external allowedToRetrieve returns(uint256) {
+    function retrieveFundingTokens() external returns(uint256) {
+        require(startTime <= block.timestamp, "Seed: distribution haven't started");
+        require(!minimumReached, "Seed: minimum funding amount met");
         require(funders[msg.sender].fundingAmount > 0, "Seed: zero funding amount");
         FunderPortfolio storage tokenFunder = funders[msg.sender];
         uint256 fundingAmount = tokenFunder.fundingAmount;
@@ -378,7 +357,8 @@ contract Seed {
     /**
       * @dev                     Withdraw funds from the contract
     */
-    function withdraw() external onlyAdmin allowedToWithdraw {
+    function withdraw() external onlyAdmin {
+        require(minimumReached, "Seed: minimum funding amount not met");
         uint pendingFundingBalance = fundingCollected - fundingWithdrawn;
         fundingWithdrawn = fundingCollected;
         fundingToken.transfer(msg.sender, pendingFundingBalance);
