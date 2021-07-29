@@ -106,6 +106,17 @@ contract Seed {
         _;
     }
 
+    modifier allowedToRetrieve() {
+        require(startTime <= block.timestamp, "Seed: distribution haven't started");
+        require(!minimumReached, "Seed: minimum funding amount met");
+        _;
+    }
+
+    modifier allowedToWithdraw() {
+        require(minimumReached, "Seed: minimum funding amount not met");
+        _;
+    }
+
     /**
       * @dev                          Initialize Seed.
       * @param _beneficiary           The address that recieves fees.
@@ -256,9 +267,7 @@ contract Seed {
     /**
       * @dev         Returns funding tokens to user.
     */
-    function retrieveFundingTokens() external returns(uint256) {
-        require(startTime <= block.timestamp, "Seed: distribution haven't started");
-        require(!minimumReached, "Seed: minimum already met");
+    function retrieveFundingTokens() external allowedToRetrieve returns(uint256) {
         require(funders[msg.sender].fundingAmount > 0, "Seed: zero funding amount");
         FunderPortfolio storage tokenFunder = funders[msg.sender];
         uint256 fundingAmount = tokenFunder.fundingAmount;
@@ -369,8 +378,7 @@ contract Seed {
     /**
       * @dev                     Withdraw funds from the contract
     */
-    function withdraw() external onlyAdmin {
-        require(minimumReached, "Seed: minimum funding amount not met");
+    function withdraw() external onlyAdmin allowedToWithdraw {
         uint pendingFundingBalance = fundingCollected - fundingWithdrawn;
         fundingWithdrawn = fundingCollected;
         fundingToken.transfer(msg.sender, pendingFundingBalance);
