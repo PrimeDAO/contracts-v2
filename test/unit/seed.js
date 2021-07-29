@@ -1089,9 +1089,17 @@ describe("Contract: Seed", async () => {
 
                     it("reverts: 'Seed: should not be closed'", async () => {
                         await time.increase(tenDaysInSeconds);
-                        await alternativeSeed.close();
+                        await alternativeSeed.connect(admin).close();
                         await expectRevert(
                             alternativeSeed.connect(admin).unpause(),
+                            "Seed: should not be closed"
+                        );
+                    })
+
+                    it("trying to close again", async () => {
+                        await alternativeSeed.connect(admin).close()
+                        await expectRevert(
+                            alternativeSeed.connect(admin).close(),
                             "Seed: should not be closed"
                         );
                     })
