@@ -1,5 +1,6 @@
 const { utils } = require("ethers");
 const DeployedContracts = require("../contractAddresses.json");
+const {execSync} = require('child_process')
 
 const { parseEther } = utils;
 const PRIME_SUPPLY_V2 = parseEther("100000000").toString();
@@ -21,6 +22,8 @@ const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
     args: [],
     log: true,
   });
+
+  execSync('npx hardhat exportAddress');
 };
 
 module.exports = deployFunction;
