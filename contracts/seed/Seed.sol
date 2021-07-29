@@ -198,7 +198,6 @@ contract Seed {
         if (funders[msg.sender].fundingAmount==0) {
             totalFunderCount++;
         }
-        // totalClaimed is always going to be zero while buying
         funders[msg.sender].fundingAmount += _fundingAmount;
 
         // Here we are sending amount of tokens to pay for seed tokens to purchase
@@ -207,7 +206,6 @@ contract Seed {
             "Seed: funding token transferFrom failed"
         );
 
-        // buyer, seed token purchased in this transaction (not the total amount of seed purchased)
         emit SeedsPurchased(msg.sender, seedAmount);
 
         return (seedAmount, feeAmount);
@@ -237,8 +235,7 @@ contract Seed {
 
         emit TokensClaimed(_funder, _claimAmount, beneficiary, feeAmountOnClaim);
 
-        // fee on the distributed reward collected from admin
-        return (feeAmountOnClaim);
+        return feeAmountOnClaim;
     }
 
     /**
