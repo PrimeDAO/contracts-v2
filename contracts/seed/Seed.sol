@@ -281,7 +281,9 @@ contract Seed {
     }
 
     /**
-      * @dev                     shut down contributions.
+      * @dev                Shut down contributions (buying).
+                            Supersedes the normal logic that eventually shuts down buying anyway.
+                            Also shuts down the admin's ability to alter the whitelist.
     */
     function close() external onlyAdmin {
         // close seed token distribution
