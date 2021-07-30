@@ -781,7 +781,7 @@ describe("Contract: Seed", async () => {
                 it("updates amount of funding token collected", async () => {
                     expect((await setup.data.seed.fundingCollected()).toString()).to.equal("0");
                 });
-                it("cannot be called once funding minimum is reached", async () => {
+                it("cannot be called before funding minimum is reached", async () => {
                     await fundingToken.connect(root).transfer(buyer2.address, tenETH);
                     await fundingToken.connect(buyer2).approve(setup.data.seed.address, tenETH);
                     await setup.data.seed.connect(buyer2).buy(tenETH);
@@ -857,9 +857,9 @@ describe("Contract: Seed", async () => {
                 it("can only be called by admin", async () => {
                     await expectRevert(setup.data.seed.connect(buyer1).close(), "Seed: caller should be admin");
                 });
-                it("does not refund anything when, closed == false", async () => {
+                it("does not refund anything when, closed == false but contribution didn't end", async () => {
                     await expect(setup.data.seed.connect(admin).retrieveSeedTokens(admin.address)).to.be.revertedWith(
-                        "Seed: needs to be closed before retrieving"
+                        "Seed: needs to be either closed or contribution should have ended before retrieving"
                     );
                 });
                 it("close seed token distribution", async () => {
@@ -987,6 +987,53 @@ describe("Contract: Seed", async () => {
                 it("paused == false", async () => {
                     expect(await setup.data.seed.paused()).to.equal(false);
                 });
+            });
+            context("retrieve seed tokens after minimum reached and contribution is closed", async () => {
+                before("!! deploy new contract + top up buyer balance", async () => {
+                    let newStartTime = await time.latest();
+                    let newEndTime = await newStartTime.add(await time.duration.days(7));
+
+                    setup.data.seed = await init.seedMasterCopy(setup);
+
+                    await fundingToken.connect(root).transfer(buyer2.address, buyAmount);
+                    await seedToken.connect(root).transfer(setup.data.seed.address, requiredSeedAmount.toString());
+
+                    setup.data.seed.initialize(
+                        beneficiary.address,
+                        admin.address,
+                        [seedToken.address, fundingToken.address],
+                        [softCap, hardCap],
+                        price,
+                        newStartTime.toNumber(),
+                        newEndTime.toNumber(),
+                        vestingDuration.toNumber(),
+                        vestingCliff.toNumber(),
+                        permissionedSeed,
+                        fee
+                    );
+
+                    await fundingToken.connect(buyer2).approve(setup.data.seed.address, buyAmount);
+                    await setup.data.seed.connect(buyer2).buy(buyAmount);
+                });
+                it("cannot refund if only minimum is reached but contribution didn't end", async () => {
+                    await expect(setup.data.seed.connect(admin).retrieveSeedTokens(admin.address)).to.be.revertedWith(
+                        "Seed: needs to be either closed or contribution should have ended before retrieving"
+                    );
+                });
+                it("retrieves remaining seed tokens after minimumReached == true and contribution ended", async () => {
+                    await time.increase(time.duration.days(7))
+                    const buyFee = new BN(buySeedAmount).mul(new BN(fee)).div(new BN(PRECISION.toString()));
+                    const prevBal = await seedToken.balanceOf(admin.address);
+                    await setup.data.seed.connect(admin).close();
+                    await setup.data.seed.connect(admin).retrieveSeedTokens(admin.address);
+                    expect((await seedToken.balanceOf(admin.address)).toString()).to.equal(
+                        requiredSeedAmount
+                            .add(new BN(prevBal.toString()))
+                            .sub(new BN(buySeedAmount))
+                            .sub(new BN(buyFee))
+                            .toString()
+                    );
+                })
             });
         });
         context("# getter functions", () => {
@@ -1228,11 +1275,18 @@ describe("Contract: Seed", async () => {
                 it("can not withdraw before minumum funding amount is met", async () => {
                     await expectRevert(
                         setup.data.seed.connect(admin).withdraw(),
-                        "Seed: minimum funding amount not met"
+                        "Seed: cannot withdraw before the contribution ends and minimum target is reached"
                     );
                 });
-                it("can withdraw after minimum funding amount is met", async () => {
+                it("cannot withdraw after minimum funding amount is met", async () => {
                     await setup.data.seed.connect(buyer2).buy(buyAmount);
+                    await expectRevert(
+                        setup.data.seed.connect(admin).withdraw(),
+                        "Seed: cannot withdraw before the contribution ends and minimum target is reached"
+                    );
+                });
+                it("can only withdraw after vesting starts", async () => {
+                    await time.increase(time.duration.days(7));
                     await setup.data.seed.connect(admin).withdraw();
                     expect((await fundingToken.balanceOf(setup.data.seed.address)).toString()).to.equal(
                         zero.toString()
