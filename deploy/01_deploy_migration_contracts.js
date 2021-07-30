@@ -1,6 +1,7 @@
 const { utils } = require("ethers");
 const DeployedContracts = require("../contractAddresses.json");
-const {execSync} = require('child_process')
+const path = require("path");
+const fs = require('fs');
 
 const { parseEther } = utils;
 const PRIME_SUPPLY_V2 = parseEther("100000000").toString();
@@ -23,7 +24,17 @@ const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
     log: true,
   });
 
-  execSync('npx hardhat exportAddress');
+  const primeTokenInstance = await ethers.getContract("PrimeToken");
+  const merkleDropInstance = await ethers.getContract("MerkleDrop");
+
+  console.log("Saving Address to contractAddresses.json\n");
+  DeployedContracts[network.name].PrimeToken = primeTokenInstance.address;
+  DeployedContracts[network.name].MerkleDrop = merkleDropInstance.address;
+
+  fs.writeFileSync(
+    path.resolve(__dirname,"../contractAddresses.json"),
+    JSON.stringify(DeployedContracts)
+    );
 };
 
 module.exports = deployFunction;
