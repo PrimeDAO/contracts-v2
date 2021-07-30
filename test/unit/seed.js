@@ -859,7 +859,7 @@ describe("Contract: Seed", async () => {
                 });
                 it("does not refund anything when, closed == false but contribution didn't end", async () => {
                     await expect(setup.data.seed.connect(admin).retrieveSeedTokens(admin.address)).to.be.revertedWith(
-                        "Seed: needs to be either closed or contribution should have ended before retrieving"
+                        "Seed: The ability to buy seed tokens must have ended before remaining seed tokens can be withdrawn"
                     );
                 });
                 it("close seed token distribution", async () => {
@@ -1017,7 +1017,7 @@ describe("Contract: Seed", async () => {
                 });
                 it("cannot refund if only minimum is reached but contribution didn't end", async () => {
                     await expect(setup.data.seed.connect(admin).retrieveSeedTokens(admin.address)).to.be.revertedWith(
-                        "Seed: needs to be either closed or contribution should have ended before retrieving"
+                        "Seed: The ability to buy seed tokens must have ended before remaining seed tokens can be withdrawn"
                     );
                 });
                 it("retrieves remaining seed tokens after minimumReached == true and contribution ended", async () => {
@@ -1275,14 +1275,14 @@ describe("Contract: Seed", async () => {
                 it("can not withdraw before minumum funding amount is met", async () => {
                     await expectRevert(
                         setup.data.seed.connect(admin).withdraw(),
-                        "Seed: cannot withdraw before the contribution ends and minimum target is reached"
+                        "Seed: cannot withdraw while funding tokens can still be withdrawn by contributors"
                     );
                 });
                 it("cannot withdraw after minimum funding amount is met", async () => {
                     await setup.data.seed.connect(buyer2).buy(buyAmount);
                     await expectRevert(
                         setup.data.seed.connect(admin).withdraw(),
-                        "Seed: cannot withdraw before the contribution ends and minimum target is reached"
+                        "Seed: cannot withdraw while funding tokens can still be withdrawn by contributors"
                     );
                 });
                 it("can only withdraw after vesting starts", async () => {
