@@ -151,7 +151,7 @@ describe('>> Deploy new seed with gnosis safe', async () => {
             ];
             // once transaction object is created, we send the transaction data along with nonce to generate safeTrx hash
             // and verify if the transaction is valid or not, and sign the hash.
-            await expect(setup.signer.generateSignature(...trx, nonce)).to.be.revertedWith("Signer: cannot sign invalid function call");
+            await expect(setup.signer.generateSignature(...trx, nonce)).to.be.revertedWith("Signer: can only sign calls to deploySeed");
         });
     });
     context('$ create and execute transaction to deploy new seed using safe from other seedFactory', async () => {
@@ -183,7 +183,7 @@ describe('>> Deploy new seed with gnosis safe', async () => {
                 constants.ZERO_ADDRESS,
                 constants.ZERO_ADDRESS
             ];
-            await expect(setup.signer.generateSignature(...trx, nonce)).to.be.revertedWith("Signer: cannot sign invalid transaction");
+            await expect(setup.signer.generateSignature(...trx, nonce)).to.be.revertedWith("Signer: cannot sign transaction transaction to invalid seedFactory");
         });
     });
 });

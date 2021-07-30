@@ -13,7 +13,7 @@
     "add:safeDelegate:rinkeby": "npx hardhat run scripts/rinkeby/add_safe_delegate.js --network rinkeby",
     "send:safeTrx:rinkeby": "npx hardhat run scripts/rinkeby/send_transaction_to_safe.js --network rinkeby",
     "compile": "hardhat compile",
-    "lint": "eslint . --ext .js && solium --no-soliumignore --dir ./contracts",
+    "lint": "eslint . --ext .js && solium --dir ./contracts",
     "test": "hardhat test",
     "coverage": "hardhat coverage"
   },
@@ -50,8 +50,7 @@
     "web3": "^1.3.6"
   },
   "dependencies": {
-    "@gnosis.pm/safe-contracts": "^1.3.0",
-    "@openzeppelin/contracts": "^4.1.0",
+    "@gnosis.pm/safe-contracts": "1.3.0",
     "axios": "^0.21.1",
     "dotenv": "^10.0.0",
     "openzeppelin-solidity": "^4.1.0"

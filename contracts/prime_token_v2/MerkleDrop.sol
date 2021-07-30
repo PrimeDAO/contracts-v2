@@ -1,3 +1,6 @@
+// solium-disable blank-lines
+// solium-disable linebreak-style
+// solium-disable no-experimental
 pragma solidity 0.5.16;
 pragma experimental ABIEncoderV2;
 
@@ -8,6 +11,7 @@ import { SafeMath } from "openzeppelin-contracts-sol5/math/SafeMath.sol";
 
 import { Initializable } from "@openzeppelin/upgrades/contracts/Initializable.sol";
 import { InitializableGovernableWhitelist } from "@mstable/protocol/contracts/governance/InitializableGovernableWhitelist.sol";
+
 
 contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
 
