@@ -23,18 +23,15 @@ const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
 
   await seedFactoryInstance.setMasterCopy(seedAddress);
 
-  await deploy("Signer", {
+  const { address: signerAddress } = await deploy("Signer", {
     from: root,
     args: [Safe, seedFactoryAddress],
     log: true,
   });
 
-  const signerInstance = await ethers.getContract("Signer");
-  const seedInstance = await ethers.getContract("Seed");
-
-  DeployedContracts[network.name].Signer = signerInstance.address;
-  DeployedContracts[network.name].SeedFactory = seedFactoryInstance.address;
-  DeployedContracts[network.name].Seed = seedInstance.address;
+  DeployedContracts[network.name].Signer = signerAddress;
+  DeployedContracts[network.name].SeedFactory = seedFactoryAddress;
+  DeployedContracts[network.name].Seed = seedAddress;
 
   console.log("Saving Address to contractAddresses.json\n");
   fs.writeFileSync(

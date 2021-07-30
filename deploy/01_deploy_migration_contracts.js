@@ -12,24 +12,21 @@ const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
 
-  await deploy("PrimeToken", {
+  const { address: primeTokenAddress } = await deploy("PrimeToken", {
     from: root,
     args: [parseEther(PRIME_SUPPLY_V2), parseEther(PRIME_SUPPLY_V2), Safe],
     log: true,
   });
 
-  await deploy("MerkleDrop", {
+  const { address: merkleDropAddress } = await deploy("MerkleDrop", {
     from: root,
     args: [],
     log: true,
   });
 
-  const primeTokenInstance = await ethers.getContract("PrimeToken");
-  const merkleDropInstance = await ethers.getContract("MerkleDrop");
-
   console.log("Saving Address to contractAddresses.json\n");
-  DeployedContracts[network.name].PrimeToken = primeTokenInstance.address;
-  DeployedContracts[network.name].MerkleDrop = merkleDropInstance.address;
+  DeployedContracts[network.name].PrimeToken = primeTokenAddress;
+  DeployedContracts[network.name].MerkleDrop = merkleDropAddress;
 
   fs.writeFileSync(
     path.resolve(__dirname,"../contractAddresses.json"),
