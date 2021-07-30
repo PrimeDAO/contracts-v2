@@ -298,10 +298,15 @@ contract Seed {
     */
     function retrieveSeedTokens(address _refundReceiver) external onlyAdmin {
         // transfer seed tokens back to admin
+        /*
+            Can't withdraw seed tokens until buying has ended and
+            therefore the number of distributable seed tokens can no longer change.
+        */
         require(
             closed ||
-            (minimumReached && block.timestamp >= vestingStartTime),
-            "Seed: needs to be either closed or contribution should have ended before retrieving"
+            maximumReached ||
+            block.timestamp >= endTime,
+            "Seed: The ability to buy seed tokens must have ended before remaining seed tokens can be withdrawn"
         );
         if (!minimumReached) {
             require(
@@ -357,9 +362,14 @@ contract Seed {
       * @dev                     Withdraw funds from the contract
     */
     function withdraw() external onlyAdmin {
+        /*
+            Admin can't withdraw funding tokens until buying has ended and
+            therefore contributors can no longer withdraw their funding tokens.
+        */
         require(
-            minimumReached && block.timestamp >= vestingStartTime,
-            "Seed: cannot withdraw before the contribution ends and minimum target is reached"
+            maximumReached ||
+            (minimumReached && block.timestamp >= endTime),
+            "Seed: cannot withdraw while funding tokens can still be withdrawn by contributors"
         );
         uint pendingFundingBalance = fundingCollected - fundingWithdrawn;
         fundingWithdrawn = fundingCollected;
