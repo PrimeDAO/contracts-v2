@@ -244,9 +244,9 @@ contract Seed {
     function retrieveFundingTokens() external returns(uint256) {
         require(startTime <= block.timestamp, "Seed: distribution haven't started");
         require(!minimumReached, "Seed: minimum funding amount met");
-        require(funders[msg.sender].fundingAmount > 0, "Seed: zero funding amount");
         FunderPortfolio storage tokenFunder = funders[msg.sender];
         uint256 fundingAmount = tokenFunder.fundingAmount;
+        require(fundingAmount > 0, "Seed: zero funding amount");
         seedRemainder += seedAmountForFunder(msg.sender);
         feeRemainder += feeForFunder(msg.sender);
         totalFunderCount--;
@@ -281,7 +281,7 @@ contract Seed {
     }
 
     /**
-      * @dev                     Close distribution.
+      * @dev                     shut down contributions.
     */
     function close() external onlyAdmin {
         // close seed token distribution
@@ -297,8 +297,9 @@ contract Seed {
     function retrieveSeedTokens(address _refundReceiver) external onlyAdmin {
         // transfer seed tokens back to admin
         require(
-            closed,
-            "Seed: needs to be closed before retrieving"
+            closed ||
+            (minimumReached && block.timestamp >= vestingStartTime),
+            "Seed: needs to be either closed or contribution should have ended before retrieving"
         );
         if (!minimumReached) {
             require(
@@ -354,7 +355,10 @@ contract Seed {
       * @dev                     Withdraw funds from the contract
     */
     function withdraw() external onlyAdmin {
-        require(minimumReached, "Seed: minimum funding amount not met");
+        require(
+            minimumReached && block.timestamp >= vestingStartTime,
+            "Seed: cannot withdraw before the contribution ends and minimum target is reached"
+        );
         uint pendingFundingBalance = fundingCollected - fundingWithdrawn;
         fundingWithdrawn = fundingCollected;
         fundingToken.transfer(msg.sender, pendingFundingBalance);
