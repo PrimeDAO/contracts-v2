@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "deploy:contracts:rinkeby": "npx hardhat deploy --network rinkeby",
-    "deploy:contracts:mainnet": "npx hardhat deploy --network mainnet --tags MainDeploy",
+    "deploy:contracts:mainnet": "npx hardhat deploy --network mainnet",
     "compile": "hardhat compile",
-    "lint": "eslint . --ext .js && solium --no-soliumignore --dir ./contracts",
+    "lint": "eslint . --ext .js && solium --dir ./contracts",
     "test": "hardhat test",
     "coverage": "hardhat coverage"
   },
