@@ -69,6 +69,10 @@ This project uses the hardhat-deploy plugin to deploy contracts. To deploy contr
 
 `npx hardhat deploy --network <network_name>`
 
+You run only specific deploy scripts by using the deployment tags. For instance, if you want to only deploy the MerkleScript contract on mainnet you can use the following command:
+
+`npx hardhat deploy --network mainnet --tags Migration`
+
 
 ## Interacting with contracts
 
