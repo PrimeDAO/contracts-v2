@@ -15,19 +15,21 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./IVault.sol";
 
 
-interface ILBPFactory {
-    function create(
-        string memory name,
-        string memory symbol,
-        IERC20[] memory tokens,
-        uint256[] memory weights,
-        uint256 swapFeePercentage,
-        address owner,
-        bool swapEnabledOnStart
-    ) external returns (address);
+interface IVault {
 
-    function getVault() external view returns (IVault);
+    struct JoinPoolRequest {
+        IERC20[] assets;
+        uint256[] maxAmountsIn;
+        bytes userData;
+        bool fromInternalBalance;
+    }
+
+	function joinPool(
+        bytes32 poolId,
+        address sender,
+        address recipient,
+        JoinPoolRequest memory request
+    ) external payable;
 }

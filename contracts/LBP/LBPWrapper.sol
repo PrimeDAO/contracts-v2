@@ -15,7 +15,10 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
+import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
+import "../utils/interface/IAsset.sol";
+import "hardhat/console.sol";
 
 
 contract LBPWrapper {
@@ -51,13 +54,24 @@ contract LBPWrapper {
             string memory _name,
             string memory _symbol,
             IERC20[] memory _tokens,
+            uint256[] memory _amounts,
             uint256[] memory _weights,
             bool _swapEnabledOnStart,
             uint256 _startTime,
             uint256 _endTime,
-            uint256[] memory _endWeights
+            uint256[] memory _endWeights,
+            address _admin,
+            bytes memory _userData
     ) public onlyOwner returns(address)
     {
+        {
+            address vault = address(ILBPFactory(LBPFactory).getVault());
+            for ( uint i; i < _tokens.length; i++ ) {
+                IERC20(_tokens[i]).transferFrom(msg.sender, address(this), _amounts[i]);
+                IERC20(_tokens[i]).approve(vault, _amounts[i]);
+            }
+        }
+
         address lbp = ILBPFactory(LBPFactory).create(
                 _name,
                 _symbol,
@@ -67,11 +81,31 @@ contract LBPWrapper {
                 address(this),
                 _swapEnabledOnStart
             );
-        ILBP(lbp).updateWeightsGradually(
+        {
+            ILBP(lbp).updateWeightsGradually(
                 _startTime,
                 _endTime,
                 _endWeights
             );
+        }
+
+        IVault.JoinPoolRequest memory request = IVault.JoinPoolRequest({
+            maxAmountsIn: _amounts,
+            userData: _userData,
+            fromInternalBalance: false,
+            assets: _tokens
+        });
+
+        {
+            address vault = address(ILBPFactory(LBPFactory).getVault());
+            IVault(vault).joinPool(
+                ILBP(lbp).getPoolId(),
+                address(this),
+                _admin,
+                request
+            );
+        }
+
         return lbp;
     }
 

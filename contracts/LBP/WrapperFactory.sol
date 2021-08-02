@@ -14,9 +14,11 @@
 // solium-disable linebreak-style
 pragma solidity ^0.8.4;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../utils/CloneFactory.sol";
 import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "./LBPWrapper.sol";
+import "hardhat/console.sol";
 
 
 contract WrapperFactory is CloneFactory, Ownable {
@@ -50,32 +52,42 @@ contract WrapperFactory is CloneFactory, Ownable {
         string memory _name,
         string memory _symbol,
         IERC20[] memory _tokens,
+        uint256[] memory _amounts,
         uint256[] memory _weights,
         bool _swapEnabledOnStart,
         uint256 _startTime,
         uint256 _endTime,
         uint256[] memory _endWeights,
-        address admin
+        address _admin,
+        bytes memory _userData
     ) public onlyOwner
     {
         address wrapper = createClone(wrapperMasterCopy);
 
         LBPWrapper(wrapper).initialize(LBPFactory, swapFeePercentage);
 
+        for (uint i; i < _tokens.length; i++) {
+            IERC20(_tokens[i]).transferFrom(_admin, address(this), _amounts[i]);
+            IERC20(_tokens[i]).approve(wrapper, _amounts[i]);
+        }
+
         address lbp = LBPWrapper(wrapper).deployLbpFromFactory(
             _name,
             _symbol,
             _tokens,
+            _amounts,
             _weights,
             _swapEnabledOnStart,
             _startTime,
             _endTime,
-            _endWeights
+            _endWeights,
+            _admin,
+            _userData
         );
 
-        LBPWrapper(wrapper).transferOwnership(admin);
+        LBPWrapper(wrapper).transferOwnership(_admin);
 
-        emit LBPDeployedUsingWrapper(lbp, wrapper, admin);
+        emit LBPDeployedUsingWrapper(lbp, wrapper, _admin);
     }
 
 }

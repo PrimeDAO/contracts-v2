@@ -27,4 +27,6 @@ interface ILBP {
         uint256 endTime,
         uint256[] memory endWeights
     ) external; // Had to remove the modifiers, was that correct?
+
+	function getPoolId() external view returns (bytes32);
 }
