@@ -16,6 +16,7 @@ const {
   fee,
   metadata,
 } = require("../test-сonfig.json");
+
 const init = require("../test-init.js");
 
 const zero = 0;
