@@ -17,7 +17,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
-import "../utils/interface/IAsset.sol";
 import "hardhat/console.sol";
 
 
