@@ -57,9 +57,8 @@ touch .env
 and add the following
 
 ```
-NETWORK = network-name
-PROVIDER = infura-provider-key
-MNEMONIC = private-key-or-mnemonic
+INFURA_KEY = infura key
+MNEMONIC = private-key-or-mnemonic (choose our development mnemonic to be able to interact with the deployed contracts with the deployer address)
 ```
 
 Note:```.env``` should be created in root directory.
@@ -73,9 +72,9 @@ This project uses the hardhat-deploy plugin to deploy contracts. To deploy contr
 
 ## Interacting with contracts
 
-To interact with contracts, this project uses hardhat tasks. The associated scripts can be found in the `tasks` directory. To get an overview of all existing tasks you can run `npx hardhat`.
+This project uses hardhat tasks to interact with deployed contracts. The associated scripts can be found in the `tasks` directory. To get an overview of all existing tasks you can run `npx hardhat` on your command line.
 
-To get more information on specific tasks (what they do, which parameters they require etc.) you can run `npx hardhat help <task_name>`.
+To get more information on specific tasks (e.g. what they do, which parameters they require etc.) you can run `npx hardhat help <task_name>`.
 
 Here's an example of a command to execute a task on rinkeby: 
 `npx hardhat --network rinkeby changeOwner --address <0xsome_address>`

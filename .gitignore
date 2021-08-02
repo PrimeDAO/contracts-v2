@@ -4,5 +4,4 @@
 /cache/
 /coverage/
 **.dbg.json
-scripts/seedInteraction
 build
