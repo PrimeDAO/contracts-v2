@@ -11,9 +11,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // solium-disable linebreak-style
 
-pragma solidity 0.8.4;
+pragma solidity 0.8.6;
 
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
+import "openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Capped.sol";
+
 
 contract PrimeToken is ERC20Capped {
 
@@ -21,7 +22,7 @@ contract PrimeToken is ERC20Capped {
         uint256 initialSupply,
         uint256 cap,
         address genesisMultisig
-        ) 
+    )
     ERC20("PrimeDAO Token", "PRIME")
     ERC20Capped(cap)
     public

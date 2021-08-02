@@ -1,6 +1,7 @@
 /node_modules/
 /.idea/
-/artifacts/
 .env
 /cache/
 /coverage/
+**.dbg.json
+scripts/seedInteraction

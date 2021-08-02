@@ -13,10 +13,10 @@
 // solium-disable linebreak-style
 /* solhint-disable space-after-comma */
 
-pragma solidity 0.8.4;
+pragma solidity 0.8.6;
 
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-solidity/contracts/access/Ownable.sol";
+import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts-sol8/access/Ownable.sol";
 import "./Seed.sol";
 import "../utils/CloneFactory.sol";
 
@@ -35,7 +35,7 @@ contract SeedFactory is CloneFactory, Ownable {
      * @dev               Set Seed contract which works as a base for clones.
      * @param _masterCopy The address of the new Seed basis.
      */
-    function setMasterCopy(Seed _masterCopy) public onlyOwner {
+    function setMasterCopy(Seed _masterCopy) external onlyOwner {
         require(address(_masterCopy) != address(0), "SeedFactory: new mastercopy cannot be zero address");
         masterCopy = _masterCopy;
     }
@@ -51,14 +51,14 @@ contract SeedFactory is CloneFactory, Ownable {
       * @param _softHardThresholds          Array containing two params:
                                                 - the minimum funding token collection threshold in wei denomination.
                                                 - the highest possible funding token amount to be raised in wei denomination.
-      * @param _price                       1 Funding Token = _price amount of Seed Token.
+      * @param _price                       price of a SeedToken, expressed in fundingTokens, with precision of 10**18
       * @param _startTime                   Distribution start time in unix timecode.
       * @param _endTime                     Distribution end time in unix timecode.
       * @param _vestingDurationAndCliff       Array containing two params:
                                                 - Vesting period duration in days.
                                                 - Cliff duration in days.
       * @param _permissionedSeed      Set to true if only whitelisted adresses are allowed to participate.
-      * @param _fee                   Success fee expressed in Wei as a % (e.g. 2 = 2% fee)
+      * @param _fee                   Success fee expressed as a % (e.g. 10**18 = 100% fee, 10**16 = 1%)
       * @param _metadata              Seed contract metadata, that is IPFS URI
     */
     function deploySeed(
@@ -71,9 +71,9 @@ contract SeedFactory is CloneFactory, Ownable {
         uint256 _endTime,
         uint32[] memory _vestingDurationAndCliff,
         bool  _permissionedSeed,
-        uint8 _fee,
+        uint256 _fee,
         bytes memory _metadata
-    ) public onlyOwner returns (address)
+    ) external onlyOwner returns (address)
     {
         {
             require(address(masterCopy) != address(0), "SeedFactory: mastercopy cannot be zero address");

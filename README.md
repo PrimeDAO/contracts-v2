@@ -6,7 +6,7 @@
 
 This repo contains the smart contracts making up PrimeDAO.
 
-`/contracts/` is organized as follows:
+Repository is organized as follows:
 
 - `/contracts/test/`- contracts used for tests.
 - `/contracts/seed/`- Prime Launch seed module contracts.
@@ -46,7 +46,7 @@ to run coverage
 npm run coverage
 ```
 
-## Enviornment setup
+## Environment setup
 
 please prepare ```.env``` file
 
@@ -57,28 +57,14 @@ touch .env
 and add the following
 
 ```
+NETWORK = network-name
 PROVIDER = infura-provider-key
 MNEMONIC = private-key-or-mnemonic
 ```
 
-then create ```config.json```
-
-```bash
-touch config.json
-```
-
-and update it with the following information
-
-```
-{
-    "SAFE": "gnosis safe address",
-    "ADMIN": "seed admin address",
-    "BENEFICIARY": "prime dao address"
-}
-```
 
 
-Note:- ```config.json``` and ```.env``` should be created in root directory.
+Note:```.env``` should be created in root directory.
 
 ## Rinkeby Deployment
 
