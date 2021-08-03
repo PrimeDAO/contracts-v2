@@ -91,11 +91,17 @@ contract Signer is ISignatureValidator {
             _getFunctionHashFromData(_data) == SEED_FACTORY_MAGIC_VALUE,
             "Signer: can only sign calls to deploySeed"
         );
+        require(
+            _value == 0 &&
+            _refundReceiver == address(0) &&
+            _operation == Enum.Operation.Call,
+            "Signer: invalid arguments provided"
+        );
 
         // get contractTransactionHash from gnosis safe
         hash = Safe(safe).getTransactionHash(
             _to,
-            _value,
+            0,
             _data,
             _operation,
             _safeTxGas,
