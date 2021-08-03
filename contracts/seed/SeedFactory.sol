@@ -100,7 +100,7 @@ contract SeedFactory is CloneFactory, Ownable {
             _fee
         );
 
-        emit SeedCreated(address(_newSeed), msg.sender);
+        emit SeedCreated(address(_newSeed), _admin);
 
         return _newSeed;
     }
