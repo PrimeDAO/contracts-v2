@@ -29,7 +29,7 @@ contract SeedFactory is CloneFactory, Ownable {
 
     Seed public masterCopy;
 
-    event SeedCreated(address indexed newSeed, address indexed beneficiary);
+    event SeedCreated(address indexed newSeed, address indexed admin);
 
     /**
      * @dev               Set Seed contract which works as a base for clones.
