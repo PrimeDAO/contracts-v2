@@ -43,12 +43,9 @@ const deploy = async () => {
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
     await deployments.fixture();
-    const { initialState } = options;
     const contractInstances = await deploy();
 
-    const stateInfo = await setupInitialState(contractInstances, initialState);
-
-    return { ...contractInstances, ...stateInfo };
+    return { ...contractInstances };
   }
 );
 

@@ -1,0 +1,60 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "InitializableGovernableWhitelist",
+  "sourceName": "@mstable/protocol/contracts/governance/InitializableGovernableWhitelist.sol",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_address",
+          "type": "address"
+        }
+      ],
+      "name": "Whitelisted",
+      "type": "event"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "nexus",
+      "outputs": [
+        {
+          "internalType": "contract INexus",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "whitelist",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b5061015c806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c80639b19251a1461003b578063a3f5c1d214610097575b600080fd5b61007d6004803603602081101561005157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506100e1565b604051808215151515815260200191505060405180910390f35b61009f610101565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60096020528060005260406000206000915054906101000a900460ff1681565b600860009054906101000a900473ffffffffffffffffffffffffffffffffffffffff168156fea265627a7a72315820b9900581687c6b0e4cd2d7394dac8e116deea28e8d5e6b6c1813d7c59106113a64736f6c63430005100032",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100365760003560e01c80639b19251a1461003b578063a3f5c1d214610097575b600080fd5b61007d6004803603602081101561005157600080fd5b81019080803573ffffffffffffffffffffffffffffffffffffffff1690602001909291905050506100e1565b604051808215151515815260200191505060405180910390f35b61009f610101565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b60096020528060005260406000206000915054906101000a900460ff1681565b600860009054906101000a900473ffffffffffffffffffffffffffffffffffffffff168156fea265627a7a72315820b9900581687c6b0e4cd2d7394dac8e116deea28e8d5e6b6c1813d7c59106113a64736f6c63430005100032",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

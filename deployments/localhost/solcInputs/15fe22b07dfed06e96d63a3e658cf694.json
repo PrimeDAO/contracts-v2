@@ -1,0 +1,38 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/utils/interface/Safe.sol": {
+      "content": "/*\n\n██████╗░██████╗░██╗███╗░░░███╗███████╗██████╗░░█████╗░░█████╗░\n██╔══██╗██╔══██╗██║████╗░████║██╔════╝██╔══██╗██╔══██╗██╔══██╗\n██████╔╝██████╔╝██║██╔████╔██║█████╗░░██║░░██║███████║██║░░██║\n██╔═══╝░██╔══██╗██║██║╚██╔╝██║██╔══╝░░██║░░██║██╔══██║██║░░██║\n██║░░░░░██║░░██║██║██║░╚═╝░██║███████╗██████╔╝██║░░██║╚█████╔╝\n╚═╝░░░░░╚═╝░░╚═╝╚═╝╚═╝░░░░░╚═╝╚══════╝╚═════╝░╚═╝░░╚═╝░╚════╝░\n\n*/\n\n// SPDX-License-Identifier: GPL-3.0-or-later\n\n/* solium-disable */\npragma solidity ^0.8.0;\n\ncontract Enum {\n    enum Operation {Call, DelegateCall}\n}\n\ninterface Safe{\n    function getTransactionHash(\n        address to,\n        uint256 value,\n        bytes calldata data,\n        Enum.Operation operation,\n        uint256 safeTxGas,\n        uint256 baseGas,\n        uint256 gasPrice,\n        address gasToken,\n        address refundReceiver,\n        uint256 _nonce\n    ) external view returns (bytes32);\n}"
+    },
+    "contracts/utils/Signer.sol": {
+      "content": "/*\n\n██████╗░██████╗░██╗███╗░░░███╗███████╗██████╗░░█████╗░░█████╗░\n██╔══██╗██╔══██╗██║████╗░████║██╔════╝██╔══██╗██╔══██╗██╔══██╗\n██████╔╝██████╔╝██║██╔████╔██║█████╗░░██║░░██║███████║██║░░██║\n██╔═══╝░██╔══██╗██║██║╚██╔╝██║██╔══╝░░██║░░██║██╔══██║██║░░██║\n██║░░░░░██║░░██║██║██║░╚═╝░██║███████╗██████╔╝██║░░██║╚█████╔╝\n╚═╝░░░░░╚═╝░░╚═╝╚═╝╚═╝░░░░░╚═╝╚══════╝╚═════╝░╚═╝░░╚═╝░╚════╝░\n\n*/\n\n// SPDX-License-Identifier: GPL-3.0-or-later\n\n// solium-disable linebreak-style\npragma solidity ^0.8.0;\n\nimport \"./interface/Safe.sol\";\n\n/**\n * @title PrimeDAO Signer Contract\n * @dev   Enables signing SeedFactory.deploySeed() transaction before sending it to Gnosis Safe.\n */\ncontract Signer {\n\n    // EIP1271 magic value - should be returned to validate the signature\n    bytes4 internal constant EIP1271_MAGIC_VALUE       = 0x20c13b0b;\n    // SeedFactory.deploySeed() byte hash\n    bytes4 internal constant SEED_FACTORY_MAGIC_VALUE  = 0x4a7eb3c2;\n    bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH =\n    0x7a9f5b2bf4dbb53eb85e012c6094a3d71d76e5bfe821f44ab63ed59311264e35;\n    bytes32 private constant SEED_MSG_TYPEHASH         =\n    0xa1a7ad659422d5fc08fdc481fd7d8af8daf7993bc4e833452b0268ceaab66e5d;\n\n    mapping(bytes32 => uint8) public approvedSignatures;\n\n    address public safe;\n    address public seedFactory;\n\n    event SignatureCreated(bytes signature, bytes32 hash);\n\n    /**\n     * @dev                Signer Constructor\n     * @param _safe        Gnosis Safe address.\n     * @param _seedFactory Seed Factory address.\n     */\n    constructor (address _safe, address _seedFactory) {\n        require(\n            _safe != address(0) && _seedFactory != address(0),\n            \"Signer: Safe and SeedFactory address cannot be zero\"\n            );\n        safe = _safe;\n        seedFactory = _seedFactory;\n    }\n\n    /**\n     * @dev                Validate signature using EIP1271\n     * @param _hash        Encoded transaction hash supplied to verify signature.\n     * @param _signature   Signature that needs to be verified.\n     */\n    function isValidSignature(bytes memory _hash, bytes memory _signature) external view returns(bytes4) {\n        if (approvedSignatures[keccak256(_signature)] == 1) {\n            return EIP1271_MAGIC_VALUE;\n        }\n        return \"0x\";\n    }\n\n    /**\n     * @dev                   Signature generator\n     * @param _to             receiver address.\n     * @param _value          value in wei.\n     * @param _data           encoded transaction data.\n     * @param _operation      type of operation call.\n     * @param _safeTxGas      safe transaction gas for gnosis safe.\n     * @param _baseGas        base gas for gnosis safe.\n     * @param _gasPrice       gas price for gnosis safe transaction.\n     * @param _gasToken       token which gas needs to paid for gnosis safe transaction.\n     * @param _refundReceiver address account to receive refund for remaining gas.\n     * @param _nonce          gnosis safe contract nonce.\n     */\n    function generateSignature(\n        address _to,\n        uint256 _value,\n        bytes calldata _data,\n        Enum.Operation _operation,\n        uint256 _safeTxGas,\n        uint256 _baseGas,\n        uint256 _gasPrice,\n        address _gasToken,\n        address _refundReceiver,\n        uint256 _nonce\n        ) external returns(bytes memory signature, bytes32 hash) {\n\n        // check if transaction parameters are correct\n        require(_to == seedFactory, \"Signer: cannot sign invalid transaction\");\n        require(_getFunctionHashFromData(_data) == SEED_FACTORY_MAGIC_VALUE, \"Signer: cannot sign invalid function call\");\n\n        // get contractTransactionHash from gnosis safe\n        hash = Safe(safe).getTransactionHash(\n            _to,\n            _value,\n            _data,\n            _operation,\n            _safeTxGas,\n            _baseGas,\n            _gasPrice,\n            _gasToken,\n            _refundReceiver,\n            _nonce\n            );\n\n        bytes memory paddedAddress = bytes.concat(bytes12(0), bytes20(address(this)));\n        bytes memory messageHash = _encodeMessageHash(hash);\n\n        // generate signature and add it to approvedSignatures mapping\n        signature = bytes.concat(paddedAddress, bytes32(uint256(65)), bytes1(0), bytes32(uint256(messageHash.length)), messageHash);\n        approvedSignatures[keccak256(messageHash)] = 1;\n        emit SignatureCreated(signature, hash);\n    }\n\n    /**\n     * @dev               Get the byte hash of function call i.e. first four bytes of data\n     * @param data        encoded transaction data.\n     */\n    function _getFunctionHashFromData(bytes memory data) private pure returns(bytes4 functionHash) {\n        assembly {\n            functionHash := mload(add(data, 32))\n        }\n    }\n\n    /**\n     * @dev                encode message with contants\n     * @param message      the message that needs to be encoded\n     */\n    function _encodeMessageHash(bytes32 message) private pure returns (bytes memory) {\n        bytes32 safeMessageHash = keccak256(abi.encode(SEED_MSG_TYPEHASH, message));\n        return\n            abi.encodePacked(\n                bytes1(0x19), bytes1(0x23), keccak256(abi.encode(DOMAIN_SEPARATOR_TYPEHASH, safeMessageHash)));\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
