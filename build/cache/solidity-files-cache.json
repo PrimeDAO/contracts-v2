@@ -1,57 +1,8 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/prime_token_v2/MerkleDrop.sol": {
-      "lastModificationDate": 1628116186393,
-      "contentHash": "f700277cadd6e46faedc84c25ec24968",
-      "sourceName": "contracts/prime_token_v2/MerkleDrop.sol",
-      "solcConfig": {
-        "version": "0.5.16",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata",
-                "devdoc",
-                "userdoc",
-                "storageLayout",
-                "evm.gasEstimates"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          },
-          "metadata": {
-            "useLiteralContent": true
-          }
-        }
-      },
-      "imports": [
-        "openzeppelin-contracts-sol5/cryptography/MerkleProof.sol",
-        "openzeppelin-contracts-sol5/token/ERC20/IERC20.sol",
-        "openzeppelin-contracts-sol5/token/ERC20/SafeERC20.sol",
-        "openzeppelin-contracts-sol5/math/SafeMath.sol",
-        "@openzeppelin/upgrades/contracts/Initializable.sol",
-        "@mstable/protocol/contracts/governance/InitializableGovernableWhitelist.sol"
-      ],
-      "versionPragmas": [
-        "0.5.16"
-      ],
-      "artifacts": [
-        "MerkleDrop"
-      ]
-    },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/@mstable/protocol/contracts/governance/InitializableGovernableWhitelist.sol": {
-      "lastModificationDate": 1627897716376,
+      "lastModificationDate": 1627898075022,
       "contentHash": "fd13ffb50f5d39df610335927d81c172",
       "sourceName": "@mstable/protocol/contracts/governance/InitializableGovernableWhitelist.sol",
       "solcConfig": {
@@ -80,7 +31,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -95,7 +46,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/@mstable/protocol/contracts/shared/InitializableModule.sol": {
-      "lastModificationDate": 1627897716376,
+      "lastModificationDate": 1627898075023,
       "contentHash": "8e2fb3f7e5ef9a665056914740fa6bcd",
       "sourceName": "@mstable/protocol/contracts/shared/InitializableModule.sol",
       "solcConfig": {
@@ -124,7 +75,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -140,7 +91,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/@mstable/protocol/contracts/shared/InitializableModuleKeys.sol": {
-      "lastModificationDate": 1627897716376,
+      "lastModificationDate": 1627898075024,
       "contentHash": "06fdc610ee6dac864aa1c98f9e84f825",
       "sourceName": "@mstable/protocol/contracts/shared/InitializableModuleKeys.sol",
       "solcConfig": {
@@ -169,7 +120,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -182,7 +133,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/@mstable/protocol/contracts/interfaces/INexus.sol": {
-      "lastModificationDate": 1627897716375,
+      "lastModificationDate": 1627898075021,
       "contentHash": "6375b58d6116b344ae5a8ced0e249269",
       "sourceName": "@mstable/protocol/contracts/interfaces/INexus.sol",
       "solcConfig": {
@@ -211,7 +162,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -224,7 +175,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/openzeppelin-contracts-sol5/math/SafeMath.sol": {
-      "lastModificationDate": 1627897712387,
+      "lastModificationDate": 1627898072518,
       "contentHash": "d208da96b6f6c1d204ee8248087cf2d7",
       "sourceName": "openzeppelin-contracts-sol5/math/SafeMath.sol",
       "solcConfig": {
@@ -253,7 +204,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -266,7 +217,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/openzeppelin-contracts-sol5/token/ERC20/SafeERC20.sol": {
-      "lastModificationDate": 1627897712384,
+      "lastModificationDate": 1627898072515,
       "contentHash": "83fbce907d2b44fae67a751b83804e02",
       "sourceName": "openzeppelin-contracts-sol5/token/ERC20/SafeERC20.sol",
       "solcConfig": {
@@ -295,7 +246,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -312,7 +263,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/openzeppelin-contracts-sol5/token/ERC20/IERC20.sol": {
-      "lastModificationDate": 1627897712232,
+      "lastModificationDate": 1627898072379,
       "contentHash": "183ff1f5e5f04bcfa85cee597bcb0236",
       "sourceName": "openzeppelin-contracts-sol5/token/ERC20/IERC20.sol",
       "solcConfig": {
@@ -341,7 +292,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -354,7 +305,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/openzeppelin-contracts-sol5/utils/Address.sol": {
-      "lastModificationDate": 1627897711909,
+      "lastModificationDate": 1627898072146,
       "contentHash": "a41701ff3cdbb98920cd49750549d127",
       "sourceName": "openzeppelin-contracts-sol5/utils/Address.sol",
       "solcConfig": {
@@ -383,7 +334,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -396,7 +347,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/openzeppelin-contracts-sol5/cryptography/MerkleProof.sol": {
-      "lastModificationDate": 1627897712350,
+      "lastModificationDate": 1627898072407,
       "contentHash": "0e53586d8e9c76ad9291dc4d652cbd8c",
       "sourceName": "openzeppelin-contracts-sol5/cryptography/MerkleProof.sol",
       "solcConfig": {
@@ -425,7 +376,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -438,7 +389,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/@openzeppelin/upgrades/contracts/Initializable.sol": {
-      "lastModificationDate": 1627897708461,
+      "lastModificationDate": 1627898069586,
       "contentHash": "402d88f041ed1754339d60ae70077cd9",
       "sourceName": "@openzeppelin/upgrades/contracts/Initializable.sol",
       "solcConfig": {
@@ -467,7 +418,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -487,7 +438,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -509,7 +460,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -531,7 +482,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -553,7 +504,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -573,7 +524,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -595,7 +546,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -620,7 +571,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -642,7 +593,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -664,7 +615,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -686,7 +637,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -706,7 +657,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -728,7 +679,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -748,7 +699,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -770,7 +721,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -794,7 +745,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -816,7 +767,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -838,7 +789,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -860,7 +811,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -882,7 +833,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -904,7 +855,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -926,7 +877,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -948,7 +899,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -970,7 +921,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -992,7 +943,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1015,7 +966,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1037,7 +988,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1057,7 +1008,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1079,7 +1030,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1100,7 +1051,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1122,7 +1073,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1154,7 +1105,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1176,7 +1127,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1199,7 +1150,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1221,7 +1172,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1245,7 +1196,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1267,7 +1218,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1289,7 +1240,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1311,7 +1262,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1333,7 +1284,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1355,7 +1306,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1379,7 +1330,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1401,7 +1352,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1421,7 +1372,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1443,7 +1394,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1463,7 +1414,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1485,7 +1436,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1505,7 +1456,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1527,7 +1478,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1547,7 +1498,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1569,7 +1520,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1589,7 +1540,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1611,7 +1562,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1632,7 +1583,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1654,7 +1605,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1674,7 +1625,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1696,7 +1647,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1716,7 +1667,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1738,7 +1689,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1758,7 +1709,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1780,7 +1731,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1802,7 +1753,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1824,7 +1775,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1845,7 +1796,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1867,7 +1818,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1889,7 +1840,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1911,7 +1862,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1934,7 +1885,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": true,
+            "enabled": false,
             "runs": 200
           },
           "outputSelection": {
@@ -1956,7 +1907,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": true
+            "useLiteralContent": false
           }
         }
       },
@@ -1967,6 +1918,55 @@
       "artifacts": [
         "Enum",
         "Safe"
+      ]
+    },
+    "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/migration/MerkleDrop.sol": {
+      "lastModificationDate": 1628116354132,
+      "contentHash": "850b8229e73c24b40ae4a10a1e5910c5",
+      "sourceName": "contracts/migration/MerkleDrop.sol",
+      "solcConfig": {
+        "version": "0.5.16",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": false
+          }
+        }
+      },
+      "imports": [
+        "openzeppelin-contracts-sol5/cryptography/MerkleProof.sol",
+        "openzeppelin-contracts-sol5/token/ERC20/IERC20.sol",
+        "openzeppelin-contracts-sol5/token/ERC20/SafeERC20.sol",
+        "openzeppelin-contracts-sol5/math/SafeMath.sol",
+        "@openzeppelin/upgrades/contracts/Initializable.sol",
+        "@mstable/protocol/contracts/governance/InitializableGovernableWhitelist.sol"
+      ],
+      "versionPragmas": [
+        "0.5.16"
+      ],
+      "artifacts": [
+        "MerkleDrop"
       ]
     }
   }
