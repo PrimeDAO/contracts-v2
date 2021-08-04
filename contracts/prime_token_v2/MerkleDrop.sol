@@ -15,10 +15,6 @@
  and the addition of a thresholdBlock that needs to lie in the past for a drop to be claimable.
 */
 
-// solium-disable blank-lines
-// solium-disable linebreak-style
-// solium-disable no-experimental
-
 pragma solidity 0.5.16;
 pragma experimental ABIEncoderV2;
 
@@ -29,7 +25,6 @@ import { SafeMath } from "openzeppelin-contracts-sol5/math/SafeMath.sol";
 
 import { Initializable } from "@openzeppelin/upgrades/contracts/Initializable.sol";
 import { InitializableGovernableWhitelist } from "@mstable/protocol/contracts/governance/InitializableGovernableWhitelist.sol";
-
 
 contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
 
@@ -98,7 +93,7 @@ contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
 
 
     function claimTranche(
-        address _liquidityProvider,
+        address _claimer,
         uint256 _tranche,
         uint256 _balance,
         bytes32[] memory _merkleProof
@@ -106,13 +101,13 @@ contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
         public
     {
         require(block.number >= thresholdBlock, "Rewards are not yet claimable");
-        _claimTranche(_liquidityProvider, _tranche, _balance, _merkleProof);
-        _disburse(_liquidityProvider, _balance);
+        _claimTranche(_claimer, _tranche, _balance, _merkleProof);
+        _disburse(_claimer, _balance);
     }
 
 
     function verifyClaim(
-        address _liquidityProvider,
+        address _claimer,
         uint256 _tranche,
         uint256 _balance,
         bytes32[] memory _merkleProof
@@ -121,7 +116,7 @@ contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
         view
         returns (bool valid)
     {
-        return _verifyClaim(_liquidityProvider, _tranche, _balance, _merkleProof);
+        return _verifyClaim(_claimer, _tranche, _balance, _merkleProof);
     }
 
 
@@ -131,7 +126,7 @@ contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
 
 
     function _claimTranche(
-        address _liquidityProvider,
+        address _claimer,
         uint256 _tranche,
         uint256 _balance,
         bytes32[] memory _merkleProof
@@ -140,17 +135,17 @@ contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
     {
         require(_tranche < tranches, "Week cannot be in the future");
 
-        require(!claimed[_tranche][_liquidityProvider], "LP has already claimed");
-        require(_verifyClaim(_liquidityProvider, _tranche, _balance, _merkleProof), "Incorrect merkle proof");
+        require(!claimed[_tranche][_claimer], "LP has already claimed");
+        require(_verifyClaim(_claimer, _tranche, _balance, _merkleProof), "Incorrect merkle proof");
 
-        claimed[_tranche][_liquidityProvider] = true;
+        claimed[_tranche][_claimer] = true;
 
-        emit Claimed(_liquidityProvider, _tranche, _balance);
+        emit Claimed(_claimer, _tranche, _balance);
     }
 
 
     function _verifyClaim(
-        address _liquidityProvider,
+        address _claimer,
         uint256 _tranche,
         uint256 _balance,
         bytes32[] memory _merkleProof
@@ -159,14 +154,14 @@ contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
         view
         returns (bool valid)
     {
-        bytes32 leaf = keccak256(abi.encodePacked(_liquidityProvider, _balance));
+        bytes32 leaf = keccak256(abi.encodePacked(_claimer, _balance));
         return MerkleProof.verify(_merkleProof, merkleRoots[_tranche], leaf);
     }
 
 
-    function _disburse(address _liquidityProvider, uint256 _balance) private {
+    function _disburse(address _claimer, uint256 _balance) private {
         if (_balance > 0) {
-            token.safeTransfer(_liquidityProvider, _balance);
+            token.safeTransfer(_claimer, _balance);
         } else {
             revert("No balance would be transferred - not going to waste your gas");
         }

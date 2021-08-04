@@ -7,7 +7,17 @@ const {
   createTreeWithAccounts,
   getAccountBalanceProof,
 } = require("../../tasks/utils/merkle");
-const rawAllocations = require("./primeV2Distribution.json");
+
+const rawAllocations = [
+  "1056.39331099660171709",
+  "870.94684945018301126",
+  "226.48095676324248635",
+  "7.46007341986023537",
+  "9.64320061541387227",
+  "45.45852965164066046",
+  "2.58531507323313161",
+  "105.44076288303354762",
+];
 
 const getParsedAllocations = (addresses, rawAllocations) =>
   Object.fromEntries(
@@ -174,7 +184,7 @@ const commonState = {
   forwardBlocks: 100,
 };
 
-describe(">> MerkleDrop", () => {
+describe.only(">> MerkleDrop", () => {
   let merkleDropInstance, v2TokenInstance, contractInstances, alice, bob;
 
   before(async () => {

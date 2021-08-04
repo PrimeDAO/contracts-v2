@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/prime_token_v2/MerkleDrop.sol": {
-      "lastModificationDate": 1628114060108,
-      "contentHash": "7bceced4f47ac73c33188b35422bef7a",
+      "lastModificationDate": 1628116186393,
+      "contentHash": "f700277cadd6e46faedc84c25ec24968",
       "sourceName": "contracts/prime_token_v2/MerkleDrop.sol",
       "solcConfig": {
         "version": "0.5.16",
