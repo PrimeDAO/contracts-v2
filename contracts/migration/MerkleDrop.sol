@@ -12,7 +12,7 @@
  The original smart contract can be found here: https://github.com/mstable/merkle-drop
  There have only been slight adaptations such as the removal of two external functions,
  the renaming of some parameters,
- and the addition of a thresholdBlock that needs to lie in the past for a drop to be claimable.
+ and the addition of a blocknumber that needs to have passed for a drop to be claimable.
 */
 
 pragma solidity 0.5.16;

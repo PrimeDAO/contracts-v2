@@ -184,7 +184,7 @@ const commonState = {
   forwardBlocks: 100,
 };
 
-describe.only(">> MerkleDrop", () => {
+describe(">> MerkleDrop", () => {
   let merkleDropInstance, v2TokenInstance, contractInstances, alice, bob;
 
   before(async () => {
