@@ -40,7 +40,6 @@ module.exports = {
       saveDeployments: true,
     },
     hardhat: {
-      ...sharedNetworkConfig,
       blockGasLimit: 100000000,
       gas: 2000000,
       saveDeployments: true,
