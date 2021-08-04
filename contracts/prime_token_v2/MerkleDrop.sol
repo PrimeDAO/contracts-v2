@@ -1,6 +1,24 @@
+/*
+██████╗░██████╗░██╗███╗░░░███╗███████╗██████╗░░█████╗░░█████╗░
+██╔══██╗██╔══██╗██║████╗░████║██╔════╝██╔══██╗██╔══██╗██╔══██╗
+██████╔╝██████╔╝██║██╔████╔██║█████╗░░██║░░██║███████║██║░░██║
+██╔═══╝░██╔══██╗██║██║╚██╔╝██║██╔══╝░░██║░░██║██╔══██║██║░░██║
+██║░░░░░██║░░██║██║██║░╚═╝░██║███████╗██████╔╝██║░░██║╚█████╔╝
+╚═╝░░░░░╚═╝░░╚═╝╚═╝╚═╝░░░░░╚═╝╚══════╝╚═════╝░╚═╝░░╚═╝░╚════╝░
+*/
+
+/*
+ This is a contract that has been adapted from mStable. 
+ The original smart contract can be found here: https://github.com/mstable/merkle-drop
+ There have only been slight adaptations such as the removal of two external functions,
+ the renaming of some parameters,
+ and the addition of a thresholdBlock that needs to lie in the past for a drop to be claimable.
+*/
+
 // solium-disable blank-lines
 // solium-disable linebreak-style
 // solium-disable no-experimental
+
 pragma solidity 0.5.16;
 pragma experimental ABIEncoderV2;
 
