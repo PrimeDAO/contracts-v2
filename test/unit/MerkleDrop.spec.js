@@ -19,7 +19,7 @@ const rawAllocations = [
   "105.44076288303354762",
 ];
 
-const getParsedAllocations = (addresses, rawAllocations) =>
+const matchAllocationsWithAddresses = (addresses, rawAllocations) =>
   Object.fromEntries(
     rawAllocations.map((allocation, index) => {
       return [addresses[index], utils.parseEther(allocation)];
@@ -27,7 +27,10 @@ const getParsedAllocations = (addresses, rawAllocations) =>
   );
 
 const getCumulativeAllocation = (addresses, rawAllocations) => {
-  const parsedAllocations = getParsedAllocations(addresses, rawAllocations);
+  const parsedAllocations = matchAllocationsWithAddresses(
+    addresses,
+    rawAllocations
+  );
 
   return Object.entries(parsedAllocations).reduce(
     (accumulator, [_, allocation]) => {
@@ -45,7 +48,7 @@ const mineBlocks = async (blockAmount) => {
 
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
-    await deployments.fixture();
+    await deployments.fixture(["Migration"]);
     const { deploy } = deployments;
     const { root } = await ethers.getNamedSigners();
     await deploy("TestToken", {
@@ -80,7 +83,10 @@ const setupInitialState = async (contractInstances, initialState) => {
     incorrectProof,
   } = initialState;
 
-  let parsedAllocations = getParsedAllocations(addresses, rawAllocations);
+  let parsedAllocations = matchAllocationsWithAddresses(
+    addresses,
+    rawAllocations
+  );
   let cumulativeAllocation = getCumulativeAllocation(addresses, rawAllocations);
 
   // go some blocks in the future
@@ -176,7 +182,7 @@ const generateProof = (tree, address, balance, addresses) => ({
   proof: getAccountBalanceProof(tree, address, balance),
   expectedBalance: balance.isZero()
     ? BigNumber.from(0)
-    : getParsedAllocations(addresses, rawAllocations)[address],
+    : matchAllocationsWithAddresses(addresses, rawAllocations)[address],
 });
 
 const commonState = {

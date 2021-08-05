@@ -31,7 +31,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -75,7 +75,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -120,7 +120,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -162,7 +162,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -204,7 +204,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -246,7 +246,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -292,7 +292,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -334,7 +334,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -376,7 +376,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -418,7 +418,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -438,7 +438,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -460,7 +460,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -482,7 +482,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -504,7 +504,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -524,7 +524,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -546,7 +546,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -571,7 +571,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -593,7 +593,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -615,7 +615,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -637,7 +637,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -657,7 +657,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -679,7 +679,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -699,7 +699,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -721,7 +721,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -745,7 +745,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -767,7 +767,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -789,7 +789,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -811,7 +811,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -833,7 +833,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -855,7 +855,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -870,14 +870,14 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/test/ERC20Mock.sol": {
-      "lastModificationDate": 1628114060108,
-      "contentHash": "66261e61a6e669675f3660e0934f1b64",
+      "lastModificationDate": 1628158369286,
+      "contentHash": "8395fc93b61b4e87bb730007bd809cea",
       "sourceName": "contracts/test/ERC20Mock.sol",
       "solcConfig": {
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -899,7 +899,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -921,7 +921,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -943,7 +943,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -966,7 +966,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -988,7 +988,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1008,7 +1008,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1030,7 +1030,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1051,7 +1051,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1073,7 +1073,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1105,7 +1105,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1127,7 +1127,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1150,7 +1150,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1172,7 +1172,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1196,7 +1196,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1218,7 +1218,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1240,7 +1240,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1262,7 +1262,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1284,7 +1284,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1306,7 +1306,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1330,7 +1330,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1352,7 +1352,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1372,7 +1372,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1394,7 +1394,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1414,7 +1414,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1436,7 +1436,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1456,7 +1456,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1478,7 +1478,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1498,7 +1498,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1520,7 +1520,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1540,7 +1540,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1562,7 +1562,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1583,7 +1583,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1605,7 +1605,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1625,7 +1625,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1647,7 +1647,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1667,7 +1667,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1689,7 +1689,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1709,7 +1709,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1731,7 +1731,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1753,7 +1753,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1775,7 +1775,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1796,7 +1796,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1818,7 +1818,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1840,7 +1840,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1862,7 +1862,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1885,7 +1885,7 @@
         "version": "0.8.6",
         "settings": {
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
           "outputSelection": {
@@ -1907,7 +1907,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
@@ -1950,7 +1950,7 @@
             }
           },
           "metadata": {
-            "useLiteralContent": false
+            "useLiteralContent": true
           }
         }
       },
