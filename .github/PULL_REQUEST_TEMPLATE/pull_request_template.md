@@ -16,7 +16,6 @@ Explain a high-level overview of what you did.
 - [ ] Reviewed by someone else
 
 ## Automation
-
 To automatically close the issue, finish the PR text with:
 
 **close** [*issue number*]

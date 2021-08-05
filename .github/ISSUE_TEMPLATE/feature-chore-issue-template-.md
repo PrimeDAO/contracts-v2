@@ -26,6 +26,5 @@ Describe how the situation is right now.
 Describe the requirements that need to be met to complete the stated aim in the user story.
 
 ## Tags
-
 It might be helpful to add tags that will describe the issue, such as “enhancement” or “documentation”.
 
