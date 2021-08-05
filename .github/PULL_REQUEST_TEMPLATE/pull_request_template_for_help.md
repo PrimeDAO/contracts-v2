@@ -9,3 +9,6 @@ Explain a high-level overview of what you are trying to achieve.
 
 ## Where do I need input
 Explain the part where you would like some input. Try and make it as specific as possible.
+
+## Tag
+Add the tag "help wanted" to the PR.
