@@ -89,7 +89,6 @@ Here's an example of a command to execute a task on rinkeby:
 
 to verify contracts, the enviornment variable should contain `ETHERSCAN_API_KEY` set.
 
-
 `npx hardhat verify --network mainnet <0xsome_address>`
 
 ## Contributing to PrimeDAO
