@@ -85,6 +85,13 @@ To get more information on specific tasks (e.g. what they do, which parameters t
 Here's an example of a command to execute a task on rinkeby: 
 `npx hardhat --network rinkeby changeOwner --address <0xsome_address>`
 
+## Verify Contracts
+
+to verify contracts, the enviornment variable should contain `ETHERSCAN_API_KEY` set.
+
+
+`npx hardhat verify --network mainnet <0xsome_address>`
+
 ## Contributing to PrimeDAO
 If you wish to contribute to PrimeDAO, check out our [Contributor Onboarding documentation](https://docs.primedao.io/primedao/call-for-contributors).
 
