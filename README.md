@@ -58,7 +58,9 @@ and add the following
 
 ```
 INFURA_KEY = infura key
-MNEMONIC = private-key-or-mnemonic (choose our development mnemonic to be able to interact with the deployed contracts with the deployer address)
+MNEMONIC = mnemonic (choose our development mnemonic to be able to interact with the deployed contracts with the deployer address)
+PK = private-key
+ETHERSCAN_API_KEY = etherscan key
 ```
 
 Note:```.env``` should be created in root directory.
