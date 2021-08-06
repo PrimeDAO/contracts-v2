@@ -35,3 +35,12 @@ to add Signer contract as delegate for Safe
 ```bash
 npx hardhat --network rinkeby addDelegate --safe 0x011673EFCE3C924D127F22C35CD22D0C01fF41bd --delegate 0xcE3c03c756cbA0FB24402b481A219df9F71C5581
 ```
+
+## Verify Contracts
+
+to verify contracts, the enviornment variable should contain `ETHERSCAN_API_KEY` set.
+
+Note:- replace contractAddress with the contract address you want to verify.
+```bash
+npx hardhat verify --network mainnet contractAddress
+```
