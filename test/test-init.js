@@ -5,6 +5,10 @@ const PRIME_CAP = parseEther("90000000").toString();
 const PRIME_SUPPLY = parseEther("21000000").toString();
 const PRIME_SUPPLY_V2 = parseEther("100000000").toString();
 
+const REP1 = "10000000";
+const REP2 = "9000000";
+const REP3 = "8000000";
+
 const initialize = async (accounts) => {
   const setup = {};
   setup.roles = {
@@ -87,6 +91,19 @@ const tokens = async (setup) => {
   return { seedToken, fundingToken };
 };
 
+const reputation = async (setup) => {
+  const repHolders = [setup.roles.root.address, setup.roles.buyer1.address, setup.roles.buyer2.address];
+  const repAmount = [REP1, REP2, REP3];
+
+  const Reputation_Factory = await ethers.getContractFactory(
+    "Reputation",
+    setup.roles.root
+  );
+  const rep = await Reputation_Factory.deploy(repHolders, repAmount);
+
+  return rep;
+};
+
 module.exports = {
   initialize,
   gnosisSafe,
@@ -94,4 +111,5 @@ module.exports = {
   seedFactory,
   seedMasterCopy,
   tokens,
+  reputation,
 };

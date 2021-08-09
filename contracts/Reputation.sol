@@ -1,24 +1,21 @@
 pragma solidity 0.8.6;
 
 import "openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Snapshot.sol";
-// import "openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Burnable.sol";
-// import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
-// import "openzeppelin-contracts-sol8/token/ERC20/ERC20.sol";
-
 
 contract Reputation is ERC20Snapshot {
 
     constructor(
-        uint256[] memory repAmouts,
-        address[] memory repHolders
+        address[] memory repHolders,
+        uint256[] memory repAmouts
     )
     public
-    ERC20("PrimeDAO Reputation", "REP")// ERC20Capped(cap)
+    ERC20("PrimeDAO Reputation", "REP")
     {
-        require(repAmouts.length == repHolders.length);
+        require(repAmouts.length == repHolders.length,
+            "Reputation: number of reputation holders doesn't match number of reputation amounts");
 
         // mint rep to holders 
-        for(uint64 j = 0; j < repAmouts.length; j++){ 
+        for (uint64 j = 0; j < repAmouts.length; j++) { 
             ERC20._mint(repHolders[j], repAmouts[j]);
         }
     }
