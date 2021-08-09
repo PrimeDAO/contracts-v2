@@ -6,6 +6,7 @@ require("hardhat-deploy-ethers");
 require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-solhint");
 require("solidity-coverage");
+require("@nomiclabs/hardhat-etherscan");
 // require("hardhat-gas-reporter");
 
 const { INFURA_KEY, MNEMONIC, ETHERSCAN_API_KEY, PK } = process.env;
@@ -75,6 +76,9 @@ module.exports = {
       { version: "0.5.17" },
       { version: "0.5.16" },
     ],
+  },
+  etherscan: {
+    apiKey: ETHERSCAN_API_KEY
   },
   namedAccounts: {
     root: 0,
