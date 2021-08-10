@@ -33,11 +33,20 @@ contract LBPWrapper {
         _;
     }
 
+    /**
+     * @dev              transfer ownership to new owner
+     * @param _newOwner  new owner address
+     */
     function transferOwnership(address _newOwner) public onlyOwner{
         require(_newOwner != address(0), "LBPWrapper: new owner cannot be zero");
         owner = _newOwner;
     }
 
+    /**
+     * @dev                       initialize lbp wrapper contract
+     * @param _LBPFactory         LBP factory address
+     * @param _swapFeePercentage  swap fee percentage
+     */
     function initialize (
             address _LBPFactory,
             uint256 _swapFeePercentage
@@ -49,6 +58,20 @@ contract LBPWrapper {
         isInitialized = true;
     }
 
+    /**
+     * @dev                        initialize lbp wrapper contract
+     * @param _name                LBP name
+     * @param _symbol              LBP symbol
+     * @param _tokens              array of tokens sorted for the LBP
+     * @param _amounts             array of initial amounts used to join pool
+     * @param _weights             array of start weights for respective tokens
+     * @param _swapEnabledOnStart  enable or disable swap
+     * @param _startTime           start time
+     * @param _endTime             end time
+     * @param _endWeights          array of end weights for respective tokens
+     * @param _admin               address of admin/owner of LBP
+     * @param _userData            extra data required by LBP
+     */
     function deployLbpFromFactory(
             string memory _name,
             string memory _symbol,
@@ -63,6 +86,7 @@ contract LBPWrapper {
             bytes memory _userData
     ) public onlyOwner returns(address)
     {
+        // to handle stack overflow
         {
             address vault = address(ILBPFactory(LBPFactory).getVault());
             for ( uint i; i < _tokens.length; i++ ) {
@@ -80,6 +104,8 @@ contract LBPWrapper {
                 address(this),
                 _swapEnabledOnStart
             );
+
+        // to handle stack overflow
         {
             ILBP(lbp).updateWeightsGradually(
                 _startTime,
@@ -95,6 +121,7 @@ contract LBPWrapper {
             assets: _tokens
         });
 
+        // to handle stack overflow
         {
             address vault = address(ILBPFactory(LBPFactory).getVault());
             IVault(vault).joinPool(
@@ -108,10 +135,18 @@ contract LBPWrapper {
         return lbp;
     }
 
+    /**
+     * @dev                       set new swap fee percentage
+     * @param _swapFeePercentage  swap fee percentage
+     */
     function setSwapFeePercentage(uint256 _swapFeePercentage) public onlyOwner {
         swapFeePercentage = _swapFeePercentage;
     }
 
+    /**
+     * @dev                set new lbp factory address
+     * @param _LBPFactory  address of LBP factory
+     */
     function setLBPFactory(address _LBPFactory) public onlyOwner {
         LBPFactory = _LBPFactory;
     }
