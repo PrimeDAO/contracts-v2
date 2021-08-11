@@ -201,9 +201,6 @@ describe("Interaction with LBP", async () => {
 				setup.roles.root.address,
 				request
 			)).to.emit(setup.vault, "PoolBalanceChanged")
-			
-			// console.log(await setup.vault.getPoolTokens(await setup.lbp.getPoolId()));
-			// console.log((await setup.lbp.balanceOf(setup.roles.root.address)).toString());
 		});
 	});
 	context("Getter Functions", async () => {
