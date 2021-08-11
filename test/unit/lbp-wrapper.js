@@ -35,23 +35,23 @@ describe("Contract: LBPWrapper", async () => {
 	let startTime;
 	let endTime;
 	let nonce;
+	const NAME = "Test";
+	const SYMBOL = "TT";
+	now = new BN(Math.floor(Date.now()/1000));
+	const SWAP_FEE_PERCENTAGE = parseEther('0.01').toString();
+	const START_WEIGHTS = [
+		parseEther('0.35').toString(), parseEther('0.65').toString()];
+	const END_WEIGHTS = [
+		parseEther('0.15').toString(), parseEther('0.85').toString()];
+	const UPDATE_DURATION = await time.duration.minutes(60);
+	let amounts = [parseEther('35').toString(), parseEther('65').toString()];
+	startTime = await now.add(await time.duration.minutes(10));
+	endTime = await startTime.add(UPDATE_DURATION);
+	swapEnabledOnStart = true;
+	nonce = 0;
+	let initUserData;
+
     context("create LBPWrapper clone", async () => {
-		// // Parameters to initialize LBPDeployer contract
-		const NAME = "Test";
-		const SYMBOL = "TT";
-		now = new BN(Math.floor(Date.now()/1000));
-		const SWAP_FEE_PERCENTAGE = parseEther('0.01').toString();
-		const START_WEIGHTS = [
-			parseEther('0.35').toString(), parseEther('0.65').toString()];
-		const END_WEIGHTS = [
-			parseEther('0.15').toString(), parseEther('0.85').toString()];
-		const UPDATE_DURATION = await time.duration.minutes(60);
-		let amounts = [parseEther('35').toString(), parseEther('65').toString()];
-		startTime = await now.add(await time.duration.minutes(10));
-		endTime = await startTime.add(UPDATE_DURATION);
-		swapEnabledOnStart = true;
-		nonce = 0;
-		let initUserData;
         before("!! deploy WrapperFactory", async () => {
             setup = await deploy();
 			tokenAddresses = [setup.tokenList[0].address, setup.tokenList[1].address];
