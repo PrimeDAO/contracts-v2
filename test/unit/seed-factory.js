@@ -8,7 +8,7 @@ const {
 } = require("@openzeppelin/test-helpers");
 const { parseEther } = ethers.utils;
 
-const init = require("../helpers/test-init.js");
+const init = require("../test-init.js");
 
 const toHex = (str) => {
   let hex = "";
