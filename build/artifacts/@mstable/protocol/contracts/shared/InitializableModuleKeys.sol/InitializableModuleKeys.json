@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "InitializableModuleKeys",
+  "sourceName": "@mstable/protocol/contracts/shared/InitializableModuleKeys.sol",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603e80601d6000396000f3fe6080604052600080fdfea265627a7a72315820719ad668d40a04eeefdfdd6c397d5e08ee83c2cfe027648de1aaa97759afbc1264736f6c63430005100032",
+  "deployedBytecode": "0x6080604052600080fdfea265627a7a72315820719ad668d40a04eeefdfdd6c397d5e08ee83c2cfe027648de1aaa97759afbc1264736f6c63430005100032",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

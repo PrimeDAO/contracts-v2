@@ -1,64 +1,70 @@
-require("@nomiclabs/hardhat-waffle");
 require("dotenv").config({ path: "./.env" });
-require("hardhat-deploy");
 require("@nomiclabs/hardhat-ethers");
+require("@nomiclabs/hardhat-waffle");
+require("hardhat-deploy");
+require("hardhat-deploy-ethers");
 require("@nomiclabs/hardhat-web3");
 require("@nomiclabs/hardhat-solhint");
 require("solidity-coverage");
+require("@nomiclabs/hardhat-etherscan");
 // require("hardhat-gas-reporter");
 
-let { MNEMONIC, PROVIDER } = process.env;
-MNEMONIC = MNEMONIC || "hello darkness my old friend";
-PROVIDER = PROVIDER || "https://rinkeby.infura.io";
+const { INFURA_KEY, MNEMONIC, ETHERSCAN_API_KEY, PK } = process.env;
+const DEFAULT_MNEMONIC = "hello darkness my old friend";
 
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async () => {
-  const accounts = await ethers.getSigners();
+const sharedNetworkConfig = {};
+if (PK) {
+  sharedNetworkConfig.accounts = [PK];
+} else {
+  sharedNetworkConfig.accounts = {
+    mnemonic: MNEMONIC || DEFAULT_MNEMONIC,
+  };
+}
 
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
+require("./tasks/seedManagement");
+require("./tasks/gnosisManagement");
+require("./tasks/merkleDropManagement");
 
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
-
-/**
- * @type import('hardhat/config').HardhatUserConfig
- */
 module.exports = {
+  paths: {
+    artifacts: "build/artifacts",
+    cache: "build/cache",
+    deploy: "deploy",
+    sources: "contracts",
+  },
   defaultNetwork: "hardhat",
   networks: {
+    localhost: {
+      ...sharedNetworkConfig,
+      blockGasLimit: 100000000,
+      gas: 2000000,
+      saveDeployments: true,
+    },
     hardhat: {
-      allowUnlimitedContractSize: true,
-      blockGasLimit: 100000000000000,
-      gas: 20000000000,
+      blockGasLimit: 100000000,
+      gas: 2000000,
+      saveDeployments: true,
     },
     mainnet: {
-      url: PROVIDER,
-      accounts: {
-        mnemonic: MNEMONIC,
-      },
-    },
-    ganache: {
-      url: "http://127.0.0.1:7545",
-      accounts: {
-        mnemonic: MNEMONIC,
-      },
+      ...sharedNetworkConfig,
+      url: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+      saveDeployments: true,
     },
     rinkeby: {
-      url: PROVIDER,
-      accounts: {
-        mnemonic: MNEMONIC,
-      },
+      ...sharedNetworkConfig,
+      url: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
+      saveDeployments: true,
+    },
+    ganache: {
+      ...sharedNetworkConfig,
+      url: "http://127.0.0.1:7545",
+      saveDeployments: true,
     },
   },
   solidity: {
     compilers: [
-      { version: "0.8.6" },
       {
-        version: "0.8.4",
+        version: "0.8.6",
         settings: {
           optimizer: {
             enabled: true,
@@ -66,10 +72,20 @@ module.exports = {
           },
         },
       },
+      { version: "0.6.12" },
+      { version: "0.5.17" },
       { version: "0.5.16" },
     ],
   },
   paths: {
         imports: 'imports'
-    }
+    },
+  etherscan: {
+    apiKey: ETHERSCAN_API_KEY
+  },
+  namedAccounts: {
+    root: 0,
+    prime: 1,
+    beneficiary: 2,
+  },
 };
