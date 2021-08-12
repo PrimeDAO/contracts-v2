@@ -1,8 +1,9 @@
 pragma solidity 0.8.6;
 
 import "openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Snapshot.sol";
+import "openzeppelin-contracts-sol8/access/Ownable.sol";
 
-contract Reputation is ERC20 {
+contract Reputation is ERC20, Ownable {
 
     constructor(
         address[] memory repHolders,
@@ -37,7 +38,7 @@ contract Reputation is ERC20 {
     function batchMint(
         address[] memory _repRecipients,
         uint[] memory _repAmounts
-    ) public {
+    ) public onlyOwner {
 
     }
 }

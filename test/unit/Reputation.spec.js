@@ -101,11 +101,12 @@ describe.only("Reputation", () => {
 
     context("> caller is NOT owner", () => {
       it("reverts if called by non-owner", async () => {
-        const batchMintAttempt = reputationInstance.batchMint(
-          newRepHolders,
-          newRepAmounts
+        const batchMintAttempt = reputationInstance
+          .connect(alice)
+          .batchMint(newRepHolders, newRepAmounts);
+        await expect(batchMintAttempt).to.be.revertedWith(
+          "Ownable: caller is not the owner"
         );
-        await expect(batchMintAttempt).to.be.revertedWith("fua");
       });
     });
   });

@@ -1970,8 +1970,8 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/Reputation.sol": {
-      "lastModificationDate": 1628753891629,
-      "contentHash": "5b5ffb8f83a15e3652b774964eb12c0a",
+      "lastModificationDate": 1628762762698,
+      "contentHash": "6589c4c40e37159ac790238484dba766",
       "sourceName": "contracts/Reputation.sol",
       "solcConfig": {
         "version": "0.8.6",
@@ -2004,7 +2004,8 @@
         }
       },
       "imports": [
-        "openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Snapshot.sol"
+        "openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Snapshot.sol",
+        "openzeppelin-contracts-sol8/access/Ownable.sol"
       ],
       "versionPragmas": [
         "0.8.6"
