@@ -48,6 +48,13 @@ contract Reputation is ERC20, Ownable {
         _batchMint(_repRecipients, _repAmounts);
     }
 
+    function batchBurn(
+        address[] memory _repRecipients,
+        uint[] memory _repAmounts
+    ) public onlyOwner {
+        _batchBurn(_repRecipients, _repAmounts);
+    }
+
     function _batchMint(
         address[] memory _repRecipients,
         uint[] memory _repAmounts
@@ -57,6 +64,18 @@ contract Reputation is ERC20, Ownable {
     ) {
         for (uint64 j = 0; j < _repAmounts.length; j++) { 
             ERC20._mint(_repRecipients[j], _repAmounts[j]);
+        } 
+    }
+
+    function _batchBurn(
+        address[] memory _repRecipients,
+        uint[] memory _repAmounts
+    ) internal validInput(
+        _repRecipients,
+        _repAmounts
+    ) {
+        for (uint64 j = 0; j < _repAmounts.length; j++) { 
+            ERC20._burn(_repRecipients[j], _repAmounts[j]);
         } 
     }
 }

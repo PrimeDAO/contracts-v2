@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers, deployments } = require("hardhat");
 const { utils } = require("ethers");
 
-const { parseEther } = utils;
+const { parseEther, formatEther } = utils;
 
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
@@ -21,6 +21,14 @@ const setupFixture = deployments.createFixture(
   }
 );
 
+const parseNumbers = (balancesInEther) =>
+  Object.fromEntries(
+    Object.entries(balancesInEther).map(([signerName, amount]) => [
+      signerName,
+      parseEther(amount.toString()),
+    ])
+  );
+
 describe.only("Reputation", () => {
   let reputationInstance, repHolders, root, alice, bob, carl, dean, eddie;
 
@@ -31,12 +39,7 @@ describe.only("Reputation", () => {
     dean: 5,
     eddie: 6,
   };
-  const parsedAmounts = Object.fromEntries(
-    Object.entries(amountsInEther).map(([signerName, amount]) => [
-      signerName,
-      parseEther(amount.toString()),
-    ])
-  );
+  const parsedAmounts = parseNumbers(amountsInEther);
   const repAmounts = [
     parsedAmounts.alice,
     parsedAmounts.bob,
@@ -153,6 +156,78 @@ describe.only("Reputation", () => {
       it("mints REP to dean", async () => {
         const eddieBalance = await reputationInstance.balanceOf(eddie.address);
         expect(eddieBalance).to.eq(parsedAmounts.eddie);
+      });
+    });
+
+    context("> existing REP holders", () => {
+      let existingRepHolders;
+
+      const additionalRepAmounts = {
+        alice: 2,
+        bob: 3,
+      };
+      const parsedAdditionalAmounts = parseNumbers(additionalRepAmounts);
+
+      beforeEach(async () => {
+        existingRepHolders = [alice.address, bob.address];
+        await reputationInstance.batchMint(existingRepHolders, [
+          parsedAdditionalAmounts.alice,
+          parsedAdditionalAmounts.bob,
+        ]);
+      });
+
+      it("adds REP to Alice's balance", async () => {
+        const aliceBalance = await reputationInstance.balanceOf(alice.address);
+        expect(aliceBalance).to.eq(
+          parsedAmounts.alice.add(parsedAdditionalAmounts.alice)
+        );
+      });
+
+      it("adds REP to Bob's balance", async () => {
+        const bobBalance = await reputationInstance.balanceOf(bob.address);
+        expect(bobBalance).to.eq(
+          parsedAmounts.bob.add(parsedAdditionalAmounts.bob)
+        );
+      });
+    });
+  });
+
+  describe("#batchBurn", () => {
+    let burnRepHolders;
+
+    const burnRepAmounts = {
+      alice: 2,
+      bob: 3,
+    };
+    const parsedBurnRepAmounts = parseNumbers(burnRepAmounts);
+    const repAmountsInputParam = [
+      parsedBurnRepAmounts.alice,
+      parsedBurnRepAmounts.bob,
+    ];
+
+    beforeEach(async () => {
+      burnRepHolders = [alice.address, bob.address];
+      await reputationInstance.batchBurn(burnRepHolders, repAmountsInputParam);
+    });
+
+    it("removes REP from Bob's balance", async () => {
+      const bobBalance = await reputationInstance.balanceOf(bob.address);
+      expect(bobBalance).to.eq(parsedAmounts.bob.sub(parsedBurnRepAmounts.bob));
+    });
+
+    it("leaves Carl's balance unchanged", async () => {
+      const carlBalance = await reputationInstance.balanceOf(carl.address);
+      expect(carlBalance).to.eq(parsedAmounts.carl);
+    });
+
+    context("> caller is NOT owner", () => {
+      it("reverts", async () => {
+        const batchBurnAttempt = reputationInstance
+          .connect(alice)
+          .batchBurn(burnRepHolders, repAmountsInputParam);
+        await expect(batchBurnAttempt).to.be.revertedWith(
+          "Ownable: caller is not the owner"
+        );
       });
     });
   });
