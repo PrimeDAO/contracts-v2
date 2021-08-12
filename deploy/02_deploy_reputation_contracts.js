@@ -19,7 +19,7 @@ const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
 
   const { address: reputationAddress } = await deploy("Reputation", {
     contract: "Reputation",
-    from: root.address,
+    from: root,
     args: [repHolders, repAmounts],
     log: true,
   });

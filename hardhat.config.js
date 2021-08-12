@@ -78,7 +78,7 @@ module.exports = {
     ],
   },
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY
+    apiKey: ETHERSCAN_API_KEY,
   },
   namedAccounts: {
     root: 0,
