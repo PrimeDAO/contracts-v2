@@ -17,21 +17,19 @@ const setupFixture = deployments.createFixture(
       log: true,
     });
 
-    const contractInstances = {
-      reputationInstance: await ethers.getContract("Reputation"),
-    };
-
-    return contractInstances;
+    return await ethers.getContract("Reputation");
   }
 );
 
-describe("Reputation", () => {
-  let reputationInstance, repHolders, root, alice, bob, carl, dean;
+describe.only("Reputation", () => {
+  let reputationInstance, repHolders, root, alice, bob, carl, dean, eddie;
 
   const amountsInEther = {
     alice: 10,
     bob: 10.5,
     carl: 20,
+    dean: 5,
+    eddie: 6,
   };
   const parsedAmounts = Object.fromEntries(
     Object.entries(amountsInEther).map(([signerName, amount]) => [
@@ -46,12 +44,12 @@ describe("Reputation", () => {
   ];
 
   before("get array of signers/addresses", async () => {
-    [root, alice, bob, carl, dean] = await ethers.getSigners();
+    [root, alice, bob, carl, dean, eddie] = await ethers.getSigners();
     repHolders = [alice.address, bob.address, carl.address];
   });
 
   beforeEach("create fresh Reputation contract", async () => {
-    ({ reputationInstance } = await setupFixture({ repHolders, repAmounts }));
+    reputationInstance = await setupFixture({ repHolders, repAmounts });
   });
 
   describe("#transfer", () => {
@@ -90,6 +88,25 @@ describe("Reputation", () => {
     it("doesn't add REP to recipient", async () => {
       const deanBalance = await reputationInstance.balanceOf(dean.address);
       expect(deanBalance).to.eq(0);
+    });
+  });
+
+  describe("#batchMint", () => {
+    let newRepHolders, newRepAmounts;
+
+    beforeEach(() => {
+      newRepHolders = [dean.address, eddie.address];
+      newRepAmounts = [parsedAmounts.dean, parsedAmounts.eddie];
+    });
+
+    context("> caller is NOT owner", () => {
+      it("reverts if called by non-owner", async () => {
+        const batchMintAttempt = reputationInstance.batchMint(
+          newRepHolders,
+          newRepAmounts
+        );
+        expect(batchMintAttempt).to.be.revertedWith("fua");
+      });
     });
   });
 });

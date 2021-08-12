@@ -17,10 +17,10 @@ contract Reputation is ERC20Snapshot {
         // mint rep to holders 
         for (uint64 j = 0; j < repAmouts.length; j++) { 
             ERC20._mint(repHolders[j], repAmouts[j]);
-        }
+        } 
     }
 
-    function transfer(address recipient, uint256 amount) public override returns(bool) {
+    function transfer(address recipient, uint256 amount) public override pure returns(bool) {
         return false;
     }
 
@@ -29,7 +29,7 @@ contract Reputation is ERC20Snapshot {
         address recipient,
         uint256 amount
     )
-    public override returns(bool) {
+    public override pure returns(bool) {
         return false;
     }
 
