@@ -25,7 +25,7 @@ const setupFixture = deployments.createFixture(
   }
 );
 
-describe.only("SeedFactory", () => {
+describe("Reputation", () => {
   let reputationInstance, repHolders, root, alice, bob, carl, dean;
 
   const amountsInEther = {
