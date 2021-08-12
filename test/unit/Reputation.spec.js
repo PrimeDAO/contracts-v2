@@ -153,7 +153,7 @@ describe("Reputation", () => {
         expect(deanBalance).to.eq(parsedAmounts.dean);
       });
 
-      it("mints REP to dean", async () => {
+      it("mints REP to eddie", async () => {
         const eddieBalance = await reputationInstance.balanceOf(eddie.address);
         expect(eddieBalance).to.eq(parsedAmounts.eddie);
       });
