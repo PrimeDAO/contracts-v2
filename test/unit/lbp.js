@@ -21,6 +21,15 @@ const deploy = async () => {
 	return setup
 }
 
+function sortTokens(tokens) {
+	if (tokens[0].address > tokens[1].address) {
+		const temp = tokens[0];
+		tokens[0] = tokens[1];
+		tokens[1] = temp;
+	}
+	return tokens;
+}
+
 describe("Interaction with LBP", async () => {
 	let setup;
 	let swapsEnabled;
@@ -38,7 +47,10 @@ describe("Interaction with LBP", async () => {
 		before("!! setup", async () => {
 			setup = await deploy();
 			swapsEnabled = true;
-			tokenAddresses = [setup.tokenList[1].address, setup.tokenList[0].address];
+			
+			//add sort function to token helper file for > 2 tokens
+			sortedTokens = sortTokens([setup.tokenList[0], setup.tokenList[1]]);
+			tokenAddresses = sortedTokens.map((token) => token.address);
 		})
 		it("deploy LBP", async () => {
 			const receipt = await (await setup.lbpFactory.create(
@@ -194,7 +206,7 @@ describe("Interaction with LBP", async () => {
             	assets: tokens
 			}
 			const poolId = await setup.lbp.getPoolId();
-			console.log((await setup.lbp.getInvariant()).toString());
+			// console.log((await setup.lbp.getInvariant()).toString());
 			await expect(setup.vault.connect(setup.roles.root).exitPool(
 				poolId,
 				setup.roles.root.address,

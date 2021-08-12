@@ -28,6 +28,15 @@ const deploy = async () => {
     return setup;
 }
 
+function sortTokens(tokens) {
+	if (tokens[0].address > tokens[1].address) {
+		const temp = tokens[0];
+		tokens[0] = tokens[1];
+		tokens[1] = temp;
+	}
+	return tokens;
+}
+
 describe("Contract: LBPWrapper", async () => {
     let setup;
     let swapEnabledOnStart;
@@ -35,6 +44,9 @@ describe("Contract: LBPWrapper", async () => {
 	let startTime;
 	let endTime;
 	let nonce;
+	let sortedTokens;
+	let initUserData;
+
 	const NAME = "Test";
 	const SYMBOL = "TT";
 	now = new BN(Math.floor(Date.now()/1000));
@@ -49,35 +61,23 @@ describe("Contract: LBPWrapper", async () => {
 	endTime = await startTime.add(UPDATE_DURATION);
 	swapEnabledOnStart = true;
 	nonce = 0;
-	let initUserData;
 
     context("create LBPWrapper clone", async () => {
         before("!! deploy WrapperFactory", async () => {
             setup = await deploy();
-			tokenAddresses = [setup.tokenList[0].address, setup.tokenList[1].address];
-            setup.wrapperFactory = await (await ethers.getContractFactory("WrapperFactory", setup.roles.root))
+			
+			//add sort function to token helper file for > 2 tokens
+			sortedTokens = sortTokens([setup.tokenList[0], setup.tokenList[1]]);
+			tokenAddresses = sortedTokens.map((token) => token.address);
+            
+			setup.wrapperFactory = await (await ethers.getContractFactory("WrapperFactory", setup.roles.root))
                 .deploy(
                     setup.lbpFactory.address, SWAP_FEE_PERCENTAGE
                 );
 			setup.lbpWrapper = await (await ethers.getContractFactory("LBPWrapper", setup.roles.root)).deploy();
 			await setup.wrapperFactory.setMasterCopy(setup.lbpWrapper.address);
-			if(tokenAddresses[1]<tokenAddresses[0]){
-				const tokenContract = setup.tokenList[0];
-				setup.tokenList[0] = setup.tokenList[1];
-				setup.tokenList[1] = tokenContract;
-				const token = tokenAddresses[0];
-				tokenAddresses[0] = tokenAddresses[1];
-				tokenAddresses[1] = token;
-				let weight = START_WEIGHTS[0];
-				START_WEIGHTS[0] = START_WEIGHTS[1];
-				START_WEIGHTS[1] = weight;
-				weight = END_WEIGHTS[0];
-				END_WEIGHTS[0] = END_WEIGHTS[1];
-				END_WEIGHTS[1] = weight; 
-				amount = amounts[0];
-				amounts[0] = amounts[1];
-				amounts[1] = amount;
-			}
+
+
 			await setup.tokenList[0].connect(setup.roles.root).approve(setup.wrapperFactory.address, amounts[0]);
 			await setup.tokenList[1].connect(setup.roles.root).approve(setup.wrapperFactory.address, amounts[1]);
 			initUserData =ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256[]'], 
