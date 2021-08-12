@@ -2,13 +2,12 @@ pragma solidity 0.8.6;
 
 import "openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Snapshot.sol";
 
-contract Reputation is ERC20Snapshot {
+contract Reputation is ERC20 {
 
     constructor(
         address[] memory repHolders,
         uint256[] memory repAmouts
     )
-    public
     ERC20("PrimeDAO Reputation", "REP")
     {
         require(repAmouts.length == repHolders.length,
@@ -20,7 +19,10 @@ contract Reputation is ERC20Snapshot {
         } 
     }
 
-    function transfer(address recipient, uint256 amount) public override pure returns(bool) {
+    function transfer(
+        address recipient,
+        uint256 amount
+    ) public override pure returns(bool) {
         return false;
     }
 
@@ -28,9 +30,14 @@ contract Reputation is ERC20Snapshot {
         address sender,
         address recipient,
         uint256 amount
-    )
-    public override pure returns(bool) {
+    ) public override pure returns(bool) {
         return false;
     }
 
+    function batchMint(
+        address[] memory _repRecipients,
+        uint[] memory _repAmounts
+    ) public {
+
+    }
 }
