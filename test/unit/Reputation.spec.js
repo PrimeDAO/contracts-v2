@@ -140,13 +140,20 @@ describe.only("Reputation", () => {
       });
     });
 
-    context("> caller is owner", () => {
-      // it("mints REP to new recipients", async () => {
-      //   await reputationInstance.batchMint(newRepHolders, newRepAmounts);
-      //   await expect(batchMintAttempt).to.be.revertedWith(
-      //     "Ownable: caller is not the owner"
-      //   );
-      // });
+    context("> new REP holders", () => {
+      beforeEach(async () => {
+        await reputationInstance.batchMint(newRepHolders, newRepAmounts);
+      });
+
+      it("mints REP to dean", async () => {
+        const deanBalance = await reputationInstance.balanceOf(dean.address);
+        expect(deanBalance).to.eq(parsedAmounts.dean);
+      });
+
+      it("mints REP to dean", async () => {
+        const eddieBalance = await reputationInstance.balanceOf(eddie.address);
+        expect(eddieBalance).to.eq(parsedAmounts.eddie);
+      });
     });
   });
 });

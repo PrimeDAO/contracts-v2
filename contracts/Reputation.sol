@@ -21,13 +21,9 @@ contract Reputation is ERC20, Ownable {
         address[] memory _repRecipients,
         uint256[] memory _repAmounts
     )
-    validInput(_repRecipients, _repAmounts)
     ERC20("PrimeDAO Reputation", "REP")
     {
-        // mint rep to holders 
-        for (uint64 j = 0; j < _repAmounts.length; j++) { 
-            ERC20._mint(_repRecipients[j], _repAmounts[j]);
-        } 
+        _batchMint(_repRecipients, _repAmounts);
     }
 
     function transfer(
@@ -48,10 +44,19 @@ contract Reputation is ERC20, Ownable {
     function batchMint(
         address[] memory _repRecipients,
         uint[] memory _repAmounts
-    ) public onlyOwner validInput(
+    ) public onlyOwner {
+        _batchMint(_repRecipients, _repAmounts);
+    }
+
+    function _batchMint(
+        address[] memory _repRecipients,
+        uint[] memory _repAmounts
+    ) internal validInput(
         _repRecipients,
         _repAmounts
     ) {
-        
+        for (uint64 j = 0; j < _repAmounts.length; j++) { 
+            ERC20._mint(_repRecipients[j], _repAmounts[j]);
+        } 
     }
 }
