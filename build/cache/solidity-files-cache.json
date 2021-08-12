@@ -1970,8 +1970,8 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/Reputation.sol": {
-      "lastModificationDate": 1628770759290,
-      "contentHash": "6dd2dfddd8dce3461080b0e7327aad2c",
+      "lastModificationDate": 1628774846304,
+      "contentHash": "a4e9f9e7ff4d0766569c6aaf1ae8145e",
       "sourceName": "contracts/Reputation.sol",
       "solcConfig": {
         "version": "0.8.6",

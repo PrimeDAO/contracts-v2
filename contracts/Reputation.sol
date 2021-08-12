@@ -57,11 +57,25 @@ contract Reputation is ERC20, Ownable {
         return false;
     }
 
+    function mint(
+        address _repRecipient,
+        uint _repAmount
+    ) public onlyOwner {
+        ERC20._mint(_repRecipient, _repAmount);
+    }
+
     function batchMint(
         address[] memory _repRecipients,
         uint[] memory _repAmounts
     ) public onlyOwner {
         _batchMint(_repRecipients, _repAmounts);
+    }
+
+    function burn(
+        address _repRecipient,
+        uint _repAmount
+    ) public onlyOwner {
+        ERC20._burn(_repRecipient, _repAmount);
     }
 
     function batchBurn(

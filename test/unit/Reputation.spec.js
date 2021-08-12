@@ -144,6 +144,64 @@ describe("Reputation", () => {
     });
   });
 
+  describe("#mint", () => {
+    let mintRecipient;
+
+    const mintAmount = parseEther("2");
+
+    beforeEach(async () => {
+      mintRecipient = alice.address;
+    });
+
+    it("mints REP to Alice", async () => {
+      await reputationInstance.mint(mintRecipient, mintAmount);
+      const aliceBalance = await reputationInstance.balanceOf(alice.address);
+
+      expect(aliceBalance).to.eq(parsedAmounts.alice.add(mintAmount));
+    });
+
+    context("> caller is NOT owner", () => {
+      it("reverts", async () => {
+        const mintAttempt = reputationInstance
+          .connect(alice)
+          .mint(mintRecipient, mintAmount);
+
+        await expect(mintAttempt).to.be.revertedWith(
+          "Ownable: caller is not the owner"
+        );
+      });
+    });
+  });
+
+  describe("#burn", () => {
+    let burnVictim;
+
+    const burnAmount = parseEther("2");
+
+    beforeEach(async () => {
+      burnVictim = alice.address;
+    });
+
+    it("mints REP to Alice", async () => {
+      await reputationInstance.burn(burnVictim, burnAmount);
+      const aliceBalance = await reputationInstance.balanceOf(alice.address);
+
+      expect(aliceBalance).to.eq(parsedAmounts.alice.sub(burnAmount));
+    });
+
+    context("> caller is NOT owner", () => {
+      it("reverts", async () => {
+        const mintAttempt = reputationInstance
+          .connect(alice)
+          .mint(burnVictim, burnAmount);
+
+        await expect(mintAttempt).to.be.revertedWith(
+          "Ownable: caller is not the owner"
+        );
+      });
+    });
+  });
+
   describe("#batchMint", () => {
     let newRepHolders, newRepAmounts;
 
@@ -184,12 +242,12 @@ describe("Reputation", () => {
         await reputationInstance.batchMint(newRepHolders, newRepAmounts);
       });
 
-      it("mints REP to dean", async () => {
+      it("mints REP to Dean", async () => {
         const deanBalance = await reputationInstance.balanceOf(dean.address);
         expect(deanBalance).to.eq(parsedAmounts.dean);
       });
 
-      it("mints REP to eddie", async () => {
+      it("mints REP to Eddie", async () => {
         const eddieBalance = await reputationInstance.balanceOf(eddie.address);
         expect(eddieBalance).to.eq(parsedAmounts.eddie);
       });
