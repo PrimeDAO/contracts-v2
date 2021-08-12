@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const { ethers } = require("hardhat");
+const { ethers, deployments } = require("hardhat");
 const { utils } = require("ethers");
 
 const { parseEther } = utils;
@@ -52,6 +52,36 @@ describe.only("Reputation", () => {
     reputationInstance = await setupFixture({ repHolders, repAmounts });
   });
 
+  describe("!deployment", () => {
+    const { deploy } = deployments;
+
+    context("> more repHolders than repAmounts", () => {
+      it("reverts", async () => {
+        const deployment = deploy("Reputation", {
+          contract: "Reputation",
+          from: root.address,
+          args: [[...repHolders, dean.address], repAmounts],
+          log: true,
+        });
+        await expect(deployment).to.be.revertedWith(
+          "Reputation: number of reputation holders doesn't match number of reputation amounts"
+        );
+      });
+    });
+
+    context("> valid constructor arguments", () => {
+      it("deploys the Reputation contract", async () => {
+        const { address } = await deploy("Reputation", {
+          contract: "Reputation",
+          from: root.address,
+          args: [repHolders, repAmounts],
+          log: true,
+        });
+        expect(address).to.be.properAddress;
+      });
+    });
+  });
+
   describe("#transfer", () => {
     beforeEach(async () => {
       await reputationInstance
@@ -100,7 +130,7 @@ describe.only("Reputation", () => {
     });
 
     context("> caller is NOT owner", () => {
-      it("reverts if called by non-owner", async () => {
+      it("reverts", async () => {
         const batchMintAttempt = reputationInstance
           .connect(alice)
           .batchMint(newRepHolders, newRepAmounts);
@@ -108,6 +138,15 @@ describe.only("Reputation", () => {
           "Ownable: caller is not the owner"
         );
       });
+    });
+
+    context("> caller is owner", () => {
+      // it("mints REP to new recipients", async () => {
+      //   await reputationInstance.batchMint(newRepHolders, newRepAmounts);
+      //   await expect(batchMintAttempt).to.be.revertedWith(
+      //     "Ownable: caller is not the owner"
+      //   );
+      // });
     });
   });
 });

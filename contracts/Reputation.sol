@@ -5,18 +5,28 @@ import "openzeppelin-contracts-sol8/access/Ownable.sol";
 
 contract Reputation is ERC20, Ownable {
 
+    modifier validInput(
+        address[] memory _repRecipients,
+        uint[] memory _repAmounts
+    ){
+        // TODO: implement length restriction
+        require(
+            _repRecipients.length == _repAmounts.length,
+            "Reputation: number of reputation holders doesn't match number of reputation amounts"
+        );
+        _;
+    }
+
     constructor(
-        address[] memory repHolders,
-        uint256[] memory repAmouts
+        address[] memory _repRecipients,
+        uint256[] memory _repAmounts
     )
+    validInput(_repRecipients, _repAmounts)
     ERC20("PrimeDAO Reputation", "REP")
     {
-        require(repAmouts.length == repHolders.length,
-            "Reputation: number of reputation holders doesn't match number of reputation amounts");
-
         // mint rep to holders 
-        for (uint64 j = 0; j < repAmouts.length; j++) { 
-            ERC20._mint(repHolders[j], repAmouts[j]);
+        for (uint64 j = 0; j < _repAmounts.length; j++) { 
+            ERC20._mint(_repRecipients[j], _repAmounts[j]);
         } 
     }
 
@@ -38,7 +48,10 @@ contract Reputation is ERC20, Ownable {
     function batchMint(
         address[] memory _repRecipients,
         uint[] memory _repAmounts
-    ) public onlyOwner {
-
+    ) public onlyOwner validInput(
+        _repRecipients,
+        _repAmounts
+    ) {
+        
     }
 }
