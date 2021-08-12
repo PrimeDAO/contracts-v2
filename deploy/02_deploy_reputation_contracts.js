@@ -2,20 +2,14 @@ const { utils } = require("ethers");
 const path = require("path");
 const fs = require("fs");
 const DeployedContracts = require("../contractAddresses.json");
-const initialRepBalances = require("../inputs/initialRepBalances.json");
+const { getReputationParams } = require("../tasks/utils/reputation");
 
 const { parseEther } = utils;
 
 const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
-
-  let repHolders = [];
-  let repAmounts = [];
-  Object.entries(initialRepBalances).forEach(([address, amount]) => {
-    repHolders.push(address);
-    repAmounts.push(parseEther(amount.toString()));
-  });
+  const { repHolders, repAmounts } = getReputationParams();
 
   const { address: reputationAddress } = await deploy("Reputation", {
     contract: "Reputation",

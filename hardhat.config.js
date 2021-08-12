@@ -24,6 +24,7 @@ if (PK) {
 require("./tasks/seedManagement");
 require("./tasks/gnosisManagement");
 require("./tasks/merkleDropManagement");
+require("./tasks/reputationManagement");
 
 module.exports = {
   paths: {
