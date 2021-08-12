@@ -57,6 +57,13 @@ const seedFactory = async (setup) => {
   return factory;
 };
 
+const LBPWrapper = async (setup) => {
+  return await ethers.getContractFactory(
+    "LBPWrapper",
+    setup.roles.root
+  );
+}
+
 const seedMasterCopy = async (setup) => {
   const Seed_Factory = await ethers.getContractFactory(
     "Seed",
@@ -94,4 +101,5 @@ module.exports = {
   seedFactory,
   seedMasterCopy,
   tokens,
+  LBPWrapper
 };
