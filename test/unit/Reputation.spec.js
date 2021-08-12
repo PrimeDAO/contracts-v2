@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers, deployments } = require("hardhat");
 const { utils } = require("ethers");
 
-const { parseEther, formatEther } = utils;
+const { parseEther } = utils;
 
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
@@ -66,6 +66,7 @@ describe("Reputation", () => {
           args: [[...repHolders, dean.address], repAmounts],
           log: true,
         });
+
         await expect(deployment).to.be.revertedWith(
           "Reputation: number of reputation holders doesn't match number of reputation amounts"
         );
@@ -98,6 +99,7 @@ describe("Reputation", () => {
           args: [repHolders, repAmounts],
           log: true,
         });
+
         expect(address).to.be.properAddress;
       });
     });
@@ -170,6 +172,7 @@ describe("Reputation", () => {
         const batchMintAttempt = reputationInstance
           .connect(alice)
           .batchMint(newRepHolders, newRepAmounts);
+
         await expect(batchMintAttempt).to.be.revertedWith(
           "Ownable: caller is not the owner"
         );
@@ -258,6 +261,7 @@ describe("Reputation", () => {
         const batchBurnAttempt = reputationInstance
           .connect(alice)
           .batchBurn(burnRepHolders, repAmountsInputParam);
+
         await expect(batchBurnAttempt).to.be.revertedWith(
           "Ownable: caller is not the owner"
         );
@@ -273,6 +277,7 @@ describe("Reputation", () => {
           excessiveRepHolderArr,
           excessiveRepAmountsArr
         );
+
         await expect(batchMintAttempt).to.be.revertedWith(
           "Reputation: maximum number of reputation holders and amounts of 200 was exceeded"
         );
