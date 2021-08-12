@@ -13,10 +13,7 @@ const setupFixture = deployments.createFixture(
     await deploy("Reputation", {
       contract: "Reputation",
       from: root.address,
-      args: [
-        repHolders,
-        repAmounts.map((amount) => parseEther(amount.toString())),
-      ],
+      args: [repHolders, repAmounts],
       log: true,
     });
 
@@ -29,21 +26,46 @@ const setupFixture = deployments.createFixture(
 );
 
 describe.only("SeedFactory", () => {
-  let reputationInstance, root, alice, bob, carl;
+  let reputationInstance, repHolders, root, alice, bob, carl, dean;
 
+  const amountsInEther = {
+    alice: 10,
+    bob: 10.5,
+    carl: 20,
+  };
+  const parsedAmounts = Object.fromEntries(
+    Object.entries(amountsInEther).map(([signerName, amount]) => [
+      signerName,
+      parseEther(amount.toString()),
+    ])
+  );
   before("get array of signers/addresses", async () => {
-    [root, alice, bob, carl] = await ethers.getSigners();
+    [root, alice, bob, carl, dean] = await ethers.getSigners();
+    repHolders = [alice.address, bob.address, carl.address];
   });
 
-  beforeEach("deploy Reputation contract (= clean slate)", async () => {
-    const repHolders = [alice.address, bob.address, carl.address];
-    const repAmounts = [10, 10.5, 20];
-    ({ reputationInstance } = await setupFixture({ repHolders, repAmounts }));
-  });
+  describe("#transfer", () => {
+    const repAmounts = [
+      parsedAmounts.alice,
+      parsedAmounts.bob,
+      parsedAmounts.carl,
+    ];
 
-  context("» creator is owner", () => {
-    it("does a test", async () => {
-      console.log("test");
+    beforeEach("create fresh Reputation contract", async () => {
+      ({ reputationInstance } = await setupFixture({ repHolders, repAmounts }));
+      await reputationInstance
+        .connect(alice)
+        .transfer(dean.address, parsedAmounts.alice);
+    });
+
+    it("doesn't remove REP from sender", async () => {
+      const aliceBalance = await reputationInstance.balanceOf(alice.address);
+      expect(aliceBalance).to.eq(parsedAmounts.alice);
+    });
+
+    it("doesn't add REP to recipient", async () => {
+      const deanBalance = await reputationInstance.balanceOf(dean.address);
+      expect(deanBalance).to.eq(0);
     });
   });
 });
