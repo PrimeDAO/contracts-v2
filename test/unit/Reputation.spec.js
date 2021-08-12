@@ -29,7 +29,7 @@ const parseNumbers = (balancesInEther) =>
     ])
   );
 
-describe.only("Reputation", () => {
+describe("Reputation", () => {
   let reputationInstance, repHolders, root, alice, bob, carl, dean, eddie;
 
   const amountsInEther = {
