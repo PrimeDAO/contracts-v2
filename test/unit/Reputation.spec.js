@@ -105,7 +105,7 @@ describe.only("Reputation", () => {
           newRepHolders,
           newRepAmounts
         );
-        expect(batchMintAttempt).to.be.revertedWith("fua");
+        await expect(batchMintAttempt).to.be.revertedWith("fua");
       });
     });
   });
