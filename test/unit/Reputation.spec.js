@@ -39,23 +39,47 @@ describe.only("SeedFactory", () => {
       parseEther(amount.toString()),
     ])
   );
+  const repAmounts = [
+    parsedAmounts.alice,
+    parsedAmounts.bob,
+    parsedAmounts.carl,
+  ];
+
   before("get array of signers/addresses", async () => {
     [root, alice, bob, carl, dean] = await ethers.getSigners();
     repHolders = [alice.address, bob.address, carl.address];
   });
 
-  describe("#transfer", () => {
-    const repAmounts = [
-      parsedAmounts.alice,
-      parsedAmounts.bob,
-      parsedAmounts.carl,
-    ];
+  beforeEach("create fresh Reputation contract", async () => {
+    ({ reputationInstance } = await setupFixture({ repHolders, repAmounts }));
+  });
 
-    beforeEach("create fresh Reputation contract", async () => {
-      ({ reputationInstance } = await setupFixture({ repHolders, repAmounts }));
+  describe("#transfer", () => {
+    beforeEach(async () => {
       await reputationInstance
         .connect(alice)
         .transfer(dean.address, parsedAmounts.alice);
+    });
+
+    it("doesn't remove REP from sender", async () => {
+      const aliceBalance = await reputationInstance.balanceOf(alice.address);
+      expect(aliceBalance).to.eq(parsedAmounts.alice);
+    });
+
+    it("doesn't add REP to recipient", async () => {
+      const deanBalance = await reputationInstance.balanceOf(dean.address);
+      expect(deanBalance).to.eq(0);
+    });
+  });
+
+  describe("#transferFrom", () => {
+    beforeEach("set allowance for bob and call transferFrom", async () => {
+      await reputationInstance
+        .connect(alice)
+        .approve(bob.address, parsedAmounts.alice);
+      await reputationInstance
+        .connect(bob)
+        .transferFrom(alice.address, dean.address, parsedAmounts.alice);
     });
 
     it("doesn't remove REP from sender", async () => {
