@@ -72,6 +72,24 @@ describe("Reputation", () => {
       });
     });
 
+    context("> input arrays are too long", () => {
+      it("reverts", async () => {
+        const excessiveRepHolderArr = Array(250).fill(alice.address);
+        const excessiveRepAmountsArr = Array(250).fill(parsedAmounts.alice);
+
+        const deployment = deploy("Reputation", {
+          contract: "Reputation",
+          from: root.address,
+          args: [excessiveRepHolderArr, excessiveRepAmountsArr],
+          log: true,
+        });
+
+        await expect(deployment).to.be.revertedWith(
+          "Reputation: maximum number of reputation holders and amounts of 200 was exceeded"
+        );
+      });
+    });
+
     context("> valid constructor arguments", () => {
       it("deploys the Reputation contract", async () => {
         const { address } = await deploy("Reputation", {
@@ -130,6 +148,21 @@ describe("Reputation", () => {
     beforeEach(() => {
       newRepHolders = [dean.address, eddie.address];
       newRepAmounts = [parsedAmounts.dean, parsedAmounts.eddie];
+    });
+
+    context("> input arrays are too long", () => {
+      it("reverts", async () => {
+        const excessiveRepHolderArr = Array(250).fill(alice.address);
+        const excessiveRepAmountsArr = Array(250).fill(parsedAmounts.alice);
+
+        const batchMintAttempt = reputationInstance.batchMint(
+          excessiveRepHolderArr,
+          excessiveRepAmountsArr
+        );
+        await expect(batchMintAttempt).to.be.revertedWith(
+          "Reputation: maximum number of reputation holders and amounts of 200 was exceeded"
+        );
+      });
     });
 
     context("> caller is NOT owner", () => {
@@ -227,6 +260,21 @@ describe("Reputation", () => {
           .batchBurn(burnRepHolders, repAmountsInputParam);
         await expect(batchBurnAttempt).to.be.revertedWith(
           "Ownable: caller is not the owner"
+        );
+      });
+    });
+
+    context("> input arrays are too long", () => {
+      it("reverts", async () => {
+        const excessiveRepHolderArr = Array(250).fill(alice.address);
+        const excessiveRepAmountsArr = Array(250).fill(parsedAmounts.alice);
+
+        const batchMintAttempt = reputationInstance.batchBurn(
+          excessiveRepHolderArr,
+          excessiveRepAmountsArr
+        );
+        await expect(batchMintAttempt).to.be.revertedWith(
+          "Reputation: maximum number of reputation holders and amounts of 200 was exceeded"
         );
       });
     });

@@ -1,3 +1,16 @@
+/*
+
+██████╗░██████╗░██╗███╗░░░███╗███████╗██████╗░░█████╗░░█████╗░
+██╔══██╗██╔══██╗██║████╗░████║██╔════╝██╔══██╗██╔══██╗██╔══██╗
+██████╔╝██████╔╝██║██╔████╔██║█████╗░░██║░░██║███████║██║░░██║
+██╔═══╝░██╔══██╗██║██║╚██╔╝██║██╔══╝░░██║░░██║██╔══██║██║░░██║
+██║░░░░░██║░░██║██║██║░╚═╝░██║███████╗██████╔╝██║░░██║╚█████╔╝
+╚═╝░░░░░╚═╝░░╚═╝╚═╝╚═╝░░░░░╚═╝╚══════╝╚═════╝░╚═╝░░╚═╝░╚════╝░
+
+*/
+// SPDX-License-Identifier: GPL-3.0-or-later
+// solium-disable linebreak-style
+
 pragma solidity 0.8.6;
 
 import "openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Snapshot.sol";
@@ -9,10 +22,13 @@ contract Reputation is ERC20, Ownable {
         address[] memory _repRecipients,
         uint[] memory _repAmounts
     ){
-        // TODO: implement length restriction
         require(
             _repRecipients.length == _repAmounts.length,
             "Reputation: number of reputation holders doesn't match number of reputation amounts"
+        );
+        require(
+            _repRecipients.length <= 200,
+            "Reputation: maximum number of reputation holders and amounts of 200 was exceeded"
         );
         _;
     }
