@@ -21,6 +21,16 @@ const deploy = async () => {
 	return setup
 }
 
+function sortTokens(tokens) {
+	if (tokens[0].address > tokens[1].address) {
+		const temp = tokens[0];
+		tokens[0] = tokens[1];
+		tokens[1] = temp;
+	};
+
+	return tokens;
+};
+
 describe("Interaction with LBP", async () => {
 	let setup;
 	let swapsEnabled;
@@ -38,7 +48,10 @@ describe("Interaction with LBP", async () => {
 		before("!! setup", async () => {
 			setup = await deploy();
 			swapsEnabled = true;
-			tokenAddresses = [setup.tokenList[1].address, setup.tokenList[0].address];
+			
+            sortedTokens = sortTokens(setup.tokenList);
+            tokenAddresses = sortedTokens.map((token) => token.address);
+
 		})
 		it("deploy LBP", async () => {
 			const receipt = await (await setup.lbpFactory.create(
@@ -83,12 +96,12 @@ describe("Interaction with LBP", async () => {
             	fromInternalBalance: false,
             	assets: tokenAddresses
 			};
-			await setup.tokenList[0].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[1]);
-			await setup.tokenList[1].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[0]);
-			await setup.tokenList[0].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[1]);
-			await setup.tokenList[1].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[0]);
-			await setup.tokenList[0].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[1]);
-			await setup.tokenList[1].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[0]);
+			await setup.tokenList[0].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[0]);
+			await setup.tokenList[1].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[1]);
+			await setup.tokenList[0].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[0]);
+			await setup.tokenList[1].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[1]);
+			await setup.tokenList[0].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[0]);
+			await setup.tokenList[1].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[1]);
 		});
 		it("reverts when msg.sender is not owner", async () => {
 			await expect(setup.vault.connect(setup.roles.root).joinPool(
@@ -135,8 +148,8 @@ describe("Interaction with LBP", async () => {
 		});
 		it("it can add more liquidity later on with correct join request", async () => {
 			WEIGHTS = [parseEther('0.6').toString(), parseEther('0.4')]
-			await setup.tokenList[0].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[1]);
-			await setup.tokenList[1].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[0]);
+			await setup.tokenList[0].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[0]);
+			await setup.tokenList[1].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[1]);
 			initUserData = ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256[]'], 
                                         [1, WEIGHTS]);
 			request = {

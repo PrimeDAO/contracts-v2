@@ -54,6 +54,10 @@ contract WrapperFactory is CloneFactory, Ownable {
             _masterCopy != address(0),
             "WrapperFactory: mastercopy cannot be zero"
         );
+        require(
+            _masterCopy != address(this),
+            "WrapperFactory: mastercopy cannot be the same as WrapperFactory"
+        );
         wrapperMasterCopy = _masterCopy;
     }
 

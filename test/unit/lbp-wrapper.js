@@ -23,10 +23,21 @@ const deploy = async () => {
 	return setup
 }
 
+function sortTokens(tokens) {
+	if (tokens[0].address > tokens[1].address) {
+		const temp = tokens[0];
+		tokens[0] = tokens[1];
+		tokens[1] = temp;
+	};
+
+	return tokens;
+};
+
 describe("Contract: LBPWrapper", async () => {
 	let setup;
 	let swapsEnabled;
 	let tokenAddresses;
+    let sortedTokens;
 	const NAME = "Test";
 	const SYMBOL = "TT";
 	let startTime = Date.now();
@@ -40,7 +51,9 @@ describe("Contract: LBPWrapper", async () => {
         before("!! setup", async () => {
             setup = await deploy();
             swapsEnabled = true;
-            tokenAddresses = [setup.tokenList[1].address, setup.tokenList[0].address];
+            
+            sortedTokens = sortTokens(setup.tokenList);
+            tokenAddresses = sortedTokens.map((token) => token.address);
         });
         it("$ deploy LBPWrapper", async () => {
             setup.lbpWrapper = await setup.LBPWrapper.deploy();
@@ -54,11 +67,11 @@ describe("Contract: LBPWrapper", async () => {
     });
     context(">> deploy LBP using Wrapper", async () => {
         before("!! transfer balances", async () => {
-            await setup.tokenList[1].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[0]);
-            await setup.tokenList[0].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[1]);
+            await setup.tokenList[0].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[0]);
+            await setup.tokenList[1].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[1]);
 
-            await setup.tokenList[1].connect(setup.roles.prime).transfer(setup.lbpWrapper.address, WEIGHTS[0]);
-            await setup.tokenList[0].connect(setup.roles.prime).transfer(setup.lbpWrapper.address, WEIGHTS[1]);
+            await setup.tokenList[0].connect(setup.roles.prime).transfer(setup.lbpWrapper.address, WEIGHTS[0]);
+            await setup.tokenList[1].connect(setup.roles.prime).transfer(setup.lbpWrapper.address, WEIGHTS[1]);
         });
         it("$ success", async () => {
             initUserData =ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256[]'], 
