@@ -44,8 +44,9 @@ const Vault = async (setup) => {
 
 const Lbp = (setup) => new ethers.ContractFactory(LBPArtifact.abi, LBPArtifact.bytecode, setup.roles.root);
 
+
 module.exports = {
 	LBPFactory,
 	Vault,
-	Lbp
+	Lbp,
 }
