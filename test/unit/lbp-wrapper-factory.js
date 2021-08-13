@@ -32,7 +32,7 @@ function sortTokens(tokens) {
 	return tokens;
 };
 
-describe(">> Contract: WrapperFactory", () => {
+describe.only(">> Contract: WrapperFactory", () => {
 	let setup, swapsEnabled;
 	let tokenAddresses, admin, owner, sortedTokens;
 
@@ -103,10 +103,10 @@ describe(">> Contract: WrapperFactory", () => {
 		});
 	});
 	context("» deploy LBP using LBPWrapper", () => {
-		let receipt, userData, params;
+		let userData, params;
 		before("!! setup for deploying LBPWrapper", async () => {
 			userData = ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256[]'], 
-				[JOIN_KIND_INIT, START_WEIGHTS]);
+				[JOIN_KIND_INIT, AMOUNTS]);
 			
 			params = [
 				NAME,
@@ -126,6 +126,10 @@ describe(">> Contract: WrapperFactory", () => {
 			await sortedTokens[1].connect(owner).transfer(admin.address, ADMIN_BALANCE[1]);
 			// console.log((await sortedTokens[0].connect(admin).balanceOf(admin.address)).toString())
 			
+
+			await sortedTokens[0].connect(admin).approve(setup.wrapperFactory.address, AMOUNTS[0]);
+			await sortedTokens[1].connect(admin).approve(setup.wrapperFactory.address, AMOUNTS[1]);
+			
 			await sortedTokens[0].connect(admin).approve(setup.vault.address, AMOUNTS[0]);
 			await sortedTokens[1].connect(admin).approve(setup.vault.address, AMOUNTS[1]);
 			// console.log((await sortedTokens[0].allowance(admin.address, setup.vault.address)).toString());
@@ -133,7 +137,7 @@ describe(">> Contract: WrapperFactory", () => {
 		})
 		it("$ deploys LBPWrapper", async () => {
 
-			receipt = await (await setup.wrapperFactory.deployLBPUsingWrapper(
+			const receipt = await (await setup.wrapperFactory.deployLBPUsingWrapper(
 				...params
 			)).wait();
 
