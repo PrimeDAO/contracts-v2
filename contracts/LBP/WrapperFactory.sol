@@ -90,8 +90,7 @@ contract WrapperFactory is CloneFactory, Ownable {
         LBPWrapper(wrapper).initialize(LBPFactory, swapFeePercentage);
 
         for (uint i; i < _tokens.length; i++) {
-            IERC20(_tokens[i]).transferFrom(_admin, address(this), _amounts[i]);
-            IERC20(_tokens[i]).approve(wrapper, _amounts[i]);
+            IERC20(_tokens[i]).transferFrom(_admin, wrapper, _amounts[i]);
         }
 
         address lbp = LBPWrapper(wrapper).deployLbpFromFactory(
