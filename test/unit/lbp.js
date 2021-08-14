@@ -2,7 +2,7 @@ const {expect} = require('chai');
 const { ethers } = require("hardhat");
 const { parseEther } = ethers.utils;
 
-const init = require("../helpers/test-init.js");
+const init = require("../test-init.js");
 const balancer = require("../helpers/balancer.js");
 const tokens = require("../helpers/tokens.js");
 const {constants, BN} = require('@openzeppelin/test-helpers');
@@ -21,6 +21,16 @@ const deploy = async () => {
 	return setup
 }
 
+function sortTokens(tokens) {
+	if (tokens[0].address > tokens[1].address) {
+		const temp = tokens[0];
+		tokens[0] = tokens[1];
+		tokens[1] = temp;
+	};
+
+	return tokens;
+};
+
 describe("Interaction with LBP", async () => {
 	let setup;
 	let swapsEnabled;
@@ -38,7 +48,10 @@ describe("Interaction with LBP", async () => {
 		before("!! setup", async () => {
 			setup = await deploy();
 			swapsEnabled = true;
-			tokenAddresses = [setup.tokenList[1].address, setup.tokenList[0].address];
+			
+            sortedTokens = sortTokens(setup.tokenList);
+            tokenAddresses = sortedTokens.map((token) => token.address);
+
 		})
 		it("deploy LBP", async () => {
 			const receipt = await (await setup.lbpFactory.create(
@@ -74,7 +87,6 @@ describe("Interaction with LBP", async () => {
 		let request;
 		let poolId;
 		before("!! setup for joining pool", async () => {
-			WEIGHTS = [parseEther('600').toString(), parseEther('400')];
 			initUserData =ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256[]'], 
                                         [0, WEIGHTS]);
 			poolId = await setup.lbp.getPoolId();
@@ -84,12 +96,12 @@ describe("Interaction with LBP", async () => {
             	fromInternalBalance: false,
             	assets: tokenAddresses
 			};
-			await setup.tokenList[0].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[1]);
-			await setup.tokenList[1].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[0]);
-			await setup.tokenList[0].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[1]);
-			await setup.tokenList[1].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[0]);
-			await setup.tokenList[0].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[1]);
-			await setup.tokenList[1].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[0]);
+			await setup.tokenList[0].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[0]);
+			await setup.tokenList[1].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[1]);
+			await setup.tokenList[0].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[0]);
+			await setup.tokenList[1].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[1]);
+			await setup.tokenList[0].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[0]);
+			await setup.tokenList[1].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[1]);
 		});
 		it("reverts when msg.sender is not owner", async () => {
 			await expect(setup.vault.connect(setup.roles.root).joinPool(
@@ -135,9 +147,9 @@ describe("Interaction with LBP", async () => {
 			)).to.be.revertedWith("BAL#310"); // UNHANDLED_JOIN_KIND
 		});
 		it("it can add more liquidity later on with correct join request", async () => {
-			WEIGHTS = [parseEther('0.5').toString(), parseEther('0.1')]
-			await setup.tokenList[0].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[1]);
-			await setup.tokenList[1].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[0]);
+			WEIGHTS = [parseEther('0.6').toString(), parseEther('0.4')]
+			await setup.tokenList[0].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[0]);
+			await setup.tokenList[1].connect(setup.roles.prime).approve(setup.vault.address, WEIGHTS[1]);
 			initUserData = ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256[]'], 
                                         [1, WEIGHTS]);
 			request = {
@@ -181,26 +193,27 @@ describe("Interaction with LBP", async () => {
 	});
 	context("Exit Pool", async () => {
 		it("gets pool balance", async () => {
-			const rawInfo = (await setup.vault.getPoolTokens(await setup.lbp.getPoolId()));
-			const tokens = rawInfo.tokens;
-			const balances = [rawInfo.balances[0].toString(), rawInfo.balances[1].toString()];
-			// console.log(tokens, balances);
-			initUserData = ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256[]'], 
-										[1, balances]);
+			// anyone with BPT tokens can exit
+			let rawInfo = (await setup.vault.getPoolTokens(await setup.lbp.getPoolId()));
+			let tokens = rawInfo.tokens;
+			let balance = await setup.lbp.balanceOf(setup.roles.root.address);
+			// "1" - exit with exact BPT in for amount out
+			// balance - total BPT in
+			initUserData = ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256'], 
+										[1, balance.toString()]);
 			request = {
-				minAmountsOut: balances,
-            	userData: initUserData,
-            	toInternalBalance: false,
-            	assets: tokens
+				minAmountsOut: ['0','0'],	// minimum token amount we want to get bacl
+            	userData: initUserData, 	// userData
+            	toInternalBalance: false,	// do we want to transfer it to internal balance
+            	assets: tokens				// array of token address we want out.
 			}
 			const poolId = await setup.lbp.getPoolId();
-			console.log((await setup.lbp.getInvariant()).toString());
 			await expect(setup.vault.connect(setup.roles.root).exitPool(
 				poolId,
 				setup.roles.root.address,
 				setup.roles.root.address,
 				request
-			)).to.emit(setup.vault, "PoolBalanceChanged")
+			)).to.emit(setup.vault, "PoolBalanceChanged");
 		});
 	});
 	context("Getter Functions", async () => {

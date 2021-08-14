@@ -54,6 +54,10 @@ contract WrapperFactory is CloneFactory, Ownable {
             _masterCopy != address(0),
             "WrapperFactory: mastercopy cannot be zero"
         );
+        require(
+            _masterCopy != address(this),
+            "WrapperFactory: mastercopy cannot be the same as WrapperFactory"
+        );
         wrapperMasterCopy = _masterCopy;
     }
 
@@ -89,9 +93,8 @@ contract WrapperFactory is CloneFactory, Ownable {
 
         LBPWrapper(wrapper).initialize(LBPFactory, swapFeePercentage);
 
-        for (uint i; i < _tokens.length; i++) {
-            IERC20(_tokens[i]).transferFrom(_admin, address(this), _amounts[i]);
-            IERC20(_tokens[i]).approve(wrapper, _amounts[i]);
+        for (uint8 i; i < _tokens.length; i++) {
+            IERC20(_tokens[i]).transferFrom(_admin, wrapper, _amounts[i]);
         }
 
         address lbp = LBPWrapper(wrapper).deployLbpFromFactory(

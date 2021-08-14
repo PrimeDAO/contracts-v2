@@ -89,13 +89,12 @@ contract LBPWrapper {
         // to handle stack overflow
         {
             address vault = address(ILBPFactory(LBPFactory).getVault());
-            for ( uint i; i < _tokens.length; i++ ) {
-                IERC20(_tokens[i]).transferFrom(msg.sender, address(this), _amounts[i]);
+            for ( uint8 i; i < _tokens.length; i++ ) {
                 IERC20(_tokens[i]).approve(vault, _amounts[i]);
             }
         }
 
-        address lbp = ILBPFactory(LBPFactory).create(
+        lbp = ILBPFactory(LBPFactory).create(
                 _name,
                 _symbol,
                 _tokens,
@@ -121,7 +120,7 @@ contract LBPWrapper {
             assets: _tokens
         });
 
-        // to handle stack overflow
+        // // to handle stack overflow
         {
             address vault = address(ILBPFactory(LBPFactory).getVault());
             IVault(vault).joinPool(
