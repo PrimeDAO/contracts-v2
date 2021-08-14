@@ -31,6 +31,7 @@ module.exports = {
     cache: "build/cache",
     deploy: "deploy",
     sources: "contracts",
+    imports: 'imports'
   },
   defaultNetwork: "hardhat",
   networks: {
