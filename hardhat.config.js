@@ -42,8 +42,9 @@ module.exports = {
       saveDeployments: true,
     },
     hardhat: {
-      blockGasLimit: 100000000,
-      gas: 2000000,
+      allowUnlimitedContractSize: true,
+      blockGasLimit: 10000000000000,
+      gas: 200000000000,
       saveDeployments: true,
     },
     mainnet: {
