@@ -142,12 +142,4 @@ contract LBPWrapper {
         swapFeePercentage = _swapFeePercentage;
     }
 
-    /**
-     * @dev                set new lbp factory address
-     * @param _LBPFactory  address of LBP factory
-     */
-    function setLBPFactory(address _LBPFactory) public onlyOwner {
-        LBPFactory = _LBPFactory;
-    }
-
 }
