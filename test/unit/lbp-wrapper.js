@@ -45,6 +45,7 @@ describe("Contract: LBPWrapper", async () => {
 	let WEIGHTS = [parseEther('0.6').toString(), parseEther('0.4')];
 	const END_WEIGHTS = [parseEther('0.4').toString(), parseEther('0.6')];
 	const POOL_SWAP_FEE_PERCENTAGE = parseEther('0.01').toString();
+    const NEW_SWAP_FEE_PERCENTAGE = parseEther('0.02').toString();
     let initUserData;
 
     context(">> deploy LBP Wrapper", async () => {
@@ -72,10 +73,28 @@ describe("Contract: LBPWrapper", async () => {
 
             await setup.tokenList[0].connect(setup.roles.prime).transfer(setup.lbpWrapper.address, WEIGHTS[0]);
             await setup.tokenList[1].connect(setup.roles.prime).transfer(setup.lbpWrapper.address, WEIGHTS[1]);
-        });
-        it("$ success", async () => {
+
             initUserData =ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256[]'], 
                                         [0, WEIGHTS]);
+        });
+        it("$ reverts when called by non-owner", async () => {
+            await expect(
+                setup.lbpWrapper.connect(setup.roles.prime).deployLbpFromFactory(
+                    NAME,
+                    SYMBOL,
+                    tokenAddresses,
+                    WEIGHTS,
+                    WEIGHTS,
+                    swapsEnabled,
+                    startTime,
+                    endTime,
+                    END_WEIGHTS,
+                    setup.roles.prime.address,
+                    initUserData
+                )
+            ).to.be.revertedWith("LBPWrapper: only owner function");
+        });
+        it("$ success", async () => {
             await setup.lbpWrapper.connect(setup.roles.root).deployLbpFromFactory(
                 NAME,
                 SYMBOL,
@@ -93,10 +112,26 @@ describe("Contract: LBPWrapper", async () => {
         });
     });
     context(">> transfers ownership to admin", async () => {
+        it("$ reverts when new owner address is zero", async () => {
+            await expect(
+                setup.lbpWrapper.connect(setup.roles.root).transferOwnership(constants.ZERO_ADDRESS)
+            ).to.be.revertedWith("LBPWrapper: new owner cannot be zero");
+        })
         it("$ success", async () => {
             await setup.lbpWrapper.connect(setup.roles.root).transferOwnership(setup.roles.prime.address);
             expect(await setup.lbpWrapper.owner()).to.equal(setup.roles.prime.address);
         })
+    });
+    context(">> set swap fee percentage", async () => {
+        it("$ reverts when sender is not owner",async () => {
+            await expect(
+                setup.lbpWrapper.connect(setup.roles.root).setSwapFeePercentage(NEW_SWAP_FEE_PERCENTAGE)
+            ).to.be.revertedWith("LBPWrapper: only owner function");
+        });
+        it("$ sets new swap fee",async () => {
+            await setup.lbpWrapper.connect(setup.roles.prime).setSwapFeePercentage(NEW_SWAP_FEE_PERCENTAGE);
+            expect((await setup.lbpWrapper.swapFeePercentage()).toString()).to.equal(NEW_SWAP_FEE_PERCENTAGE);
+        });
     });
 
 });
