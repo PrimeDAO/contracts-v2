@@ -25,7 +25,7 @@ const deploy = async () => {
 };
 
 function sortTokens(tokens) {
-	if (tokens[0].address > tokens[1].address) {
+	if (tokens[0].address.toLowerCase() > tokens[1].address.toLowerCase()) {
 		const temp = tokens[0];
 		tokens[0] = tokens[1];
 		tokens[1] = temp;

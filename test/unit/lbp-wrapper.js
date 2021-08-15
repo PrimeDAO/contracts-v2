@@ -24,10 +24,8 @@ const deploy = async () => {
 }
 
 function sortTokens(tokens) {
-	if (tokens[0].address > tokens[1].address) {
-		const temp = tokens[0];
-		tokens[0] = tokens[1];
-		tokens[1] = temp;
+	if (tokens[0].address.toLowerCase() > tokens[1].address.toLowerCase()) {
+		return [tokens[1], tokens[0]];
 	};
 
 	return tokens;
@@ -68,11 +66,11 @@ describe("Contract: LBPWrapper", async () => {
     });
     context(">> deploy LBP using Wrapper", async () => {
         before("!! transfer balances", async () => {
-            await setup.tokenList[0].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[0]);
-            await setup.tokenList[1].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[1]);
+            await sortedTokens[0].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[0]);
+            await sortedTokens[1].connect(setup.roles.root).transfer(setup.roles.prime.address, WEIGHTS[1]);
 
-            await setup.tokenList[0].connect(setup.roles.prime).transfer(setup.lbpWrapper.address, WEIGHTS[0]);
-            await setup.tokenList[1].connect(setup.roles.prime).transfer(setup.lbpWrapper.address, WEIGHTS[1]);
+            await sortedTokens[0].connect(setup.roles.prime).transfer(setup.lbpWrapper.address, WEIGHTS[0]);
+            await sortedTokens[1].connect(setup.roles.prime).transfer(setup.lbpWrapper.address, WEIGHTS[1]);
 
             initUserData =ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256[]'], 
                                         [0, WEIGHTS]);
