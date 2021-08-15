@@ -73,6 +73,14 @@ const getDeployedContract = async (factoryName, address, args) => {
   return await Factory.deploy(...arguments);
 }
 
+const signerV2 = async (setup) => {
+  const signerV2Factory = await ethers.getContractFactory(
+    "SignerV2",
+    setup.roles.root
+  );
+  return await signerV2Factory.deploy(setup.roles.root.address, [], []);
+}
+
 const seedMasterCopy = async (setup) => {
   const Seed_Factory = await ethers.getContractFactory(
     "Seed",
@@ -109,6 +117,7 @@ module.exports = {
   gnosisProxy,
   seedFactory,
   seedMasterCopy,
+  signerV2,
   tokens,
   LBPWrapper,
   getDeployedContract
