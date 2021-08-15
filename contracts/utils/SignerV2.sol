@@ -62,7 +62,7 @@ contract SignerV2 is ISignatureValidator {
             "Signer: Safe address cannot be zero"
         );
         safe = _safe;
-        for(uint256 i; i < _contracts.length; i++){
+        for (uint256 i; i < _contracts.length; i++) {
             allowedTransactions[_contracts[i]][_functionSignatures[i]] = true;
         }
     }

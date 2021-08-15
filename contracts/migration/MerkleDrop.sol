@@ -15,6 +15,7 @@
  and the addition of a blocknumber that needs to have passed for a drop to be claimable.
 */
 
+// solium-disable linebreak-style
 pragma solidity 0.5.16;
 pragma experimental ABIEncoderV2;
 
