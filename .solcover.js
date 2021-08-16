@@ -1,3 +1,3 @@
 module.exports = {
-    skipFiles: ['Routers/EtherRouter.sol']
+  skipFiles: ["Routers/EtherRouter.sol"]
 };

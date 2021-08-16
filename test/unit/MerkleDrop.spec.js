@@ -5,7 +5,7 @@ const { ethers } = require("hardhat");
 const {
   getTranche,
   createTreeWithAccounts,
-  getAccountBalanceProof,
+  getAccountBalanceProof
 } = require("../../tasks/utils/merkle");
 
 const rawAllocations = [
@@ -16,7 +16,7 @@ const rawAllocations = [
   "9.64320061541387227",
   "45.45852965164066046",
   "2.58531507323313161",
-  "105.44076288303354762",
+  "105.44076288303354762"
 ];
 
 const matchAllocationsWithAddresses = (addresses, rawAllocations) =>
@@ -40,7 +40,7 @@ const getCumulativeAllocation = (addresses, rawAllocations) => {
   );
 };
 
-const mineBlocks = async (blockAmount) => {
+const mineBlocks = async blockAmount => {
   for (let i = 0; i < blockAmount; i++) {
     await network.provider.send("evm_mine");
   }
@@ -55,11 +55,11 @@ const setupFixture = deployments.createFixture(
       contract: "ERC20Mock",
       from: root.address,
       args: ["TTOKEN", "TToken"],
-      log: true,
+      log: true
     });
     const contractInstances = {
       merkleDropInstance: await ethers.getContract("MerkleDrop"),
-      v2TokenInstance: await ethers.getContract("TestToken"),
+      v2TokenInstance: await ethers.getContract("TestToken")
     };
 
     return { ...contractInstances };
@@ -71,7 +71,7 @@ const setupInitialState = async (contractInstances, initialState) => {
 
   const signers = await ethers.getSigners();
   const [root, prime, alice, bob] = signers;
-  const addresses = signers.map((signer) => signer.address);
+  const addresses = signers.map(signer => signer.address);
   const { merkleDropInstance, v2TokenInstance } = contractInstances;
 
   const {
@@ -80,7 +80,7 @@ const setupInitialState = async (contractInstances, initialState) => {
     trancheExpired,
     forwardBlocks,
     zeroAllocation,
-    incorrectProof,
+    incorrectProof
   } = initialState;
 
   let parsedAllocations = matchAllocationsWithAddresses(
@@ -141,7 +141,7 @@ const setupInitialState = async (contractInstances, initialState) => {
     const modifiedTranche = getTranche(
       ...modifiedAllocations.map((balance, index) => [
         modifiedAddresses[index],
-        balance,
+        balance
       ])
     );
     tree = createTreeWithAccounts(modifiedTranche);
@@ -182,12 +182,12 @@ const generateProof = (tree, address, balance, addresses) => ({
   proof: getAccountBalanceProof(tree, address, balance),
   expectedBalance: balance.isZero()
     ? BigNumber.from(0)
-    : matchAllocationsWithAddresses(addresses, rawAllocations)[address],
+    : matchAllocationsWithAddresses(addresses, rawAllocations)[address]
 });
 
 const commonState = {
   initialPrimeV2Supply: utils.parseEther("100000000"),
-  forwardBlocks: 100,
+  forwardBlocks: 100
 };
 
 describe(">> MerkleDrop", () => {
@@ -211,7 +211,7 @@ describe(">> MerkleDrop", () => {
       const initialState = {
         ...commonState,
         thresholdInPast: false,
-        withProof: true,
+        withProof: true
       };
 
       it("reverts", async () => {
@@ -231,7 +231,7 @@ describe(">> MerkleDrop", () => {
       const initialState = {
         ...commonState,
         thresholdInPast: true,
-        withProof: true,
+        withProof: true
       };
 
       beforeEach(async () => {
@@ -268,7 +268,7 @@ describe(">> MerkleDrop", () => {
         ...commonState,
         thresholdInPast: true,
         withProof: true,
-        zeroAllocation: true,
+        zeroAllocation: true
       };
 
       it("reverts", async () => {
@@ -297,7 +297,7 @@ describe(">> MerkleDrop", () => {
       const initialState = {
         ...commonState,
         thresholdInPast: false,
-        withProof: true,
+        withProof: true
       };
 
       beforeEach(async () => {
@@ -326,7 +326,7 @@ describe(">> MerkleDrop", () => {
         ...commonState,
         thresholdInPast: false,
         withProof: true,
-        trancheExpired: true,
+        trancheExpired: true
       };
 
       beforeEach(async () => {
@@ -355,7 +355,7 @@ describe(">> MerkleDrop", () => {
         ...commonState,
         thresholdInPast: true,
         withProof: true,
-        incorrectProof: true,
+        incorrectProof: true
       };
 
       it("reverts", async () => {
