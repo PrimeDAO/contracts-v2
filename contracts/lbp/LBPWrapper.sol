@@ -10,14 +10,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // solium-disable linebreak-style
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.6;
 
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
-import "hardhat/console.sol";
 
 
 contract LBPWrapper {

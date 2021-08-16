@@ -12,13 +12,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // solium-disable linebreak-style
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.6;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../utils/CloneFactory.sol";
 import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "./LBPWrapper.sol";
-import "hardhat/console.sol";
 
 
 contract WrapperFactory is CloneFactory, Ownable {
