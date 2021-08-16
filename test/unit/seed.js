@@ -289,7 +289,7 @@ describe("Contract: Seed", async () => {
         it("it returns amount of seed token bought and the fee", async () => {
           let {
             ["0"]: seedAmount,
-            ["1"]: feeAmount,
+            ["1"]: feeAmount
           } = await setup.seed.connect(buyer1).callStatic.buy(buyAmount);
           expect((await seedAmount).toString()).to.equal(buySeedAmount);
           expect((await feeAmount).toString()).to.equal(hundredTwoETH);

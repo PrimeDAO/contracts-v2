@@ -1,6 +1,6 @@
 const DeployedContracts = require("../contractAddresses.json");
 const path = require("path");
-const fs = require('fs');
+const fs = require("fs");
 
 const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
   const { deploy } = deployments;
@@ -10,13 +10,13 @@ const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
   const { address: seedFactoryAddress } = await deploy("SeedFactory", {
     from: root,
     args: [],
-    log: true,
+    log: true
   });
 
   const { address: seedAddress } = await deploy("Seed", {
     from: root,
     args: [],
-    log: true,
+    log: true
   });
 
   const seedFactoryInstance = await ethers.getContract("SeedFactory");
@@ -26,7 +26,7 @@ const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
   const { address: signerAddress } = await deploy("Signer", {
     from: root,
     args: [Safe, seedFactoryAddress],
-    log: true,
+    log: true
   });
 
   DeployedContracts[network.name].Signer = signerAddress;
@@ -35,9 +35,9 @@ const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
 
   console.log("Saving Address to contractAddresses.json\n");
   fs.writeFileSync(
-    path.resolve(__dirname,"../contractAddresses.json"),
+    path.resolve(__dirname, "../contractAddresses.json"),
     JSON.stringify(DeployedContracts)
-    );
+  );
 };
 
 module.exports = deployFunction;

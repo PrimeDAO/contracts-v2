@@ -5,7 +5,7 @@ const PRIME_CAP = parseEther("90000000").toString();
 const PRIME_SUPPLY = parseEther("21000000").toString();
 const PRIME_SUPPLY_V2 = parseEther("100000000").toString();
 
-const initialize = async (accounts) => {
+const initialize = async accounts => {
   const setup = {};
   setup.roles = {
     root: accounts[0],
@@ -14,13 +14,13 @@ const initialize = async (accounts) => {
     buyer1: accounts[3],
     buyer2: accounts[4],
     buyer3: accounts[5],
-    buyer4: accounts[6],
+    buyer4: accounts[6]
   };
 
   return setup;
 };
 
-const gnosisSafe = async (setup) => {
+const gnosisSafe = async setup => {
   const GnosisSafe_Factory = await ethers.getContractFactory(
     "GnosisSafe",
     setup.roles.prime
@@ -30,7 +30,7 @@ const gnosisSafe = async (setup) => {
   return safe;
 };
 
-const gnosisProxy = async (setup) => {
+const gnosisProxy = async setup => {
   const GnosisSafeProxyFactory_Factory = await ethers.getContractFactory(
     "GnosisSafeProxyFactory",
     setup.roles.prime
@@ -41,13 +41,13 @@ const gnosisProxy = async (setup) => {
     .connect(setup.roles.prime)
     .createProxy(setup.gnosisSafe.address, "0x00");
   const proxy_receit = await proxy_tx.wait();
-  const proxy_addr = proxy_receit.events.filter((data) => {
+  const proxy_addr = proxy_receit.events.filter(data => {
     return data.event === PROXY_CREATION;
   })[0].args["proxy"];
   return await ethers.getContractAt("GnosisSafe", proxy_addr);
 };
 
-const seedFactory = async (setup) => {
+const seedFactory = async setup => {
   const SeedFactory_Factory = await ethers.getContractFactory(
     "SeedFactory",
     setup.roles.prime
@@ -57,7 +57,7 @@ const seedFactory = async (setup) => {
   return factory;
 };
 
-const seedMasterCopy = async (setup) => {
+const seedMasterCopy = async setup => {
   const Seed_Factory = await ethers.getContractFactory(
     "Seed",
     setup.roles.prime
@@ -67,7 +67,7 @@ const seedMasterCopy = async (setup) => {
   return seed;
 };
 
-const tokens = async (setup) => {
+const tokens = async setup => {
   const PrimeToken_Factory = await ethers.getContractFactory(
     "PrimeToken",
     setup.roles.root
@@ -93,5 +93,5 @@ module.exports = {
   gnosisProxy,
   seedFactory,
   seedMasterCopy,
-  tokens,
+  tokens
 };

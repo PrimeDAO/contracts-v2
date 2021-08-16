@@ -17,7 +17,7 @@ if (PK) {
   sharedNetworkConfig.accounts = [PK];
 } else {
   sharedNetworkConfig.accounts = {
-    mnemonic: MNEMONIC || DEFAULT_MNEMONIC,
+    mnemonic: MNEMONIC || DEFAULT_MNEMONIC
   };
 }
 
@@ -30,7 +30,7 @@ module.exports = {
     artifacts: "build/artifacts",
     cache: "build/cache",
     deploy: "deploy",
-    sources: "contracts",
+    sources: "contracts"
   },
   defaultNetwork: "hardhat",
   networks: {
@@ -38,28 +38,28 @@ module.exports = {
       ...sharedNetworkConfig,
       blockGasLimit: 100000000,
       gas: 2000000,
-      saveDeployments: true,
+      saveDeployments: true
     },
     hardhat: {
       blockGasLimit: 100000000,
       gas: 2000000,
-      saveDeployments: true,
+      saveDeployments: true
     },
     mainnet: {
       ...sharedNetworkConfig,
       url: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
-      saveDeployments: true,
+      saveDeployments: true
     },
     rinkeby: {
       ...sharedNetworkConfig,
       url: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
-      saveDeployments: true,
+      saveDeployments: true
     },
     ganache: {
       ...sharedNetworkConfig,
       url: "http://127.0.0.1:7545",
-      saveDeployments: true,
-    },
+      saveDeployments: true
+    }
   },
   solidity: {
     compilers: [
@@ -68,14 +68,14 @@ module.exports = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 200,
-          },
-        },
+            runs: 200
+          }
+        }
       },
       { version: "0.6.12" },
       { version: "0.5.17" },
-      { version: "0.5.16" },
-    ],
+      { version: "0.5.16" }
+    ]
   },
   etherscan: {
     apiKey: ETHERSCAN_API_KEY
@@ -83,6 +83,6 @@ module.exports = {
   namedAccounts: {
     root: 0,
     prime: 1,
-    beneficiary: 2,
-  },
+    beneficiary: 2
+  }
 };
