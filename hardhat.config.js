@@ -38,8 +38,8 @@ module.exports = {
   networks: {
     localhost: {
       ...sharedNetworkConfig,
-      blockGasLimit: 10000000000000,
-      gas: 200000000000,
+      blockGasLimit: 100000000,
+      gas: 2000000,
       saveDeployments: true
     },
     hardhat: {
