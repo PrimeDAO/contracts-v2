@@ -54,6 +54,8 @@ contract Reputation is ERC20, Ownable {
 
     /**
      * @dev  Overrides standard ERC20 transfer function, to make tokens non-trasferable.
+     * @param recipient     unused parameter.
+     * @param amount        unused parameter.
      */
     function transfer(
         address recipient,
@@ -63,7 +65,10 @@ contract Reputation is ERC20, Ownable {
     }
 
     /**
-     * @dev  Overrides standard ERC20 transferFrom function, to make tokens non-trasferable.
+     * @dev                 Overrides standard ERC20 transferFrom function, to make tokens non-trasferable.
+     * @param sender        unused parameter.
+     * @param recipient     unused parameter.
+     * @param amount        unused parameter.
      */
     function transferFrom(
         address sender,
