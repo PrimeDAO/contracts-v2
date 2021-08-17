@@ -1,14 +1,13 @@
-const { utils } = require("ethers");
-const initialRepBalances = require("../../inputs/initialRepBalances.json");
+const { utils, BigNumber } = require("ethers");
 
-const { parseEther } = utils;
+const { parseEther, formatEther } = utils;
 
-const getReputationParams = () => {
+const getReputationParams = (initialRepBalances) => {
   let repHolders = [];
   let repAmounts = [];
   Object.entries(initialRepBalances).forEach(([address, amount]) => {
     repHolders.push(address);
-    repAmounts.push(parseEther(amount.toString()));
+    repAmounts.push(BigNumber.from(amount));
   });
 
   return { repHolders, repAmounts };
