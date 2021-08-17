@@ -40,7 +40,8 @@ module.exports = {
       ...sharedNetworkConfig,
       blockGasLimit: 100000000,
       gas: 2000000,
-      saveDeployments: true
+      saveDeployments: true,
+      initialBaseFeePerGas: 0
     },
     hardhat: {
       allowUnlimitedContractSize: true,
