@@ -41,9 +41,9 @@ module.exports = {
       blockGasLimit: 100000000,
       gas: 2000000,
       saveDeployments: true,
-      initialBaseFeePerGas: 0
     },
     hardhat: {
+      initialBaseFeePerGas: 0,
       allowUnlimitedContractSize: true,
       blockGasLimit: 10000000000000,
       gas: 200000000000,
