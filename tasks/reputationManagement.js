@@ -12,3 +12,15 @@ task("verifyReputation", "Verifies the contract on etherscan").setAction(
     });
   }
 );
+
+task(
+  "transferOwnership",
+  "Transfers ownership of Reputation to specified address"
+)
+  .addParam("owner", "address of new owner", undefined, types.string)
+  .setAction(async ({ owner }, { run, ethers }) => {
+    console.log(`Transferring ownership to ${owner}`);
+    const reputationInstance = await ethers.getContract("Reputation");
+    const tx = await reputationInstance.transferOwnership(owner);
+    console.log("tx: ", tx.hash);
+  });
