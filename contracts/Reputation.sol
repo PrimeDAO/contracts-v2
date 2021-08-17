@@ -40,17 +40,8 @@ contract Reputation is ERC20, Ownable {
 
     /**
      * @dev                  Reputation constructor function.
-     * @param _repRecipients an array of reputation recipients.
-     * @param _repAmounts    an array of reputation amount.
      */
-    constructor(
-        address[] memory _repRecipients,
-        uint256[] memory _repAmounts
-    )
-    ERC20("PrimeDAO Reputation", "REP")
-    {
-        _batchMint(_repRecipients, _repAmounts);
-    }
+    constructor() ERC20("PrimeDAO Reputation", "REP") {}
 
     /**
      * @dev  Overrides standard ERC20 transfer function, to make tokens non-trasferable.

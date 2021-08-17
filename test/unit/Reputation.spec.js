@@ -14,11 +14,15 @@ const setupFixture = deployments.createFixture(
     await deploy("Reputation", {
       contract: "Reputation",
       from: root.address,
-      args: [repHolders, repAmounts],
+      args: [],
       log: true,
     });
 
-    return await ethers.getContract("Reputation");
+    const reputationInstance = await ethers.getContract("Reputation");
+
+    await reputationInstance.batchMint(repHolders, repAmounts);
+
+    return reputationInstance;
   }
 );
 
@@ -30,7 +34,7 @@ const parseNumbers = (balancesInEther) =>
     ])
   );
 
-describe("Reputation", () => {
+describe.only("Reputation", () => {
   let reputationInstance,
     repHolders,
     repAmounts,
@@ -68,64 +72,15 @@ describe("Reputation", () => {
   describe("!deployment", () => {
     const { deploy } = deployments;
 
-    context("> more repHolders than repAmounts", () => {
-      it("reverts", async () => {
-        const deployment = deploy("Reputation", {
-          contract: "Reputation",
-          from: root.address,
-          args: [[...repHolders, dean.address], repAmounts],
-          log: true,
-        });
-
-        await expect(deployment).to.be.revertedWith(
-          "Reputation: number of reputation holders doesn't match number of reputation amounts"
-        );
-      });
-    });
-
-    context("> input arrays are too long", () => {
-      it("reverts", async () => {
-        const excessiveRepHolderArr = Array(250).fill(alice.address);
-        const excessiveRepAmountsArr = Array(250).fill(parsedAmounts.alice);
-
-        const deployment = deploy("Reputation", {
-          contract: "Reputation",
-          from: root.address,
-          args: [excessiveRepHolderArr, excessiveRepAmountsArr],
-          log: true,
-        });
-
-        await expect(deployment).to.be.revertedWith(
-          "Reputation: maximum number of reputation holders and amounts of 200 was exceeded"
-        );
-      });
-    });
-
-    context("> valid constructor arguments", () => {
-      let address;
-
-      beforeEach(async () => {
-        ({ address } = await deploy("Reputation", {
-          contract: "Reputation",
-          from: root.address,
-          args: [repHolders, repAmounts],
-          log: true,
-        }));
+    it("deploys the Reputation contract", async () => {
+      const { address } = await deploy("Reputation", {
+        contract: "Reputation",
+        from: root.address,
+        args: [],
+        log: true,
       });
 
-      it("deploys the Reputation contract", async () => {
-        expect(address).to.be.properAddress;
-      });
-
-      it("allocates the correct amount of REP to alice", async () => {
-        const aliceBalance = await reputationInstance.balanceOf(alice.address);
-        expect(aliceBalance).to.eq(parsedAmounts.alice);
-      });
-
-      it("allocates the correct amount of REP to bob", async () => {
-        const bobBalance = await reputationInstance.balanceOf(bob.address);
-        expect(bobBalance).to.eq(parsedAmounts.bob);
-      });
+      expect(address).to.be.properAddress;
     });
   });
 
