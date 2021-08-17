@@ -1,32 +1,15 @@
-const { utils, BigNumber } = require("ethers");
 const path = require("path");
 const fs = require("fs");
 const DeployedContracts = require("../contractAddresses.json");
-const { getReputationParams } = require("../tasks/utils/reputation");
-const initialRepBalances = require("../inputs/initialRepBalances.json");
-
-const { formatEther } = utils;
 
 const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
-  const { repHolders, repAmounts } = getReputationParams(initialRepBalances);
-
-  const initalRepSupply = formatEther(
-    repAmounts.reduce(
-      (accumulator, currentValue) => accumulator.add(currentValue),
-      BigNumber.from(0)
-    )
-  );
-
-  console.log(
-    `Deploying Reputation with ${repHolders.length} initial rep holder addresses and an initial supply of ${initalRepSupply} REP`
-  );
 
   const { address: reputationAddress } = await deploy("Reputation", {
     contract: "Reputation",
     from: root,
-    args: [repHolders, repAmounts],
+    args: [],
     log: true,
   });
 
