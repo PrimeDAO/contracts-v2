@@ -16,6 +16,11 @@ pragma solidity 0.8.6;
 import "openzeppelin-contracts-sol8/token/ERC20/ERC20.sol";
 import "openzeppelin-contracts-sol8/access/Ownable.sol";
 
+
+/**
+ * @title PrimeDAO Reputation contract
+ * @dev   Reputation is a non-transferable ERC20 token used for PrimeDAO Governance.
+ */
 contract Reputation is ERC20, Ownable {
 
     modifier validInput(
@@ -33,6 +38,11 @@ contract Reputation is ERC20, Ownable {
         _;
     }
 
+    /**
+     * @dev                  Reputation constructor function.
+     * @param _repRecipients an array of reputation recipients.
+     * @param _repAmounts    an array of reputation amount.
+     */
     constructor(
         address[] memory _repRecipients,
         uint256[] memory _repAmounts
@@ -42,6 +52,11 @@ contract Reputation is ERC20, Ownable {
         _batchMint(_repRecipients, _repAmounts);
     }
 
+    /**
+     * @dev  Overrides standard ERC20 transfer function, to make tokens non-trasferable.
+     * @param recipient     unused parameter.
+     * @param amount        unused parameter.
+     */
     function transfer(
         address recipient,
         uint256 amount
@@ -49,6 +64,12 @@ contract Reputation is ERC20, Ownable {
         return false;
     }
 
+    /**
+     * @dev                 Overrides standard ERC20 transferFrom function, to make tokens non-trasferable.
+     * @param sender        unused parameter.
+     * @param recipient     unused parameter.
+     * @param amount        unused parameter.
+     */
     function transferFrom(
         address sender,
         address recipient,
@@ -57,6 +78,11 @@ contract Reputation is ERC20, Ownable {
         return false;
     }
 
+    /**
+     * @dev                  Mints reputation to a given address.
+     * @param _repRecipient  adress that rep is being minted to.
+     * @param _repAmount     amount of reputation to be minted.
+     */
     function mint(
         address _repRecipient,
         uint _repAmount
@@ -64,6 +90,11 @@ contract Reputation is ERC20, Ownable {
         ERC20._mint(_repRecipient, _repAmount);
     }
 
+    /**
+     * @dev                   Mints reputation for multiple adresses.
+     * @param _repRecipients  an array of adresses that rep is being minted to.
+     * @param _repAmounts     an array of amounts of reputation to be minted.
+     */
     function batchMint(
         address[] memory _repRecipients,
         uint[] memory _repAmounts
@@ -71,6 +102,11 @@ contract Reputation is ERC20, Ownable {
         _batchMint(_repRecipients, _repAmounts);
     }
 
+    /**
+     * @dev                  Burns reputation of a given address.
+     * @param _repRecipient  adress that's rep is being burned.
+     * @param _repAmount     amount of reputation to be burned.
+     */
     function burn(
         address _repRecipient,
         uint _repAmount
@@ -78,12 +114,19 @@ contract Reputation is ERC20, Ownable {
         ERC20._burn(_repRecipient, _repAmount);
     }
 
+    /**
+     * @dev                   Burns reputation of multiple adresses.
+     * @param _repRecipients  an array of adresses that's rep is being burned.
+     * @param _repAmounts     an array of amounts of reputation to be burned.
+     */
     function batchBurn(
         address[] memory _repRecipients,
         uint[] memory _repAmounts
     ) public onlyOwner {
         _batchBurn(_repRecipients, _repAmounts);
     }
+
+    // HELPER FUNCTIONS
 
     function _batchMint(
         address[] memory _repRecipients,
