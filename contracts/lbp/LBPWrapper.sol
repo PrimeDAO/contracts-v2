@@ -22,7 +22,7 @@ import "../utils/interface/ILBP.sol";
 contract LBPWrapper {
 
     address public owner;
-    address public LBPFactory;
+    ILBPFactory public LBPFactory;
     address public lbp;
     uint256 public swapFeePercentage;
     bool isInitialized;
@@ -52,7 +52,7 @@ contract LBPWrapper {
     ) public
     {
         owner = msg.sender;
-        LBPFactory = _LBPFactory;
+        LBPFactory = ILBPFactory(_LBPFactory);
         swapFeePercentage = _swapFeePercentage;
         isInitialized = true;
     }
@@ -87,13 +87,13 @@ contract LBPWrapper {
     {
         // to handle stack overflow
         {
-            address vault = address(ILBPFactory(LBPFactory).getVault());
+            address vault = address(LBPFactory.getVault());
             for ( uint8 i; i < _tokens.length; i++ ) {
                 IERC20(_tokens[i]).approve(vault, _amounts[i]);
             }
         }
 
-        lbp = ILBPFactory(LBPFactory).create(
+        lbp = LBPFactory.create(
                 _name,
                 _symbol,
                 _tokens,
@@ -121,7 +121,7 @@ contract LBPWrapper {
 
         // // to handle stack overflow
         {
-            address vault = address(ILBPFactory(LBPFactory).getVault());
+            address vault = address(LBPFactory.getVault());
             IVault(vault).joinPool(
                 ILBP(lbp).getPoolId(),
                 address(this),
