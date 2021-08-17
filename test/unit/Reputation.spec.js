@@ -1,6 +1,7 @@
 const { expect } = require("chai");
 const { ethers, deployments } = require("hardhat");
-const { utils } = require("ethers");
+const { utils, BigNumber } = require("ethers");
+const { getReputationParams } = require("../../tasks/utils/reputation");
 
 const { parseEther } = utils;
 
@@ -25,30 +26,39 @@ const parseNumbers = (balancesInEther) =>
   Object.fromEntries(
     Object.entries(balancesInEther).map(([signerName, amount]) => [
       signerName,
-      parseEther(amount.toString()),
+      BigNumber.from(amount),
     ])
   );
 
-describe("Reputation", () => {
-  let reputationInstance, repHolders, root, alice, bob, carl, dean, eddie;
+describe.only("Reputation", () => {
+  let reputationInstance,
+    repHolders,
+    repAmounts,
+    root,
+    alice,
+    bob,
+    carl,
+    dean,
+    eddie;
 
-  const amountsInEther = {
-    alice: 10,
-    bob: 10.5,
-    carl: 20,
-    dean: 5,
-    eddie: 6,
+  const amountsInWei = {
+    alice: "10000000000000000000",
+    bob: "10500000000000000000",
+    carl: "20000000000000000000",
+    dean: "5000000000000000000",
+    eddie: "6000000000000000000",
   };
-  const parsedAmounts = parseNumbers(amountsInEther);
-  const repAmounts = [
-    parsedAmounts.alice,
-    parsedAmounts.bob,
-    parsedAmounts.carl,
-  ];
+
+  const parsedAmounts = parseNumbers(amountsInWei);
 
   before("get array of signers/addresses", async () => {
     [root, alice, bob, carl, dean, eddie] = await ethers.getSigners();
-    repHolders = [alice.address, bob.address, carl.address];
+    const initialBalances = {
+      [alice.address]: amountsInWei.alice,
+      [bob.address]: amountsInWei.bob,
+      [carl.address]: amountsInWei.carl,
+    };
+    ({ repHolders, repAmounts } = getReputationParams(initialBalances));
   });
 
   beforeEach("create fresh Reputation contract", async () => {
@@ -92,15 +102,29 @@ describe("Reputation", () => {
     });
 
     context("> valid constructor arguments", () => {
-      it("deploys the Reputation contract", async () => {
-        const { address } = await deploy("Reputation", {
+      let address;
+
+      beforeEach(async () => {
+        ({ address } = await deploy("Reputation", {
           contract: "Reputation",
           from: root.address,
           args: [repHolders, repAmounts],
           log: true,
-        });
+        }));
+      });
 
+      it("deploys the Reputation contract", async () => {
         expect(address).to.be.properAddress;
+      });
+
+      it("allocates the correct amount of REP to alice", async () => {
+        const aliceBalance = await reputationInstance.balanceOf(alice.address);
+        expect(aliceBalance).to.eq(parsedAmounts.alice);
+      });
+
+      it("allocates the correct amount of REP to bob", async () => {
+        const bobBalance = await reputationInstance.balanceOf(bob.address);
+        expect(bobBalance).to.eq(parsedAmounts.bob);
       });
     });
   });
