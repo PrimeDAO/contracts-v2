@@ -115,9 +115,9 @@ contract Reputation is ERC20, Ownable {
     }
 
     /**
-     * @dev                  Burns reputation of multiple adresses.
-     * @param _repRecipient  an array of adresses that's rep is being burned.
-     * @param _repAmount     an array of amounts of reputation to be burned.
+     * @dev                   Burns reputation of multiple adresses.
+     * @param _repRecipients  an array of adresses that's rep is being burned.
+     * @param _repAmounts     an array of amounts of reputation to be burned.
      */
     function batchBurn(
         address[] memory _repRecipients,
