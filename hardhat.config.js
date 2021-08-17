@@ -31,7 +31,8 @@ module.exports = {
     artifacts: "build/artifacts",
     cache: "build/cache",
     deploy: "deploy",
-    sources: "contracts"
+    sources: "contracts",
+    imports: 'imports'
   },
   defaultNetwork: "hardhat",
   networks: {
