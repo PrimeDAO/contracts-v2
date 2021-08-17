@@ -4,13 +4,13 @@ const {
   constants,
   time,
   expectRevert,
-  BN,
+  BN
 } = require("@openzeppelin/test-helpers");
 const { parseEther } = ethers.utils;
 
 const init = require("../test-init.js");
 
-const toHex = (str) => {
+const toHex = str => {
   let hex = "";
   for (let i = 0; i < str.length; i++) {
     hex += "" + str.charCodeAt(i).toString(16);

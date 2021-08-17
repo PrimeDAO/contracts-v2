@@ -431,7 +431,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/seed/Seed.sol": {
-      "lastModificationDate": 1628114057314,
+      "lastModificationDate": 1628753891630,
       "contentHash": "481f6725fe7ce2ad9ec87594938351e1",
       "sourceName": "contracts/seed/Seed.sol",
       "solcConfig": {
@@ -517,7 +517,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/seed/SeedFactory.sol": {
-      "lastModificationDate": 1628114057315,
+      "lastModificationDate": 1628753891631,
       "contentHash": "a17b112aa1831a51384af71a0c47590f",
       "sourceName": "contracts/seed/SeedFactory.sol",
       "solcConfig": {
@@ -608,7 +608,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/utils/CloneFactory.sol": {
-      "lastModificationDate": 1628114057318,
+      "lastModificationDate": 1628753891635,
       "contentHash": "1564e253daa2730a4e7a67db7d295a7a",
       "sourceName": "contracts/utils/CloneFactory.sol",
       "solcConfig": {
@@ -826,7 +826,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/test/PrimeToken.sol": {
-      "lastModificationDate": 1628114057318,
+      "lastModificationDate": 1628753891634,
       "contentHash": "015a36db28d71e08f272eeb8116f6fbc",
       "sourceName": "contracts/test/PrimeToken.sol",
       "solcConfig": {
@@ -870,7 +870,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/test/ERC20Mock.sol": {
-      "lastModificationDate": 1628158369286,
+      "lastModificationDate": 1628753891633,
       "contentHash": "8395fc93b61b4e87bb730007bd809cea",
       "sourceName": "contracts/test/ERC20Mock.sol",
       "solcConfig": {
@@ -914,7 +914,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/test/CustomERC20Mock.sol": {
-      "lastModificationDate": 1628114057315,
+      "lastModificationDate": 1628753891632,
       "contentHash": "2636708cf972231639eb371999ff5d47",
       "sourceName": "contracts/test/CustomERC20Mock.sol",
       "solcConfig": {
@@ -1001,7 +1001,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/test/Imports.sol": {
-      "lastModificationDate": 1628114057317,
+      "lastModificationDate": 1628753891634,
       "contentHash": "ff1aac81c516eef67007921874b721ce",
       "sourceName": "contracts/test/Imports.sol",
       "solcConfig": {
@@ -1833,7 +1833,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/utils/Signer.sol": {
-      "lastModificationDate": 1628114057319,
+      "lastModificationDate": 1628753891635,
       "contentHash": "8fafafad8dbb5764df0c7d38509f1269",
       "sourceName": "contracts/utils/Signer.sol",
       "solcConfig": {
@@ -1878,7 +1878,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/utils/interface/Safe.sol": {
-      "lastModificationDate": 1628114057320,
+      "lastModificationDate": 1628753891636,
       "contentHash": "d766ead0344f1fcde06affffab50db4b",
       "sourceName": "contracts/utils/interface/Safe.sol",
       "solcConfig": {
@@ -1921,7 +1921,7 @@
       ]
     },
     "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/migration/MerkleDrop.sol": {
-      "lastModificationDate": 1628116354132,
+      "lastModificationDate": 1628753891629,
       "contentHash": "850b8229e73c24b40ae4a10a1e5910c5",
       "sourceName": "contracts/migration/MerkleDrop.sol",
       "solcConfig": {
@@ -1967,6 +1967,225 @@
       ],
       "artifacts": [
         "MerkleDrop"
+      ]
+    },
+    "/Users/fabianscherer/Repos/curve/contracts-v2-2/contracts/Reputation.sol": {
+      "lastModificationDate": 1629197806522,
+      "contentHash": "c41a59b4f5a9b4e02596b1ca94ae5c28",
+      "sourceName": "contracts/Reputation.sol",
+      "solcConfig": {
+        "version": "0.8.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "openzeppelin-contracts-sol8/token/ERC20/ERC20.sol",
+        "openzeppelin-contracts-sol8/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "0.8.6"
+      ],
+      "artifacts": [
+        "Reputation"
+      ]
+    },
+    "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Snapshot.sol": {
+      "lastModificationDate": 1627898065339,
+      "contentHash": "285296268a10d1275677164d48b5c740",
+      "sourceName": "openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Snapshot.sol",
+      "solcConfig": {
+        "version": "0.8.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../ERC20.sol",
+        "../../../utils/Arrays.sol",
+        "../../../utils/Counters.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "ERC20Snapshot"
+      ]
+    },
+    "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/openzeppelin-contracts-sol8/utils/Arrays.sol": {
+      "lastModificationDate": 1627898063917,
+      "contentHash": "b4a7cd9430208d853bff41b5338353ab",
+      "sourceName": "openzeppelin-contracts-sol8/utils/Arrays.sol",
+      "solcConfig": {
+        "version": "0.8.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "./math/Math.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Arrays"
+      ]
+    },
+    "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/openzeppelin-contracts-sol8/utils/Counters.sol": {
+      "lastModificationDate": 1627898064099,
+      "contentHash": "b7811964d33f23b2d45ed3ebb76a4548",
+      "sourceName": "openzeppelin-contracts-sol8/utils/Counters.sol",
+      "solcConfig": {
+        "version": "0.8.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Counters"
+      ]
+    },
+    "/Users/fabianscherer/Repos/curve/contracts-v2-2/node_modules/openzeppelin-contracts-sol8/utils/math/Math.sol": {
+      "lastModificationDate": 1627898066329,
+      "contentHash": "4f2b7cfee254db30f906ebcd2e2b1d32",
+      "sourceName": "openzeppelin-contracts-sol8/utils/math/Math.sol",
+      "solcConfig": {
+        "version": "0.8.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Math"
       ]
     }
   }
