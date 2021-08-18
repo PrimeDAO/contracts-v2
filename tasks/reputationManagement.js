@@ -4,17 +4,6 @@ const initialRepBalances = require("../inputs/initialRepBalances.json");
 
 const { formatEther } = utils;
 
-task("verifyReputation", "Verifies the contract on etherscan").setAction(
-  async (taskArgs, { run, ethers }) => {
-    const reputationInstance = await ethers.getContract("Reputation");
-
-    await run("verify:verify", {
-      address: reputationInstance.address,
-      constructorArguments: [],
-    });
-  }
-);
-
 task(
   "transferOwnership",
   "Transfers ownership of Reputation to specified address"
