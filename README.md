@@ -89,7 +89,10 @@ Here's an example of a command to execute a task on rinkeby:
 
 to verify contracts, the enviornment variable should contain `ETHERSCAN_API_KEY` set.
 
-`npx hardhat verify --network mainnet <0xsome_address>`
+`npx hardhat verify --network mainnet <0xsome_contract_address>`
+
+constructor arguments can be passed as follows:
+`npx hardhat verify --network mainnet <0xsome_contract_address> "Constructor argument 1"`
 
 ## Contributing to PrimeDAO
 If you wish to contribute to PrimeDAO, check out our [Contributor Onboarding documentation](https://docs.primedao.io/primedao/call-for-contributors).
