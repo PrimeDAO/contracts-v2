@@ -4,13 +4,13 @@ const {
   constants,
   time,
   expectRevert,
-  BN
+  BN,
 } = require("@openzeppelin/test-helpers");
 const { parseEther } = ethers.utils;
 
 const init = require("../test-init.js");
 
-const toHex = str => {
+const toHex = (str) => {
   let hex = "";
   for (let i = 0; i < str.length; i++) {
     hex += "" + str.charCodeAt(i).toString(16);
@@ -21,9 +21,12 @@ const toHex = str => {
 const deploy = async () => {
   const setup = await init.initialize(await ethers.getSigners());
 
-  setup.seedFactory = await init.seedFactory(setup);
+  setup.seedFactory = await init.getContractInstance(
+    "SeedFactory",
+    setup.roles.prime
+  );
 
-  setup.tokens = await init.tokens(setup);
+  setup.tokens = await init.gettokenInstances(setup);
 
   setup.data = {};
 

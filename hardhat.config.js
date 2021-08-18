@@ -44,7 +44,6 @@ module.exports = {
     },
     hardhat: {
       initialBaseFeePerGas: 0,
-      allowUnlimitedContractSize: true,
       blockGasLimit: 10000000000000,
       gas: 200000000000,
       saveDeployments: true,
@@ -77,7 +76,6 @@ module.exports = {
         }
       },
       { version: "0.6.12" },
-      // { version: "0.5.17" },
       { version: "0.5.16" }
     ]
   },
