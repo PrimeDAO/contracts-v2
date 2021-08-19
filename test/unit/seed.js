@@ -1424,7 +1424,6 @@ describe("Contract: Seed", async () => {
               "Seed",
               setup.roles.prime
             );
-            setup;
             await seedToken
               .connect(root)
               .transfer(alternativeSeed.address, requiredSeedAmount.toString());
