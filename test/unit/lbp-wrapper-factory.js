@@ -81,7 +81,6 @@ describe(">> Contract: WrapperFactory", () => {
       expect(await setup.wrapperFactory.swapFeePercentage()).to.equal(
         SWAP_FEE_PERCENTAGE
       );
-      expect(await setup.wrapperFactory.isInitialized()).to.equal(true);
     });
   });
   context("» set MasterCopy of LBPWrapper", () => {

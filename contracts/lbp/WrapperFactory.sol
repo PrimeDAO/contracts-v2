@@ -25,7 +25,6 @@ contract WrapperFactory is CloneFactory, Ownable {
 
     address public LBPFactory;
     uint256 public swapFeePercentage;
-    bool public isInitialized;
 
     event LBPDeployedUsingWrapper(address indexed lbp, address indexed wrapper, address indexed admin);
 
@@ -40,7 +39,6 @@ contract WrapperFactory is CloneFactory, Ownable {
     ) {
         LBPFactory = _LBPFactory;
         swapFeePercentage = _swapFeePercentage;
-        isInitialized = true;
     }
 
     /**
