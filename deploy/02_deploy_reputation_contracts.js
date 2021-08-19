@@ -2,7 +2,7 @@ const path = require("path");
 const fs = require("fs");
 const DeployedContracts = require("../contractAddresses.json");
 
-const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
+const deployFunction = async ({ getNamedAccounts, deployments }) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
 
