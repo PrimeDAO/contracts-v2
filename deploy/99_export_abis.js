@@ -1,13 +1,25 @@
+const fs = require("fs").promises;
 const path = require("path");
-const fs = require("fs");
+const compressAbis = require("../helperscript");
 
-const sharedAbis = {
+const networks = ["rinkeby", "mainnet"];
+
+const sharedAbiConfig = {
   PrimeToken: "ERC20",
 };
 
 const exportAbiFunction = async ({ run, network }) => {
-  console.log(network);
-  await run("export", { export: "kek.json" });
+  const { name } = network;
+
+  // if (!networks.includes(name)) return;
+
+  const targetPath = path.resolve(__dirname, `../exports/${name}.json`);
+  await run("export", { export: targetPath });
+
+  const exportedAbis = JSON.parse(await fs.readFile(targetPath));
+  const compressedAbis = compressAbis(exportedAbis, sharedAbiConfig);
+
+  await fs.writeFile(targetPath, JSON.stringify(compressedAbis, null, 2));
 };
 
 module.exports = exportAbiFunction;
