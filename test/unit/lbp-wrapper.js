@@ -49,7 +49,7 @@ describe("Contract: LBPWrapper", async () => {
   let initUserData;
 
   context(">> deploy LBP Wrapper", async () => {
-    before("!! setup", async () => {
+    beforeEach("!! setup", async () => {
       setup = await deploy();
       swapsEnabled = true;
 
@@ -71,7 +71,7 @@ describe("Contract: LBPWrapper", async () => {
     });
   });
   context(">> deploy LBP using Wrapper", async () => {
-    before("!! transfer balances", async () => {
+    beforeEach("!! transfer balances", async () => {
       await setup.tokenList[0]
         .connect(setup.roles.root)
         .transfer(setup.roles.prime.address, WEIGHTS[0]);

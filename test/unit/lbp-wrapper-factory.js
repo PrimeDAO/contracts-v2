@@ -59,7 +59,7 @@ describe(">> Contract: WrapperFactory", () => {
   30000000000;
 
   context("» deploy LBP WrapperFactory", () => {
-    before("!! setup", async () => {
+    beforeEach("!! setup", async () => {
       setup = await deploy();
 
       swapsEnabled = true;
