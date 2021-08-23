@@ -1,13 +1,8 @@
 const fs = require("fs").promises;
 const path = require("path");
+const sharedAbiConfig = require("./sharedAbiConfig");
 
 const networks = ["rinkeby", "mainnet"];
-
-const sharedAbiConfig = {
-  PrimeToken: "ERC20",
-  Dai: "ERC20",
-  Weth: "ERC20",
-};
 
 const compressAbis = (abisObject, sharedAbiConfig) => {
   const compressedAbiObject = { ...abisObject };
