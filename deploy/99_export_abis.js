@@ -22,7 +22,7 @@ const compressAbis = (abisObject, sharedAbiConfig) => {
   return compressedAbiObject;
 };
 
-// this function runs after a new deployment if the tag "Export" is specified
+// this function runs after a new deployment if the tag "Export" is used
 // it generates the abis and addresses for the frontend and compresses the resulting file
 // by saving just one abi representation for contracts that share the same ABI (e.g. ERC20)
 const exportAbiFunction = async ({ run, network }) => {
