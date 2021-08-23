@@ -1,9 +1,11 @@
-const DeployedContracts = require("../contractAddresses.json");
-
-const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
+const deployFunction = async ({
+  getNamedAccounts,
+  deployments,
+  getContract,
+}) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
-  const { Safe } = DeployedContracts[network.name];
+  const safeInstance = await getContract("Safe");
 
   const { address: seedFactoryAddress } = await deploy("SeedFactory", {
     from: root,
@@ -23,10 +25,10 @@ const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
 
   await deploy("Signer", {
     from: root,
-    args: [Safe, seedFactoryAddress],
+    args: [safeInstance.address, seedFactoryAddress],
     log: true,
   });
 };
 
 module.exports = deployFunction;
-module.exports.tags = ["Seeds", "MainDeploy"];
+module.exports.tags = ["Seeds"];
