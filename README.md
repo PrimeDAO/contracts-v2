@@ -66,13 +66,13 @@ Note:```.env``` should be created in root directory.
 
 ## Deployment
 
-This project uses the hardhat-deploy plugin to deploy contracts. When a contract has been deployed, it be saved as JSON to the `deployments` directory, including its *address* as well as its *abi*.
+This project uses the hardhat-deploy plugin to deploy contracts. When a contract has been deployed, it is saved as JSON to the `deployments` directory, including its *address* as well as its *abi*.
 
-Since this is a project that is continuosly being extended, it is generally not desirable to always deploy all contracts. Therefore, this project makes use of [deployment tags](https://hardhat.org/plugins/hardhat-deploy.html#deploy-scripts-tags-and-dependencies). These are specified at the end of each deploy script.
+Since this is a project that is continuously being extended, it is generally not desirable to always deploy all contracts. Therefore, this project makes use of [deployment tags](https://hardhat.org/plugins/hardhat-deploy.html#deploy-scripts-tags-and-dependencies). These are specified at the end of each deploy script.
 
 There are two **npm scripts** that facilitate the deployment to *mainnet* and *rinkeby*. Both require the specification of **tags**. When using these scripts, at the end of the deployment, it automatically exports the addresses & artifacts in one file per network. These files can be found in the `exports` directory and, for example, can be used for dApp development. 
 
-If multiple contracts share the same ABI (e.g. multiple instances of an ERC20 token) this should be specified in `deploy/sharedAbiConfig.js`. If not yet available, you should manually add the shared ABI (e.g. the ERC20 ABI) to `exports/sharedAbis.json`. As a result, the deployment information is exported, the exports for contracts that share the same ABI will point to this shared ABI. This keeps file exports slim, which is benefitial for dApp performance. If this is still unclear, you could for example take a look at `exports/rinkeby.json` and look at the ABIs of the *Dai* and *Weth* contracts.
+If multiple contracts share the same ABI (e.g. multiple instances of an ERC20 token) this should be specified in `deploy/sharedAbiConfig.js`. If not yet available, you should manually add the shared ABI (e.g. the ERC20 ABI) to `exports/sharedAbis.json`. As a result, the deployment information is exported, the exports for contracts that share the same ABI will point to this shared ABI. This keeps file exports slim, which is beneficial for dApp performance. If this is still unclear, you could for example take a look at `exports/rinkeby.json` and look at the ABIs of the *Dai* and *Weth* contracts.
 
 ### Deployment to rinkeby
 
