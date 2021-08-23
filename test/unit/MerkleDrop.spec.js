@@ -42,9 +42,15 @@ const getCumulativeAllocation = (addresses, rawAllocations) => {
 
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
-    await deployments.fixture(["Migration"]);
     const { deploy } = deployments;
     const { root } = await ethers.getNamedSigners();
+
+    await deploy("MerkleDrop", {
+      from: root.address,
+      args: [],
+      log: true,
+    });
+
     await deploy("TestToken", {
       contract: "ERC20Mock",
       from: root.address,
