@@ -3,14 +3,10 @@ const { utils } = require("ethers");
 const { parseEther } = utils;
 const PRIME_SUPPLY_V2 = parseEther("100000000").toString();
 
-const deployFunction = async ({
-  getNamedAccounts,
-  deployments,
-  getContract,
-}) => {
+const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
-  const safeInstance = await getContract("Safe");
+  const safeInstance = await ethers.getContract("Safe");
 
   await deploy("PrimeToken", {
     from: root,

@@ -1,11 +1,7 @@
-const deployFunction = async ({
-  getNamedAccounts,
-  deployments,
-  getContract,
-}) => {
+const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
-  const safeInstance = await getContract("Safe");
+  const safeInstance = await ethers.getContract("Safe");
 
   const { address: seedFactoryAddress } = await deploy("SeedFactory", {
     from: root,
@@ -31,4 +27,4 @@ const deployFunction = async ({
 };
 
 module.exports = deployFunction;
-module.exports.tags = ["Seeds"];
+module.exports.tags = ["Seed"];
