@@ -6,6 +6,8 @@
   "scripts": {
     "deploy:contracts:rinkeby": "npx hardhat deploy --network rinkeby --tags Export,$npm_config_tags",
     "deploy:contracts:mainnet": "npx hardhat deploy --network mainnet --tags Export,$npm_config_tags",
+    "export:contracts:rinkeby": "npx hardhat deploy --network rinkeby --tags Export",
+    "export:contracts:mainnet": "npx hardhat deploy --network mainnet --tags Export",
     "compile": "hardhat compile",
     "format": "npx prettier --write \"**/*.js\"",
     "lint": "eslint . --ext .js && solium --dir ./contracts",
