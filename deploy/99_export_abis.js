@@ -56,13 +56,17 @@ const exportAbiFunction = async ({ run, network, deployments }) => {
       }, [])
     )
   );
+  let updateSharedAbis = false;
   for (const abiName of sharedAbiNames) {
     const artifact = await deployments.getArtifact(abiName);
     if (artifact && !sharedAbis[abiName]) {
       sharedAbis[abiName] = artifact.abi;
+      updateSharedAbis = true;
     }
   }
-  await fs.writeFile(sharedAbisPath, JSON.stringify(sharedAbis, null, 2));
+  if (updateSharedAbis) {
+    await fs.writeFile(sharedAbisPath, JSON.stringify(sharedAbis, null, 2));
+  }
 };
 
 module.exports = exportAbiFunction;
