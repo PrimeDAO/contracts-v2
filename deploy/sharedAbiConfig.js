@@ -1,4 +1,4 @@
-const internalContracts = {
+const ownDeployedContracts = {
   PrimeToken: {
     abi: "ERC20",
   },
@@ -28,6 +28,6 @@ const externalContracts = {
 };
 
 module.exports = {
-  rinkeby: { ...internalContracts, ...externalContracts.rinkeby },
-  mainnet: { ...internalContracts, ...externalContracts.mainnet },
+  rinkeby: { ...ownDeployedContracts, ...externalContracts.rinkeby },
+  mainnet: { ...ownDeployedContracts, ...externalContracts.mainnet },
 };
