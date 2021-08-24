@@ -4,13 +4,22 @@ const sharedAbiConfig = require("./sharedAbiConfig");
 
 const networks = ["rinkeby", "mainnet"];
 
-const compressAbis = (abisObject, sharedAbiConfig) => {
+const compressAbis = (abisObject, sharedAbiConfig, networkName) => {
+  const networkContracts = { ...sharedAbiConfig[networkName] };
+
   const compressedAbiObject = { ...abisObject };
   const { contracts } = compressedAbiObject;
 
-  for (const contractName in contracts) {
-    if (sharedAbiConfig[contractName]) {
-      contracts[contractName].abi = sharedAbiConfig[contractName];
+  for (const contractName in networkContracts) {
+    const { abi, address } = sharedAbiConfig[networkName][contractName];
+
+    if (contracts[contractName]) {
+      contracts[contractName].abi = abi;
+    } else {
+      contracts[contractName] = {
+        abi: abi,
+        address: address,
+      };
     }
   }
 
@@ -29,7 +38,7 @@ const exportAbiFunction = async ({ run, network }) => {
   await run("export", { export: targetPath });
 
   const exportedAbis = JSON.parse(await fs.readFile(targetPath));
-  const compressedAbis = compressAbis(exportedAbis, sharedAbiConfig);
+  const compressedAbis = compressAbis(exportedAbis, sharedAbiConfig, name);
 
   await fs.writeFile(targetPath, JSON.stringify(compressedAbis, null, 2));
 };
