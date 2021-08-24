@@ -2,10 +2,6 @@
   "name": "mainnet",
   "chainId": "1",
   "contracts": {
-    "Dai": {
-      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-      "abi": "ERC20"
-    },
     "PrimeToken": {
       "address": "0xE59064a8185Ed1Fca1D17999621eFedfab4425c9",
       "abi": "ERC20"
@@ -2612,9 +2608,13 @@
         }
       ]
     },
-    "Weth": {
-      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-      "abi": "ERC20"
+    "DAI": {
+      "abi": "ERC20",
+      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+    },
+    "WETH": {
+      "abi": "ERC20",
+      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
     }
   }
 }

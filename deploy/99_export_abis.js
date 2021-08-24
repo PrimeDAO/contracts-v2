@@ -4,7 +4,7 @@ const sharedAbiConfig = require("./sharedAbiConfig");
 
 const networks = ["rinkeby", "mainnet"];
 
-const compressAbis = async (abisObject, sharedAbiConfig, networkName) => {
+const compressAbis = (abisObject, sharedAbiConfig, networkName) => {
   const networkContracts = { ...sharedAbiConfig[networkName] };
 
   const compressedAbiObject = { ...abisObject };
