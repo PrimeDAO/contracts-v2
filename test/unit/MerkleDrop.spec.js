@@ -40,12 +40,6 @@ const getCumulativeAllocation = (addresses, rawAllocations) => {
   );
 };
 
-const mineBlocks = async (blockAmount) => {
-  for (let i = 0; i < blockAmount; i++) {
-    await network.provider.send("evm_mine");
-  }
-};
-
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
     await deployments.fixture(["Migration"]);
@@ -87,11 +81,6 @@ const setupInitialState = async (contractInstances, initialState) => {
     rawAllocations
   );
   let cumulativeAllocation = getCumulativeAllocation(addresses, rawAllocations);
-
-  // go some blocks in the future
-  await mineBlocks(forwardBlocks);
-  const currentBlock = await ethers.provider.getBlockNumber();
-  // get signers
 
   // initialize MerkleDrop with Prime's address
   await merkleDropInstance
