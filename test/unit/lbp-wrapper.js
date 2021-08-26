@@ -49,7 +49,7 @@ describe("Contract: LBPWrapper", async () => {
   let initUserData;
 
   context(">> deploy LBP Wrapper", async () => {
-    beforeEach("!! setup", async () => {
+    before("!! setup", async () => {
       setup = await deploy();
       swapsEnabled = true;
 

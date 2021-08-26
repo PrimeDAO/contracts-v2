@@ -148,7 +148,7 @@ describe(">> Contract: WrapperFactory", () => {
         .connect(admin)
         .approve(setup.wrapperFactory.address, ADMIN_BALANCE[1]);
     });
-    it("$ deploys LBPWrapper", async () => {
+    it("$ deploys LBP", async () => {
       const tx = await setup.wrapperFactory
         .connect(owner)
         .deployLBPUsingWrapper(...params);
