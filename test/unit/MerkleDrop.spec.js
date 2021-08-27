@@ -5,7 +5,7 @@ const { ethers } = require("hardhat");
 const {
   getTranche,
   createTreeWithAccounts,
-  getAccountBalanceProof
+  getAccountBalanceProof,
 } = require("../../tasks/utils/merkle");
 
 const rawAllocations = [
@@ -16,7 +16,7 @@ const rawAllocations = [
   "9.64320061541387227",
   "45.45852965164066046",
   "2.58531507323313161",
-  "105.44076288303354762"
+  "105.44076288303354762",
 ];
 
 const matchAllocationsWithAddresses = (addresses, rawAllocations) =>
@@ -40,12 +40,6 @@ const getCumulativeAllocation = (addresses, rawAllocations) => {
   );
 };
 
-const mineBlocks = async blockAmount => {
-  for (let i = 0; i < blockAmount; i++) {
-    await network.provider.send("evm_mine");
-  }
-};
-
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
     await deployments.fixture(["Migration"]);
@@ -55,11 +49,11 @@ const setupFixture = deployments.createFixture(
       contract: "ERC20Mock",
       from: root.address,
       args: ["TTOKEN", "TToken"],
-      log: true
+      log: true,
     });
     const contractInstances = {
       merkleDropInstance: await ethers.getContract("MerkleDrop"),
-      v2TokenInstance: await ethers.getContract("TestToken")
+      v2TokenInstance: await ethers.getContract("TestToken"),
     };
 
     return { ...contractInstances };
@@ -71,16 +65,15 @@ const setupInitialState = async (contractInstances, initialState) => {
 
   const signers = await ethers.getSigners();
   const [root, prime, alice, bob] = signers;
-  const addresses = signers.map(signer => signer.address);
+  const addresses = signers.map((signer) => signer.address);
   const { merkleDropInstance, v2TokenInstance } = contractInstances;
 
   const {
-    thresholdInPast,
     withProof,
     trancheExpired,
     forwardBlocks,
     zeroAllocation,
-    incorrectProof
+    incorrectProof,
   } = initialState;
 
   let parsedAllocations = matchAllocationsWithAddresses(
@@ -89,24 +82,13 @@ const setupInitialState = async (contractInstances, initialState) => {
   );
   let cumulativeAllocation = getCumulativeAllocation(addresses, rawAllocations);
 
-  // go some blocks in the future
-  await mineBlocks(forwardBlocks);
-  const currentBlock = await ethers.provider.getBlockNumber();
-  // get signers
-
-  // check if claiming date should be in the future
-  const thresholdBlockNumber = thresholdInPast
-    ? currentBlock - 50
-    : currentBlock + 50;
-
   // initialize MerkleDrop with Prime's address
   await merkleDropInstance
     .connect(prime)
     .initialize(
       root.address,
       [prime.address, root.address],
-      v2TokenInstance.address,
-      BigNumber.from(thresholdBlockNumber)
+      v2TokenInstance.address
     );
 
   // get cumulative allocation amount and approve
@@ -141,7 +123,7 @@ const setupInitialState = async (contractInstances, initialState) => {
     const modifiedTranche = getTranche(
       ...modifiedAllocations.map((balance, index) => [
         modifiedAddresses[index],
-        balance
+        balance,
       ])
     );
     tree = createTreeWithAccounts(modifiedTranche);
@@ -182,12 +164,12 @@ const generateProof = (tree, address, balance, addresses) => ({
   proof: getAccountBalanceProof(tree, address, balance),
   expectedBalance: balance.isZero()
     ? BigNumber.from(0)
-    : matchAllocationsWithAddresses(addresses, rawAllocations)[address]
+    : matchAllocationsWithAddresses(addresses, rawAllocations)[address],
 });
 
 const commonState = {
   initialPrimeV2Supply: utils.parseEther("100000000"),
-  forwardBlocks: 100
+  forwardBlocks: 100,
 };
 
 describe(">> MerkleDrop", () => {
@@ -205,33 +187,11 @@ describe(">> MerkleDrop", () => {
   });
 
   describe("# claimTranche", () => {
-    let proof, trancheIdx, expectedBalance;
-
-    describe("$ thresholdBlock lies in the future", () => {
-      const initialState = {
-        ...commonState,
-        thresholdInPast: false,
-        withProof: true
-      };
-
-      it("reverts", async () => {
-        ({ proof, trancheIdx, expectedBalance } = await setupInitialState(
-          contractInstances,
-          initialState
-        ));
-        const claim = merkleDropInstance
-          .connect(alice)
-          .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
-        expect(claim).to.be.revertedWith("Rewards are not yet claimable");
-      });
-    });
-
-    describe("$ thresholdBlock lies in the past", () => {
+    describe("$ allocation claims", () => {
       let proof, trancheIdx, expectedBalance;
       const initialState = {
         ...commonState,
-        thresholdInPast: true,
-        withProof: true
+        withProof: true,
       };
 
       beforeEach(async () => {
@@ -266,9 +226,8 @@ describe(">> MerkleDrop", () => {
 
       const initialState = {
         ...commonState,
-        thresholdInPast: true,
         withProof: true,
-        zeroAllocation: true
+        zeroAllocation: true,
       };
 
       it("reverts", async () => {
@@ -296,8 +255,7 @@ describe(">> MerkleDrop", () => {
 
       const initialState = {
         ...commonState,
-        thresholdInPast: false,
-        withProof: true
+        withProof: true,
       };
 
       beforeEach(async () => {
@@ -324,9 +282,8 @@ describe(">> MerkleDrop", () => {
 
       const initialState = {
         ...commonState,
-        thresholdInPast: false,
         withProof: true,
-        trancheExpired: true
+        trancheExpired: true,
       };
 
       beforeEach(async () => {
@@ -353,9 +310,8 @@ describe(">> MerkleDrop", () => {
 
       const initialState = {
         ...commonState,
-        thresholdInPast: true,
         withProof: true,
-        incorrectProof: true
+        incorrectProof: true,
       };
 
       it("reverts", async () => {

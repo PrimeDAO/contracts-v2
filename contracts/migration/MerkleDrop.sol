@@ -42,20 +42,16 @@ contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
     mapping(uint256 => mapping(address => bool)) public claimed;
     uint256 tranches;
 
-    uint256 public thresholdBlock;
-
     function initialize(
         address _nexus,
         address[] calldata _funders,
-        IERC20 _token,
-        uint256 _thresholdBlock
+        IERC20 _token
     )
         external
         initializer
     {
         InitializableGovernableWhitelist._initialize(_nexus, _funders);
         token = _token;
-        thresholdBlock = _thresholdBlock;
     }
 
     /***************************************
@@ -100,7 +96,6 @@ contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
     )
         public
     {
-        require(block.number >= thresholdBlock, "Rewards are not yet claimable");
         _claimTranche(_claimer, _tranche, _balance, _merkleProof);
         _disburse(_claimer, _balance);
     }
