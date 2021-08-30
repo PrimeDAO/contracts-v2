@@ -46,6 +46,7 @@ module.exports = {
       blockGasLimit: 10000000000000,
       gas: 200000000000,
       saveDeployments: false,
+      initialBaseFeePerGas: 0,
       hardfork: "london",
     },
     mainnet: {
