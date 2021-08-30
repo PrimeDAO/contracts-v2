@@ -71,9 +71,9 @@ const setupInitialState = async (contractInstances, initialState) => {
   const {
     withProof,
     trancheExpired,
-    forwardBlocks,
     zeroAllocation,
     incorrectProof,
+    withoutSeededAllocation,
   } = initialState;
 
   let parsedAllocations = matchAllocationsWithAddresses(
@@ -150,14 +150,22 @@ const setupInitialState = async (contractInstances, initialState) => {
   }
 
   // pass merkle root and cumulativeAllocation to MerkleDrop (seedNewAllocation)
-  await merkleDropInstance
-    .connect(root)
-    .seedNewAllocations(merkleRoot, cumulativeAllocation);
+  !withoutSeededAllocation &&
+    (await merkleDropInstance
+      .connect(root)
+      .seedNewAllocations(merkleRoot, cumulativeAllocation));
 
   // expire tranche if required for test
   trancheExpired &&
     (await merkleDropInstance.connect(prime).expireTranche(trancheIdx));
-  return { tree, proof, trancheIdx, expectedBalance };
+
+  return {
+    tree,
+    proof,
+    trancheIdx,
+    expectedBalance,
+    merkleRoot,
+  };
 };
 
 const generateProof = (tree, address, balance, addresses) => ({
@@ -172,13 +180,18 @@ const commonState = {
   forwardBlocks: 100,
 };
 
-describe(">> MerkleDrop", () => {
-  let merkleDropInstance, v2TokenInstance, contractInstances, alice, bob;
+describe.only(">> MerkleDrop", () => {
+  let merkleDropInstance,
+    v2TokenInstance,
+    contractInstances,
+    alice,
+    bob,
+    prime,
+    root;
 
   before(async () => {
     const signers = await ethers.getSigners();
-    alice = signers[2];
-    bob = signers[3];
+    [root, prime, alice, bob] = signers;
   });
 
   beforeEach(async () => {
@@ -187,7 +200,7 @@ describe(">> MerkleDrop", () => {
   });
 
   describe("# claimTranche", () => {
-    describe("$ allocation claims", () => {
+    describe("$ claim first tranche", () => {
       let proof, trancheIdx, expectedBalance;
       const initialState = {
         ...commonState,
@@ -199,17 +212,21 @@ describe(">> MerkleDrop", () => {
           contractInstances,
           initialState
         ));
-        await merkleDropInstance
-          .connect(alice)
-          .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
       });
 
       it("lets alice claim her allocation", async () => {
+        await merkleDropInstance
+          .connect(alice)
+          .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
+
         const aliceBalance = await v2TokenInstance.balanceOf(alice.address);
         expect(aliceBalance).to.eq(expectedBalance);
       });
 
       it("reverts if alice claims a second time", async () => {
+        await merkleDropInstance
+          .connect(alice)
+          .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
         const duplicateClaim = merkleDropInstance.claimTranche(
           alice.address,
           trancheIdx,
@@ -218,6 +235,15 @@ describe(">> MerkleDrop", () => {
         );
 
         expect(duplicateClaim).to.be.revertedWith("LP has already claimed");
+      });
+
+      it("reverts if tranch is expired", async () => {
+        await merkleDropInstance.connect(prime).expireTranche(trancheIdx);
+        expect(
+          merkleDropInstance
+            .connect(alice)
+            .claimTranche(alice.address, trancheIdx, expectedBalance, proof)
+        ).to.be.revertedWith("Incorrect merkle proof");
       });
     });
 
@@ -328,6 +354,31 @@ describe(">> MerkleDrop", () => {
           "Incorrect merkle proof"
         );
       });
+    });
+  });
+
+  describe("# expireTranche", () => {
+    let proof, trancheIdx, expectedBalance, tree, parsedAllocations;
+
+    const initialState = {
+      ...commonState,
+      withProof: true,
+    };
+
+    beforeEach(async () => {
+      ({ proof, trancheIdx, expectedBalance } = await setupInitialState(
+        contractInstances,
+        initialState
+      ));
+    });
+
+    it("sets merkle root of tranche to zero", async () => {
+      await merkleDropInstance.connect(prime).expireTranche(trancheIdx);
+
+      const expiredMerkleRoot = await merkleDropInstance.merkleRoots(
+        trancheIdx
+      );
+      expect(expiredMerkleRoot).to.equal(BigNumber.from(0));
     });
   });
 });
