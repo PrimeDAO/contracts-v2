@@ -8,9 +8,9 @@ const init = require("../test-init.js");
 const deploy = async () => {
   const setup = await init.initialize(await ethers.getSigners());
 
-  setup.seed = await init.seedMasterCopy(setup);
+  setup.seed = await init.getContractInstance("Seed", setup.roles.prime);
 
-  setup.token = await init.tokens(setup);
+  setup.token = await init.gettokenInstances(setup);
 
   setup.data = {};
 
@@ -289,7 +289,7 @@ describe("Contract: Seed", async () => {
         it("it returns amount of seed token bought and the fee", async () => {
           let {
             ["0"]: seedAmount,
-            ["1"]: feeAmount
+            ["1"]: feeAmount,
           } = await setup.seed.connect(buyer1).callStatic.buy(buyAmount);
           expect((await seedAmount).toString()).to.equal(buySeedAmount);
           expect((await feeAmount).toString()).to.equal(hundredTwoETH);
@@ -621,7 +621,11 @@ describe("Contract: Seed", async () => {
           let newStartTime = await time.latest();
           let newEndTime = await newStartTime.add(await time.duration.days(7));
 
-          setup.data.seed = await init.seedMasterCopy(setup);
+          setup.data.seed = await init.getContractInstance(
+            "Seed",
+            setup.roles.prime
+          );
+          setup;
 
           await seedToken
             .connect(root)
@@ -707,7 +711,11 @@ describe("Contract: Seed", async () => {
           let newStartTime = await time.latest();
           let newEndTime = await newStartTime.add(await time.duration.days(7));
 
-          setup.data.seed = await init.seedMasterCopy(setup);
+          setup.data.seed = await init.getContractInstance(
+            "Seed",
+            setup.roles.prime
+          );
+          setup;
 
           await seedToken
             .connect(root)
@@ -890,7 +898,11 @@ describe("Contract: Seed", async () => {
           let newStartTime = await time.latest();
           let newEndTime = await newStartTime.add(await time.duration.days(7));
 
-          setup.data.seed = await init.seedMasterCopy(setup);
+          setup.data.seed = await init.getContractInstance(
+            "Seed",
+            setup.roles.prime
+          );
+          setup;
 
           await seedToken
             .connect(root)
@@ -1043,7 +1055,11 @@ describe("Contract: Seed", async () => {
           let newStartTime = await time.latest();
           let newEndTime = await newStartTime.add(await time.duration.days(7));
 
-          setup.data.seed = await init.seedMasterCopy(setup);
+          setup.data.seed = await init.getContractInstance(
+            "Seed",
+            setup.roles.prime
+          );
+          setup;
 
           await seedToken
             .connect(root)
@@ -1196,7 +1212,11 @@ describe("Contract: Seed", async () => {
           let newStartTime = await time.latest();
           let newEndTime = await newStartTime.add(await time.duration.days(7));
 
-          setup.data.seed = await init.seedMasterCopy(setup);
+          setup.data.seed = await init.getContractInstance(
+            "Seed",
+            setup.roles.prime
+          );
+          setup;
 
           await fundingToken
             .connect(root)
@@ -1256,7 +1276,11 @@ describe("Contract: Seed", async () => {
               await time.duration.days(7)
             );
 
-            setup.data.seed = await init.seedMasterCopy(setup);
+            setup.data.seed = await init.getContractInstance(
+              "Seed",
+              setup.roles.prime
+            );
+            setup;
 
             await fundingToken
               .connect(root)
@@ -1396,7 +1420,10 @@ describe("Contract: Seed", async () => {
               await time.duration.days(7)
             );
 
-            alternativeSeed = await init.seedMasterCopy(setup);
+            alternativeSeed = await init.getContractInstance(
+              "Seed",
+              setup.roles.prime
+            );
             await seedToken
               .connect(root)
               .transfer(alternativeSeed.address, requiredSeedAmount.toString());
@@ -1460,7 +1487,11 @@ describe("Contract: Seed", async () => {
               await time.duration.days(7)
             );
 
-            const alternativeSeed = await init.seedMasterCopy(setup);
+            const alternativeSeed = await init.getContractInstance(
+              "Seed",
+              setup.roles.prime
+            );
+            setup;
             await seedToken
               .connect(root)
               .transfer(alternativeSeed.address, requiredSeedAmount.toString());
@@ -1507,7 +1538,11 @@ describe("Contract: Seed", async () => {
               await time.duration.days(7)
             );
 
-            const alternativeSeed = await init.seedMasterCopy(setup);
+            const alternativeSeed = await init.getContractInstance(
+              "Seed",
+              setup.roles.prime
+            );
+            setup;
             await seedToken
               .connect(root)
               .transfer(alternativeSeed.address, requiredSeedAmount.toString());
@@ -1551,7 +1586,11 @@ describe("Contract: Seed", async () => {
           let newStartTime = await time.latest();
           let newEndTime = await newStartTime.add(await time.duration.days(7));
 
-          setup.data.seed = await init.seedMasterCopy(setup);
+          setup.data.seed = await init.getContractInstance(
+            "Seed",
+            setup.roles.prime
+          );
+          setup;
 
           await seedToken
             .connect(root)
@@ -1654,7 +1693,8 @@ describe("Contract: Seed", async () => {
     context("» contract is not initialized yet", () => {
       context("» parameters are valid", () => {
         before("!! deploy new contract", async () => {
-          seed = await init.seedMasterCopy(setup);
+          seed = await init.getContractInstance("Seed", setup.roles.prime);
+          setup;
         });
         it("initializes", async () => {
           // emulate creation & initialization via seedfactory & fund with seedTokens
@@ -1750,7 +1790,11 @@ describe("Contract: Seed", async () => {
               await time.duration.days(7)
             );
 
-            const alternativeSeed = await init.seedMasterCopy(setup);
+            const alternativeSeed = await init.getContractInstance(
+              "Seed",
+              setup.roles.prime
+            );
+            setup;
             await seedToken
               .connect(root)
               .transfer(alternativeSeed.address, requiredSeedAmount.toString());

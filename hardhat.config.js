@@ -40,12 +40,13 @@ module.exports = {
       ...sharedNetworkConfig,
       blockGasLimit: 100000000,
       gas: 2000000,
-      saveDeployments: true
+      saveDeployments: true,
     },
     hardhat: {
-      blockGasLimit: 100000000,
-      gas: 2000000,
-      saveDeployments: true
+      initialBaseFeePerGas: 0,
+      blockGasLimit: 10000000000000,
+      gas: 200000000000,
+      saveDeployments: true,
     },
     mainnet: {
       ...sharedNetworkConfig,
@@ -75,7 +76,6 @@ module.exports = {
         }
       },
       { version: "0.6.12" },
-      { version: "0.5.17" },
       { version: "0.5.16" }
     ]
   },
@@ -88,3 +88,4 @@ module.exports = {
     beneficiary: 2
   }
 };
+

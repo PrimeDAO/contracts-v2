@@ -14,7 +14,7 @@ const {
   vestingCliff,
   isPermissioned,
   fee,
-  metadata
+  metadata,
 } = require("../test-сonfig.json");
 
 const init = require("../test-init.js");
@@ -28,13 +28,19 @@ const SIGNATURE_CREATED = "SignatureCreated";
 const deploy = async () => {
   const setup = await init.initialize(await ethers.getSigners());
 
-  setup.gnosisSafe = await init.gnosisSafe(setup);
+  setup.gnosisSafe = await init.getContractInstance(
+    "GnosisSafe",
+    setup.roles.prime
+  );
 
-  setup.proxySafe = await init.gnosisProxy(setup);
+  setup.proxySafe = await init.getGnosisProxyInstance(setup);
 
-  setup.seedFactory = await init.seedFactory(setup);
+  setup.seedFactory = await init.getContractInstance(
+    "SeedFactory",
+    setup.roles.prime
+  );
 
-  setup.seed = await init.seedMasterCopy(setup);
+  setup.seed = await init.getContractInstance("Seed", setup.roles.prime);
 
   await setup.seedFactory
     .connect(setup.roles.prime)
@@ -99,7 +105,7 @@ describe("Contract: Signer", async () => {
         // incorrect function call
         const {
           data,
-          to
+          to,
         } = await setup.seedFactory.populateTransaction.setMasterCopy(
           BENEFICIARY
         );
@@ -112,7 +118,7 @@ describe("Contract: Signer", async () => {
           zero,
           zero,
           constants.ZERO_ADDRESS,
-          constants.ZERO_ADDRESS
+          constants.ZERO_ADDRESS,
         ];
         // once transaction object is created, we send the transaction data along with nonce to generate safeTrx hash
         // and verify if the transaction is valid or not, and sign the hash.
@@ -125,7 +131,7 @@ describe("Contract: Signer", async () => {
         nonce++;
         const {
           data,
-          to
+          to,
         } = await setup.seedFactory.populateTransaction.deploySeed(
           BENEFICIARY,
           ADMIN,
@@ -149,7 +155,7 @@ describe("Contract: Signer", async () => {
           gasAmount,
           zero,
           constants.ZERO_ADDRESS,
-          constants.ZERO_ADDRESS
+          constants.ZERO_ADDRESS,
         ];
         await expect(
           setup.signer.generateSignature(...trx, nonce)
@@ -162,7 +168,7 @@ describe("Contract: Signer", async () => {
         nonce++;
         const {
           data,
-          to
+          to,
         } = await setup.seedFactory.populateTransaction.deploySeed(
           BENEFICIARY,
           ADMIN,
@@ -186,7 +192,7 @@ describe("Contract: Signer", async () => {
           gasAmount,
           zero,
           constants.ZERO_ADDRESS,
-          constants.ZERO_ADDRESS
+          constants.ZERO_ADDRESS,
         ];
         await expect(
           setup.signer.generateSignature(...trx, nonce)
@@ -197,7 +203,7 @@ describe("Contract: Signer", async () => {
         nonce++;
         const {
           data,
-          to
+          to,
         } = await setup.seedFactory.populateTransaction.deploySeed(
           BENEFICIARY,
           ADMIN,
@@ -221,7 +227,7 @@ describe("Contract: Signer", async () => {
           gasAmount,
           zero,
           constants.ZERO_ADDRESS,
-          constants.ZERO_ADDRESS
+          constants.ZERO_ADDRESS,
         ];
         await expect(
           setup.signer.generateSignature(...trx, nonce)
@@ -232,7 +238,7 @@ describe("Contract: Signer", async () => {
         nonce++;
         const {
           data,
-          to
+          to,
         } = await setup.seedFactory.populateTransaction.deploySeed(
           BENEFICIARY,
           ADMIN,
@@ -256,7 +262,7 @@ describe("Contract: Signer", async () => {
           gasAmount,
           zero,
           constants.ZERO_ADDRESS,
-          BENEFICIARY
+          BENEFICIARY,
         ];
         await expect(
           setup.signer.generateSignature(...trx, nonce)
@@ -267,7 +273,7 @@ describe("Contract: Signer", async () => {
       it("produces valid signature", async () => {
         const {
           data,
-          to
+          to,
         } = await setup.seedFactory.populateTransaction.deploySeed(
           BENEFICIARY,
           ADMIN,
@@ -290,7 +296,7 @@ describe("Contract: Signer", async () => {
           gasAmount,
           zero,
           constants.ZERO_ADDRESS,
-          constants.ZERO_ADDRESS
+          constants.ZERO_ADDRESS,
         ];
         // once transaction object is created, we send the transaction data along with nonce to generate safeTrx hash
         // and verify if the transaction is valid or not, and sign the hash.
@@ -301,7 +307,7 @@ describe("Contract: Signer", async () => {
         );
         nonce++;
         const receipt = await transaction.wait();
-        const { signature, hash } = receipt.events.filter(data => {
+        const { signature, hash } = receipt.events.filter((data) => {
           return data.event === SIGNATURE_CREATED;
         })[0].args;
         trx.push(signature);
@@ -327,7 +333,7 @@ describe("Contract: Signer", async () => {
       it("reverts", async () => {
         const {
           data,
-          to
+          to,
         } = await setup.seedFactory.populateTransaction.deploySeed(
           BENEFICIARY,
           ADMIN,
@@ -350,7 +356,7 @@ describe("Contract: Signer", async () => {
           gasAmount,
           zero,
           constants.ZERO_ADDRESS,
-          constants.ZERO_ADDRESS
+          constants.ZERO_ADDRESS,
         ];
         // once transaction object is created, we send the transaction data along with nonce to generate safeTrx hash
         // and verify if the transaction is valid or not, and sign the hash.
@@ -405,7 +411,7 @@ describe("Contract: Signer", async () => {
     it("safe should accept signer's signature", async () => {
       const {
         data,
-        to
+        to,
       } = await setup.seedFactory.populateTransaction.deploySeed(
         BENEFICIARY,
         ADMIN,
@@ -445,12 +451,12 @@ describe("Contract: Signer", async () => {
         gasEstimated,
         zero,
         constants.ZERO_ADDRESS,
-        constants.ZERO_ADDRESS
+        constants.ZERO_ADDRESS,
       ];
       const nonce = await setup.proxySafe.nonce();
       const transaction = await setup.signer.generateSignature(...trx, nonce);
       const receipt = await transaction.wait();
-      const { signature, hash } = receipt.events.filter(data => {
+      const { signature, hash } = receipt.events.filter((data) => {
         return data.event === SIGNATURE_CREATED;
       })[0].args;
       trx.push(signature);
