@@ -4,8 +4,8 @@
   "description": "new experimental version of PrimeDAO contracts",
   "main": "index.js",
   "scripts": {
-    "deploy:contracts:rinkeby": "npx hardhat deploy --network rinkeby",
-    "deploy:contracts:mainnet": "npx hardhat deploy --network mainnet",
+    "deploy:contracts:rinkeby": "npx hardhat deploy --network rinkeby --tags Export,$npm_config_tags",
+    "deploy:contracts:mainnet": "npx hardhat deploy --network mainnet --tags Export,$npm_config_tags",
     "compile": "hardhat compile",
     "format": "npx prettier --write \"**/*.js\"",
     "lint": "eslint . --ext .js && solium --dir ./contracts",
