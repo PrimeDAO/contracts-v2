@@ -128,7 +128,7 @@ contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
     )
         private
     {
-        require(_tranche < tranches, "Week cannot be in the future");
+        require(_tranche < tranches, "Tranche does not yet exist");
 
         require(!claimed[_tranche][_claimer], "LP has already claimed");
         require(_verifyClaim(_claimer, _tranche, _balance, _merkleProof), "Incorrect merkle proof");

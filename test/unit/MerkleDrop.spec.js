@@ -76,7 +76,7 @@ const setupInitialState = async (contractInstances, initialState) => {
     withoutSeededAllocation,
   } = initialState;
 
-  let parsedAllocations = matchAllocationsWithAddresses(
+  const parsedAllocations = matchAllocationsWithAddresses(
     addresses,
     rawAllocations
   );
@@ -324,7 +324,9 @@ describe(">> MerkleDrop", () => {
       });
 
       describe("$ with first tranche expired", () => {
-        it("lets alice claim her second claim", async () => {
+        it("still lets alice claim her second claim", async () => {
+          await merkleDropInstance.connect(prime).expireTranche(firstTrancheIdx);
+
           const aliceSecondProof = getAccountBalanceProof(
             secondTree,
             alice.address,
@@ -341,6 +343,24 @@ describe(">> MerkleDrop", () => {
 
           expect(await v2TokenInstance.balanceOf(alice.address)).to.eq(
             utils.parseEther(aliceSecondClaim)
+          );
+        });
+      });
+
+      describe("$ with second tranche expired", () => {
+        it("still lets alice claim her first claim", async () => {
+          await merkleDropInstance.connect(prime).expireTranche(secondTrancheIdx);
+          await merkleDropInstance
+            .connect(alice)
+            .claimTranche(
+              alice.address,
+              firstTrancheIdx,
+              aliceFirstExpectedBalance,
+              aliceFirstProof
+            );
+
+          expect(await v2TokenInstance.balanceOf(alice.address)).to.eq(
+            aliceFirstExpectedBalance
           );
         });
       });
@@ -383,7 +403,7 @@ describe(">> MerkleDrop", () => {
       };
       const nonExistentTrancheIdx = "5";
 
-      it("reverts 'Week cannot be in the future'", async () => {
+      it("reverts 'Tranche does not yet exist'", async () => {
         ({ proof, expectedBalance } = await setupInitialState(
           contractInstances,
           initialState
@@ -396,7 +416,7 @@ describe(">> MerkleDrop", () => {
         );
 
         await expect(nonexistentTrancheClaim).to.be.revertedWith(
-          "Week cannot be in the future"
+          "Tranche does not yet exist"
         );
       });
     });
@@ -485,7 +505,7 @@ describe(">> MerkleDrop", () => {
   });
 
   describe("# expireTranche", () => {
-    let proof, trancheIdx, expectedBalance, tree, parsedAllocations;
+    let trancheIdx;
 
     const initialState = {
       ...commonState,
