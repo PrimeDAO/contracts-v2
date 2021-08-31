@@ -36,7 +36,7 @@ function sortTokens(tokens) {
   return tokens;
 }
 
-describe(">> Contract: WrapperFactory", () => {
+describe.only(">> Contract: WrapperFactory", () => {
   let setup, swapsEnabled;
   let tokenAddresses, admin, owner, sortedTokens, newOwner;
 
@@ -52,7 +52,6 @@ describe(">> Contract: WrapperFactory", () => {
     balance.toString()
   );
 
-  const AMOUNTS = [16.667e18, 15000e6].map((amount) => amount.toString());
   const SWAP_FEE_PERCENTAGE = (0.5e16).toString(); // 0.5%
   const JOIN_KIND_INIT = 0;
   const ZERO_ADDRESS = constants.ZERO_ADDRESS;
@@ -112,41 +111,19 @@ describe(">> Contract: WrapperFactory", () => {
     });
   });
   context("» deploy LBP using LBPWrapper", () => {
-    let userData, params;
+    let params;
     before("!! setup for deploying LBPWrapper", async () => {
-      userData = ethers.utils.defaultAbiCoder.encode(
-        ["uint256", "uint256[]"],
-        [JOIN_KIND_INIT, AMOUNTS]
-      );
-
       params = [
         NAME,
         SYMBOL,
         tokenAddresses,
-        AMOUNTS,
         START_WEIGHTS,
         swapsEnabled,
         startTime,
         endTime,
         END_WEIGHTS,
         admin.address,
-        userData,
       ];
-
-      await sortedTokens[0]
-        .connect(owner)
-        .transfer(admin.address, ADMIN_BALANCE[0]);
-      await sortedTokens[1]
-        .connect(owner)
-        .transfer(admin.address, ADMIN_BALANCE[1]);
-      // console.log((await sortedTokens[0].connect(admin).balanceOf(admin.address)).toString())
-
-      await sortedTokens[0]
-        .connect(admin)
-        .approve(setup.wrapperFactory.address, ADMIN_BALANCE[0]);
-      await sortedTokens[1]
-        .connect(admin)
-        .approve(setup.wrapperFactory.address, ADMIN_BALANCE[1]);
     });
     it("$ deploys LBP", async () => {
       const tx = await setup.wrapperFactory
