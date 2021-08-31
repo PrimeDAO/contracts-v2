@@ -104,16 +104,17 @@ const setupInitialState = async (contractInstances, initialState) => {
   // create tree
   let tree = createTreeWithAccounts(tranche);
   let merkleRoot = tree.hexRoot;
-
   // create proof if required for test
-  let { proof, expectedBalance } =
-    withProof &&
-    generateProof(
+
+  let proof, expectedBalance;
+  if (withProof) {
+    ({ proof, expectedBalance } = generateProof(
       tree,
       alice.address,
       new BN(parsedAllocations[alice.address].toString()),
       addresses
-    );
+    ));
+  }
 
   // change allocation to zero if required for test
   if (zeroAllocation) {
@@ -180,7 +181,7 @@ const commonState = {
   forwardBlocks: 100,
 };
 
-describe.only(">> MerkleDrop", () => {
+describe(">> MerkleDrop", () => {
   let merkleDropInstance,
     v2TokenInstance,
     contractInstances,
@@ -200,7 +201,7 @@ describe.only(">> MerkleDrop", () => {
   });
 
   describe("# claimTranche", () => {
-    describe("$ claim first tranche", () => {
+    describe("$ with only one tranche", () => {
       let proof, trancheIdx, expectedBalance;
       const initialState = {
         ...commonState,
@@ -244,6 +245,104 @@ describe.only(">> MerkleDrop", () => {
             .connect(alice)
             .claimTranche(alice.address, trancheIdx, expectedBalance, proof)
         ).to.be.revertedWith("Incorrect merkle proof");
+      });
+    });
+
+    describe("$ with second tranche", async () => {
+      let secondMerkleRoot,
+        secondTree,
+        aliceFirstProof,
+        aliceFirstExpectedBalance;
+
+      const firstTrancheIdx = "0";
+      const secondTrancheIdx = "1";
+      const aliceSecondClaim = "10";
+      const bobSecondClaim = "20";
+      const initialState = {
+        ...commonState,
+        withProof: true,
+      };
+
+      beforeEach("add a second tranche", async () => {
+        ({
+          proof: aliceFirstProof,
+          expectedBalance: aliceFirstExpectedBalance,
+        } = await setupInitialState(contractInstances, initialState));
+
+        const secondAllocation = [
+          [alice.address, aliceSecondClaim],
+          [bob.address, bobSecondClaim],
+        ];
+        const secondCumulativeAllocation = utils
+          .parseEther(aliceSecondClaim)
+          .add(utils.parseEther(bobSecondClaim));
+        const secondTranche = getTranche(...secondAllocation);
+
+        secondTree = createTreeWithAccounts(secondTranche);
+        secondMerkleRoot = secondTree.hexRoot;
+
+        await v2TokenInstance
+          .connect(root)
+          .increaseAllowance(
+            merkleDropInstance.address,
+            secondCumulativeAllocation
+          );
+        await merkleDropInstance
+          .connect(root)
+          .seedNewAllocations(secondMerkleRoot, secondCumulativeAllocation);
+      });
+
+      it("lets alice claim her first and second claim", async () => {
+        await merkleDropInstance
+          .connect(alice)
+          .claimTranche(
+            alice.address,
+            firstTrancheIdx,
+            aliceFirstExpectedBalance,
+            aliceFirstProof
+          );
+        const aliceSecondProof = getAccountBalanceProof(
+          secondTree,
+          alice.address,
+          utils.parseEther(aliceSecondClaim)
+        );
+        await merkleDropInstance
+          .connect(alice)
+          .claimTranche(
+            alice.address,
+            secondTrancheIdx,
+            utils.parseEther(aliceSecondClaim),
+            aliceSecondProof
+          );
+
+        const expectedTotalBalance = utils
+          .parseEther(aliceSecondClaim)
+          .add(aliceFirstExpectedBalance);
+        expect(await v2TokenInstance.balanceOf(alice.address)).to.eq(
+          expectedTotalBalance
+        );
+      });
+
+      describe("with first tranche expired", () => {
+        it("lets alice claim her second claim", async () => {
+          const aliceSecondProof = getAccountBalanceProof(
+            secondTree,
+            alice.address,
+            utils.parseEther(aliceSecondClaim)
+          );
+          await merkleDropInstance
+            .connect(alice)
+            .claimTranche(
+              alice.address,
+              secondTrancheIdx,
+              utils.parseEther(aliceSecondClaim),
+              aliceSecondProof
+            );
+
+          expect(await v2TokenInstance.balanceOf(alice.address)).to.eq(
+            utils.parseEther(aliceSecondClaim)
+          );
+        });
       });
     });
 
