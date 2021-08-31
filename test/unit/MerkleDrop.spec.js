@@ -77,12 +77,12 @@ const setupInitialState = async (contractInstances, initialState) => {
   const {
     withProof,
     trancheExpired,
-    forwardBlocks,
     zeroAllocation,
     incorrectProof,
+    withoutSeededAllocation,
   } = initialState;
 
-  let parsedAllocations = matchAllocationsWithAddresses(
+  const parsedAllocations = matchAllocationsWithAddresses(
     addresses,
     rawAllocations
   );
@@ -110,16 +110,17 @@ const setupInitialState = async (contractInstances, initialState) => {
   // create tree
   let tree = createTreeWithAccounts(tranche);
   let merkleRoot = tree.hexRoot;
-
   // create proof if required for test
-  let { proof, expectedBalance } =
-    withProof &&
-    generateProof(
+
+  let proof, expectedBalance;
+  if (withProof) {
+    ({ proof, expectedBalance } = generateProof(
       tree,
       alice.address,
       new BN(parsedAllocations[alice.address].toString()),
       addresses
-    );
+    ));
+  }
 
   // change allocation to zero if required for test
   if (zeroAllocation) {
@@ -156,14 +157,22 @@ const setupInitialState = async (contractInstances, initialState) => {
   }
 
   // pass merkle root and cumulativeAllocation to MerkleDrop (seedNewAllocation)
-  await merkleDropInstance
-    .connect(root)
-    .seedNewAllocations(merkleRoot, cumulativeAllocation);
+  !withoutSeededAllocation &&
+    (await merkleDropInstance
+      .connect(root)
+      .seedNewAllocations(merkleRoot, cumulativeAllocation));
 
   // expire tranche if required for test
   trancheExpired &&
     (await merkleDropInstance.connect(prime).expireTranche(trancheIdx));
-  return { tree, proof, trancheIdx, expectedBalance };
+
+  return {
+    tree,
+    proof,
+    trancheIdx,
+    expectedBalance,
+    merkleRoot,
+  };
 };
 
 const generateProof = (tree, address, balance, addresses) => ({
@@ -179,12 +188,17 @@ const commonState = {
 };
 
 describe(">> MerkleDrop", () => {
-  let merkleDropInstance, v2TokenInstance, contractInstances, alice, bob;
+  let merkleDropInstance,
+    v2TokenInstance,
+    contractInstances,
+    alice,
+    bob,
+    prime,
+    root;
 
   before(async () => {
     const signers = await ethers.getSigners();
-    alice = signers[2];
-    bob = signers[3];
+    [root, prime, alice, bob] = signers;
   });
 
   beforeEach(async () => {
@@ -193,7 +207,7 @@ describe(">> MerkleDrop", () => {
   });
 
   describe("# claimTranche", () => {
-    describe("$ allocation claims", () => {
+    describe("$ with only one tranche", () => {
       let proof, trancheIdx, expectedBalance;
       const initialState = {
         ...commonState,
@@ -205,17 +219,21 @@ describe(">> MerkleDrop", () => {
           contractInstances,
           initialState
         ));
-        await merkleDropInstance
-          .connect(alice)
-          .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
       });
 
       it("lets alice claim her allocation", async () => {
+        await merkleDropInstance
+          .connect(alice)
+          .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
+
         const aliceBalance = await v2TokenInstance.balanceOf(alice.address);
         expect(aliceBalance).to.eq(expectedBalance);
       });
 
       it("reverts if alice claims a second time", async () => {
+        await merkleDropInstance
+          .connect(alice)
+          .claimTranche(alice.address, trancheIdx, expectedBalance, proof);
         const duplicateClaim = merkleDropInstance.claimTranche(
           alice.address,
           trancheIdx,
@@ -225,9 +243,136 @@ describe(">> MerkleDrop", () => {
 
         expect(duplicateClaim).to.be.revertedWith("LP has already claimed");
       });
+
+      it("reverts if tranch is expired", async () => {
+        await merkleDropInstance.connect(prime).expireTranche(trancheIdx);
+        expect(
+          merkleDropInstance
+            .connect(alice)
+            .claimTranche(alice.address, trancheIdx, expectedBalance, proof)
+        ).to.be.revertedWith("Incorrect merkle proof");
+      });
     });
 
-    describe("$ allocation is zero", () => {
+    describe("$ with second tranche", async () => {
+      let secondMerkleRoot,
+        secondTree,
+        aliceFirstProof,
+        aliceFirstExpectedBalance;
+
+      const firstTrancheIdx = "0";
+      const secondTrancheIdx = "1";
+      const aliceSecondClaim = "10";
+      const bobSecondClaim = "20";
+      const initialState = {
+        ...commonState,
+        withProof: true,
+      };
+
+      beforeEach("add a second tranche", async () => {
+        ({
+          proof: aliceFirstProof,
+          expectedBalance: aliceFirstExpectedBalance,
+        } = await setupInitialState(contractInstances, initialState));
+
+        const secondAllocation = [
+          [alice.address, aliceSecondClaim],
+          [bob.address, bobSecondClaim],
+        ];
+        const secondCumulativeAllocation = utils
+          .parseEther(aliceSecondClaim)
+          .add(utils.parseEther(bobSecondClaim));
+        const secondTranche = getTranche(...secondAllocation);
+
+        secondTree = createTreeWithAccounts(secondTranche);
+        secondMerkleRoot = secondTree.hexRoot;
+
+        await v2TokenInstance
+          .connect(root)
+          .increaseAllowance(
+            merkleDropInstance.address,
+            secondCumulativeAllocation
+          );
+        await merkleDropInstance
+          .connect(root)
+          .seedNewAllocations(secondMerkleRoot, secondCumulativeAllocation);
+      });
+
+      it("lets alice claim her first and second claim", async () => {
+        await merkleDropInstance
+          .connect(alice)
+          .claimTranche(
+            alice.address,
+            firstTrancheIdx,
+            aliceFirstExpectedBalance,
+            aliceFirstProof
+          );
+        const aliceSecondProof = getAccountBalanceProof(
+          secondTree,
+          alice.address,
+          utils.parseEther(aliceSecondClaim)
+        );
+        await merkleDropInstance
+          .connect(alice)
+          .claimTranche(
+            alice.address,
+            secondTrancheIdx,
+            utils.parseEther(aliceSecondClaim),
+            aliceSecondProof
+          );
+
+        const expectedTotalBalance = utils
+          .parseEther(aliceSecondClaim)
+          .add(aliceFirstExpectedBalance);
+        expect(await v2TokenInstance.balanceOf(alice.address)).to.eq(
+          expectedTotalBalance
+        );
+      });
+
+      describe("$ with first tranche expired", () => {
+        it("still lets alice claim her second claim", async () => {
+          await merkleDropInstance.connect(prime).expireTranche(firstTrancheIdx);
+
+          const aliceSecondProof = getAccountBalanceProof(
+            secondTree,
+            alice.address,
+            utils.parseEther(aliceSecondClaim)
+          );
+          await merkleDropInstance
+            .connect(alice)
+            .claimTranche(
+              alice.address,
+              secondTrancheIdx,
+              utils.parseEther(aliceSecondClaim),
+              aliceSecondProof
+            );
+
+          expect(await v2TokenInstance.balanceOf(alice.address)).to.eq(
+            utils.parseEther(aliceSecondClaim)
+          );
+        });
+      });
+
+      describe("$ with second tranche expired", () => {
+        it("still lets alice claim her first claim", async () => {
+          await merkleDropInstance.connect(prime).expireTranche(secondTrancheIdx);
+          await merkleDropInstance
+            .connect(alice)
+            .claimTranche(
+              alice.address,
+              firstTrancheIdx,
+              aliceFirstExpectedBalance,
+              aliceFirstProof
+            );
+
+          expect(await v2TokenInstance.balanceOf(alice.address)).to.eq(
+            aliceFirstExpectedBalance
+          );
+        });
+      });
+    });
+
+    describe("$ with allocation is zero", () => {
       let proof, trancheIdx, expectedBalance;
 
       const initialState = {
@@ -236,7 +381,7 @@ describe(">> MerkleDrop", () => {
         zeroAllocation: true,
       };
 
-      it("reverts", async () => {
+      it("reverts 'No balance would be transferred - not going to waste your gas'", async () => {
         ({ proof, trancheIdx, expectedBalance } = await setupInitialState(
           contractInstances,
           initialState
@@ -253,10 +398,38 @@ describe(">> MerkleDrop", () => {
         );
       });
     });
+
+    describe("with non-existent tranche", () => {
+      let proof, expectedBalance;
+
+      const initialState = {
+        ...commonState,
+        withProof: true,
+        zeroAllocation: true,
+      };
+      const nonExistentTrancheIdx = "5";
+
+      it("reverts 'Tranche does not yet exist'", async () => {
+        ({ proof, expectedBalance } = await setupInitialState(
+          contractInstances,
+          initialState
+        ));
+        const nonexistentTrancheClaim = merkleDropInstance.claimTranche(
+          alice.address,
+          nonExistentTrancheIdx,
+          expectedBalance,
+          proof
+        );
+
+        await expect(nonexistentTrancheClaim).to.be.revertedWith(
+          "Tranche does not yet exist"
+        );
+      });
+    });
   });
 
   describe("# verifyClaim", () => {
-    describe("$ claim is valid", () => {
+    describe("$ with valid claim", () => {
       let proof, trancheIdx, expectedBalance;
 
       const initialState = {
@@ -283,7 +456,7 @@ describe(">> MerkleDrop", () => {
       });
     });
 
-    describe("$ tranche is expired", () => {
+    describe("$ with expired tranche", () => {
       let proof, trancheIdx, expectedBalance;
 
       const initialState = {
@@ -311,7 +484,7 @@ describe(">> MerkleDrop", () => {
       });
     });
 
-    describe("$ merkle proof is incorrect", () => {
+    describe("$ with incorrect merkle proof", () => {
       let proof, trancheIdx, expectedBalance;
 
       const initialState = {
@@ -334,6 +507,31 @@ describe(">> MerkleDrop", () => {
           "Incorrect merkle proof"
         );
       });
+    });
+  });
+
+  describe("# expireTranche", () => {
+    let trancheIdx;
+
+    const initialState = {
+      ...commonState,
+      withProof: true,
+    };
+
+    beforeEach(async () => {
+      ({ proof, trancheIdx, expectedBalance } = await setupInitialState(
+        contractInstances,
+        initialState
+      ));
+    });
+
+    it("sets merkle root of tranche to zero", async () => {
+      await merkleDropInstance.connect(prime).expireTranche(trancheIdx);
+
+      const expiredMerkleRoot = await merkleDropInstance.merkleRoots(
+        trancheIdx
+      );
+      expect(expiredMerkleRoot).to.equal(BigNumber.from(0));
     });
   });
 });
