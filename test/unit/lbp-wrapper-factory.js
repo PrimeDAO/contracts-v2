@@ -52,7 +52,6 @@ describe.only(">> Contract: WrapperFactory", () => {
     balance.toString()
   );
 
-  const SWAP_FEE_PERCENTAGE = (0.5e16).toString(); // 0.5%
   const JOIN_KIND_INIT = 0;
   const ZERO_ADDRESS = constants.ZERO_ADDRESS;
   30000000000;
@@ -72,13 +71,10 @@ describe.only(">> Contract: WrapperFactory", () => {
       setup.wrapperFactory = await init.getContractInstance(
         "WrapperFactory",
         owner,
-        [setup.lbpFactory.address, SWAP_FEE_PERCENTAGE]
+        [setup.lbpFactory.address]
       );
       expect(await setup.wrapperFactory.LBPFactory()).to.equal(
         setup.lbpFactory.address
-      );
-      expect(await setup.wrapperFactory.swapFeePercentage()).to.equal(
-        SWAP_FEE_PERCENTAGE
       );
     });
   });
