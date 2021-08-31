@@ -323,7 +323,7 @@ describe(">> MerkleDrop", () => {
         );
       });
 
-      describe("with first tranche expired", () => {
+      describe("$ with first tranche expired", () => {
         it("lets alice claim her second claim", async () => {
           const aliceSecondProof = getAccountBalanceProof(
             secondTree,
@@ -346,7 +346,7 @@ describe(">> MerkleDrop", () => {
       });
     });
 
-    describe("$ allocation is zero", () => {
+    describe("$ with allocation is zero", () => {
       let proof, trancheIdx, expectedBalance;
 
       const initialState = {
@@ -355,7 +355,7 @@ describe(">> MerkleDrop", () => {
         zeroAllocation: true,
       };
 
-      it("reverts", async () => {
+      it("reverts 'No balance would be transferred - not going to waste your gas'", async () => {
         ({ proof, trancheIdx, expectedBalance } = await setupInitialState(
           contractInstances,
           initialState
@@ -372,10 +372,38 @@ describe(">> MerkleDrop", () => {
         );
       });
     });
+
+    describe("with non-existent tranche", () => {
+      let proof, expectedBalance;
+
+      const initialState = {
+        ...commonState,
+        withProof: true,
+        zeroAllocation: true,
+      };
+      const nonExistentTrancheIdx = "5";
+
+      it("reverts 'Week cannot be in the future'", async () => {
+        ({ proof, expectedBalance } = await setupInitialState(
+          contractInstances,
+          initialState
+        ));
+        const nonexistentTrancheClaim = merkleDropInstance.claimTranche(
+          alice.address,
+          nonExistentTrancheIdx,
+          expectedBalance,
+          proof
+        );
+
+        await expect(nonexistentTrancheClaim).to.be.revertedWith(
+          "Week cannot be in the future"
+        );
+      });
+    });
   });
 
   describe("# verifyClaim", () => {
-    describe("$ claim is valid", () => {
+    describe("$ with valid claim", () => {
       let proof, trancheIdx, expectedBalance;
 
       const initialState = {
@@ -402,7 +430,7 @@ describe(">> MerkleDrop", () => {
       });
     });
 
-    describe("$ tranche is expired", () => {
+    describe("$ with expired tranche", () => {
       let proof, trancheIdx, expectedBalance;
 
       const initialState = {
@@ -430,7 +458,7 @@ describe(">> MerkleDrop", () => {
       });
     });
 
-    describe("$ merkle proof is incorrect", () => {
+    describe("$ with incorrect merkle proof", () => {
       let proof, trancheIdx, expectedBalance;
 
       const initialState = {
