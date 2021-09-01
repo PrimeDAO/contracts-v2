@@ -116,6 +116,12 @@ constructor arguments can be passed as follows:
 
 find more information in the documentation of [hardhat-etherscan](https://hardhat.org/plugins/nomiclabs-hardhat-etherscan.html)
 
+## Code formatting
+
+To format JS and Solidity code, run the following command:
+
+`npm run format`
+
 ## Contributing to PrimeDAO
 If you wish to contribute to PrimeDAO, check out our [Contributor Onboarding documentation](https://docs.primedao.io/primedao/call-for-contributors).
 
