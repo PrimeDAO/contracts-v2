@@ -220,6 +220,24 @@ describe("SeedFactory", () => {
           )
         ).to.emit(seedFactory, "SeedCreated");
       });
+      it("it creates new seed contract with whitelists", async () => {
+        await expect(
+          seedFactory.deploySeed(
+            dao.address,
+            admin.address,
+            [seedToken.address, fundingToken.address],
+            [setup.roles.root.address, setup.roles.prime.address],
+            [softCap, hardCap],
+            price,
+            startTime.toNumber(),
+            endTime.toNumber(),
+            [vestingDuration.toNumber(), vestingCliff.toNumber()],
+            isWhitelisted,
+            fee,
+            metadata
+          )
+        ).to.emit(seedFactory, "SeedCreated");
+      });
     });
     context("» setMasterCopy", () => {
       before("!! deploy new seed", async () => {
@@ -259,51 +277,4 @@ describe("SeedFactory", () => {
       });
     });
   });
-  context("Add whitelist at start", async () => {
-    before("!! setup", async () => {
-      setup = await deploy();
-      Seed = await ethers.getContractFactory("Seed", setup.roles.root);
-      dao = setup.roles.prime;
-      admin = setup.roles.root;
-      seedToken = setup.tokens.seedToken;
-      fundingToken = setup.tokens.fundingToken;
-      hardCap = parseEther("100").toString();
-      price = parseEther("0.01").toString();
-      softCap = parseEther("100").toString();
-      startTime = await time.latest();
-      endTime = await startTime.add(await time.duration.days(7));
-      vestingDuration = await time.duration.days(365); // 1 year
-      vestingCliff = await time.duration.days(90); // 3 months
-      isWhitelisted = true;
-      fee = 2;
-      metadata = `0x${toHex("QmRCtyCWKnJTtTCy1RTXte8pY8vV58SU8YtAC9oa24C4Qg")}`;
-
-      seedFactory = setup.seedFactory;
-    });
-    it("sets master copy", async () => {
-      newSeed = await Seed.deploy();
-      await seedFactory.connect(dao).setMasterCopy(newSeed.address);
-      expect(await seedFactory.masterCopy()).to.equal(newSeed.address);
-    });
-    it("it creates new seed contract", async () => {
-      requiredSeedAmount = new BN(hardCap).div(new BN(price)).mul(pct_base);
-
-      await expect(
-        seedFactory.deploySeed(
-          dao.address,
-          admin.address,
-          [seedToken.address, fundingToken.address],
-          [setup.roles.root.address, setup.roles.prime.address],
-          [softCap, hardCap],
-          price,
-          startTime.toNumber(),
-          endTime.toNumber(),
-          [vestingDuration.toNumber(), vestingCliff.toNumber()],
-          isWhitelisted,
-          fee,
-          metadata
-        )
-      ).to.emit(seedFactory, "SeedCreated");
-    });
-  })
 });
