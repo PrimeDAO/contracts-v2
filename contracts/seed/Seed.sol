@@ -339,9 +339,16 @@ contract Seed {
       * @dev                     Add multiple addresses to whitelist.
       * @param _buyers           Array of addresses to whitelist addresses in batch
     */
-    function whitelistBatch(address[] memory _buyers) external onlyAdmin {
+    function whitelistBatch(address[] memory _buyers) external {
+        require(
+            initialized != true || msg.sender == admin,
+            "Seed: contract should not be initialized or caller should be admin"
+        );
         require(!closed, "Seed: should not be closed");
-        require(permissionedSeed == true, "Seed: seed is not whitelisted");
+        require(
+            permissionedSeed == true || initialized != true,
+            "Seed: seed is not whitelisted or is initialized"
+        );
         for (uint256 i = 0; i < _buyers.length; i++) {
             whitelisted[_buyers[i]] = true;
         }

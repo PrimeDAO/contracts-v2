@@ -65,6 +65,7 @@ contract SeedFactory is CloneFactory, Ownable {
         address _beneficiary,
         address _admin,
         address[] memory _tokens,
+        address[] memory _whitelists,
         uint256[] memory _softHardThresholds,
         uint256 _price,
         uint256 _startTime,
@@ -84,6 +85,12 @@ contract SeedFactory is CloneFactory, Ownable {
         address _newSeed = createClone(address(masterCopy));
 
         Seed(_newSeed).updateMetadata(_metadata);
+
+        {
+            if (_permissionedSeed) {
+                Seed(_newSeed).whitelistBatch(_whitelists);
+            }
+        }
 
         // initialize
         Seed(_newSeed).initialize(

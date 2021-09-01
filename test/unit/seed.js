@@ -1827,7 +1827,7 @@ describe("Contract: Seed", async () => {
             seed
               .connect(buyer1)
               .whitelistBatch([buyer1.address, buyer2.address]),
-            "Seed: caller should be admin"
+            "Seed: contract should not be initialized or caller should be admin"
           );
         });
         it("adds users to the whitelist", async () => {
