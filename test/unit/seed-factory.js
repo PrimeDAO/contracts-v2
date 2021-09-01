@@ -55,7 +55,7 @@ describe("SeedFactory", () => {
   let receipt;
   let requiredSeedAmount;
   let Seed;
-  const whitelists = [];
+  const emptyWhitelists = [];
   const pct_base = new BN("1000000000000000000"); // 10**18
 
   context("» creator is owner", () => {
@@ -87,7 +87,7 @@ describe("SeedFactory", () => {
             dao.address,
             admin.address,
             [seedToken.address, fundingToken.address],
-            [],
+            emptyWhitelists,
             [softCap, hardCap],
             price,
             startTime.toNumber(),
@@ -111,7 +111,7 @@ describe("SeedFactory", () => {
             dao.address,
             admin.address,
             [seedToken.address, fundingToken.address],
-            [],
+            emptyWhitelists,
             [softCap, hardCap],
             price,
             startTime.toNumber(),
@@ -130,7 +130,7 @@ describe("SeedFactory", () => {
             dao.address,
             admin.address,
             [seedToken.address, seedToken.address],
-            [],
+            emptyWhitelists,
             [softCap, hardCap],
             price,
             startTime.toNumber(),
@@ -149,7 +149,7 @@ describe("SeedFactory", () => {
             dao.address,
             admin.address,
             [seedToken.address, fundingToken.address],
-            [],
+            emptyWhitelists,
             [parseEther("101").toString(), softCap],
             price,
             startTime.toNumber(),
@@ -168,7 +168,7 @@ describe("SeedFactory", () => {
             dao.address,
             admin.address,
             [seedToken.address, fundingToken.address],
-            [],
+            emptyWhitelists,
             [hardCap, softCap],
             price,
             startTime.toNumber(),
@@ -187,7 +187,7 @@ describe("SeedFactory", () => {
             dao.address,
             admin.address,
             [seedToken.address, fundingToken.address],
-            [],
+            emptyWhitelists,
             [hardCap, softCap],
             price,
             endTime.toNumber(),
@@ -208,7 +208,7 @@ describe("SeedFactory", () => {
             dao.address,
             admin.address,
             [seedToken.address, fundingToken.address],
-            [],
+            emptyWhitelists,
             [softCap, hardCap],
             price,
             startTime.toNumber(),

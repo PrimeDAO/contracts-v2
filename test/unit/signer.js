@@ -55,6 +55,7 @@ describe("Contract: Signer", async () => {
   let setup;
   let nonce = 0;
   let Signer_Factory;
+  const emptyWhitelists = [];
   before("!! setup", async () => {
     setup = await deploy();
     Signer_Factory = await ethers.getContractFactory(
@@ -136,7 +137,7 @@ describe("Contract: Signer", async () => {
           BENEFICIARY,
           ADMIN,
           [PRIME, WETH],
-          [],
+          emptyWhitelists,
           [softCap, hardCap],
           price,
           startTime,
@@ -174,7 +175,7 @@ describe("Contract: Signer", async () => {
           BENEFICIARY,
           ADMIN,
           [PRIME, WETH],
-          [],
+          emptyWhitelists,
           [softCap, hardCap],
           price,
           startTime,
@@ -210,7 +211,7 @@ describe("Contract: Signer", async () => {
           BENEFICIARY,
           ADMIN,
           [PRIME, WETH],
-          [],
+          emptyWhitelists,
           [softCap, hardCap],
           price,
           startTime,
@@ -246,7 +247,7 @@ describe("Contract: Signer", async () => {
           BENEFICIARY,
           ADMIN,
           [PRIME, WETH],
-          [],
+          emptyWhitelists,
           [softCap, hardCap],
           price,
           startTime,
@@ -282,7 +283,7 @@ describe("Contract: Signer", async () => {
           BENEFICIARY,
           ADMIN,
           [PRIME, WETH],
-          [],
+          emptyWhitelists,
           [softCap, hardCap],
           price,
           startTime,
@@ -343,7 +344,7 @@ describe("Contract: Signer", async () => {
           BENEFICIARY,
           ADMIN,
           [PRIME, WETH],
-          [],
+          emptyWhitelists,
           [softCap, hardCap],
           price,
           startTime,
@@ -422,7 +423,7 @@ describe("Contract: Signer", async () => {
         BENEFICIARY,
         ADMIN,
         [PRIME, WETH],
-        [],
+        emptyWhitelists,
         [softCap, hardCap],
         price,
         startTime,
@@ -436,7 +437,7 @@ describe("Contract: Signer", async () => {
         BENEFICIARY,
         ADMIN,
         [PRIME, WETH],
-        [],
+        emptyWhitelists,
         [softCap, hardCap],
         price,
         startTime,
