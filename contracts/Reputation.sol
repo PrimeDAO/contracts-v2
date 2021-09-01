@@ -16,17 +16,15 @@ pragma solidity 0.8.6;
 import "openzeppelin-contracts-sol8/token/ERC20/ERC20.sol";
 import "openzeppelin-contracts-sol8/access/Ownable.sol";
 
-
 /**
  * @title PrimeDAO Reputation contract
  * @dev   Reputation is a non-transferable ERC20 token used for PrimeDAO Governance.
  */
 contract Reputation is ERC20, Ownable {
-
     modifier validInput(
         address[] memory _repRecipients,
-        uint[] memory _repAmounts
-    ){
+        uint256[] memory _repAmounts
+    ) {
         require(
             _repRecipients.length == _repAmounts.length,
             "Reputation: number of reputation holders doesn't match number of reputation amounts"
@@ -48,10 +46,12 @@ contract Reputation is ERC20, Ownable {
      * @param recipient     unused parameter.
      * @param amount        unused parameter.
      */
-    function transfer(
-        address recipient,
-        uint256 amount
-    ) public override pure returns(bool) {
+    function transfer(address recipient, uint256 amount)
+        public
+        pure
+        override
+        returns (bool)
+    {
         return false;
     }
 
@@ -65,7 +65,7 @@ contract Reputation is ERC20, Ownable {
         address sender,
         address recipient,
         uint256 amount
-    ) public override pure returns(bool) {
+    ) public pure override returns (bool) {
         return false;
     }
 
@@ -74,10 +74,7 @@ contract Reputation is ERC20, Ownable {
      * @param _repRecipient  adress that rep is being minted to.
      * @param _repAmount     amount of reputation to be minted.
      */
-    function mint(
-        address _repRecipient,
-        uint _repAmount
-    ) public onlyOwner {
+    function mint(address _repRecipient, uint256 _repAmount) public onlyOwner {
         ERC20._mint(_repRecipient, _repAmount);
     }
 
@@ -88,7 +85,7 @@ contract Reputation is ERC20, Ownable {
      */
     function batchMint(
         address[] memory _repRecipients,
-        uint[] memory _repAmounts
+        uint256[] memory _repAmounts
     ) public onlyOwner {
         _batchMint(_repRecipients, _repAmounts);
     }
@@ -98,10 +95,7 @@ contract Reputation is ERC20, Ownable {
      * @param _repRecipient  adress that's rep is being burned.
      * @param _repAmount     amount of reputation to be burned.
      */
-    function burn(
-        address _repRecipient,
-        uint _repAmount
-    ) public onlyOwner {
+    function burn(address _repRecipient, uint256 _repAmount) public onlyOwner {
         ERC20._burn(_repRecipient, _repAmount);
     }
 
@@ -112,7 +106,7 @@ contract Reputation is ERC20, Ownable {
      */
     function batchBurn(
         address[] memory _repRecipients,
-        uint[] memory _repAmounts
+        uint256[] memory _repAmounts
     ) public onlyOwner {
         _batchBurn(_repRecipients, _repAmounts);
     }
@@ -121,25 +115,19 @@ contract Reputation is ERC20, Ownable {
 
     function _batchMint(
         address[] memory _repRecipients,
-        uint[] memory _repAmounts
-    ) internal validInput(
-        _repRecipients,
-        _repAmounts
-    ) {
-        for (uint64 j = 0; j < _repAmounts.length; j++) { 
+        uint256[] memory _repAmounts
+    ) internal validInput(_repRecipients, _repAmounts) {
+        for (uint64 j = 0; j < _repAmounts.length; j++) {
             ERC20._mint(_repRecipients[j], _repAmounts[j]);
-        } 
+        }
     }
 
     function _batchBurn(
         address[] memory _repRecipients,
-        uint[] memory _repAmounts
-    ) internal validInput(
-        _repRecipients,
-        _repAmounts
-    ) {
-        for (uint64 j = 0; j < _repAmounts.length; j++) { 
+        uint256[] memory _repAmounts
+    ) internal validInput(_repRecipients, _repAmounts) {
+        for (uint64 j = 0; j < _repAmounts.length; j++) {
             ERC20._burn(_repRecipients[j], _repAmounts[j]);
-        } 
+        }
     }
 }
