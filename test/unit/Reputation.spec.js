@@ -26,7 +26,7 @@ const parseNumbers = (balancesInEther) =>
     ])
   );
 
-describe.only("Reputation", () => {
+describe("Reputation", () => {
   let reputationInstance,
     repHolders,
     repAmounts,
@@ -253,7 +253,7 @@ describe.only("Reputation", () => {
       it("reverts 'Reputation: number of reputation holders doesn't match number of reputation amounts'", async () => {
         const batchMintAttempt = reputationInstance.batchMint(
           [alice.address, bob.address],
-          [parsedAdditionalAmounts.alice]
+          [BigNumber.from(10)]
         );
 
         await expect(batchMintAttempt).to.be.revertedWith(
