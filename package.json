@@ -7,7 +7,7 @@
     "deploy:contracts:rinkeby": "npx hardhat deploy --network rinkeby --tags Export,$npm_config_tags",
     "deploy:contracts:mainnet": "npx hardhat deploy --network mainnet --tags Export,$npm_config_tags",
     "compile": "hardhat compile",
-    "format": "npx prettier --write \"**/*.js\"",
+    "format": "npx prettier --write \"**/*.js\" \"**/*.sol\"",
     "lint": "eslint . --ext .js && solium --dir ./contracts",
     "test": "hardhat test",
     "coverage": "hardhat coverage"
