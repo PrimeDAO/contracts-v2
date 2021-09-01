@@ -7,19 +7,11 @@ const { parseEther } = utils;
 
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
-    const { deploy } = deployments;
-    const [root] = await ethers.getSigners();
+    await deployments.fixture(["Reputation"]);
+
     const { repHolders, repAmounts } = options;
 
-    await deploy("Reputation", {
-      contract: "Reputation",
-      from: root.address,
-      args: [],
-      log: true,
-    });
-
     const reputationInstance = await ethers.getContract("Reputation");
-
     await reputationInstance.batchMint(repHolders, repAmounts);
 
     return reputationInstance;
@@ -34,7 +26,7 @@ const parseNumbers = (balancesInEther) =>
     ])
   );
 
-describe("Reputation", () => {
+describe.only("Reputation", () => {
   let reputationInstance,
     repHolders,
     repAmounts,
@@ -70,17 +62,10 @@ describe("Reputation", () => {
   });
 
   describe("!deployment", () => {
-    const { deploy } = deployments;
-
     it("deploys the Reputation contract", async () => {
-      const { address } = await deploy("Reputation", {
-        contract: "Reputation",
-        from: root.address,
-        args: [],
-        log: true,
-      });
+      const reputationInstance = await ethers.getContract("Reputation");
 
-      expect(address).to.be.properAddress;
+      expect(reputationInstance.address).to.be.properAddress;
     });
   });
 
@@ -139,7 +124,7 @@ describe("Reputation", () => {
       expect(aliceBalance).to.eq(parsedAmounts.alice.add(mintAmount));
     });
 
-    context("> caller is NOT owner", () => {
+    context("> with caller NOT being the owner", () => {
       it("reverts", async () => {
         const mintAttempt = reputationInstance
           .connect(alice)
@@ -168,7 +153,7 @@ describe("Reputation", () => {
       expect(aliceBalance).to.eq(parsedAmounts.alice.sub(burnAmount));
     });
 
-    context("> caller is NOT owner", () => {
+    context("> with caller NOT being the owner", () => {
       it("reverts", async () => {
         const mintAttempt = reputationInstance
           .connect(alice)
@@ -189,7 +174,7 @@ describe("Reputation", () => {
       newRepAmounts = [parsedAmounts.dean, parsedAmounts.eddie];
     });
 
-    context("> input arrays are too long", () => {
+    context("> with input arrays too long", () => {
       it("reverts", async () => {
         const excessiveRepHolderArr = Array(250).fill(alice.address);
         const excessiveRepAmountsArr = Array(250).fill(parsedAmounts.alice);
@@ -204,7 +189,7 @@ describe("Reputation", () => {
       });
     });
 
-    context("> caller is NOT owner", () => {
+    context("> with caller NOT being the owner", () => {
       it("reverts", async () => {
         const batchMintAttempt = reputationInstance
           .connect(alice)
@@ -216,7 +201,7 @@ describe("Reputation", () => {
       });
     });
 
-    context("> new REP holders", () => {
+    context("> with new REP holders", () => {
       beforeEach(async () => {
         await reputationInstance.batchMint(newRepHolders, newRepAmounts);
       });
@@ -232,7 +217,7 @@ describe("Reputation", () => {
       });
     });
 
-    context("> existing REP holders", () => {
+    context("> with existing REP holders", () => {
       let existingRepHolders;
 
       const additionalRepAmounts = {
@@ -260,6 +245,19 @@ describe("Reputation", () => {
         const bobBalance = await reputationInstance.balanceOf(bob.address);
         expect(bobBalance).to.eq(
           parsedAmounts.bob.add(parsedAdditionalAmounts.bob)
+        );
+      });
+    });
+
+    context("> with differing numbers of addresses and balances", () => {
+      it("reverts 'Reputation: number of reputation holders doesn't match number of reputation amounts'", async () => {
+        const batchMintAttempt = reputationInstance.batchMint(
+          [alice.address, bob.address],
+          [parsedAdditionalAmounts.alice]
+        );
+
+        await expect(batchMintAttempt).to.be.revertedWith(
+          "Reputation: number of reputation holders doesn't match number of reputation amounts"
         );
       });
     });
@@ -305,17 +303,17 @@ describe("Reputation", () => {
       });
     });
 
-    context("> input arrays are too long", () => {
+    context("> with input arrays being too long", () => {
       it("reverts", async () => {
         const excessiveRepHolderArr = Array(250).fill(alice.address);
         const excessiveRepAmountsArr = Array(250).fill(parsedAmounts.alice);
 
-        const batchMintAttempt = reputationInstance.batchBurn(
+        const batchBurnAttempt = reputationInstance.batchBurn(
           excessiveRepHolderArr,
           excessiveRepAmountsArr
         );
 
-        await expect(batchMintAttempt).to.be.revertedWith(
+        await expect(batchBurnAttempt).to.be.revertedWith(
           "Reputation: maximum number of reputation holders and amounts of 200 was exceeded"
         );
       });
