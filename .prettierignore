@@ -6,3 +6,4 @@ coverage
 deployments
 node_modules
 docs
+.solcover.js

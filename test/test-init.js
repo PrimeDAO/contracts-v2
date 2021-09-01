@@ -24,7 +24,8 @@ const getGnosisProxyInstance = async (setup) => {
     "GnosisSafeProxyFactory",
     setup.roles.prime
   );
-  const gnosisSafeProxyFactoryInstance = await gnosisSafeProxyFactoryFactory.deploy();
+  const gnosisSafeProxyFactoryInstance =
+    await gnosisSafeProxyFactoryFactory.deploy();
 
   const proxy_tx = await gnosisSafeProxyFactoryInstance
     .connect(setup.roles.prime)

@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const parseErrorData = data => {
+const parseErrorData = (data) => {
   return Object.values(data).reduce(
     (accumulator, error) =>
       `${accumulator}${accumulator.length == 0 ? "" : " , "}${error}`,
@@ -8,7 +8,7 @@ const parseErrorData = data => {
   );
 };
 
-const errorHandler = error => {
+const errorHandler = (error) => {
   let errorMsg = {};
   if (error.response) {
     // The request was made and the server responded with a status code
@@ -30,7 +30,7 @@ const errorHandler = error => {
 };
 
 /* eslint-disable */
-const getUrl = network => {
+const getUrl = (network) => {
   switch (network) {
     case "mainnet":
       return `https://safe-transaction.gnosis.io/api/v1/safes/`;
@@ -80,12 +80,13 @@ const getDelegates = async (safe, url) =>
 const api = (safe, network) => {
   const url = getUrl(network);
   return {
-    sendTransaction: async payload => await sendTransaction(payload, safe, url),
-    addDelegate: async payload => await await addDelegate(payload, safe, url),
-    getEstimate: async payload => await getEstimate(payload, safe, url),
+    sendTransaction: async (payload) =>
+      await sendTransaction(payload, safe, url),
+    addDelegate: async (payload) => await await addDelegate(payload, safe, url),
+    getEstimate: async (payload) => await getEstimate(payload, safe, url),
     getTransactionHistory: async () => await getTransactionHistory(safe, url),
     getCurrentNonce: async () => await getCurrentNonce(safe, url),
-    getDelegates: async () => await getDelegates(safe, url)
+    getDelegates: async () => await getDelegates(safe, url),
   };
 };
 
@@ -95,7 +96,7 @@ const methods = {
   getTransactionHistory: `/multisig-transactions`,
   getEstimate: `/multisig-transactions/estimations/`,
   getNonce: `/transactions`,
-  getDelegates: `/delegates/`
+  getDelegates: `/delegates/`,
 };
 
 module.exports = { api };
