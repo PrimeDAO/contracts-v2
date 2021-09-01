@@ -43,7 +43,8 @@ const getLBPWrapperFactory = async (setup) => {
 
 const getContractInstance = async (factoryName, address, args) => {
   const Factory = await ethers.getContractFactory(factoryName, address);
-  return await Factory.deploy(args ? args : []);
+  const parameters = args ? args : [];
+  return await Factory.deploy(...parameters);
 };
 
 const gettokenInstances = async (setup) => {
