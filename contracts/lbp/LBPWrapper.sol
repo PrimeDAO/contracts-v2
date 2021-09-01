@@ -19,7 +19,6 @@ import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
 
 
-
 contract LBPWrapper {
 
     ILBPFactory public LBPFactory;

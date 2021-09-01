@@ -155,19 +155,37 @@ describe.only("Contract: LBPWrapper", async () => {
       ).to.be.revertedWith("LBPWrapper: only owner function");
     });
     it("$ add liquidity to the pool", async () => {
-      const tx = await setup.lbpWrapper
+      // const tx = await setup.lbpWrapper
+      //   .connect(setup.roles.prime)
+      //   .addLiquidityToLbp(
+      //     tokenAddresses,
+      //     fromInternalBalance,
+      //     userData,
+      //     WEIGHTS
+      //   );
+        // const receipt = await tx.wait();
+        // const eventSignature = "PoolBalanceChanged";
+        // const cloneCreationEvent = receipt.events.find(
+        //   (log) => log.eventSignature === eventSignature
+        // );
+
+        // const args = receipt.events.filter((data) => {
+        //   return data.event === "PoolBalanceChanged";
+        // })[0].args;
+
+        await expect(await setup.lbpWrapper
         .connect(setup.roles.prime)
         .addLiquidityToLbp(
           tokenAddresses,
           fromInternalBalance,
           userData,
           WEIGHTS
+        )).to.emit(
+          PoolBalances,
+          "PoolBalanceChanged"
         );
-        const receipt = await tx.wait();
-        const args = receipt.events.filter((data) => {
-          return data.event === "PoolBalanceChanged";
-        })[0].args;
-        console.log(args);
+        
+        // console.log(cloneCreationEvent);
     });
   });
 });
