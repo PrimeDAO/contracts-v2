@@ -181,7 +181,7 @@ describe.only("Contract: LBPWrapper", async () => {
           userData,
           WEIGHTS
         )).to.emit(
-          PoolBalances,
+          setup.vault,
           "PoolBalanceChanged"
         );
         
