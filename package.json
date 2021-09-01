@@ -54,6 +54,7 @@
     "ethers": "^5.4.1",
     "openzeppelin-solidity": "^4.1.0",
     "prettier": "^2.3.2",
-    "prettier-plugin-solidity": "^1.0.0-beta.17"
+    "prettier-plugin-solidity": "^1.0.0-beta.17",
+    "solhint-plugin-prettier": "^0.0.5"
   }
 }
