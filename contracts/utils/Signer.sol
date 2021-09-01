@@ -26,7 +26,7 @@ import "@gnosis.pm/safe-contracts/contracts/interfaces/ISignatureValidator.sol";
 contract Signer is ISignatureValidator {
 
     // SeedFactory.deploySeed() byte hash
-    bytes4 internal constant SEED_FACTORY_MAGIC_VALUE  = 0xb6332c5a;
+    bytes4 internal constant SEED_FACTORY_MAGIC_VALUE  = 0x7f3cb9ea;
     bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH =
     0x7a9f5b2bf4dbb53eb85e012c6094a3d71d76e5bfe821f44ab63ed59311264e35;
     bytes32 private constant SEED_MSG_TYPEHASH         =

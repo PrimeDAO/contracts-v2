@@ -48,13 +48,13 @@ contract SeedFactory is CloneFactory, Ownable {
       * @param _tokens                      Array containing two params:
                                                 - The address of the seed token being distributed.
       *                                         - The address of the funding token being exchanged for seed token.
+      * @param _whitelists                  Array of addresses to whitelist addresses in batch
       * @param _softHardThresholds          Array containing two params:
                                                 - the minimum funding token collection threshold in wei denomination.
                                                 - the highest possible funding token amount to be raised in wei denomination.
       * @param _price                       price of a SeedToken, expressed in fundingTokens, with precision of 10**18
-      * @param _startTime                   Distribution start time in unix timecode.
-      * @param _endTime                     Distribution end time in unix timecode.
-      * @param _vestingDurationAndCliff       Array containing two params:
+      * @param _startTimeEndTime            Array of distribution start time and end time in unix timecode.
+      * @param _vestingDurationAndCliff     Array containing two params:
                                                 - Vesting period duration in days.
                                                 - Cliff duration in days.
       * @param _permissionedSeed      Set to true if only whitelisted adresses are allowed to participate.
@@ -68,8 +68,7 @@ contract SeedFactory is CloneFactory, Ownable {
         address[] memory _whitelists,
         uint256[] memory _softHardThresholds,
         uint256 _price,
-        uint256 _startTime,
-        uint256 _endTime,
+        uint256[] memory _startTimeEndTime,
         uint32[] memory _vestingDurationAndCliff,
         bool  _permissionedSeed,
         uint256 _fee,
@@ -99,8 +98,8 @@ contract SeedFactory is CloneFactory, Ownable {
             _tokens,
             _softHardThresholds,
             _price,
-            _startTime,
-            _endTime,
+            _startTimeEndTime[0],
+            _startTimeEndTime[1],
             _vestingDurationAndCliff[0],
             _vestingDurationAndCliff[1],
             _permissionedSeed,
