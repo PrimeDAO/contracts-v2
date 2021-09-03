@@ -1,8 +1,8 @@
 artifacts
 build
 cache
-contracts
 coverage
 deployments
 node_modules
 docs
+.solcover.js

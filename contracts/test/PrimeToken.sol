@@ -15,20 +15,13 @@ pragma solidity 0.8.6;
 
 import "openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Capped.sol";
 
-
 contract PrimeToken is ERC20Capped {
-
     constructor(
         uint256 initialSupply,
         uint256 cap,
         address genesisMultisig
-    )
-    ERC20("PrimeDAO Token", "PRIME")
-    ERC20Capped(cap)
-    public
-    {
+    ) public ERC20("PrimeDAO Token", "PRIME") ERC20Capped(cap) {
         require(initialSupply <= cap); // _mint from ERC20 is not protected
         ERC20._mint(genesisMultisig, initialSupply);
     }
-
 }

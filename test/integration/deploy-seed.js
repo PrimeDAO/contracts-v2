@@ -102,12 +102,10 @@ describe("Contract: Signer", async () => {
         // here we create a transaction object
         nonce++;
         // incorrect function call
-        const {
-          data,
-          to,
-        } = await setup.seedFactory.populateTransaction.setMasterCopy(
-          BENEFICIARY
-        );
+        const { data, to } =
+          await setup.seedFactory.populateTransaction.setMasterCopy(
+            BENEFICIARY
+          );
         const trx = [
           to,
           zero,
@@ -128,22 +126,20 @@ describe("Contract: Signer", async () => {
       it("reverts on invalid to field", async () => {
         // here we create a transaction object
         nonce++;
-        const {
-          data,
-          to,
-        } = await setup.seedFactory.populateTransaction.deploySeed(
-          BENEFICIARY,
-          ADMIN,
-          [PRIME, WETH],
-          [softCap, hardCap],
-          price,
-          startTime,
-          endTime,
-          [vestingDuration, vestingCliff],
-          isPermissioned,
-          fee,
-          metadata
-        );
+        const { data, to } =
+          await setup.seedFactory.populateTransaction.deploySeed(
+            BENEFICIARY,
+            ADMIN,
+            [PRIME, WETH],
+            [softCap, hardCap],
+            price,
+            startTime,
+            endTime,
+            [vestingDuration, vestingCliff],
+            isPermissioned,
+            fee,
+            metadata
+          );
         // incorrect seedFactory address
         const trx = [
           BENEFICIARY,
@@ -165,22 +161,20 @@ describe("Contract: Signer", async () => {
     });
     context("valid arguments", async () => {
       it("produces valid signature", async () => {
-        const {
-          data,
-          to,
-        } = await setup.seedFactory.populateTransaction.deploySeed(
-          BENEFICIARY,
-          ADMIN,
-          [PRIME, WETH],
-          [softCap, hardCap],
-          price,
-          startTime,
-          endTime,
-          [vestingDuration, vestingCliff],
-          isPermissioned,
-          fee,
-          metadata
-        );
+        const { data, to } =
+          await setup.seedFactory.populateTransaction.deploySeed(
+            BENEFICIARY,
+            ADMIN,
+            [PRIME, WETH],
+            [softCap, hardCap],
+            price,
+            startTime,
+            endTime,
+            [vestingDuration, vestingCliff],
+            isPermissioned,
+            fee,
+            metadata
+          );
         const trx = [
           to,
           zero,
@@ -225,22 +219,20 @@ describe("Contract: Signer", async () => {
     });
     context("transaction already signed", async () => {
       it("reverts", async () => {
-        const {
-          data,
-          to,
-        } = await setup.seedFactory.populateTransaction.deploySeed(
-          BENEFICIARY,
-          ADMIN,
-          [PRIME, WETH],
-          [softCap, hardCap],
-          price,
-          startTime,
-          endTime,
-          [vestingDuration, vestingCliff],
-          isPermissioned,
-          fee,
-          metadata
-        );
+        const { data, to } =
+          await setup.seedFactory.populateTransaction.deploySeed(
+            BENEFICIARY,
+            ADMIN,
+            [PRIME, WETH],
+            [softCap, hardCap],
+            price,
+            startTime,
+            endTime,
+            [vestingDuration, vestingCliff],
+            isPermissioned,
+            fee,
+            metadata
+          );
         const trx = [
           to,
           zero,
@@ -303,22 +295,20 @@ describe("Contract: Signer", async () => {
       );
     });
     it("safe should accept signer's signature", async () => {
-      const {
-        data,
-        to,
-      } = await setup.seedFactory.populateTransaction.deploySeed(
-        BENEFICIARY,
-        ADMIN,
-        [PRIME, WETH],
-        [softCap, hardCap],
-        price,
-        startTime,
-        endTime,
-        [vestingDuration, vestingCliff],
-        isPermissioned,
-        fee,
-        metadata
-      );
+      const { data, to } =
+        await setup.seedFactory.populateTransaction.deploySeed(
+          BENEFICIARY,
+          ADMIN,
+          [PRIME, WETH],
+          [softCap, hardCap],
+          price,
+          startTime,
+          endTime,
+          [vestingDuration, vestingCliff],
+          isPermissioned,
+          fee,
+          metadata
+        );
       let gasEstimated = await setup.seedFactory.estimateGas.deploySeed(
         BENEFICIARY,
         ADMIN,
