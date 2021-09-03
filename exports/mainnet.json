@@ -4,7 +4,8 @@
   "contracts": {
     "PrimeToken": {
       "address": "0xE59064a8185Ed1Fca1D17999621eFedfab4425c9",
-      "abi": "IERC20"
+      "abi": "ERC20",
+      "interfaceAbi": "IERC20"
     },
     "Reputation": {
       "address": "0x3ba4ECfb611c9694e7c35D3baf90aB137AFF137b",
@@ -2609,12 +2610,14 @@
       ]
     },
     "DAI": {
-      "abi": "IERC20",
-      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+      "abi": "ERC20",
+      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "interfaceAbi": "IERC20"
     },
     "WETH": {
-      "abi": "IERC20",
-      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+      "abi": "ERC20",
+      "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "interfaceAbi": "IERC20"
     }
   }
 }
