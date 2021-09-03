@@ -1,11 +1,12 @@
 const { expect } = require("chai");
-const { ethers } = require("hardhat");
+const { ethers, artifacts } = require("hardhat");
 const { parseEther } = ethers.utils;
 
 const init = require("../test-init.js");
 const balancer = require("../helpers/balancer.js");
 const tokens = require("../helpers/tokens.js");
 const { constants } = require("@openzeppelin/test-helpers");
+const VaultArtifact = require("../../imports/Vault.json");
 
 const deploy = async () => {
   const setup = await init.initialize(await ethers.getSigners());
@@ -33,7 +34,7 @@ function sortTokens(tokens) {
   return tokens;
 }
 
-describe.only("Contract: LBPWrapper", async () => {
+describe("Contract: LBPWrapper", async () => {
   let setup;
   let swapsEnabled;
   let tokenAddresses;
@@ -46,10 +47,9 @@ describe.only("Contract: LBPWrapper", async () => {
   const END_WEIGHTS = [parseEther("0.4").toString(), parseEther("0.6")];
   const POOL_SWAP_FEE_PERCENTAGE = parseEther("0.01").toString();
   const NEW_SWAP_FEE_PERCENTAGE = parseEther("0.02").toString();
-  const JOIN_KIND_INIT = 0;
 
   const fromInternalBalance = false;
-  let userData;
+  let userData, poolId, JOIN_KIND_INIT;
 
   context(">> deploy LBP Wrapper", async () => {
     before("!! setup", async () => {
@@ -58,6 +58,7 @@ describe.only("Contract: LBPWrapper", async () => {
 
       sortedTokens = sortTokens(setup.tokenList);
       tokenAddresses = sortedTokens.map((token) => token.address);
+      JOIN_KIND_INIT = 0;
     });
     it("$ deploy LBPWrapper", async () => {
       setup.lbpWrapper = await setup.LBPWrapper.deploy();
@@ -91,7 +92,7 @@ describe.only("Contract: LBPWrapper", async () => {
       ).to.be.revertedWith("LBPWrapper: only owner function");
     });
     it("$ success", async () => {
-      await setup.lbpWrapper
+      const tx = await setup.lbpWrapper
         .connect(setup.roles.root)
         .deployLbpFromFactory(
           NAME,
@@ -103,6 +104,10 @@ describe.only("Contract: LBPWrapper", async () => {
           endTime,
           END_WEIGHTS
         );
+      const receipt = await tx.wait();
+      setup.Lbp = setup.Lbp.attach(await setup.lbpWrapper.lbp());
+      poolId = await setup.Lbp.getPoolId();
+
       expect(await setup.lbpWrapper.lbp()).not.equal(constants.ZERO_ADDRESS);
     });
   });
@@ -148,44 +153,50 @@ describe.only("Contract: LBPWrapper", async () => {
           .connect(setup.roles.root)
           .addLiquidityToLbp(
             tokenAddresses,
+            WEIGHTS,
             fromInternalBalance,
-            userData,
-            WEIGHTS
+            userData
           )
       ).to.be.revertedWith("LBPWrapper: only owner function");
     });
     it("$ add liquidity to the pool", async () => {
-      // const tx = await setup.lbpWrapper
-      //   .connect(setup.roles.prime)
-      //   .addLiquidityToLbp(
-      //     tokenAddresses,
-      //     fromInternalBalance,
-      //     userData,
-      //     WEIGHTS
-      //   );
-        // const receipt = await tx.wait();
-        // const eventSignature = "PoolBalanceChanged";
-        // const cloneCreationEvent = receipt.events.find(
-        //   (log) => log.eventSignature === eventSignature
-        // );
+      const eventName = "PoolBalanceChanged";
+      const { abi } = VaultArtifact;
+      const vaultInterface = new ethers.utils.Interface(abi);
 
-        // const args = receipt.events.filter((data) => {
-        //   return data.event === "PoolBalanceChanged";
-        // })[0].args;
-
-        await expect(await setup.lbpWrapper
+      const tx = await setup.lbpWrapper
         .connect(setup.roles.prime)
         .addLiquidityToLbp(
           tokenAddresses,
+          WEIGHTS,
           fromInternalBalance,
-          userData,
-          WEIGHTS
-        )).to.emit(
-          setup.vault,
-          "PoolBalanceChanged"
+          userData
         );
-        
-        // console.log(cloneCreationEvent);
+
+      const receipt = await tx.wait();
+      const vaultAddress = setup.vault.address;
+      const vaultEvent = receipt.events.find(
+        (log) => log.address === vaultAddress
+      );
+      const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+
+      expect(decodedVaultEvent.name).to.equal(eventName);
+      expect(decodedVaultEvent.args[0]).to.equal(poolId);
+      expect(decodedVaultEvent.args[1]).to.equal(setup.lbpWrapper.address);
+      expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
+      expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
+    });
+    it("$ revert when adding liquidity more then once", async () => {
+      await expect(
+        setup.lbpWrapper
+          .connect(setup.roles.prime)
+          .addLiquidityToLbp(
+            tokenAddresses,
+            WEIGHTS,
+            fromInternalBalance,
+            userData
+          )
+      ).to.be.revertedWith("LBPWrapper: liquidity can only be added once");
     });
   });
 });

@@ -12,7 +12,6 @@
 // solium-disable linebreak-style
 pragma solidity 0.8.6;
 
-
 import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
@@ -21,10 +20,12 @@ import "../utils/interface/ILBP.sol";
 
 contract LBPWrapper {
 
-    ILBPFactory public LBPFactory;
-    bool isInitialized;
     address public owner;
     address public lbp;
+    bool public poolFunded;
+    
+    ILBPFactory public LBPFactory;
+    
     uint256 constant public swapFeePercentage = 1e12; // 0.0001% is minimum amount.
 
     modifier onlyOwner{
@@ -51,7 +52,6 @@ contract LBPWrapper {
     {
         owner = msg.sender;
         LBPFactory = ILBPFactory(_LBPFactory);
-        isInitialized = true;
     }
 
     /**
@@ -76,7 +76,6 @@ contract LBPWrapper {
             uint256[] memory _endWeights
     ) public onlyOwner returns(address)
     {
-
         lbp = LBPFactory.create(
                 _name,
                 _symbol,
@@ -96,13 +95,23 @@ contract LBPWrapper {
         return lbp;
     }
 
-
+    /**
+    * @dev                          approve tokens for the vault and join pool to provide liquidity
+    * @param _tokens                array of tokens sorted for the LBP
+    * @param _amounts               amount of tokens to add to the pool to provide liquidity
+    * @param _fromInternalBalance   fund tokens from the internal user balance
+    * @param _userData              userData specifies the type of join
+    */
     function addLiquidityToLbp(
         IERC20[] memory _tokens,
-        bool _formInternalBalance,
-        bytes memory _userData,
-        uint256[] memory _amounts
+        uint256[] memory _amounts,
+        bool _fromInternalBalance,
+        bytes memory _userData
         ) public onlyOwner {
+
+        require(!poolFunded, "LBPWrapper: liquidity can only be added once");
+        
+        poolFunded = true;
 
         address vault = address(LBPFactory.getVault());
         for ( uint8 i; i < _tokens.length; i++ ) {
@@ -112,7 +121,7 @@ contract LBPWrapper {
         IVault.JoinPoolRequest memory request = IVault.JoinPoolRequest({
             maxAmountsIn: _amounts,
             userData: _userData,
-            fromInternalBalance: _formInternalBalance,
+            fromInternalBalance: _fromInternalBalance,
             assets: _tokens
         });
 
