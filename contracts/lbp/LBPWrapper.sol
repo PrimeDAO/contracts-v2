@@ -20,14 +20,13 @@ import "../utils/interface/ILBP.sol";
 
 contract LBPWrapper {
 
+    uint256 constant public swapFeePercentage = 1e12; // 0.0001% is minimum amount.
+
     address public owner;
     bool public isPoolFunded;
     bool public isInitialized;
 
-    ILBPFactory public LBPFactory;
     ILBP public lbp;
-
-    uint256 constant public swapFeePercentage = 1e12; // 0.0001% is minimum amount.
 
     modifier onlyOwner{
         require(msg.sender == owner, "LBPWrapper: only owner function");
@@ -73,9 +72,8 @@ contract LBPWrapper {
         );
         isInitialized = true;
         owner = msg.sender;
-        LBPFactory = ILBPFactory(_LBPFactory);
 
-        lbp = ILBP(LBPFactory.create(
+        lbp = ILBP(ILBPFactory(_LBPFactory).create(
                 _name,
                 _symbol,
                 _tokens,
@@ -114,9 +112,9 @@ contract LBPWrapper {
 
         isPoolFunded = true;
 
-        address vault = address(LBPFactory.getVault());
+        IVault vault = lbp.getVault();
         for ( uint8 i; i < _tokens.length; i++ ) {
-            IERC20(_tokens[i]).approve(vault, _amounts[i]);
+            _tokens[i].approve(address(vault), _amounts[i]);
         }
 
         IVault.JoinPoolRequest memory request = IVault.JoinPoolRequest({
@@ -126,7 +124,7 @@ contract LBPWrapper {
             assets: _tokens
         });
 
-        IVault(vault).joinPool(
+        vault.joinPool(
             lbp.getPoolId(),
             address(this),
             _receiver,
