@@ -54,6 +54,22 @@ contract WrapperFactory is CloneFactory, Ownable {
     }
 
     /**
+     * @dev                set new master copy of LBP wrapper
+     * @param _LBPFactory  address of LBP factory
+     */
+    function setLBPFactory(address _LBPFactory) public onlyOwner{
+        require(
+            _LBPFactory != address(0),
+            "WrapperFactory: LBPFactory cannot be zero"
+        );
+        require(
+            _LBPFactory != address(this),
+            "WrapperFactory: LBPFactory cannot be the same as WrapperFactory"
+        );
+        LBPFactory = _LBPFactory;
+    }
+
+    /**
      * @dev                        initialize lbp wrapper contract
      * @param _name                LBP name
      * @param _symbol              LBP symbol
