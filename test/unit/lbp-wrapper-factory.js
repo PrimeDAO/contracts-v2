@@ -38,7 +38,7 @@ function sortTokens(tokens) {
 
 describe(">> Contract: WrapperFactory", () => {
   let setup, swapsEnabled;
-  let tokenAddresses, admin, owner, sortedTokens, newOwner;
+  let tokenAddresses, admin, owner, sortedTokens, newOwner, newLBPFactory;
 
   const startTime = Date.now();
   const endTime = startTime + 100000;
@@ -103,6 +103,37 @@ describe(">> Contract: WrapperFactory", () => {
       await setup.wrapperFactory.setMasterCopy(setup.lbpWrapper.address);
       expect(await setup.wrapperFactory.wrapperMasterCopy()).to.equal(
         setup.lbpWrapper.address
+      );
+    });
+  });
+  context("» set new LBPFactory", () => {
+    before("!! deploy new LBP Factory", async () => {
+      newLBPFactory = await balancer.getLbpFactoryInstance(setup);
+    });
+    it("$ reverts on zero address", async () => {
+      await expectRevert(
+        setup.wrapperFactory.setLBPFactory(ZERO_ADDRESS),
+        "WrapperFactory: LBPFactory cannot be zero"
+      );
+    });
+    it("$ reverts on same address as WrapperFactory", async () => {
+      await expectRevert(
+        setup.wrapperFactory.setLBPFactory(setup.wrapperFactory.address),
+        "WrapperFactory: LBPFactory cannot be the same as WrapperFactory"
+      );
+    });
+    it("$ reverts on called not by owner", async () => {
+      await expectRevert(
+        setup.wrapperFactory
+          .connect(admin)
+          .setLBPFactory(newLBPFactory.address),
+        "Ownable: caller is not the owner"
+      );
+    });
+    it("$ succeeds on valid master copy", async () => {
+      await setup.wrapperFactory.setLBPFactory(newLBPFactory.address);
+      expect(await setup.wrapperFactory.LBPFactory()).to.equal(
+        newLBPFactory.address
       );
     });
   });
