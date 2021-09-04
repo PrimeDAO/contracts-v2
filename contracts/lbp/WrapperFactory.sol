@@ -79,9 +79,8 @@ contract WrapperFactory is CloneFactory, Ownable {
     {
         address wrapper = createClone(wrapperMasterCopy);
 
-        LBPWrapper(wrapper).initialize(LBPFactory);
-
-        address lbp = LBPWrapper(wrapper).deployLbpFromFactory(
+        address lbp = LBPWrapper(wrapper).initialize(
+            LBPFactory,
             _name,
             _symbol,
             _tokens,

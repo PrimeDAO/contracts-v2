@@ -64,37 +64,13 @@ describe("Contract: LBPWrapper", async () => {
       setup.lbpWrapper = await setup.LBPWrapper.deploy();
     });
   });
-  context(">> initialize LBPWrapper", async () => {
-    it("success", async () => {
-      await setup.lbpWrapper
-        .connect(setup.roles.root)
-        .initialize(setup.lbpFactory.address);
-      expect(await setup.lbpWrapper.LBPFactory()).to.equal(
-        setup.lbpFactory.address
-      );
-    });
-  });
   context(">> deploy LBP using Wrapper", async () => {
-    it("$ reverts when called by non-owner", async () => {
-      await expect(
-        setup.lbpWrapper
-          .connect(setup.roles.prime)
-          .deployLbpFromFactory(
-            NAME,
-            SYMBOL,
-            tokenAddresses,
-            WEIGHTS,
-            swapsEnabled,
-            startTime,
-            endTime,
-            END_WEIGHTS
-          )
-      ).to.be.revertedWith("LBPWrapper: only owner function");
-    });
+
     it("$ success", async () => {
       const tx = await setup.lbpWrapper
         .connect(setup.roles.root)
-        .deployLbpFromFactory(
+        .initialize(
+          setup.lbpFactory.address,
           NAME,
           SYMBOL,
           tokenAddresses,
@@ -109,6 +85,24 @@ describe("Contract: LBPWrapper", async () => {
       poolId = await setup.Lbp.getPoolId();
 
       expect(await setup.lbpWrapper.lbp()).not.equal(constants.ZERO_ADDRESS);
+    });
+
+    it("$ reverts when invoking it again", async () => {
+      await expect(
+        setup.lbpWrapper
+          .connect(setup.roles.prime)
+          .initialize(
+            setup.lbpFactory.address,
+            NAME,
+            SYMBOL,
+            tokenAddresses,
+            WEIGHTS,
+            swapsEnabled,
+            startTime,
+            endTime,
+            END_WEIGHTS
+          )
+      ).to.be.revertedWith("LBPWrapper: already initialized");
     });
   });
   context(">> transfers ownership to admin", async () => {

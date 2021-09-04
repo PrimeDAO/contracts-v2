@@ -21,10 +21,11 @@ import "../utils/interface/ILBP.sol";
 contract LBPWrapper {
 
     address public owner;
-    address public lbp;
     bool public isPoolFunded;
+    bool public isInitialized;
 
     ILBPFactory public LBPFactory;
+    ILBP public lbp;
 
     uint256 constant public swapFeePercentage = 1e12; // 0.0001% is minimum amount.
 
@@ -43,19 +44,8 @@ contract LBPWrapper {
     }
 
     /**
-     * @dev                       initialize lbp wrapper contract
-     * @param _LBPFactory         LBP factory address
-     */
-    function initialize (
-            address _LBPFactory
-    ) public
-    {
-        owner = msg.sender;
-        LBPFactory = ILBPFactory(_LBPFactory);
-    }
-
-    /**
      * @dev                        initialize lbp wrapper contract
+     * @param _LBPFactory         LBP factory address
      * @param _name                LBP name
      * @param _symbol              LBP symbol
      * @param _tokens              array of tokens sorted for the LBP
@@ -65,7 +55,8 @@ contract LBPWrapper {
      * @param _endTime             end time
      * @param _endWeights          array of end weights for respective tokens
      */
-    function deployLbpFromFactory(
+    function initialize(
+            address _LBPFactory,
             string memory _name,
             string memory _symbol,
             IERC20[] memory _tokens,
@@ -74,9 +65,17 @@ contract LBPWrapper {
             uint256 _startTime,
             uint256 _endTime,
             uint256[] memory _endWeights
-    ) public onlyOwner returns(address)
+    ) public returns(address)
     {
-        lbp = LBPFactory.create(
+        require(
+            !isInitialized,
+            "LBPWrapper: already initialized"
+        );
+        isInitialized = true;
+        owner = msg.sender;
+        LBPFactory = ILBPFactory(_LBPFactory);
+
+        lbp = ILBP(LBPFactory.create(
                 _name,
                 _symbol,
                 _tokens,
@@ -84,15 +83,15 @@ contract LBPWrapper {
                 swapFeePercentage,
                 address(this),
                 _swapEnabledOnStart
-            );
+            ));
 
-            ILBP(lbp).updateWeightsGradually(
-                _startTime,
-                _endTime,
-                _endWeights
-            );
+        lbp.updateWeightsGradually(
+            _startTime,
+            _endTime,
+            _endWeights
+        );
 
-        return lbp;
+        return address(lbp);
     }
 
     /**
@@ -126,7 +125,7 @@ contract LBPWrapper {
         });
 
         IVault(vault).joinPool(
-            ILBP(lbp).getPoolId(),
+            lbp.getPoolId(),
             address(this),
             address(this),
             request
