@@ -98,12 +98,14 @@ contract LBPWrapper {
     * @dev                          approve tokens for the vault and join pool to provide liquidity
     * @param _tokens                array of tokens sorted for the LBP
     * @param _amounts               amount of tokens to add to the pool to provide liquidity
+    * @param _receiver              address who will receive the Balancer Pool Tokens (BPT)
     * @param _fromInternalBalance   fund tokens from the internal user balance
     * @param _userData              userData specifies the type of join
     */
     function joinPoolUsingWrapper(
         IERC20[] memory _tokens,
         uint256[] memory _amounts,
+        address _receiver,
         bool _fromInternalBalance,
         bytes memory _userData
     ) public onlyOwner{
@@ -127,7 +129,7 @@ contract LBPWrapper {
         IVault(vault).joinPool(
             lbp.getPoolId(),
             address(this),
-            address(this),
+            _receiver,
             request
         );
     }

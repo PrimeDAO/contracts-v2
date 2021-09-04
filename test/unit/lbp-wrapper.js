@@ -81,8 +81,8 @@ describe("Contract: LBPWrapper", async () => {
           END_WEIGHTS
         );
       const receipt = await tx.wait();
-      setup.Lbp = setup.Lbp.attach(await setup.lbpWrapper.lbp());
-      poolId = await setup.Lbp.getPoolId();
+      setup.lbp = setup.Lbp.attach(await setup.lbpWrapper.lbp());
+      poolId = await setup.lbp.getPoolId();
 
       expect(await setup.lbpWrapper.lbp()).not.equal(constants.ZERO_ADDRESS);
     });
@@ -148,6 +148,7 @@ describe("Contract: LBPWrapper", async () => {
           .joinPoolUsingWrapper(
             tokenAddresses,
             WEIGHTS,
+            setup.roles.root.address,
             fromInternalBalance,
             userData
           )
@@ -158,11 +159,14 @@ describe("Contract: LBPWrapper", async () => {
       const { abi } = VaultArtifact;
       const vaultInterface = new ethers.utils.Interface(abi);
 
+      expect((await setup.lbp.balanceOf(setup.roles.root.address)).toString()).to.equal("0");
+
       const tx = await setup.lbpWrapper
         .connect(setup.roles.prime)
         .joinPoolUsingWrapper(
           tokenAddresses,
           WEIGHTS,
+          setup.roles.root.address,
           fromInternalBalance,
           userData
         );
@@ -179,6 +183,7 @@ describe("Contract: LBPWrapper", async () => {
       expect(decodedVaultEvent.args[1]).to.equal(setup.lbpWrapper.address);
       expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
       expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
+      expect((await setup.lbp.balanceOf(setup.roles.root.address)).toString()).not.equal("0");
     });
     it("$ revert when adding liquidity more then once", async () => {
       await expect(
@@ -187,6 +192,7 @@ describe("Contract: LBPWrapper", async () => {
           .joinPoolUsingWrapper(
             tokenAddresses,
             WEIGHTS,
+            setup.roles.root.address,
             fromInternalBalance,
             userData
           )
