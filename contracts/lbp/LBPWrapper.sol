@@ -22,10 +22,10 @@ contract LBPWrapper {
 
     address public owner;
     address public lbp;
-    bool public poolFunded;
-    
+    bool public isPoolFunded;
+
     ILBPFactory public LBPFactory;
-    
+
     uint256 constant public swapFeePercentage = 1e12; // 0.0001% is minimum amount.
 
     modifier onlyOwner{
@@ -109,9 +109,9 @@ contract LBPWrapper {
         bytes memory _userData
         ) public onlyOwner {
 
-        require(!poolFunded, "LBPWrapper: liquidity can only be added once");
-        
-        poolFunded = true;
+        require(!isPoolFunded, "LBPWrapper: liquidity can only be added once");
+
+        isPoolFunded = true;
 
         address vault = address(LBPFactory.getVault());
         for ( uint8 i; i < _tokens.length; i++ ) {
