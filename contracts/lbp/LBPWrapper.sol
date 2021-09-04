@@ -101,12 +101,12 @@ contract LBPWrapper {
     * @param _fromInternalBalance   fund tokens from the internal user balance
     * @param _userData              userData specifies the type of join
     */
-    function addLiquidityToLbp(
+    function joinPoolUsingWrapper(
         IERC20[] memory _tokens,
         uint256[] memory _amounts,
         bool _fromInternalBalance,
         bytes memory _userData
-        ) public onlyOwner {
+    ) public onlyOwner{
 
         require(!isPoolFunded, "LBPWrapper: liquidity can only be added once");
 

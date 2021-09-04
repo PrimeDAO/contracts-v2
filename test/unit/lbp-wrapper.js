@@ -145,7 +145,7 @@ describe("Contract: LBPWrapper", async () => {
       await expect(
         setup.lbpWrapper
           .connect(setup.roles.root)
-          .addLiquidityToLbp(
+          .joinPoolUsingWrapper(
             tokenAddresses,
             WEIGHTS,
             fromInternalBalance,
@@ -160,7 +160,7 @@ describe("Contract: LBPWrapper", async () => {
 
       const tx = await setup.lbpWrapper
         .connect(setup.roles.prime)
-        .addLiquidityToLbp(
+        .joinPoolUsingWrapper(
           tokenAddresses,
           WEIGHTS,
           fromInternalBalance,
@@ -184,7 +184,7 @@ describe("Contract: LBPWrapper", async () => {
       await expect(
         setup.lbpWrapper
           .connect(setup.roles.prime)
-          .addLiquidityToLbp(
+          .joinPoolUsingWrapper(
             tokenAddresses,
             WEIGHTS,
             fromInternalBalance,
