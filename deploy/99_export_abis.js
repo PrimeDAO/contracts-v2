@@ -11,8 +11,7 @@ const compressAbis = (abisObject, sharedAbiConfig, networkName) => {
   const { contracts } = compressedAbiObject;
 
   for (const contractName in networkContracts) {
-    const { address, abi, interfaceAbi } =
-      sharedAbiConfig[networkName][contractName];
+    const { abi, address } = sharedAbiConfig[networkName][contractName];
 
     if (contracts[contractName]) {
       contracts[contractName].abi = abi;
@@ -21,10 +20,6 @@ const compressAbis = (abisObject, sharedAbiConfig, networkName) => {
         abi: abi,
         address: address,
       };
-    }
-
-    if (interfaceAbi) {
-      contracts[contractName].interfaceAbi = interfaceAbi;
     }
   }
 
@@ -55,17 +50,18 @@ const exportAbiFunction = async ({ run, network, deployments }) => {
     new Set(
       networks.reduce((array, networkName) => {
         const networkAbiNames = Object.values(sharedAbiConfig[networkName]).map(
-          (contract) => [contract.abi, contract.interfaceAbi]
+          (contract) => contract.abi
         );
-        return array.concat([...networkAbiNames]).flat();
+        return array.concat([...networkAbiNames]);
       }, [])
     )
   );
   let updateSharedAbis = false;
+  console.log(sharedAbiNames);
   for (const abiName of sharedAbiNames) {
     const artifact = await deployments.getArtifact(abiName);
     if (artifact && !sharedAbis[abiName]) {
-      sharedAbis[abiName] = artifact.abi ? artifact.abi : artifact.interfaceAbi;
+      sharedAbis[abiName] = artifact.abi;
       updateSharedAbis = true;
     }
   }
