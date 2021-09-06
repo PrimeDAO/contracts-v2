@@ -57,7 +57,7 @@ describe("Contract: LBPWrapper", async () => {
       swapsEnabled = true;
 
       sortedTokens = sortTokens(setup.tokenList);
-      tokenAddresses = sortedTokens.map((token) => token.address);
+      tokenAddresses = sortedTokens.map(token => token.address);
       JOIN_KIND_INIT = 0;
     });
     it("$ deploy LBPWrapper", async () => {
@@ -66,7 +66,7 @@ describe("Contract: LBPWrapper", async () => {
   });
   context(">> deploy LBP using Wrapper", async () => {
     it("$ success", async () => {
-      await setup.lbpWrapper
+      const tx = await setup.lbpWrapper
         .connect(setup.roles.root)
         .initializeLBP(
           setup.lbpFactory.address,
@@ -79,15 +79,17 @@ describe("Contract: LBPWrapper", async () => {
           endTime,
           END_WEIGHTS
         );
-      setup.Lbp = setup.Lbp.attach(await setup.lbpWrapper.lbp());
-      poolId = await setup.Lbp.getPoolId();
+      const receipt = await tx.wait();
+      setup.lbp = setup.Lbp.attach(await setup.lbpWrapper.lbp());
+      poolId = await setup.lbp.getPoolId();
 
       expect(await setup.lbpWrapper.lbp()).not.equal(constants.ZERO_ADDRESS);
     });
-    it("$ reverts when calling initializeLBP twice", async () => {
+
+    it("$ reverts when invoking it again", async () => {
       await expect(
         setup.lbpWrapper
-          .connect(setup.roles.root)
+          .connect(setup.roles.prime)
           .initializeLBP(
             setup.lbpFactory.address,
             NAME,
@@ -99,7 +101,7 @@ describe("Contract: LBPWrapper", async () => {
             endTime,
             END_WEIGHTS
           )
-      ).to.be.revertedWith("LBPWrapper: LBP has already been initialized");
+      ).to.be.revertedWith("LBPWrapper: already initialized");
     });
   });
   context(">> transfers ownership to admin", async () => {
@@ -142,7 +144,13 @@ describe("Contract: LBPWrapper", async () => {
       await expect(
         setup.lbpWrapper
           .connect(setup.roles.root)
-          .joinPool(tokenAddresses, WEIGHTS, fromInternalBalance, userData)
+          .joinPool(
+            tokenAddresses,
+            WEIGHTS,
+            setup.roles.root.address,
+            fromInternalBalance,
+            userData
+          )
       ).to.be.revertedWith("LBPWrapper: only owner function");
     });
     it("$ add liquidity to the pool", async () => {
@@ -150,14 +158,24 @@ describe("Contract: LBPWrapper", async () => {
       const { abi } = VaultArtifact;
       const vaultInterface = new ethers.utils.Interface(abi);
 
+      expect(
+        (await setup.lbp.balanceOf(setup.roles.root.address)).toString()
+      ).to.equal("0");
+
       const tx = await setup.lbpWrapper
         .connect(setup.roles.prime)
-        .joinPool(tokenAddresses, WEIGHTS, fromInternalBalance, userData);
+        .joinPool(
+          tokenAddresses,
+          WEIGHTS,
+          setup.roles.root.address,
+          fromInternalBalance,
+          userData
+        );
 
       const receipt = await tx.wait();
       const vaultAddress = setup.vault.address;
       const vaultEvent = receipt.events.find(
-        (log) => log.address === vaultAddress
+        log => log.address === vaultAddress
       );
       const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
 
@@ -166,12 +184,21 @@ describe("Contract: LBPWrapper", async () => {
       expect(decodedVaultEvent.args[1]).to.equal(setup.lbpWrapper.address);
       expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
       expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
+      expect(
+        (await setup.lbp.balanceOf(setup.roles.root.address)).toString()
+      ).not.equal("0");
     });
     it("$ revert when adding liquidity more then once", async () => {
       await expect(
         setup.lbpWrapper
           .connect(setup.roles.prime)
-          .joinPool(tokenAddresses, WEIGHTS, fromInternalBalance, userData)
+          .joinPool(
+            tokenAddresses,
+            WEIGHTS,
+            setup.roles.root.address,
+            fromInternalBalance,
+            userData
+          )
       ).to.be.revertedWith("LBPWrapper: pool has already been joined");
     });
   });

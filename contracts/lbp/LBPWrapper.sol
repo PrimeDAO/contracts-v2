@@ -18,14 +18,13 @@ import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
 
 contract LBPWrapper {
+    uint256 public constant swapFeePercentage = 1e12; // 0.0001% is minimum amount.
+
     address public owner;
-    address public lbp;
     bool public isPoolFunded;
     bool public isInitialized;
 
-    ILBPFactory public LBPFactory;
-
-    uint256 public constant swapFeePercentage = 1e12; // 0.0001% is minimum amount.
+    ILBP public lbp;
 
     modifier onlyOwner() {
         require(msg.sender == owner, "LBPWrapper: only owner function");
@@ -67,37 +66,39 @@ contract LBPWrapper {
         uint256 _endTime,
         uint256[] memory _endWeights
     ) public returns (address) {
-        require(!isInitialized, "LBPWrapper: LBP has already been initialized");
-
-        owner = msg.sender;
+        require(!isInitialized, "LBPWrapper: already initialized");
         isInitialized = true;
-        LBPFactory = ILBPFactory(_LBPFactory);
+        owner = msg.sender;
 
-        lbp = LBPFactory.create(
-            _name,
-            _symbol,
-            _tokens,
-            _weights,
-            swapFeePercentage,
-            address(this),
-            _swapEnabledOnStart
+        lbp = ILBP(
+            ILBPFactory(_LBPFactory).create(
+                _name,
+                _symbol,
+                _tokens,
+                _weights,
+                swapFeePercentage,
+                address(this),
+                _swapEnabledOnStart
+            )
         );
 
-        ILBP(lbp).updateWeightsGradually(_startTime, _endTime, _endWeights);
+        lbp.updateWeightsGradually(_startTime, _endTime, _endWeights);
 
-        return lbp;
+        return address(lbp);
     }
 
     /**
      * @dev                          approve tokens for the vault and join pool to provide liquidity
      * @param _tokens                array of tokens sorted for the LBP
      * @param _amounts               amount of tokens to add to the pool to provide liquidity
+     * @param _receiver              address who will receive the Balancer Pool Tokens (BPT)
      * @param _fromInternalBalance   fund tokens from the internal user balance
      * @param _userData              userData specifies the type of join
      */
     function joinPool(
         IERC20[] memory _tokens,
         uint256[] memory _amounts,
+        address _receiver,
         bool _fromInternalBalance,
         bytes memory _userData
     ) public onlyOwner {
@@ -105,9 +106,9 @@ contract LBPWrapper {
 
         isPoolFunded = true;
 
-        address vault = address(LBPFactory.getVault());
+        IVault vault = lbp.getVault();
         for (uint8 i; i < _tokens.length; i++) {
-            IERC20(_tokens[i]).approve(vault, _amounts[i]);
+            _tokens[i].approve(address(vault), _amounts[i]);
         }
 
         IVault.JoinPoolRequest memory request = IVault.JoinPoolRequest({
@@ -117,11 +118,6 @@ contract LBPWrapper {
             assets: _tokens
         });
 
-        IVault(vault).joinPool(
-            ILBP(lbp).getPoolId(),
-            address(this),
-            address(this),
-            request
-        );
+        vault.joinPool(lbp.getPoolId(), address(this), _receiver, request);
     }
 }
