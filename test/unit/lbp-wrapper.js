@@ -34,7 +34,7 @@ function sortTokens(tokens) {
   return tokens;
 }
 
-describe.only("Contract: LBPWrapper", async () => {
+describe("Contract: LBPWrapper", async () => {
   let setup;
   let swapsEnabled;
   let tokenAddresses;

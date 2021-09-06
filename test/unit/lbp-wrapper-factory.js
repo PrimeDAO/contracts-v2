@@ -36,7 +36,7 @@ function sortTokens(tokens) {
   return tokens;
 }
 
-describe.only(">> Contract: LBPWrapperFactory", () => {
+describe(">> Contract: LBPWrapperFactory", () => {
   let setup, swapsEnabled;
   let tokenAddresses, admin, owner, sortedTokens, newOwner;
 
@@ -46,9 +46,11 @@ describe.only(">> Contract: LBPWrapperFactory", () => {
   const NAME = "SEED-MKR POOL";
   const SYMBOL = "SEED-MKR";
 
-  const START_WEIGHTS = [0.7e18, 0.3e18].map(weight => weight.toString());
-  const END_WEIGHTS = [0.3e18, 0.7e18].map(weight => weight.toString());
-  const ADMIN_BALANCE = [32.667e18, 30000e6].map(balance => balance.toString());
+  const START_WEIGHTS = [0.7e18, 0.3e18].map((weight) => weight.toString());
+  const END_WEIGHTS = [0.3e18, 0.7e18].map((weight) => weight.toString());
+  const ADMIN_BALANCE = [32.667e18, 30000e6].map((balance) =>
+    balance.toString()
+  );
 
   const JOIN_KIND_INIT = 0;
   const ZERO_ADDRESS = constants.ZERO_ADDRESS;
@@ -63,7 +65,7 @@ describe.only(">> Contract: LBPWrapperFactory", () => {
       ({ root: owner, prime: admin, beneficiary: newOwner } = setup.roles);
       sortedTokens = sortTokens(setup.tokenList);
       // Need to solve this in tokens.js helper file for > 2 tokens.
-      tokenAddresses = sortedTokens.map(token => token.address);
+      tokenAddresses = sortedTokens.map((token) => token.address);
     });
     it("$ deploy LBPWrapperFactory", async () => {
       setup.lbpWrapperFactory = await init.getContractInstance(
@@ -125,7 +127,7 @@ describe.only(">> Contract: LBPWrapperFactory", () => {
         .deployLBPUsingWrapper(...params);
       const receipt = await tx.wait();
 
-      const args = receipt.events.filter(data => {
+      const args = receipt.events.filter((data) => {
         return data.event === "LBPDeployedUsingWrapper";
       })[0].args;
 
