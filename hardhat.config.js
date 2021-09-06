@@ -88,11 +88,4 @@ module.exports = {
     prime: 1,
     beneficiary: 2,
   },
-  external: {
-    contracts: [
-      {
-        artifacts: "node_modules/openzeppelin-contracts-sol8/build/contracts",
-      },
-    ],
-  },
 };
