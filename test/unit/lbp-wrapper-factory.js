@@ -36,7 +36,7 @@ function sortTokens(tokens) {
   return tokens;
 }
 
-describe.only(">> Contract: WrapperFactory", () => {
+describe.only(">> Contract: LBPWrapperFactory", () => {
   let setup, swapsEnabled;
   let tokenAddresses, admin, owner, sortedTokens, newOwner;
 
@@ -46,17 +46,15 @@ describe.only(">> Contract: WrapperFactory", () => {
   const NAME = "SEED-MKR POOL";
   const SYMBOL = "SEED-MKR";
 
-  const START_WEIGHTS = [0.7e18, 0.3e18].map((weight) => weight.toString());
-  const END_WEIGHTS = [0.3e18, 0.7e18].map((weight) => weight.toString());
-  const ADMIN_BALANCE = [32.667e18, 30000e6].map((balance) =>
-    balance.toString()
-  );
+  const START_WEIGHTS = [0.7e18, 0.3e18].map(weight => weight.toString());
+  const END_WEIGHTS = [0.3e18, 0.7e18].map(weight => weight.toString());
+  const ADMIN_BALANCE = [32.667e18, 30000e6].map(balance => balance.toString());
 
   const JOIN_KIND_INIT = 0;
   const ZERO_ADDRESS = constants.ZERO_ADDRESS;
   30000000000;
 
-  context("» deploy LBP WrapperFactory", () => {
+  context("» deploy LBPWrapperFactory", () => {
     beforeEach("!! setup", async () => {
       setup = await deploy();
 
@@ -65,15 +63,15 @@ describe.only(">> Contract: WrapperFactory", () => {
       ({ root: owner, prime: admin, beneficiary: newOwner } = setup.roles);
       sortedTokens = sortTokens(setup.tokenList);
       // Need to solve this in tokens.js helper file for > 2 tokens.
-      tokenAddresses = sortedTokens.map((token) => token.address);
+      tokenAddresses = sortedTokens.map(token => token.address);
     });
-    it("$ deploy WrapperFactory", async () => {
-      setup.wrapperFactory = await init.getContractInstance(
-        "WrapperFactory",
+    it("$ deploy LBPWrapperFactory", async () => {
+      setup.lbpWrapperFactory = await init.getContractInstance(
+        "LBPWrapperFactory",
         owner,
         [setup.lbpFactory.address]
       );
-      expect(await setup.wrapperFactory.LBPFactory()).to.equal(
+      expect(await setup.lbpWrapperFactory.LBPFactory()).to.equal(
         setup.lbpFactory.address
       );
     });
@@ -81,27 +79,27 @@ describe.only(">> Contract: WrapperFactory", () => {
   context("» set MasterCopy of LBPWrapper", () => {
     it("$ reverts on zero address", async () => {
       await expectRevert(
-        setup.wrapperFactory.setMasterCopy(ZERO_ADDRESS),
-        "WrapperFactory: mastercopy cannot be zero"
+        setup.lbpWrapperFactory.setMasterCopy(ZERO_ADDRESS),
+        "LBPWrapperFactory: mastercopy cannot be zero"
       );
     });
-    it("$ reverts on same address as WrapperFactory", async () => {
+    it("$ reverts on same address as LBPWrapperFactory", async () => {
       await expectRevert(
-        setup.wrapperFactory.setMasterCopy(setup.wrapperFactory.address),
-        "WrapperFactory: mastercopy cannot be the same as WrapperFactory"
+        setup.lbpWrapperFactory.setMasterCopy(setup.lbpWrapperFactory.address),
+        "LBPWrapperFactory: mastercopy cannot be the same as LBPWrapperFactory"
       );
     });
     it("$ reverts on called not by owner", async () => {
       await expectRevert(
-        setup.wrapperFactory
+        setup.lbpWrapperFactory
           .connect(admin)
           .setMasterCopy(setup.lbpWrapper.address),
         "Ownable: caller is not the owner"
       );
     });
     it("$ succeeds on valid master copy", async () => {
-      await setup.wrapperFactory.setMasterCopy(setup.lbpWrapper.address);
-      expect(await setup.wrapperFactory.wrapperMasterCopy()).to.equal(
+      await setup.lbpWrapperFactory.setMasterCopy(setup.lbpWrapper.address);
+      expect(await setup.lbpWrapperFactory.wrapperMasterCopy()).to.equal(
         setup.lbpWrapper.address
       );
     });
@@ -122,12 +120,12 @@ describe.only(">> Contract: WrapperFactory", () => {
       ];
     });
     it("$ deploys LBP", async () => {
-      const tx = await setup.wrapperFactory
+      const tx = await setup.lbpWrapperFactory
         .connect(owner)
         .deployLBPUsingWrapper(...params);
       const receipt = await tx.wait();
 
-      const args = receipt.events.filter((data) => {
+      const args = receipt.events.filter(data => {
         return data.event === "LBPDeployedUsingWrapper";
       })[0].args;
 
