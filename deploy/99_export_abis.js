@@ -57,7 +57,6 @@ const exportAbiFunction = async ({ run, network, deployments }) => {
     )
   );
   let updateSharedAbis = false;
-  console.log(sharedAbiNames);
   for (const abiName of sharedAbiNames) {
     const artifact = await deployments.getArtifact(abiName);
     if (artifact && !sharedAbis[abiName]) {
