@@ -10,10 +10,10 @@ const { parseEther } = utils;
 // Merkle tree called with 32 byte hex values
 class MerkleTree {
   bufArrToHexArr(arr) {
-    if (arr.some(el => !Buffer.isBuffer(el))) {
+    if (arr.some((el) => !Buffer.isBuffer(el))) {
       throw new Error("Array is not an array of buffers");
     }
-    return arr.map(el => `0x${el.toString("hex")}`);
+    return arr.map((el) => `0x${el.toString("hex")}`);
   }
 
   sortAndConcat(...args) {
@@ -94,8 +94,8 @@ class MerkleTree {
 
   constructor(elements) {
     this.elements = elements
-      .filter(el => el)
-      .map(el => Buffer.from(hexToBytes(el)));
+      .filter((el) => el)
+      .map((el) => Buffer.from(hexToBytes(el)));
 
     // Sort elements
     this.elements.sort(Buffer.compare);
@@ -145,7 +145,7 @@ class MerkleTree {
   }
 }
 
-const createTreeWithAccounts = accounts => {
+const createTreeWithAccounts = (accounts) => {
   const elements = Object.entries(accounts).map(([account, { balance }]) =>
     soliditySha3(account, balance.toString())
   );
@@ -223,23 +223,23 @@ const getTranche = (...allocations) => {
   return allocations.reduce(
     (prev, [account, balance, claimed]) => ({
       ...prev,
-      [account]: { balance: simpleToExactAmount(balance), claimed }
+      [account]: { balance: simpleToExactAmount(balance), claimed },
     }),
     {}
   );
 };
 
-const createMerkleTree = rawAllocations => {
+const createMerkleTree = (rawAllocations) => {
   const tranche = getTranche(...Object.entries(rawAllocations));
   return createTreeWithAccounts(tranche);
 };
 
-const createMerkleRoot = rawAllocations => {
+const createMerkleRoot = (rawAllocations) => {
   const tree = createMerkleTree(rawAllocations);
   return tree.hexRoot;
 };
 
-const createMerkleProofs = async rawAllocations => {
+const createMerkleProofs = async (rawAllocations) => {
   const claimTransactions = [];
 
   const tree = createMerkleTree(rawAllocations);
@@ -256,7 +256,7 @@ const createMerkleProofs = async rawAllocations => {
       _liquidityProvider: address,
       _tranche: 0,
       _balance: balance.toString(),
-      _merkleProof: proof
+      _merkleProof: proof,
     };
 
     claimTransactions.push(transactionData);
@@ -271,5 +271,5 @@ module.exports = {
   simpleToExactAmount,
   getTranche,
   createMerkleRoot,
-  createMerkleProofs
+  createMerkleProofs,
 };

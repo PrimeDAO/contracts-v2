@@ -15,10 +15,13 @@
 pragma solidity 0.8.6;
 
 contract Enum {
-    enum Operation {Call, DelegateCall}
+    enum Operation {
+        Call,
+        DelegateCall
+    }
 }
 
-interface Safe{
+interface Safe {
     function getTransactionHash(
         address to,
         uint256 value,

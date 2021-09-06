@@ -17,9 +17,7 @@ import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
 
-
 contract LBPWrapper {
-
     address public owner;
     address public lbp;
     bool public poolFunded;
@@ -28,7 +26,7 @@ contract LBPWrapper {
     
     uint256 constant public swapFeePercentage = 1e12; // 0.0001% is minimum amount.
 
-    modifier onlyOwner{
+    modifier onlyOwner() {
         require(msg.sender == owner, "LBPWrapper: only owner function");
         _;
     }
@@ -37,8 +35,11 @@ contract LBPWrapper {
      * @dev              transfer ownership to new owner
      * @param _newOwner  new owner address
      */
-    function transferOwnership(address _newOwner) public onlyOwner{
-        require(_newOwner != address(0), "LBPWrapper: new owner cannot be zero");
+    function transferOwnership(address _newOwner) public onlyOwner {
+        require(
+            _newOwner != address(0),
+            "LBPWrapper: new owner cannot be zero"
+        );
         owner = _newOwner;
     }
 
@@ -77,14 +78,14 @@ contract LBPWrapper {
     ) public onlyOwner returns(address)
     {
         lbp = LBPFactory.create(
-                _name,
-                _symbol,
-                _tokens,
-                _weights,
-                swapFeePercentage,
-                address(this),
-                _swapEnabledOnStart
-            );
+            _name,
+            _symbol,
+            _tokens,
+            _weights,
+            swapFeePercentage,
+            address(this),
+            _swapEnabledOnStart
+        );
 
             ILBP(lbp).updateWeightsGradually(
                 _startTime,

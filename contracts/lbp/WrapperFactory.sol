@@ -18,14 +18,16 @@ import "../utils/CloneFactory.sol";
 import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "./LBPWrapper.sol";
 
-
 contract WrapperFactory is CloneFactory, Ownable {
-
     address public wrapperMasterCopy;
 
     address public LBPFactory;
 
-    event LBPDeployedUsingWrapper(address indexed lbp, address indexed wrapper, address indexed admin);
+    event LBPDeployedUsingWrapper(
+        address indexed lbp,
+        address indexed wrapper,
+        address indexed admin
+    );
 
     /**
      * @dev                       constructor
@@ -41,7 +43,7 @@ contract WrapperFactory is CloneFactory, Ownable {
      * @dev                set new master copy of LBP wrapper
      * @param _masterCopy  address of master copy
      */
-    function setMasterCopy(address _masterCopy) public onlyOwner{
+    function setMasterCopy(address _masterCopy) public onlyOwner {
         require(
             _masterCopy != address(0),
             "WrapperFactory: mastercopy cannot be zero"
