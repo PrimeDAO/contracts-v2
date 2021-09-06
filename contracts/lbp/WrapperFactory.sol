@@ -33,9 +33,7 @@ contract WrapperFactory is CloneFactory, Ownable {
      * @dev                       constructor
      * @param _LBPFactory         address of lbp factory
      */
-    constructor (
-            address _LBPFactory
-    ) {
+    constructor(address _LBPFactory) {
         LBPFactory = _LBPFactory;
     }
 
@@ -77,13 +75,11 @@ contract WrapperFactory is CloneFactory, Ownable {
         uint256 _endTime,
         uint256[] memory _endWeights,
         address _admin
-    ) public onlyOwner
-    {
+    ) public onlyOwner {
         address wrapper = createClone(wrapperMasterCopy);
 
-        LBPWrapper(wrapper).initialize(LBPFactory);
-
-        address lbp = LBPWrapper(wrapper).deployLbpFromFactory(
+        address lbp = LBPWrapper(wrapper).initializeLBP(
+            LBPFactory,
             _name,
             _symbol,
             _tokens,

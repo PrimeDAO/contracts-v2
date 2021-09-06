@@ -36,7 +36,7 @@ function sortTokens(tokens) {
   return tokens;
 }
 
-describe(">> Contract: WrapperFactory", () => {
+describe.only(">> Contract: WrapperFactory", () => {
   let setup, swapsEnabled;
   let tokenAddresses, admin, owner, sortedTokens, newOwner;
 

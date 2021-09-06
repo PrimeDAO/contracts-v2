@@ -20,11 +20,12 @@ import "../utils/interface/ILBP.sol";
 contract LBPWrapper {
     address public owner;
     address public lbp;
-    bool public poolFunded;
-    
+    bool public isPoolFunded;
+    bool public isInitialized;
+
     ILBPFactory public LBPFactory;
-    
-    uint256 constant public swapFeePercentage = 1e12; // 0.0001% is minimum amount.
+
+    uint256 public constant swapFeePercentage = 1e12; // 0.0001% is minimum amount.
 
     modifier onlyOwner() {
         require(msg.sender == owner, "LBPWrapper: only owner function");
@@ -44,19 +45,8 @@ contract LBPWrapper {
     }
 
     /**
-     * @dev                       initialize lbp wrapper contract
-     * @param _LBPFactory         LBP factory address
-     */
-    function initialize (
-            address _LBPFactory
-    ) public
-    {
-        owner = msg.sender;
-        LBPFactory = ILBPFactory(_LBPFactory);
-    }
-
-    /**
      * @dev                        initialize lbp wrapper contract
+     * @param _LBPFactory          LBP factory address
      * @param _name                LBP name
      * @param _symbol              LBP symbol
      * @param _tokens              array of tokens sorted for the LBP
@@ -66,17 +56,23 @@ contract LBPWrapper {
      * @param _endTime             end time
      * @param _endWeights          array of end weights for respective tokens
      */
-    function deployLbpFromFactory(
-            string memory _name,
-            string memory _symbol,
-            IERC20[] memory _tokens,
-            uint256[] memory _weights,
-            bool _swapEnabledOnStart,
-            uint256 _startTime,
-            uint256 _endTime,
-            uint256[] memory _endWeights
-    ) public onlyOwner returns(address)
-    {
+    function initializeLBP(
+        address _LBPFactory,
+        string memory _name,
+        string memory _symbol,
+        IERC20[] memory _tokens,
+        uint256[] memory _weights,
+        bool _swapEnabledOnStart,
+        uint256 _startTime,
+        uint256 _endTime,
+        uint256[] memory _endWeights
+    ) public returns (address) {
+        require(!isInitialized, "LBPWrapper: LBP has already been initialized");
+
+        owner = msg.sender;
+        isInitialized = true;
+        LBPFactory = ILBPFactory(_LBPFactory);
+
         lbp = LBPFactory.create(
             _name,
             _symbol,
@@ -87,35 +83,30 @@ contract LBPWrapper {
             _swapEnabledOnStart
         );
 
-            ILBP(lbp).updateWeightsGradually(
-                _startTime,
-                _endTime,
-                _endWeights
-            );
+        ILBP(lbp).updateWeightsGradually(_startTime, _endTime, _endWeights);
 
         return lbp;
     }
 
     /**
-    * @dev                          approve tokens for the vault and join pool to provide liquidity
-    * @param _tokens                array of tokens sorted for the LBP
-    * @param _amounts               amount of tokens to add to the pool to provide liquidity
-    * @param _fromInternalBalance   fund tokens from the internal user balance
-    * @param _userData              userData specifies the type of join
-    */
-    function addLiquidityToLbp(
+     * @dev                          approve tokens for the vault and join pool to provide liquidity
+     * @param _tokens                array of tokens sorted for the LBP
+     * @param _amounts               amount of tokens to add to the pool to provide liquidity
+     * @param _fromInternalBalance   fund tokens from the internal user balance
+     * @param _userData              userData specifies the type of join
+     */
+    function joinPool(
         IERC20[] memory _tokens,
         uint256[] memory _amounts,
         bool _fromInternalBalance,
         bytes memory _userData
-        ) public onlyOwner {
+    ) public onlyOwner {
+        require(!isPoolFunded, "LBPWrapper: pool has already been joined");
 
-        require(!poolFunded, "LBPWrapper: liquidity can only be added once");
-        
-        poolFunded = true;
+        isPoolFunded = true;
 
         address vault = address(LBPFactory.getVault());
-        for ( uint8 i; i < _tokens.length; i++ ) {
+        for (uint8 i; i < _tokens.length; i++) {
             IERC20(_tokens[i]).approve(vault, _amounts[i]);
         }
 
