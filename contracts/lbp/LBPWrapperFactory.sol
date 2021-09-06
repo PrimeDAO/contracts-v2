@@ -54,7 +54,7 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
     }
 
     /**
-     * @dev                set new master copy of LBP wrapper
+     * @dev                set new master copy of Balancer LBP Factory
      * @param _LBPFactory  address of LBP factory
      */
     function setLBPFactory(address _LBPFactory) public onlyOwner {
