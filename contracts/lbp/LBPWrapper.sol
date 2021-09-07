@@ -103,7 +103,7 @@ contract LBPWrapper {
     ) external onlyOwner {
         require(!isPoolFunded, "LBPWrapper: pool has already been funded");
 
-        setPause(false); // unpauses the pool to add funds
+        setPaused(false); // unpauses the pool to add funds
 
         IVault vault = lbp.getVault();
         for (uint8 i; i < _tokens.length; i++) {
@@ -126,7 +126,7 @@ contract LBPWrapper {
      * @dev                     can pause/unpause trading
      * @param _isPaused         enable/disable swapping
      */
-    function setPause(bool _isPaused) public onlyOwner {
+    function setPaused(bool _isPaused) public onlyOwner {
         isPaused = _isPaused;
         _isPaused = _isPaused ? false : true; // setSwapEnabled requires opposite bool
 

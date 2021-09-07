@@ -57,7 +57,7 @@ describe("Contract: LBPWrapper", async () => {
       swapsEnabled = true;
 
       sortedTokens = sortTokens(setup.tokenList);
-      tokenAddresses = sortedTokens.map((token) => token.address);
+      tokenAddresses = sortedTokens.map(token => token.address);
       join_kind_init = 0;
     });
     it("$ deploy LBPWrapper", async () => {
@@ -172,7 +172,7 @@ describe("Contract: LBPWrapper", async () => {
       const receipt = await tx.wait();
       const vaultAddress = setup.vault.address;
       const vaultEvent = receipt.events.find(
-        (log) => log.address === vaultAddress
+        log => log.address === vaultAddress
       );
       const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
 
@@ -203,11 +203,11 @@ describe("Contract: LBPWrapper", async () => {
   context(">> pause the LBP", async () => {
     it("$ revert on being called by not the owner", async () => {
       await expect(
-        setup.lbpWrapper.connect(setup.roles.root).setPause(true)
+        setup.lbpWrapper.connect(setup.roles.root).setPaused(true)
       ).to.be.revertedWith("LBPWrapper: only owner function");
     });
     it("$ pauses the LBP", async () => {
-      await setup.lbpWrapper.connect(setup.roles.prime).setPause(true);
+      await setup.lbpWrapper.connect(setup.roles.prime).setPaused(true);
       expect(await setup.lbpWrapper.isPaused()).to.equal(true);
     });
   });
