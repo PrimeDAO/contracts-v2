@@ -49,7 +49,7 @@ describe("Contract: LBPWrapper", async () => {
   const NEW_SWAP_FEE_PERCENTAGE = parseEther("0.02").toString();
 
   const fromInternalBalance = false;
-  let userData, poolId, JOIN_KIND_INIT;
+  let userData, poolId, join_kind_init;
 
   context(">> deploy LBP Wrapper", async () => {
     before("!! setup", async () => {
@@ -57,8 +57,8 @@ describe("Contract: LBPWrapper", async () => {
       swapsEnabled = true;
 
       sortedTokens = sortTokens(setup.tokenList);
-      tokenAddresses = sortedTokens.map(token => token.address);
-      JOIN_KIND_INIT = 0;
+      tokenAddresses = sortedTokens.map((token) => token.address);
+      join_kind_init = 0;
     });
     it("$ deploy LBPWrapper", async () => {
       setup.lbpWrapper = await setup.LBPWrapper.deploy();
@@ -66,7 +66,7 @@ describe("Contract: LBPWrapper", async () => {
   });
   context(">> deploy LBP using Wrapper", async () => {
     it("$ success", async () => {
-      const tx = await setup.lbpWrapper
+      await setup.lbpWrapper
         .connect(setup.roles.root)
         .initializeLBP(
           setup.lbpFactory.address,
@@ -74,12 +74,10 @@ describe("Contract: LBPWrapper", async () => {
           SYMBOL,
           tokenAddresses,
           WEIGHTS,
-          swapsEnabled,
           startTime,
           endTime,
           END_WEIGHTS
         );
-      const receipt = await tx.wait();
       setup.lbp = setup.Lbp.attach(await setup.lbpWrapper.lbp());
       poolId = await setup.lbp.getPoolId();
 
@@ -96,7 +94,6 @@ describe("Contract: LBPWrapper", async () => {
             SYMBOL,
             tokenAddresses,
             WEIGHTS,
-            swapsEnabled,
             startTime,
             endTime,
             END_WEIGHTS
@@ -137,14 +134,14 @@ describe("Contract: LBPWrapper", async () => {
         .transfer(setup.lbpWrapper.address, WEIGHTS[1]);
       userData = ethers.utils.defaultAbiCoder.encode(
         ["uint256", "uint256[]"],
-        [JOIN_KIND_INIT, WEIGHTS]
+        [join_kind_init, WEIGHTS]
       );
     });
     it("$ reverts when not called by owner", async () => {
       await expect(
         setup.lbpWrapper
           .connect(setup.roles.root)
-          .joinPool(
+          .fundPool(
             tokenAddresses,
             WEIGHTS,
             setup.roles.root.address,
@@ -164,7 +161,7 @@ describe("Contract: LBPWrapper", async () => {
 
       const tx = await setup.lbpWrapper
         .connect(setup.roles.prime)
-        .joinPool(
+        .fundPool(
           tokenAddresses,
           WEIGHTS,
           setup.roles.root.address,
@@ -175,7 +172,7 @@ describe("Contract: LBPWrapper", async () => {
       const receipt = await tx.wait();
       const vaultAddress = setup.vault.address;
       const vaultEvent = receipt.events.find(
-        log => log.address === vaultAddress
+        (log) => log.address === vaultAddress
       );
       const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
 
@@ -187,19 +184,31 @@ describe("Contract: LBPWrapper", async () => {
       expect(
         (await setup.lbp.balanceOf(setup.roles.root.address)).toString()
       ).not.equal("0");
+      expect(await setup.lbpWrapper.isPaused()).to.equal(false);
     });
     it("$ revert when adding liquidity more then once", async () => {
       await expect(
         setup.lbpWrapper
           .connect(setup.roles.prime)
-          .joinPool(
+          .fundPool(
             tokenAddresses,
             WEIGHTS,
             setup.roles.root.address,
             fromInternalBalance,
             userData
           )
-      ).to.be.revertedWith("LBPWrapper: pool has already been joined");
+      ).to.be.revertedWith("LBPWrapper: pool has already been funded");
+    });
+  });
+  context(">> pause the LBP", async () => {
+    it("$ revert on being called by not the owner", async () => {
+      await expect(
+        setup.lbpWrapper.connect(setup.roles.root).setPause(true)
+      ).to.be.revertedWith("LBPWrapper: only owner function");
+    });
+    it("$ pauses the LBP", async () => {
+      await setup.lbpWrapper.connect(setup.roles.prime).setPause(true);
+      expect(await setup.lbpWrapper.isPaused()).to.equal(true);
     });
   });
 });

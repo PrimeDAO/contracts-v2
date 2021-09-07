@@ -41,7 +41,7 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
      * @dev                set new master copy of LBP wrapper
      * @param _masterCopy  address of master copy
      */
-    function setMasterCopy(address _masterCopy) public onlyOwner {
+    function setMasterCopy(address _masterCopy) external onlyOwner {
         require(
             _masterCopy != address(0),
             "LBPWrapperFactory: mastercopy cannot be zero"
@@ -57,7 +57,7 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
      * @dev                set new master copy of Balancer LBP Factory
      * @param _LBPFactory  address of LBP factory
      */
-    function setLBPFactory(address _LBPFactory) public onlyOwner {
+    function setLBPFactory(address _LBPFactory) external onlyOwner {
         require(
             _LBPFactory != address(0),
             "LBPWrapperFactory: LBPFactory cannot be zero"
@@ -75,7 +75,6 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
      * @param _symbol              LBP symbol
      * @param _tokens              array of tokens sorted for the LBP
      * @param _weights             array of start weights for respective tokens
-     * @param _swapEnabledOnStart  enable or disable swap
      * @param _startTime           start time
      * @param _endTime             end time
      * @param _endWeights          array of end weights for respective tokens
@@ -86,12 +85,11 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
         string memory _symbol,
         IERC20[] memory _tokens,
         uint256[] memory _weights,
-        bool _swapEnabledOnStart,
         uint256 _startTime,
         uint256 _endTime,
         uint256[] memory _endWeights,
         address _admin
-    ) public onlyOwner {
+    ) external onlyOwner {
         address wrapper = createClone(wrapperMasterCopy);
 
         address lbp = LBPWrapper(wrapper).initializeLBP(
@@ -100,7 +98,6 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
             _symbol,
             _tokens,
             _weights,
-            _swapEnabledOnStart,
             _startTime,
             _endTime,
             _endWeights

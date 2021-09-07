@@ -18,11 +18,12 @@ import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
 
 contract LBPWrapper {
-    uint256 public constant swapFeePercentage = 1e12; // 0.0001% is minimum amount.
+    uint256 public constant SWAP_FEE_PERCENTAGE = 1e12; // 0.0001% is minimum amount.
 
     address public owner;
     bool public isPoolFunded;
     bool public isInitialized;
+    bool public isPaused;
 
     ILBP public lbp;
 
@@ -35,7 +36,7 @@ contract LBPWrapper {
      * @dev              transfer ownership to new owner
      * @param _newOwner  new owner address
      */
-    function transferOwnership(address _newOwner) public onlyOwner {
+    function transferOwnership(address _newOwner) external onlyOwner {
         require(
             _newOwner != address(0),
             "LBPWrapper: new owner cannot be zero"
@@ -50,7 +51,6 @@ contract LBPWrapper {
      * @param _symbol              LBP symbol
      * @param _tokens              array of tokens sorted for the LBP
      * @param _weights             array of start weights for respective tokens
-     * @param _swapEnabledOnStart  enable or disable swap
      * @param _startTime           start time
      * @param _endTime             end time
      * @param _endWeights          array of end weights for respective tokens
@@ -61,11 +61,10 @@ contract LBPWrapper {
         string memory _symbol,
         IERC20[] memory _tokens,
         uint256[] memory _weights,
-        bool _swapEnabledOnStart,
         uint256 _startTime,
         uint256 _endTime,
         uint256[] memory _endWeights
-    ) public returns (address) {
+    ) external returns (address) {
         require(!isInitialized, "LBPWrapper: already initialized");
         isInitialized = true;
         owner = msg.sender;
@@ -76,9 +75,9 @@ contract LBPWrapper {
                 _symbol,
                 _tokens,
                 _weights,
-                swapFeePercentage,
+                SWAP_FEE_PERCENTAGE,
                 address(this),
-                _swapEnabledOnStart
+                false // setSwapEnabled at pool creation to false
             )
         );
 
@@ -95,16 +94,16 @@ contract LBPWrapper {
      * @param _fromInternalBalance   fund tokens from the internal user balance
      * @param _userData              userData specifies the type of join
      */
-    function joinPool(
+    function fundPool(
         IERC20[] memory _tokens,
         uint256[] memory _amounts,
         address _receiver,
         bool _fromInternalBalance,
         bytes memory _userData
-    ) public onlyOwner {
-        require(!isPoolFunded, "LBPWrapper: pool has already been joined");
+    ) external onlyOwner {
+        require(!isPoolFunded, "LBPWrapper: pool has already been funded");
 
-        isPoolFunded = true;
+        setPause(false); // unpauses the pool to add funds
 
         IVault vault = lbp.getVault();
         for (uint8 i; i < _tokens.length; i++) {
@@ -119,5 +118,18 @@ contract LBPWrapper {
         });
 
         vault.joinPool(lbp.getPoolId(), address(this), _receiver, request);
+
+        isPoolFunded = true;
+    }
+
+    /**
+     * @dev                     can pause/unpause trading
+     * @param _isPaused         enable/disable swapping
+     */
+    function setPause(bool _isPaused) public onlyOwner {
+        isPaused = _isPaused;
+        _isPaused = _isPaused ? false : true; // setSwapEnabled requires opposite bool
+
+        lbp.setSwapEnabled(_isPaused);
     }
 }

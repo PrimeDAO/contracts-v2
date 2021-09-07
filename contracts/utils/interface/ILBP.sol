@@ -26,4 +26,6 @@ interface ILBP {
     function getPoolId() external view returns (bytes32);
 
     function getVault() external view returns (IVault);
+
+    function setSwapEnabled(bool swapEnabled) external;
 }
