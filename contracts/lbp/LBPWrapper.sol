@@ -101,7 +101,7 @@ contract LBPWrapper {
         address _receiver,
         bool _fromInternalBalance,
         bytes memory _userData
-    ) external onlyOwner {
+    ) public onlyOwner {
         require(!poolFunded, "LBPWrapper: pool has already been funded");
 
         IVault vault = lbp.getVault();
