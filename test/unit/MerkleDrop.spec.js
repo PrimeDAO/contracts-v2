@@ -331,7 +331,9 @@ describe(">> MerkleDrop", () => {
 
       describe("$ with first tranche expired", () => {
         it("still lets alice claim her second claim", async () => {
-          await merkleDropInstance.connect(prime).expireTranche(firstTrancheIdx);
+          await merkleDropInstance
+            .connect(prime)
+            .expireTranche(firstTrancheIdx);
 
           const aliceSecondProof = getAccountBalanceProof(
             secondTree,
@@ -355,7 +357,9 @@ describe(">> MerkleDrop", () => {
 
       describe("$ with second tranche expired", () => {
         it("still lets alice claim her first claim", async () => {
-          await merkleDropInstance.connect(prime).expireTranche(secondTrancheIdx);
+          await merkleDropInstance
+            .connect(prime)
+            .expireTranche(secondTrancheIdx);
           await merkleDropInstance
             .connect(alice)
             .claimTranche(

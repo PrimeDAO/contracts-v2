@@ -16,9 +16,7 @@ pragma solidity ^0.8.6;
 
 import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 
-
 interface IVault {
-
     struct JoinPoolRequest {
         IERC20[] assets;
         uint256[] maxAmountsIn;
@@ -26,7 +24,7 @@ interface IVault {
         bool fromInternalBalance;
     }
 
-	function joinPool(
+    function joinPool(
         bytes32 poolId,
         address sender,
         address recipient,

@@ -20,13 +20,11 @@ import "openzeppelin-contracts-sol8/access/Ownable.sol";
 import "./Seed.sol";
 import "../utils/CloneFactory.sol";
 
-
 /**
  * @title PrimeDAO Seed Factory
  * @dev   Enable PrimeDAO governance to create new Seed contracts.
  */
 contract SeedFactory is CloneFactory, Ownable {
-
     Seed public masterCopy;
 
     event SeedCreated(address indexed newSeed, address indexed admin);
@@ -36,7 +34,10 @@ contract SeedFactory is CloneFactory, Ownable {
      * @param _masterCopy The address of the new Seed basis.
      */
     function setMasterCopy(Seed _masterCopy) external onlyOwner {
-        require(address(_masterCopy) != address(0), "SeedFactory: new mastercopy cannot be zero address");
+        require(
+            address(_masterCopy) != address(0),
+            "SeedFactory: new mastercopy cannot be zero address"
+        );
         masterCopy = _masterCopy;
     }
 
@@ -70,14 +71,19 @@ contract SeedFactory is CloneFactory, Ownable {
         uint256 _price,
         uint256[] memory _startTimeEndTime,
         uint32[] memory _vestingDurationAndCliff,
-        bool  _permissionedSeed,
+        bool _permissionedSeed,
         uint256 _fee,
         bytes memory _metadata
-    ) external onlyOwner returns (address)
-    {
+    ) external onlyOwner returns (address) {
         {
-            require(address(masterCopy) != address(0), "SeedFactory: mastercopy cannot be zero address");
-            require(_vestingDurationAndCliff.length == 2, "SeedFactory: Hasn't provided both vesting duration and cliff");
+            require(
+                address(masterCopy) != address(0),
+                "SeedFactory: mastercopy cannot be zero address"
+            );
+            require(
+                _vestingDurationAndCliff.length == 2,
+                "SeedFactory: Hasn't provided both vesting duration and cliff"
+            );
         }
 
         // deploy clone

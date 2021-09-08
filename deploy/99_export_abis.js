@@ -66,6 +66,7 @@ const exportAbiFunction = async ({ run, network, deployments }) => {
   }
   if (updateSharedAbis) {
     await fs.writeFile(sharedAbisPath, JSON.stringify(sharedAbis, null, 2));
+    console.log(`exported deployed contract information to ${name}.json`);
   }
 };
 

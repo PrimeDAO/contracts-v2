@@ -18,25 +18,24 @@ import "../utils/CloneFactory.sol";
 import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "./LBPWrapper.sol";
 
-
 contract WrapperFactory is CloneFactory, Ownable {
-
     address public wrapperMasterCopy;
 
     address public LBPFactory;
     uint256 public swapFeePercentage;
 
-    event LBPDeployedUsingWrapper(address indexed lbp, address indexed wrapper, address indexed admin);
+    event LBPDeployedUsingWrapper(
+        address indexed lbp,
+        address indexed wrapper,
+        address indexed admin
+    );
 
     /**
      * @dev                       constructor
      * @param _LBPFactory         address of lbp factory
      * @param _swapFeePercentage  swap fee percentage
      */
-    constructor (
-            address _LBPFactory,
-            uint256 _swapFeePercentage
-    ) {
+    constructor(address _LBPFactory, uint256 _swapFeePercentage) {
         LBPFactory = _LBPFactory;
         swapFeePercentage = _swapFeePercentage;
     }
@@ -45,7 +44,7 @@ contract WrapperFactory is CloneFactory, Ownable {
      * @dev                set new master copy of LBP wrapper
      * @param _masterCopy  address of master copy
      */
-    function setMasterCopy(address _masterCopy) public onlyOwner{
+    function setMasterCopy(address _masterCopy) public onlyOwner {
         require(
             _masterCopy != address(0),
             "WrapperFactory: mastercopy cannot be zero"
@@ -83,8 +82,7 @@ contract WrapperFactory is CloneFactory, Ownable {
         uint256[] memory _endWeights,
         address _admin,
         bytes memory _userData
-    ) public onlyOwner
-    {
+    ) public onlyOwner {
         address wrapper = createClone(wrapperMasterCopy);
 
         LBPWrapper(wrapper).initialize(LBPFactory, swapFeePercentage);
@@ -111,5 +109,4 @@ contract WrapperFactory is CloneFactory, Ownable {
 
         emit LBPDeployedUsingWrapper(lbp, wrapper, _admin);
     }
-
 }

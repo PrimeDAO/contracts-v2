@@ -287,10 +287,9 @@ describe("Contract: Seed", async () => {
           expect(await setup.seed.minimumReached()).to.equal(true);
         });
         it("it returns amount of seed token bought and the fee", async () => {
-          let {
-            ["0"]: seedAmount,
-            ["1"]: feeAmount,
-          } = await setup.seed.connect(buyer1).callStatic.buy(buyAmount);
+          let { ["0"]: seedAmount, ["1"]: feeAmount } = await setup.seed
+            .connect(buyer1)
+            .callStatic.buy(buyAmount);
           expect((await seedAmount).toString()).to.equal(buySeedAmount);
           expect((await feeAmount).toString()).to.equal(hundredTwoETH);
         });
@@ -526,25 +525,29 @@ describe("Contract: Seed", async () => {
         });
         it("it cannot claim if not vested", async () => {
           await expectRevert(
-            setup.seed.connect(buyer1).claim(
-              buyer2.address,
-              new BN(buySeedAmount)
-                .mul(new BN(twoBN))
-                .add(new BN(one))
-                .toString()
-            ),
+            setup.seed
+              .connect(buyer1)
+              .claim(
+                buyer2.address,
+                new BN(buySeedAmount)
+                  .mul(new BN(twoBN))
+                  .add(new BN(one))
+                  .toString()
+              ),
             "Seed: amount claimable is 0"
           );
         });
         it("it cannot claim more than claimable amount", async () => {
           await expectRevert(
-            setup.seed.connect(buyer1).claim(
-              buyer1.address,
-              new BN(buySeedAmount)
-                .mul(new BN(twoBN))
-                .add(new BN(one))
-                .toString()
-            ),
+            setup.seed
+              .connect(buyer1)
+              .claim(
+                buyer1.address,
+                new BN(buySeedAmount)
+                  .mul(new BN(twoBN))
+                  .add(new BN(one))
+                  .toString()
+              ),
             "Seed: request is greater than claimable amount"
           );
         });

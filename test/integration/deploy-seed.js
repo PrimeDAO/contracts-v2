@@ -103,12 +103,10 @@ describe("Contract: Signer", async () => {
         // here we create a transaction object
         nonce++;
         // incorrect function call
-        const {
-          data,
-          to,
-        } = await setup.seedFactory.populateTransaction.setMasterCopy(
-          BENEFICIARY
-        );
+        const { data, to } =
+          await setup.seedFactory.populateTransaction.setMasterCopy(
+            BENEFICIARY
+          );
         const trx = [
           to,
           zero,

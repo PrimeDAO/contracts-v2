@@ -21,7 +21,7 @@ task("addDelegate", "adds delegate to Gnosis Safe")
         safe: safeAddress,
         delegate: delegateAddress,
         label,
-        signature
+        signature,
       };
       const result = await gnosis.addDelegate(payload);
       if (result.status == 201) {
@@ -43,22 +43,20 @@ task("sendTransaction", "send transaction to Gnosis Safe")
     const { root } = await ethers.getNamedSigners();
     const seedFactoryInstance = await ethers.getContract("SeedFactory");
     const signerInstance = await ethers.getContract("Signer");
-    const {
-      data,
-      to
-    } = await seedFactoryInstance.populateTransaction.deploySeed(
-      seedArguments.BENEFICIARY,
-      seedArguments.ADMIN,
-      [seedArguments.PRIME, seedArguments.WETH],
-      [seedArguments.softCap, seedArguments.hardCap],
-      seedArguments.price,
-      seedArguments.startTime,
-      seedArguments.endTime,
-      [seedArguments.vestingDuration, seedArguments.vestingCliff],
-      seedArguments.isPermissioned,
-      seedArguments.fee,
-      seedArguments.metadata
-    );
+    const { data, to } =
+      await seedFactoryInstance.populateTransaction.deploySeed(
+        seedArguments.BENEFICIARY,
+        seedArguments.ADMIN,
+        [seedArguments.PRIME, seedArguments.WETH],
+        [seedArguments.softCap, seedArguments.hardCap],
+        seedArguments.price,
+        seedArguments.startTime,
+        seedArguments.endTime,
+        [seedArguments.vestingDuration, seedArguments.vestingCliff],
+        seedArguments.isPermissioned,
+        seedArguments.fee,
+        seedArguments.metadata
+      );
     const trx = {
       to,
       value: 0,
@@ -66,7 +64,7 @@ task("sendTransaction", "send transaction to Gnosis Safe")
       gasToken: "0x0000000000000000000000000000000000000000",
       refundReceiver: "0x0000000000000000000000000000000000000000",
       operation: 0,
-      safe: safeAddress
+      safe: safeAddress,
     };
 
     const { data: estimate } = await gnosis.getEstimate({
@@ -74,7 +72,7 @@ task("sendTransaction", "send transaction to Gnosis Safe")
       to: trx.to,
       value: trx.value,
       data: trx.data,
-      operation: trx.operation
+      operation: trx.operation,
     });
     trx.safeTxGas = estimate.safeTxGas;
     (trx.baseGas = 0),
@@ -97,7 +95,7 @@ task("sendTransaction", "send transaction to Gnosis Safe")
         nonce: trx.nonce,
         contractTransactionHash: hash,
         sender: signerInstance.address,
-        signature: trx.signature
+        signature: trx.signature,
       };
       await gnosis.sendTransaction(options);
     });

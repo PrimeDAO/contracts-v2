@@ -24,7 +24,8 @@ const getGnosisProxyInstance = async (setup) => {
     "GnosisSafeProxyFactory",
     setup.roles.prime
   );
-  const gnosisSafeProxyFactoryInstance = await gnosisSafeProxyFactoryFactory.deploy();
+  const gnosisSafeProxyFactoryInstance =
+    await gnosisSafeProxyFactoryFactory.deploy();
 
   const proxy_tx = await gnosisSafeProxyFactoryInstance
     .connect(setup.roles.prime)
@@ -42,8 +43,8 @@ const getLBPWrapperFactory = async (setup) => {
 
 const getContractInstance = async (factoryName, address, args) => {
   const Factory = await ethers.getContractFactory(factoryName, address);
-  const arguments = args ? args : [];
-  return await Factory.deploy(...arguments);
+  const parameters = args ? args : [];
+  return await Factory.deploy(...parameters);
 };
 
 const gettokenInstances = async (setup) => {
