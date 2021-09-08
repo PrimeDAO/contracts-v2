@@ -16,7 +16,6 @@ import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
-import "hardhat/console.sol"; //
 
 contract LBPWrapper {
     uint256 public constant SWAP_FEE_PERCENTAGE = 1e12; // 0.0001% is minimum amount.
@@ -24,7 +23,6 @@ contract LBPWrapper {
     address public owner;
     bool public poolFunded;
     bool public initialized;
-    // bool public isPaused;
 
     ILBP public lbp;
 
@@ -135,8 +133,6 @@ contract LBPWrapper {
      * @dev                      tells wether the pool is paused or not
      */
     function paused() public view returns (bool) {
-        bool _swapBool = lbp.getSwapEnabled();
-        _swapBool = _swapBool ? false : true; // getSwapEnabled() returns opposite bool
-        return _swapBool;
+        return !lbp.getSwapEnabled();
     }
 }
