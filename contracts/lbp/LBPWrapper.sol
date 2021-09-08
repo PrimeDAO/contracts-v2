@@ -18,8 +18,6 @@ import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
 
 contract LBPWrapper {
-    uint256 public constant SWAP_FEE_PERCENTAGE = 1e12; // 0.0001% is minimum amount.
-
     address public owner;
     bool public poolFunded;
     bool public initialized;
@@ -62,9 +60,11 @@ contract LBPWrapper {
         uint256[] memory _weights,
         uint256 _startTime,
         uint256 _endTime,
-        uint256[] memory _endWeights
+        uint256[] memory _endWeights,
+        uint256 _swapFeePercentage
     ) external returns (address) {
         require(!initialized, "LBPWrapper: already initialized");
+
         initialized = true;
         owner = msg.sender;
 
@@ -74,9 +74,9 @@ contract LBPWrapper {
                 _symbol,
                 _tokens,
                 _weights,
-                SWAP_FEE_PERCENTAGE,
+                _swapFeePercentage,
                 address(this),
-                false // setSwapEnabled at pool creation to false
+                false // swapEnabledOnStart is set to false at pool creation
             )
         );
 
@@ -125,14 +125,20 @@ contract LBPWrapper {
      * @param _isPaused         enable/disable swapping
      */
     function setPaused(bool _isPaused) public onlyOwner {
-        _isPaused = _isPaused ? false : true; // setSwapEnabled requires opposite bool
-        lbp.setSwapEnabled(_isPaused);
+        lbp.setSwapEnabled(!_isPaused);
     }
 
     /**
-     * @dev                      tells wether the pool is paused or not
+     * @dev                      checks if swap is enabled or not
      */
     function paused() public view returns (bool) {
         return !lbp.getSwapEnabled();
+    }
+
+    /**
+     * @dev                     gets the swapFeePercentage from the pool
+     */
+    function getSwapFeePercentage() public view returns (uint256) {
+        return lbp.getSwapFeePercentage();
     }
 }

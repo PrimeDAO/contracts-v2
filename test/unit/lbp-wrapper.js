@@ -47,9 +47,11 @@ describe("Contract: LBPWrapper", async () => {
   const END_WEIGHTS = [parseEther("0.4").toString(), parseEther("0.6")];
   const POOL_SWAP_FEE_PERCENTAGE = parseEther("0.01").toString();
   const NEW_SWAP_FEE_PERCENTAGE = parseEther("0.02").toString();
+  const SWAP_FEE_PERCENTAGE = 1e12;
+  const JOIN_KIND_INIT = 0;
 
   const fromInternalBalance = false;
-  let userData, poolId, join_kind_init;
+  let userData, poolId;
 
   context(">> deploy LBP Wrapper", async () => {
     before("!! setup", async () => {
@@ -58,7 +60,6 @@ describe("Contract: LBPWrapper", async () => {
 
       sortedTokens = sortTokens(setup.tokenList);
       tokenAddresses = sortedTokens.map((token) => token.address);
-      join_kind_init = 0;
     });
     it("$ deploy LBPWrapper", async () => {
       setup.lbpWrapper = await setup.LBPWrapper.deploy();
@@ -76,7 +77,8 @@ describe("Contract: LBPWrapper", async () => {
           WEIGHTS,
           startTime,
           endTime,
-          END_WEIGHTS
+          END_WEIGHTS,
+          SWAP_FEE_PERCENTAGE
         );
       setup.lbp = setup.Lbp.attach(await setup.lbpWrapper.lbp());
       poolId = await setup.lbp.getPoolId();
@@ -96,7 +98,8 @@ describe("Contract: LBPWrapper", async () => {
             WEIGHTS,
             startTime,
             endTime,
-            END_WEIGHTS
+            END_WEIGHTS,
+            SWAP_FEE_PERCENTAGE
           )
       ).to.be.revertedWith("LBPWrapper: already initialized");
     });
@@ -134,7 +137,7 @@ describe("Contract: LBPWrapper", async () => {
         .transfer(setup.lbpWrapper.address, WEIGHTS[1]);
       userData = ethers.utils.defaultAbiCoder.encode(
         ["uint256", "uint256[]"],
-        [join_kind_init, WEIGHTS]
+        [JOIN_KIND_INIT, WEIGHTS]
       );
     });
     it("$ reverts when not called by owner", async () => {
@@ -209,6 +212,13 @@ describe("Contract: LBPWrapper", async () => {
     it("$ pauses the LBP", async () => {
       await setup.lbpWrapper.connect(setup.roles.prime).setPaused(true);
       expect(await setup.lbpWrapper.paused()).to.equal(true);
+    });
+  });
+  context(">> get swapFeePercentage", async () => {
+    it("$ returns swapFeePercentag", async () => {
+      expect(await setup.lbpWrapper.getSwapFeePercentage()).to.equal(
+        SWAP_FEE_PERCENTAGE
+      );
     });
   });
 });

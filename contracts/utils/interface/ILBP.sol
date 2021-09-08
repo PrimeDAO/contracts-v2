@@ -30,4 +30,6 @@ interface ILBP {
     function setSwapEnabled(bool swapEnabled) external;
 
     function getSwapEnabled() external view returns (bool);
+
+    function getSwapFeePercentage() external view returns (uint256);
 }

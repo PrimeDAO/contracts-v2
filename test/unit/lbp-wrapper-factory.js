@@ -51,9 +51,12 @@ describe(">> Contract: LBPWrapperFactory", () => {
   const ADMIN_BALANCE = [32.667e18, 30000e6].map((balance) =>
     balance.toString()
   );
+  const SWAP_FEE_PERCENTAGE = (1e12).toString();
+  const SWAP_FEE_PERCENTAGE_CHANGED = (1e16).toString();
+  const TO_LOW_SWAP_FEE_PERCENTAGE = 1e10;
+  const TO_HIGH_SWAP_FEE_PERCENTAGE = (1e18).toString();
 
   const ZERO_ADDRESS = constants.ZERO_ADDRESS;
-  30000000000;
 
   context("» deploy LBP LBPWrapperFactory", () => {
     beforeEach("!! setup", async () => {
@@ -66,11 +69,29 @@ describe(">> Contract: LBPWrapperFactory", () => {
       // Need to solve this in tokens.js helper file for > 2 tokens.
       tokenAddresses = sortedTokens.map((token) => token.address);
     });
+    it("$ revert on deploy LBPWrapperFactory with wrong value swap fee", async () => {
+      await expect(
+        init.getContractInstance("LBPWrapperFactory", owner, [
+          setup.lbpFactory.address,
+          TO_LOW_SWAP_FEE_PERCENTAGE,
+        ])
+      ).to.be.revertedWith(
+        "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+      );
+      await expect(
+        init.getContractInstance("LBPWrapperFactory", owner, [
+          setup.lbpFactory.address,
+          TO_HIGH_SWAP_FEE_PERCENTAGE,
+        ])
+      ).to.be.revertedWith(
+        "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+      );
+    });
     it("$ deploy LBPWrapperFactory", async () => {
       setup.LbpWrapperFactory = await init.getContractInstance(
         "LBPWrapperFactory",
         owner,
-        [setup.lbpFactory.address]
+        [setup.lbpFactory.address, SWAP_FEE_PERCENTAGE]
       );
       expect(await setup.LbpWrapperFactory.LBPFactory()).to.equal(
         setup.lbpFactory.address
@@ -78,25 +99,44 @@ describe(">> Contract: LBPWrapperFactory", () => {
     });
   });
   context("» set MasterCopy of LBPWrapper", () => {
-    it("$ reverts on zero address", async () => {
-      await expectRevert(
-        setup.LbpWrapperFactory.setMasterCopy(ZERO_ADDRESS),
-        "LBPWrapperFactory: mastercopy cannot be zero"
+    let params;
+    before("!! setup for deploying LBPWrapper", async () => {
+      params = [
+        NAME,
+        SYMBOL,
+        tokenAddresses,
+        START_WEIGHTS,
+        startTime,
+        endTime,
+        END_WEIGHTS,
+        admin.address,
+      ];
+    });
+    it("$ reverts if deploying LBPWrapper & mastercopy is not set", async () => {
+      await expect(
+        setup.LbpWrapperFactory.connect(owner).deployLBPUsingWrapper(...params)
+      ).to.be.revertedWith(
+        "LBPWrapperFactory: LBPWrapper mastercopy is not set"
       );
     });
+    it("$ reverts on zero address", async () => {
+      await expect(
+        setup.LbpWrapperFactory.setMasterCopy(ZERO_ADDRESS)
+      ).to.be.revertedWith("LBPWrapperFactory: mastercopy cannot be zero");
+    });
     it("$ reverts on same address as LBPWrapperFactory", async () => {
-      await expectRevert(
-        setup.LbpWrapperFactory.setMasterCopy(setup.LbpWrapperFactory.address),
+      await expect(
+        setup.LbpWrapperFactory.setMasterCopy(setup.LbpWrapperFactory.address)
+      ).to.be.revertedWith(
         "LBPWrapperFactory: mastercopy cannot be the same as LBPWrapperFactory"
       );
     });
     it("$ reverts on called not by owner", async () => {
-      await expectRevert(
+      await expect(
         setup.LbpWrapperFactory.connect(admin).setMasterCopy(
           setup.lbpWrapper.address
-        ),
-        "Ownable: caller is not the owner"
-      );
+        )
+      ).to.be.revertedWith("Ownable: caller is not the owner");
     });
     it("$ succeeds on valid master copy", async () => {
       await setup.LbpWrapperFactory.setMasterCopy(setup.lbpWrapper.address);
@@ -105,29 +145,59 @@ describe(">> Contract: LBPWrapperFactory", () => {
       );
     });
   });
+  context("» set new swapFeePercentage", () => {
+    it("$ reverts on not called by owner", async () => {
+      await expect(
+        setup.LbpWrapperFactory.connect(admin).setSwapFeePercentage(
+          SWAP_FEE_PERCENTAGE_CHANGED
+        )
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+    it("$ reverts on calling with wrong value swap fee", async () => {
+      await expect(
+        setup.LbpWrapperFactory.setSwapFeePercentage(
+          TO_HIGH_SWAP_FEE_PERCENTAGE
+        )
+      ).to.be.revertedWith(
+        "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+      );
+      await expect(
+        setup.LbpWrapperFactory.setSwapFeePercentage(TO_LOW_SWAP_FEE_PERCENTAGE)
+      ).to.be.revertedWith(
+        "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+      );
+    });
+    it("$ success", async () => {
+      await setup.LbpWrapperFactory.setSwapFeePercentage(
+        SWAP_FEE_PERCENTAGE_CHANGED
+      );
+      expect(await setup.LbpWrapperFactory.swapFeePercentage()).to.equal(
+        SWAP_FEE_PERCENTAGE_CHANGED
+      );
+    });
+  });
   context("» set new LBPFactory", () => {
     before("!! deploy new LBP Factory", async () => {
       newLBPFactory = await balancer.getLbpFactoryInstance(setup);
     });
     it("$ reverts on zero address", async () => {
-      await expectRevert(
-        setup.LbpWrapperFactory.setLBPFactory(ZERO_ADDRESS),
-        "LBPWrapperFactory: LBPFactory cannot be zero"
-      );
+      await expect(
+        setup.LbpWrapperFactory.setLBPFactory(ZERO_ADDRESS)
+      ).to.be.revertedWith("LBPWrapperFactory: LBPFactory cannot be zero");
     });
     it("$ reverts on same address as LBPWrapperFactory", async () => {
-      await expectRevert(
-        setup.LbpWrapperFactory.setLBPFactory(setup.LbpWrapperFactory.address),
+      await expect(
+        setup.LbpWrapperFactory.setLBPFactory(setup.LbpWrapperFactory.address)
+      ).to.be.revertedWith(
         "LBPWrapperFactory: LBPFactory cannot be the same as LBPWrapperFactory"
       );
     });
     it("$ reverts on called not by owner", async () => {
-      await expectRevert(
+      await expect(
         setup.LbpWrapperFactory.connect(admin).setLBPFactory(
           newLBPFactory.address
-        ),
-        "Ownable: caller is not the owner"
-      );
+        )
+      ).to.be.revertedWith("Ownable: caller is not the owner");
     });
     it("$ succeeds on valid master copy", async () => {
       await setup.LbpWrapperFactory.setLBPFactory(newLBPFactory.address);
