@@ -57,7 +57,7 @@ describe("Contract: LBPWrapper", async () => {
       swapsEnabled = true;
 
       sortedTokens = sortTokens(setup.tokenList);
-      tokenAddresses = sortedTokens.map(token => token.address);
+      tokenAddresses = sortedTokens.map((token) => token.address);
       join_kind_init = 0;
     });
     it("$ deploy LBPWrapper", async () => {
@@ -172,7 +172,7 @@ describe("Contract: LBPWrapper", async () => {
       const receipt = await tx.wait();
       const vaultAddress = setup.vault.address;
       const vaultEvent = receipt.events.find(
-        log => log.address === vaultAddress
+        (log) => log.address === vaultAddress
       );
       const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
 
@@ -184,7 +184,7 @@ describe("Contract: LBPWrapper", async () => {
       expect(
         (await setup.lbp.balanceOf(setup.roles.root.address)).toString()
       ).not.equal("0");
-      expect(await setup.lbpWrapper.isPaused()).to.equal(false);
+      expect(await setup.lbpWrapper.paused()).to.equal(false);
     });
     it("$ revert when adding liquidity more then once", async () => {
       await expect(
@@ -208,7 +208,7 @@ describe("Contract: LBPWrapper", async () => {
     });
     it("$ pauses the LBP", async () => {
       await setup.lbpWrapper.connect(setup.roles.prime).setPaused(true);
-      expect(await setup.lbpWrapper.isPaused()).to.equal(true);
+      expect(await setup.lbpWrapper.paused()).to.equal(true);
     });
   });
 });

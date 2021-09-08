@@ -28,4 +28,6 @@ interface ILBP {
     function getVault() external view returns (IVault);
 
     function setSwapEnabled(bool swapEnabled) external;
+
+    function getSwapEnabled() external view returns (bool);
 }

@@ -16,14 +16,15 @@ import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
+import "hardhat/console.sol"; //
 
 contract LBPWrapper {
     uint256 public constant SWAP_FEE_PERCENTAGE = 1e12; // 0.0001% is minimum amount.
 
     address public owner;
-    bool public isPoolFunded;
-    bool public isInitialized;
-    bool public isPaused;
+    bool public poolFunded;
+    bool public initialized;
+    // bool public isPaused;
 
     ILBP public lbp;
 
@@ -65,8 +66,8 @@ contract LBPWrapper {
         uint256 _endTime,
         uint256[] memory _endWeights
     ) external returns (address) {
-        require(!isInitialized, "LBPWrapper: already initialized");
-        isInitialized = true;
+        require(!initialized, "LBPWrapper: already initialized");
+        initialized = true;
         owner = msg.sender;
 
         lbp = ILBP(
@@ -101,9 +102,7 @@ contract LBPWrapper {
         bool _fromInternalBalance,
         bytes memory _userData
     ) external onlyOwner {
-        require(!isPoolFunded, "LBPWrapper: pool has already been funded");
-
-        setPaused(false); // unpauses the pool to add funds
+        require(!poolFunded, "LBPWrapper: pool has already been funded");
 
         IVault vault = lbp.getVault();
         for (uint8 i; i < _tokens.length; i++) {
@@ -119,7 +118,8 @@ contract LBPWrapper {
 
         vault.joinPool(lbp.getPoolId(), address(this), _receiver, request);
 
-        isPoolFunded = true;
+        poolFunded = true;
+        setPaused(false);
     }
 
     /**
@@ -127,9 +127,16 @@ contract LBPWrapper {
      * @param _isPaused         enable/disable swapping
      */
     function setPaused(bool _isPaused) public onlyOwner {
-        isPaused = _isPaused;
         _isPaused = _isPaused ? false : true; // setSwapEnabled requires opposite bool
-
         lbp.setSwapEnabled(_isPaused);
+    }
+
+    /**
+     * @dev                      tells wether the pool is paused or not
+     */
+    function paused() public view returns (bool) {
+        bool _swapBool = lbp.getSwapEnabled();
+        _swapBool = _swapBool ? false : true; // getSwapEnabled() returns opposite bool
+        return _swapBool;
     }
 }
