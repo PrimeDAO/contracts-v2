@@ -196,6 +196,7 @@ describe("SeedFactory", () => {
       });
       it("it creates new seed contract", async () => {
         requiredSeedAmount = new BN(hardCap).div(new BN(price)).mul(pct_base);
+
         await expect(
           seedFactory.deploySeed(
             dao.address,
