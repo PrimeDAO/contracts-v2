@@ -196,7 +196,6 @@ describe("SeedFactory", () => {
       });
       it("it creates new seed contract", async () => {
         requiredSeedAmount = new BN(hardCap).div(new BN(price)).mul(pct_base);
-
         await expect(
           seedFactory.deploySeed(
             dao.address,
@@ -214,21 +213,31 @@ describe("SeedFactory", () => {
         ).to.emit(seedFactory, "SeedCreated");
       });
       it("it creates new seed contract with whitelists", async () => {
-        await expect(
-          seedFactory.deploySeed(
-            dao.address,
-            admin.address,
-            [seedToken.address, fundingToken.address],
-            [setup.roles.root.address, setup.roles.prime.address],
-            [softCap, hardCap],
-            price,
-            [startTime.toNumber(),endTime.toNumber()],
-            [vestingDuration.toNumber(), vestingCliff.toNumber()],
-            isWhitelisted,
-            fee,
-            metadata
-          )
-        ).to.emit(seedFactory, "SeedCreated");
+        isWhitelisted = true;
+        const transaction = await seedFactory.deploySeed(
+          dao.address,
+          admin.address,
+          [seedToken.address, fundingToken.address],
+          [setup.roles.root.address, setup.roles.prime.address],
+          [softCap, hardCap],
+          price,
+          [startTime.toNumber(),endTime.toNumber()],
+          [vestingDuration.toNumber(), vestingCliff.toNumber()],
+          isWhitelisted,
+          fee,
+          metadata
+        );
+        const receipt = await transaction.wait();
+        const deployedSeed = receipt.events.find(
+          event => event.event === "SeedCreated"
+        ).args[0];;
+        const seed = await Seed.attach(deployedSeed);
+        expect(
+          await seed.whitelisted(setup.roles.root.address)
+        ).to.equal(true);
+        expect(
+          await seed.whitelisted(setup.roles.prime.address)
+        ).to.equal(true);
       });
     });
     context("» setMasterCopy", () => {
