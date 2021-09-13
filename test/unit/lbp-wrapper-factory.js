@@ -37,7 +37,7 @@ function sortTokens(tokens) {
 }
 
 describe(">> Contract: LBPWrapperFactory", () => {
-  let setup, swapsEnabled;
+  let setup, swapsEnabled, projectFee, projectFeeBeneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newOwner, newLBPFactory;
 
   const startTime = Date.now();
@@ -63,8 +63,15 @@ describe(">> Contract: LBPWrapperFactory", () => {
       setup = await deploy();
 
       swapsEnabled = true;
+      projectFee = 10;
 
-      ({ root: owner, prime: admin, beneficiary: newOwner } = setup.roles);
+      ({
+        root: owner,
+        prime: admin,
+        beneficiary: newOwner,
+        buyer1: projectFeeBeneficiary,
+        buyer2: newProjcetFeeBeneficiary,
+      } = setup.roles);
       sortedTokens = sortTokens(setup.tokenList);
       // Need to solve this in tokens.js helper file for > 2 tokens.
       tokenAddresses = sortedTokens.map((token) => token.address);
@@ -74,6 +81,8 @@ describe(">> Contract: LBPWrapperFactory", () => {
         init.getContractInstance("LBPWrapperFactory", owner, [
           setup.lbpFactory.address,
           TO_LOW_SWAP_FEE_PERCENTAGE,
+          projectFee,
+          projectFeeBeneficiary.address,
         ])
       ).to.be.revertedWith(
         "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
@@ -82,19 +91,45 @@ describe(">> Contract: LBPWrapperFactory", () => {
         init.getContractInstance("LBPWrapperFactory", owner, [
           setup.lbpFactory.address,
           TO_HIGH_SWAP_FEE_PERCENTAGE,
+          projectFee,
+          projectFeeBeneficiary.address,
         ])
       ).to.be.revertedWith(
         "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+      );
+    });
+    it("$ revert on deploy LBPWrapperFactory with invalid projectFeeBeneficiary", async () => {
+      await expect(
+        init.getContractInstance("LBPWrapperFactory", owner, [
+          setup.lbpFactory.address,
+          SWAP_FEE_PERCENTAGE,
+          projectFee,
+          ZERO_ADDRESS,
+        ])
+      ).to.be.revertedWith(
+        "LBPWrapperFactory: projectFeeBeneficiary cannot be zero"
       );
     });
     it("$ deploy LBPWrapperFactory", async () => {
       setup.LbpWrapperFactory = await init.getContractInstance(
         "LBPWrapperFactory",
         owner,
-        [setup.lbpFactory.address, SWAP_FEE_PERCENTAGE]
+        [
+          setup.lbpFactory.address,
+          SWAP_FEE_PERCENTAGE,
+          projectFee,
+          projectFeeBeneficiary.address,
+        ]
       );
       expect(await setup.LbpWrapperFactory.LBPFactory()).to.equal(
         setup.lbpFactory.address
+      );
+      expect(await setup.LbpWrapperFactory.projectFee()).to.equal(10);
+      expect(await setup.LbpWrapperFactory.swapFeePercentage()).to.equal(
+        SWAP_FEE_PERCENTAGE
+      );
+      expect(await setup.LbpWrapperFactory.projectFeeBeneficiary()).to.equal(
+        projectFeeBeneficiary.address
       );
     });
   });
@@ -174,6 +209,49 @@ describe(">> Contract: LBPWrapperFactory", () => {
       expect(await setup.LbpWrapperFactory.swapFeePercentage()).to.equal(
         SWAP_FEE_PERCENTAGE_CHANGED
       );
+    });
+  });
+  context("» set new projectFeeBeneficiary", () => {
+    it("$ reverts on not called by owner", async () => {
+      await expect(
+        setup.LbpWrapperFactory.connect(admin).setProjectFeeBeneficiary(
+          newProjcetFeeBeneficiary.address
+        )
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+    it("$ revert on invalid beneficiary address", async () => {
+      await expect(
+        setup.LbpWrapperFactory.setProjectFeeBeneficiary(ZERO_ADDRESS)
+      ).to.be.revertedWith(
+        "LBPWrapperFactory: projectFeeBeneficiary cannot be zero"
+      );
+      await expect(
+        setup.LbpWrapperFactory.setProjectFeeBeneficiary(
+          setup.LbpWrapperFactory.address
+        )
+      ).to.be.revertedWith(
+        "LBPWrapperFactory: projectFeeBeneficiary cannot be tje same as LBPFactory"
+      );
+    });
+    it("$ succeeds", async () => {
+      await setup.LbpWrapperFactory.setProjectFeeBeneficiary(
+        newProjcetFeeBeneficiary.address
+      );
+      expect(await setup.LbpWrapperFactory.projectFeeBeneficiary()).to.equal(
+        newProjcetFeeBeneficiary.address
+      );
+    });
+  });
+  context("» set new projectFee", () => {
+    projectFee = 0;
+    it("$ reverts on not called by owner", async () => {
+      await expect(
+        setup.LbpWrapperFactory.connect(admin).setProjectFee(projectFee)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+    it("$ succeeds", async () => {
+      await setup.LbpWrapperFactory.setProjectFee(projectFee);
+      expect(await setup.LbpWrapperFactory.projectFee()).to.equal(projectFee);
     });
   });
   context("» set new LBPFactory", () => {

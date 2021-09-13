@@ -19,8 +19,11 @@ import "../utils/interface/ILBP.sol";
 
 contract LBPWrapper {
     address public admin;
+    address public projectFeeBeneficiary;
+
     bool public poolFunded;
     bool public initialized;
+    uint256 public projectFee;
 
     ILBP public lbp;
 
@@ -30,8 +33,8 @@ contract LBPWrapper {
     }
 
     /**
-     * @dev              transfer ownership to new owner
-     * @param _newAdmin  new owner address
+     * @dev                             transfer ownership to new owner
+     * @param _newAdmin                 new owner address
      */
     function transferAdminRights(address _newAdmin) external onlyAdmin {
         require(
@@ -42,15 +45,17 @@ contract LBPWrapper {
     }
 
     /**
-     * @dev                        initialize lbp wrapper contract
-     * @param _LBPFactory          LBP factory address
-     * @param _name                LBP name
-     * @param _symbol              LBP symbol
-     * @param _tokens              array of tokens sorted for the LBP
-     * @param _weights             array of start weights for respective tokens
-     * @param _startTime           start time
-     * @param _endTime             end time
-     * @param _endWeights          array of end weights for respective tokens
+     * @dev                             initialize lbp wrapper contract
+     * @param _LBPFactory               LBP factory address
+     * @param _name                     LBP name
+     * @param _symbol                   LBP symbol
+     * @param _tokens                   array of tokens sorted for the LBP
+     * @param _weights                  array of start weights for respective tokens
+     * @param _startTime                start time
+     * @param _endTime                  end time
+     * @param _endWeights               array of end weights for respective tokens
+     * @param _projectFee               fee for providing the LBP service
+     * @param _projectFeeBeneficiary    address who is the receiver of the _projectFee
      */
     function initializeLBP(
         address _LBPFactory,
@@ -61,12 +66,16 @@ contract LBPWrapper {
         uint256 _startTime,
         uint256 _endTime,
         uint256[] memory _endWeights,
-        uint256 _swapFeePercentage
+        uint256 _swapFeePercentage,
+        uint256 _projectFee,
+        address _projectFeeBeneficiary
     ) external returns (address) {
         require(!initialized, "LBPWrapper: already initialized");
 
         initialized = true;
         admin = msg.sender;
+        projectFee = _projectFee;
+        projectFeeBeneficiary = _projectFeeBeneficiary;
 
         lbp = ILBP(
             ILBPFactory(_LBPFactory).create(
@@ -86,12 +95,12 @@ contract LBPWrapper {
     }
 
     /**
-     * @dev                          approve tokens for the vault and join pool to provide liquidity
-     * @param _tokens                array of tokens sorted for the LBP
-     * @param _amounts               amount of tokens to add to the pool to provide liquidity
-     * @param _receiver              address who will receive the Balancer Pool Tokens (BPT)
-     * @param _fromInternalBalance   fund tokens from the internal user balance
-     * @param _userData              userData specifies the type of join
+     * @dev                             approve tokens for the vault and join pool to provide liquidity
+     * @param _tokens                   array of tokens sorted for the LBP
+     * @param _amounts                  amount of tokens to add to the pool to provide liquidity
+     * @param _receiver                 address who will receive the Balancer Pool Tokens (BPT)
+     * @param _fromInternalBalance      fund tokens from the internal user balance
+     * @param _userData                 userData specifies the type of join
      */
     function fundPool(
         IERC20[] memory _tokens,
@@ -124,22 +133,22 @@ contract LBPWrapper {
     }
 
     /**
-     * @dev                     can pause/unpause trading
-     * @param _isPaused         enable/disable swapping
+     * @dev                             can pause/unpause trading
+     * @param _isPaused                 enable/disable swapping
      */
     function setPaused(bool _isPaused) public onlyAdmin {
         lbp.setSwapEnabled(!_isPaused);
     }
 
     /**
-     * @dev                      checks if swap is enabled or not
+     * @dev                             checks if swap is enabled or not
      */
     function paused() public view returns (bool) {
         return !lbp.getSwapEnabled();
     }
 
     /**
-     * @dev                     gets the swapFeePercentage from the pool
+     * @dev                             gets the swapFeePercentage from the pool
      */
     function getSwapFeePercentage() public view returns (uint256) {
         return lbp.getSwapFeePercentage();

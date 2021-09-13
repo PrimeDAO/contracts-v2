@@ -21,8 +21,10 @@ import "./LBPWrapper.sol";
 contract LBPWrapperFactory is CloneFactory, Ownable {
     address public wrapperMasterCopy;
     address public LBPFactory;
+    address public projectFeeBeneficiary;
 
     uint256 public swapFeePercentage;
+    uint256 public projectFee;
 
     event LBPDeployedUsingWrapper(
         address indexed lbp,
@@ -31,21 +33,32 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
     );
 
     /**
-     * @dev                       constructor
-     * @param _LBPFactory         address of lbp factory
+     * @dev                             constructor
+     * @param _LBPFactory               address of lbp factory
      */
-    constructor(address _LBPFactory, uint256 _swapFeePercentage) {
+    constructor(
+        address _LBPFactory,
+        uint256 _swapFeePercentage,
+        uint256 _projectFee,
+        address _projectFeeBeneficiary
+    ) {
         require(
             _swapFeePercentage >= 1e12 && _swapFeePercentage <= 1e17,
             "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
         );
+        require(
+            _projectFeeBeneficiary != address(0),
+            "LBPWrapperFactory: projectFeeBeneficiary cannot be zero"
+        );
         LBPFactory = _LBPFactory;
         swapFeePercentage = _swapFeePercentage;
+        projectFee = _projectFee;
+        projectFeeBeneficiary = _projectFeeBeneficiary;
     }
 
     /**
-     * @dev                         set new master copy of LBP wrapper
-     * @param _masterCopy           address of master copy
+     * @dev                             set new master copy of LBP wrapper
+     * @param _masterCopy               address of master copy
      */
     function setMasterCopy(address _masterCopy) external onlyOwner {
         require(
@@ -57,6 +70,33 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
             "LBPWrapperFactory: mastercopy cannot be the same as LBPWrapperFactory"
         );
         wrapperMasterCopy = _masterCopy;
+    }
+
+    /**
+     * @dev                             sets the fee for providing the LBP interface
+     * @param _projectFee               fee for providing the LBP service
+     */
+    function setProjectFee(uint256 _projectFee) external onlyOwner {
+        projectFee = _projectFee;
+    }
+
+    /**
+     * @dev                             sets beneficiary address for the _projectFee
+     * @param _projectFeeBeneficiary    address who is the receiver of the projectFee
+     */
+    function setProjectFeeBeneficiary(address _projectFeeBeneficiary)
+        external
+        onlyOwner
+    {
+        require(
+            _projectFeeBeneficiary != address(0),
+            "LBPWrapperFactory: projectFeeBeneficiary cannot be zero"
+        );
+        require(
+            _projectFeeBeneficiary != address(this),
+            "LBPWrapperFactory: projectFeeBeneficiary cannot be tje same as LBPFactory"
+        );
+        projectFeeBeneficiary = _projectFeeBeneficiary;
     }
 
     /**
@@ -115,6 +155,7 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
             wrapperMasterCopy != address(0),
             "LBPWrapperFactory: LBPWrapper mastercopy is not set"
         );
+
         address wrapper = createClone(wrapperMasterCopy);
 
         address lbp = LBPWrapper(wrapper).initializeLBP(
@@ -126,7 +167,9 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
             _startTime,
             _endTime,
             _endWeights,
-            swapFeePercentage
+            swapFeePercentage,
+            projectFee,
+            projectFeeBeneficiary
         );
 
         LBPWrapper(wrapper).transferAdminRights(_admin);

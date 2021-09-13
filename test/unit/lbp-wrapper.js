@@ -49,9 +49,10 @@ describe("Contract: LBPWrapper", async () => {
   const NEW_SWAP_FEE_PERCENTAGE = parseEther("0.02").toString();
   const SWAP_FEE_PERCENTAGE = 1e12;
   const JOIN_KIND_INIT = 0;
+  const PROJECT_FEE = 0;
 
   const fromInternalBalance = false;
-  let userData, poolId;
+  let userData, poolId, admin, owner, projectFeeBeneficiary;
 
   context(">> deploy LBP Wrapper", async () => {
     before("!! setup", async () => {
@@ -60,6 +61,11 @@ describe("Contract: LBPWrapper", async () => {
 
       sortedTokens = sortTokens(setup.tokenList);
       tokenAddresses = sortedTokens.map((token) => token.address);
+      ({
+        root: owner,
+        prime: admin,
+        beneficiary: projectFeeBeneficiary,
+      } = setup.roles);
     });
     it("$ deploy LBPWrapper", async () => {
       setup.lbpWrapper = await setup.LBPWrapper.deploy();
@@ -68,7 +74,7 @@ describe("Contract: LBPWrapper", async () => {
   context(">> deploy LBP using Wrapper", async () => {
     it("$ success", async () => {
       await setup.lbpWrapper
-        .connect(setup.roles.root)
+        .connect(owner)
         .initializeLBP(
           setup.lbpFactory.address,
           NAME,
@@ -78,18 +84,24 @@ describe("Contract: LBPWrapper", async () => {
           startTime,
           endTime,
           END_WEIGHTS,
-          SWAP_FEE_PERCENTAGE
+          SWAP_FEE_PERCENTAGE,
+          PROJECT_FEE,
+          projectFeeBeneficiary.address
         );
       setup.lbp = setup.Lbp.attach(await setup.lbpWrapper.lbp());
       poolId = await setup.lbp.getPoolId();
 
       expect(await setup.lbpWrapper.lbp()).not.equal(constants.ZERO_ADDRESS);
+      expect(await setup.lbpWrapper.projectFeeBeneficiary()).to.equal(
+        projectFeeBeneficiary.address
+      );
+      expect(await setup.lbpWrapper.projectFee()).to.equal(PROJECT_FEE);
     });
 
     it("$ reverts when invoking it again", async () => {
       await expect(
         setup.lbpWrapper
-          .connect(setup.roles.prime)
+          .connect(admin)
           .initializeLBP(
             setup.lbpFactory.address,
             NAME,
@@ -99,7 +111,9 @@ describe("Contract: LBPWrapper", async () => {
             startTime,
             endTime,
             END_WEIGHTS,
-            SWAP_FEE_PERCENTAGE
+            SWAP_FEE_PERCENTAGE,
+            PROJECT_FEE,
+            projectFeeBeneficiary.address
           )
       ).to.be.revertedWith("LBPWrapper: already initialized");
     });
@@ -108,32 +122,28 @@ describe("Contract: LBPWrapper", async () => {
     it("$ reverts when new owner address is zero", async () => {
       await expect(
         setup.lbpWrapper
-          .connect(setup.roles.root)
+          .connect(owner)
           .transferAdminRights(constants.ZERO_ADDRESS)
       ).to.be.revertedWith("LBPWrapper: new owner cannot be zero");
     });
     it("$ success", async () => {
-      await setup.lbpWrapper
-        .connect(setup.roles.root)
-        .transferAdminRights(setup.roles.prime.address);
-      expect(await setup.lbpWrapper.admin()).to.equal(
-        setup.roles.prime.address
-      );
+      await setup.lbpWrapper.connect(owner).transferAdminRights(admin.address);
+      expect(await setup.lbpWrapper.admin()).to.equal(admin.address);
     });
   });
   context(">> add liquidity to the pool", async () => {
     beforeEach("!! transfer balances", async () => {
       await setup.tokenList[0]
-        .connect(setup.roles.root)
-        .transfer(setup.roles.prime.address, WEIGHTS[0]);
+        .connect(owner)
+        .transfer(admin.address, WEIGHTS[0]);
       await setup.tokenList[1]
-        .connect(setup.roles.root)
-        .transfer(setup.roles.prime.address, WEIGHTS[1]);
+        .connect(owner)
+        .transfer(admin.address, WEIGHTS[1]);
       await setup.tokenList[0]
-        .connect(setup.roles.prime)
+        .connect(admin)
         .transfer(setup.lbpWrapper.address, WEIGHTS[0]);
       await setup.tokenList[1]
-        .connect(setup.roles.prime)
+        .connect(admin)
         .transfer(setup.lbpWrapper.address, WEIGHTS[1]);
       userData = ethers.utils.defaultAbiCoder.encode(
         ["uint256", "uint256[]"],
@@ -143,11 +153,11 @@ describe("Contract: LBPWrapper", async () => {
     it("$ reverts when not called by owner", async () => {
       await expect(
         setup.lbpWrapper
-          .connect(setup.roles.root)
+          .connect(owner)
           .fundPool(
             tokenAddresses,
             WEIGHTS,
-            setup.roles.root.address,
+            owner.address,
             fromInternalBalance,
             userData
           )
@@ -159,16 +169,16 @@ describe("Contract: LBPWrapper", async () => {
       const { abi } = VaultArtifact;
       const vaultInterface = new ethers.utils.Interface(abi);
 
-      expect(
-        (await setup.lbp.balanceOf(setup.roles.root.address)).toString()
-      ).to.equal("0");
+      expect((await setup.lbp.balanceOf(owner.address)).toString()).to.equal(
+        "0"
+      );
 
       const tx = await setup.lbpWrapper
-        .connect(setup.roles.prime)
+        .connect(admin)
         .fundPool(
           tokenAddresses,
           WEIGHTS,
-          setup.roles.root.address,
+          owner.address,
           fromInternalBalance,
           userData
         );
@@ -185,19 +195,19 @@ describe("Contract: LBPWrapper", async () => {
       expect(decodedVaultEvent.args[1]).to.equal(setup.lbpWrapper.address);
       expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
       expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
-      expect(
-        (await setup.lbp.balanceOf(setup.roles.root.address)).toString()
-      ).not.equal("0");
+      expect((await setup.lbp.balanceOf(owner.address)).toString()).not.equal(
+        "0"
+      );
       expect(await setup.lbpWrapper.paused()).to.equal(false);
     });
     it("$ revert when adding liquidity more then once", async () => {
       await expect(
         setup.lbpWrapper
-          .connect(setup.roles.prime)
+          .connect(admin)
           .fundPool(
             tokenAddresses,
             WEIGHTS,
-            setup.roles.root.address,
+            owner.address,
             fromInternalBalance,
             userData
           )
@@ -207,11 +217,11 @@ describe("Contract: LBPWrapper", async () => {
   context(">> pause the LBP", async () => {
     it("$ revert on being called by not the owner", async () => {
       await expect(
-        setup.lbpWrapper.connect(setup.roles.root).setPaused(true)
+        setup.lbpWrapper.connect(owner).setPaused(true)
       ).to.be.revertedWith("LBPWrapper: admin owner function");
     });
     it("$ pauses the LBP", async () => {
-      await setup.lbpWrapper.connect(setup.roles.prime).setPaused(true);
+      await setup.lbpWrapper.connect(admin).setPaused(true);
       expect(await setup.lbpWrapper.paused()).to.equal(true);
     });
   });
