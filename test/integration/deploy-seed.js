@@ -54,7 +54,7 @@ describe("Contract: Signer", async () => {
   let setup;
   let nonce = 0;
   let Signer_Factory;
-  const emptyWhitelists = [];
+  const emptyWhitelist = [];
   before("!! setup", async () => {
     setup = await deploy();
     Signer_Factory = await ethers.getContractFactory(
@@ -134,7 +134,7 @@ describe("Contract: Signer", async () => {
           BENEFICIARY,
           ADMIN,
           [PRIME, WETH],
-          emptyWhitelists,
+          emptyWhitelist,
           [softCap, hardCap],
           price,
           [startTime, endTime],
@@ -171,7 +171,7 @@ describe("Contract: Signer", async () => {
           BENEFICIARY,
           ADMIN,
           [PRIME, WETH],
-          emptyWhitelists,
+          emptyWhitelist,
           [softCap, hardCap],
           price,
           [startTime, endTime],
@@ -231,7 +231,7 @@ describe("Contract: Signer", async () => {
           BENEFICIARY,
           ADMIN,
           [PRIME, WETH],
-          emptyWhitelists,
+          emptyWhitelist,
           [softCap, hardCap],
           price,
           [startTime, endTime],
@@ -309,7 +309,7 @@ describe("Contract: Signer", async () => {
         BENEFICIARY,
         ADMIN,
         [PRIME, WETH],
-        emptyWhitelists,
+        emptyWhitelist,
         [softCap, hardCap],
         price,
         [startTime, endTime],
@@ -322,7 +322,7 @@ describe("Contract: Signer", async () => {
         BENEFICIARY,
         ADMIN,
         [PRIME, WETH],
-        emptyWhitelists,
+        emptyWhitelist,
         [softCap, hardCap],
         price,
         [startTime, endTime],
