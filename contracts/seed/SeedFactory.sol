@@ -49,7 +49,7 @@ contract SeedFactory is CloneFactory, Ownable {
       * @param _tokens                      Array containing two params:
                                                 - The address of the seed token being distributed.
       *                                         - The address of the funding token being exchanged for seed token.
-      * @param _whitelists                  Array of addresses to whitelist addresses in batch
+      * @param _whitelist                   Array of addresses to whitelist addresses in batch
       * @param _softHardThresholds          Array containing two params:
                                                 - the minimum funding token collection threshold in wei denomination.
                                                 - the highest possible funding token amount to be raised in wei denomination.
@@ -66,7 +66,7 @@ contract SeedFactory is CloneFactory, Ownable {
         address _beneficiary,
         address _admin,
         address[] memory _tokens,
-        address[] memory _whitelists,
+        address[] memory _whitelist,
         uint256[] memory _softHardThresholds,
         uint256 _price,
         uint256[] memory _startTimeEndTime,
@@ -93,7 +93,7 @@ contract SeedFactory is CloneFactory, Ownable {
 
         {
             if (_permissionedSeed) {
-                Seed(_newSeed).whitelistBatch(_whitelists);
+                Seed(_newSeed).whitelistBatch(_whitelist);
             }
         }
 
