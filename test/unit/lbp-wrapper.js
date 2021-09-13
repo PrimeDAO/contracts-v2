@@ -153,6 +153,7 @@ describe("Contract: LBPWrapper", async () => {
           )
       ).to.be.revertedWith("LBPWrapper: admin owner function");
     });
+    // STILL HAVE TO TEST WITH INTERNAL BALANS
     it("$ add liquidity to the pool", async () => {
       const eventName = "PoolBalanceChanged";
       const { abi } = VaultArtifact;

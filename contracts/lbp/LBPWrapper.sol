@@ -103,8 +103,11 @@ contract LBPWrapper {
         require(!poolFunded, "LBPWrapper: pool has already been funded");
 
         IVault vault = lbp.getVault();
-        for (uint8 i; i < _tokens.length; i++) {
-            _tokens[i].approve(address(vault), _amounts[i]);
+
+        if (!_fromInternalBalance) {
+            for (uint8 i; i < _tokens.length; i++) {
+                _tokens[i].approve(address(vault), _amounts[i]);
+            }
         }
 
         IVault.JoinPoolRequest memory request = IVault.JoinPoolRequest({
