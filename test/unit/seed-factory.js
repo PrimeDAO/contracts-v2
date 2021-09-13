@@ -232,14 +232,23 @@ describe("SeedFactory", () => {
         const deployedSeed = receipt.events.find(
           event => event.event === "SeedCreated"
         ).args[0];;
-        const seed = await Seed.attach(deployedSeed);
+        newSeed = await Seed.attach(deployedSeed);
         expect(
-          await seed.whitelisted(setup.roles.root.address)
+          await newSeed.whitelisted(setup.roles.root.address)
         ).to.equal(true);
         expect(
-          await seed.whitelisted(setup.roles.prime.address)
+          await newSeed.whitelisted(setup.roles.prime.address)
         ).to.equal(true);
       });
+      it("cannot whitelist more than 200 buyers in one transaction", async () => {
+        const whitelist102 = [];
+        for (let j = 0; j < 101; j++) {
+          const signer = ethers.Wallet.createRandom();
+          whitelist102.push(signer.address);
+        }
+        await expect(newSeed.whitelistBatch(whitelist102)).to.be
+          .revertedWith(("Seed: maximum number of buyers that can be whitelisted in this transaction was exceeded"));
+      })
     });
     context("» setMasterCopy", () => {
       before("!! deploy new seed", async () => {

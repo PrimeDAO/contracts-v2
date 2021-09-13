@@ -406,6 +406,10 @@ contract Seed {
                 "Seed: seed is not whitelisted"
             );
         }
+        require(
+            _buyers.length <= 100,
+            "Seed: maximum number of buyers that can be whitelisted in this transaction was exceeded"
+        );
         require(!closed, "Seed: should not be closed");
         for (uint256 i = 0; i < _buyers.length; i++) {
             whitelisted[_buyers[i]] = true;
