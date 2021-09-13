@@ -18,27 +18,27 @@ import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
 
 contract LBPWrapper {
-    address public owner;
+    address public admin;
     bool public poolFunded;
     bool public initialized;
 
     ILBP public lbp;
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "LBPWrapper: only owner function");
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "LBPWrapper: admin owner function");
         _;
     }
 
     /**
      * @dev              transfer ownership to new owner
-     * @param _newOwner  new owner address
+     * @param _newAdmin  new owner address
      */
-    function transferOwnership(address _newOwner) external onlyOwner {
+    function transferAdminRights(address _newAdmin) external onlyAdmin {
         require(
-            _newOwner != address(0),
+            _newAdmin != address(0),
             "LBPWrapper: new owner cannot be zero"
         );
-        owner = _newOwner;
+        admin = _newAdmin;
     }
 
     /**
@@ -66,7 +66,7 @@ contract LBPWrapper {
         require(!initialized, "LBPWrapper: already initialized");
 
         initialized = true;
-        owner = msg.sender;
+        admin = msg.sender;
 
         lbp = ILBP(
             ILBPFactory(_LBPFactory).create(
@@ -99,7 +99,7 @@ contract LBPWrapper {
         address _receiver,
         bool _fromInternalBalance,
         bytes memory _userData
-    ) public onlyOwner {
+    ) public onlyAdmin {
         require(!poolFunded, "LBPWrapper: pool has already been funded");
 
         IVault vault = lbp.getVault();
@@ -124,7 +124,7 @@ contract LBPWrapper {
      * @dev                     can pause/unpause trading
      * @param _isPaused         enable/disable swapping
      */
-    function setPaused(bool _isPaused) public onlyOwner {
+    function setPaused(bool _isPaused) public onlyAdmin {
         lbp.setSwapEnabled(!_isPaused);
     }
 

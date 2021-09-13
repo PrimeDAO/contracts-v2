@@ -109,14 +109,14 @@ describe("Contract: LBPWrapper", async () => {
       await expect(
         setup.lbpWrapper
           .connect(setup.roles.root)
-          .transferOwnership(constants.ZERO_ADDRESS)
+          .transferAdminRights(constants.ZERO_ADDRESS)
       ).to.be.revertedWith("LBPWrapper: new owner cannot be zero");
     });
     it("$ success", async () => {
       await setup.lbpWrapper
         .connect(setup.roles.root)
-        .transferOwnership(setup.roles.prime.address);
-      expect(await setup.lbpWrapper.owner()).to.equal(
+        .transferAdminRights(setup.roles.prime.address);
+      expect(await setup.lbpWrapper.admin()).to.equal(
         setup.roles.prime.address
       );
     });
@@ -151,7 +151,7 @@ describe("Contract: LBPWrapper", async () => {
             fromInternalBalance,
             userData
           )
-      ).to.be.revertedWith("LBPWrapper: only owner function");
+      ).to.be.revertedWith("LBPWrapper: admin owner function");
     });
     it("$ add liquidity to the pool", async () => {
       const eventName = "PoolBalanceChanged";
@@ -207,7 +207,7 @@ describe("Contract: LBPWrapper", async () => {
     it("$ revert on being called by not the owner", async () => {
       await expect(
         setup.lbpWrapper.connect(setup.roles.root).setPaused(true)
-      ).to.be.revertedWith("LBPWrapper: only owner function");
+      ).to.be.revertedWith("LBPWrapper: admin owner function");
     });
     it("$ pauses the LBP", async () => {
       await setup.lbpWrapper.connect(setup.roles.prime).setPaused(true);

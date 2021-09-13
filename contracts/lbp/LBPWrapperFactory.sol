@@ -129,7 +129,7 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
             swapFeePercentage
         );
 
-        LBPWrapper(wrapper).transferOwnership(_admin);
+        LBPWrapper(wrapper).transferAdminRights(_admin);
 
         emit LBPDeployedUsingWrapper(lbp, wrapper, _admin);
     }
