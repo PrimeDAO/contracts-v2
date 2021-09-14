@@ -1604,25 +1604,6 @@
           "inputs": [
             {
               "internalType": "address",
-              "name": "_buyer",
-              "type": "address"
-            }
-          ],
-          "name": "checkWhitelisted",
-          "outputs": [
-            {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "address",
               "name": "_funder",
               "type": "address"
             },
@@ -1681,9 +1662,9 @@
           "name": "fee",
           "outputs": [
             {
-              "internalType": "uint8",
+              "internalType": "uint256",
               "name": "",
-              "type": "uint8"
+              "type": "uint256"
             }
           ],
           "stateMutability": "view",
@@ -1705,6 +1686,44 @@
         {
           "inputs": [],
           "name": "feeClaimed",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_funder",
+              "type": "address"
+            }
+          ],
+          "name": "feeClaimedForFunder",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_funder",
+              "type": "address"
+            }
+          ],
+          "name": "feeForFunder",
           "outputs": [
             {
               "internalType": "uint256",
@@ -1740,27 +1759,12 @@
           "outputs": [
             {
               "internalType": "uint256",
-              "name": "seedAmount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
               "name": "totalClaimed",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
               "name": "fundingAmount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "fee",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "feeClaimed",
               "type": "uint256"
             }
           ],
@@ -1872,9 +1876,9 @@
               "type": "bool"
             },
             {
-              "internalType": "uint8",
+              "internalType": "uint256",
               "name": "_fee",
-              "type": "uint8"
+              "type": "uint256"
             }
           ],
           "name": "initialize",
@@ -2004,6 +2008,38 @@
             }
           ],
           "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_refundReceiver",
+              "type": "address"
+            }
+          ],
+          "name": "retrieveSeedTokens",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "_funder",
+              "type": "address"
+            }
+          ],
+          "name": "seedAmountForFunder",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
           "type": "function"
         },
         {
