@@ -10,7 +10,8 @@
     "format": "npx prettier --write \"**/*.js\" \"**/*.sol\"",
     "lint": "eslint . --ext .js && solhint 'contracts/**/*.sol'",
     "test": "hardhat test",
-    "coverage": "hardhat coverage"
+    "coverage": "hardhat coverage",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
