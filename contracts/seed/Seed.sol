@@ -31,7 +31,7 @@ contract Seed {
     uint256 public seedAmountRequired; // Amount of seed required for distribution
     uint256 public feeAmountRequired; // Amount of seed required for fee
     uint public price; // price of a SeedToken, expressed in fundingTokens, with precision of 10**18
-    uint256 public startTime;
+    uint public startTime;
     uint256 public endTime; // set by project admin, this is the last resort endTime to be applied when
     //     maximumReached has not been reached by then
     bool public permissionedSeed;
