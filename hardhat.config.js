@@ -4,7 +4,6 @@ require("@nomiclabs/hardhat-waffle");
 require("hardhat-deploy");
 require("hardhat-deploy-ethers");
 require("@nomiclabs/hardhat-web3");
-require("@nomiclabs/hardhat-solhint");
 require("solidity-coverage");
 require("@nomiclabs/hardhat-etherscan");
 // require("hardhat-gas-reporter");
