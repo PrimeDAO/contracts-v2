@@ -35,7 +35,7 @@ function sortTokens(tokens) {
   return tokens;
 }
 
-describe.only("Contract: LBPWrapper", async () => {
+describe("Contract: LBPWrapper", async () => {
   let setup;
   let swapsEnabled;
   let tokenAddresses;
@@ -214,7 +214,6 @@ describe.only("Contract: LBPWrapper", async () => {
       expect((await setup.lbp.balanceOf(owner.address)).toString()).not.equal(
         "0"
       );
-      expect(await setup.lbpWrapper.paused()).to.equal(false);
     });
     it("$ revert when adding liquidity more then once", async () => {
       await expect(
@@ -233,19 +232,12 @@ describe.only("Contract: LBPWrapper", async () => {
   context(">> pause the LBP", async () => {
     it("$ revert on being called by not the owner", async () => {
       await expect(
-        setup.lbpWrapper.connect(owner).setPaused(true)
+        setup.lbpWrapper.connect(owner).setSwapEnabled(false)
       ).to.be.revertedWith("LBPWrapper: admin owner function");
     });
     it("$ pauses the LBP", async () => {
-      await setup.lbpWrapper.connect(admin).setPaused(true);
-      expect(await setup.lbpWrapper.paused()).to.equal(true);
-    });
-  });
-  context(">> get swapFeePercentage", async () => {
-    it("$ returns swapFeePercentag", async () => {
-      expect(await setup.lbpWrapper.getSwapFeePercentage()).to.equal(
-        SWAP_FEE_PERCENTAGE
-      );
+      await setup.lbpWrapper.connect(admin).setSwapEnabled(false);
+      expect(await setup.lbp.getSwapEnabled()).to.equal(false);
     });
   });
 });

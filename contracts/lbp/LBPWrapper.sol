@@ -88,7 +88,7 @@ contract LBPWrapper {
                 _weights,
                 _swapFeePercentage,
                 address(this),
-                false // swapEnabledOnStart is set to false at pool creation
+                true // swapEnabledOnStart is set to true at pool creation
             )
         );
 
@@ -147,21 +147,13 @@ contract LBPWrapper {
         vault.joinPool(lbp.getPoolId(), address(this), _receiver, request);
 
         poolFunded = true;
-        setPaused(false);
     }
 
     /**
      * @dev                             can pause/unpause trading
-     * @param _isPaused                 enable/disable swapping
+     * @param _swapEnabled              enable/disable swapping
      */
-    function setPaused(bool _isPaused) public onlyAdmin {
-        lbp.setSwapEnabled(!_isPaused);
-    }
-
-    /**
-     * @dev                             gets the swapFeePercentage from the pool
-     */
-    function getSwapFeePercentage() public view returns (uint256) {
-        return lbp.getSwapFeePercentage();
+    function setSwapEnabled(bool _swapEnabled) public onlyAdmin {
+        lbp.setSwapEnabled(_swapEnabled);
     }
 }

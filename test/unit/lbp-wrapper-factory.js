@@ -36,7 +36,7 @@ function sortTokens(tokens) {
   return tokens;
 }
 
-describe.only(">> Contract: LBPWrapperFactory", () => {
+describe(">> Contract: LBPWrapperFactory", () => {
   let setup, swapsEnabled, primeDaoFeePercentage, primeDaoAddress;
   let tokenAddresses, admin, owner, sortedTokens, newOwner, newLBPFactory;
 
