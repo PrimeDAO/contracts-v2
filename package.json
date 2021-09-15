@@ -12,11 +12,6 @@
     "test": "hardhat test",
     "coverage": "hardhat coverage"
   },
-  "husky": {
-    "hooks": {
-        "pre-push": "npm run format"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/PrimeDAO/contracts-v2.git"
