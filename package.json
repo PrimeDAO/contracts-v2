@@ -12,6 +12,11 @@
     "test": "hardhat test",
     "coverage": "hardhat coverage"
   },
+  "husky": {
+    "hooks": {
+        "pre-push": "npm run format"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/PrimeDAO/contracts-v2.git"
@@ -39,6 +44,7 @@
     "hardhat-deploy": "^0.7.0-beta.46",
     "hardhat-deploy-ethers": "^0.3.0-beta.10",
     "hardhat-gas-reporter": "^1.0.4",
+    "husky": "^7.0.2",
     "openzeppelin-contracts-sol5": "npm:@openzeppelin/contracts@2.5.1",
     "openzeppelin-contracts-sol8": "npm:@openzeppelin/contracts@4.2.0",
     "solhint": "^3.3.6",
