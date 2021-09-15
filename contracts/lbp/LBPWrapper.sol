@@ -16,14 +16,17 @@ import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
+import "hardhat/console.sol"; // <<<<<<<<<<<<<<< Remove
 
 contract LBPWrapper {
     address public admin;
-    address public projectFeeBeneficiary;
+    address public primeDaoAddress;
 
     bool public poolFunded;
     bool public initialized;
-    uint256 public projectFee;
+    uint256 public primeDaoFeePercentage;
+
+    uint256 private constant HUNDRED_PERCENT = 10e18;
 
     ILBP public lbp;
 
@@ -54,8 +57,8 @@ contract LBPWrapper {
      * @param _startTime                start time
      * @param _endTime                  end time
      * @param _endWeights               array of end weights for respective tokens
-     * @param _projectFee               fee for providing the LBP service
-     * @param _projectFeeBeneficiary    address who is the receiver of the _projectFee
+     * @param _primeDaoFeePercentage    fee percentage for providing the LBP service
+     * @param _primeDaoAddress          address who is the receiver of the _primeDaoFeePercentage
      */
     function initializeLBP(
         address _LBPFactory,
@@ -67,15 +70,15 @@ contract LBPWrapper {
         uint256 _endTime,
         uint256[] memory _endWeights,
         uint256 _swapFeePercentage,
-        uint256 _projectFee,
-        address _projectFeeBeneficiary
+        uint256 _primeDaoFeePercentage,
+        address _primeDaoAddress
     ) external returns (address) {
         require(!initialized, "LBPWrapper: already initialized");
 
         initialized = true;
         admin = msg.sender;
-        projectFee = _projectFee;
-        projectFeeBeneficiary = _projectFeeBeneficiary;
+        primeDaoFeePercentage = _primeDaoFeePercentage;
+        primeDaoAddress = _primeDaoAddress;
 
         lbp = ILBP(
             ILBPFactory(_LBPFactory).create(
@@ -117,6 +120,21 @@ contract LBPWrapper {
             for (uint8 i; i < _tokens.length; i++) {
                 _tokens[i].approve(address(vault), _amounts[i]);
             }
+        } else {
+            // Question - How are we going to sent fee to PrimeDao from the internalBalance?
+
+            // calculate the primeDaoFeeAmount from the amount of project tokens and the primeDaoFeePercentage
+            uint256 feeConvertedForCalculation = HUNDRED_PERCENT +
+                primeDaoFeePercentage;
+            uint256 projectTokenAmount = (_amounts[0] /
+                feeConvertedForCalculation) * HUNDRED_PERCENT;
+            uint256 primeDaoFeeAmount = _amounts[0] - projectTokenAmount;
+
+            // adjust project token amount to before fee got added
+            _amounts[0] = projectTokenAmount;
+
+            // ToDo - Line below does not work, this also needs to be tested
+            // _tokens[0].transfer(primeDaoAddress, primeDaoFeeAmount);
         }
 
         IVault.JoinPoolRequest memory request = IVault.JoinPoolRequest({
@@ -138,13 +156,6 @@ contract LBPWrapper {
      */
     function setPaused(bool _isPaused) public onlyAdmin {
         lbp.setSwapEnabled(!_isPaused);
-    }
-
-    /**
-     * @dev                             checks if swap is enabled or not
-     */
-    function paused() public view returns (bool) {
-        return !lbp.getSwapEnabled();
     }
 
     /**

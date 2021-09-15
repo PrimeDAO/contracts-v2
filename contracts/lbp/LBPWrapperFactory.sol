@@ -21,10 +21,10 @@ import "./LBPWrapper.sol";
 contract LBPWrapperFactory is CloneFactory, Ownable {
     address public wrapperMasterCopy;
     address public LBPFactory;
-    address public projectFeeBeneficiary;
+    address public primeDaoAddress;
 
     uint256 public swapFeePercentage;
-    uint256 public projectFee;
+    uint256 public primeDaoFeePercentage;
 
     event LBPDeployedUsingWrapper(
         address indexed lbp,
@@ -39,21 +39,21 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
     constructor(
         address _LBPFactory,
         uint256 _swapFeePercentage,
-        uint256 _projectFee,
-        address _projectFeeBeneficiary
+        uint256 _primeDaoFeePercentage,
+        address _primeDaoAddress
     ) {
         require(
             _swapFeePercentage >= 1e12 && _swapFeePercentage <= 1e17,
             "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
         );
         require(
-            _projectFeeBeneficiary != address(0),
-            "LBPWrapperFactory: projectFeeBeneficiary cannot be zero"
+            _primeDaoAddress != address(0),
+            "LBPWrapperFactory: primeDaoAddress cannot be zero"
         );
         LBPFactory = _LBPFactory;
         swapFeePercentage = _swapFeePercentage;
-        projectFee = _projectFee;
-        projectFeeBeneficiary = _projectFeeBeneficiary;
+        primeDaoFeePercentage = _primeDaoFeePercentage;
+        primeDaoAddress = _primeDaoAddress;
     }
 
     /**
@@ -73,30 +73,30 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
     }
 
     /**
-     * @dev                             sets the fee for providing the LBP interface
-     * @param _projectFee               fee for providing the LBP service
+     * @dev                             sets the fee percentage for providing the LBP interface
+     * @param _primeDaoFeePercentage    fee percentage for providing the LBP service
      */
-    function setProjectFee(uint256 _projectFee) external onlyOwner {
-        projectFee = _projectFee;
-    }
-
-    /**
-     * @dev                             sets beneficiary address for the _projectFee
-     * @param _projectFeeBeneficiary    address who is the receiver of the projectFee
-     */
-    function setProjectFeeBeneficiary(address _projectFeeBeneficiary)
+    function setPrimeDaoFeePercentage(uint256 _primeDaoFeePercentage)
         external
         onlyOwner
     {
+        primeDaoFeePercentage = _primeDaoFeePercentage;
+    }
+
+    /**
+     * @dev                       sets the address of PrimeDao for receiving the _primeDaoFeePercentage
+     * @param _primeDaoAddress    address who is the receiver of the primeDaoFeePercentage
+     */
+    function setPrimeDaoAddress(address _primeDaoAddress) external onlyOwner {
         require(
-            _projectFeeBeneficiary != address(0),
-            "LBPWrapperFactory: projectFeeBeneficiary cannot be zero"
+            _primeDaoAddress != address(0),
+            "LBPWrapperFactory: primeDaoAddress cannot be zero"
         );
         require(
-            _projectFeeBeneficiary != address(this),
-            "LBPWrapperFactory: projectFeeBeneficiary cannot be tje same as LBPFactory"
+            _primeDaoAddress != address(this),
+            "LBPWrapperFactory: primeDaoAddress cannot be tje same as LBPFactory"
         );
-        projectFeeBeneficiary = _projectFeeBeneficiary;
+        primeDaoAddress = _primeDaoAddress;
     }
 
     /**
@@ -168,8 +168,8 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
             _endTime,
             _endWeights,
             swapFeePercentage,
-            projectFee,
-            projectFeeBeneficiary
+            primeDaoFeePercentage,
+            primeDaoAddress
         );
 
         LBPWrapper(wrapper).transferAdminRights(_admin);
