@@ -35,7 +35,7 @@ function sortTokens(tokens) {
   return tokens;
 }
 
-describe("Contract: LBPWrapper", async () => {
+describe.only("Contract: LBPWrapper", async () => {
   let setup;
   let swapsEnabled;
   let tokenAddresses;
@@ -56,7 +56,7 @@ describe("Contract: LBPWrapper", async () => {
   const PROJECT_FEE = parseUnits("5", 17);
 
   const fromInternalBalance = false;
-  let userData, poolId, admin, owner, primeDaoAddress, amountToAddForFee;
+  let userData, poolId, admin, owner, beneficiary, amountToAddForFee;
 
   context(">> deploy LBP Wrapper", async () => {
     before("!! setup", async () => {
@@ -65,11 +65,7 @@ describe("Contract: LBPWrapper", async () => {
 
       sortedTokens = sortTokens(setup.tokenList);
       tokenAddresses = sortedTokens.map((token) => token.address);
-      ({
-        root: owner,
-        prime: admin,
-        beneficiary: primeDaoAddress,
-      } = setup.roles);
+      ({ root: owner, prime: admin, beneficiary: beneficiary } = setup.roles);
     });
     it("$ deploy LBPWrapper", async () => {
       setup.lbpWrapper = await setup.LBPWrapper.deploy();
@@ -90,14 +86,14 @@ describe("Contract: LBPWrapper", async () => {
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
           PROJECT_FEE,
-          primeDaoAddress.address
+          beneficiary.address
         );
       setup.lbp = setup.Lbp.attach(await setup.lbpWrapper.lbp());
       poolId = await setup.lbp.getPoolId();
 
       expect(await setup.lbpWrapper.lbp()).not.equal(constants.ZERO_ADDRESS);
-      expect(await setup.lbpWrapper.primeDaoAddress()).to.equal(
-        primeDaoAddress.address
+      expect(await setup.lbpWrapper.beneficiary()).to.equal(
+        beneficiary.address
       );
       expect(await setup.lbpWrapper.primeDaoFeePercentage()).to.equal(
         PROJECT_FEE
@@ -119,7 +115,7 @@ describe("Contract: LBPWrapper", async () => {
             END_WEIGHTS,
             SWAP_FEE_PERCENTAGE,
             PROJECT_FEE,
-            primeDaoAddress.address
+            beneficiary.address
           )
       ).to.be.revertedWith("LBPWrapper: already initialized");
     });
@@ -139,6 +135,10 @@ describe("Contract: LBPWrapper", async () => {
   });
   context(">> add liquidity to the pool", async () => {
     before("!! transfer balances", async () => {
+      userData = ethers.utils.defaultAbiCoder.encode(
+        ["uint256", "uint256[]"],
+        [JOIN_KIND_INIT, INITIAL_BALANCES]
+      );
       await setup.tokenList[0]
         .connect(owner)
         .transfer(admin.address, INITIAL_BALANCES[0].mul(2).toString());
@@ -158,11 +158,6 @@ describe("Contract: LBPWrapper", async () => {
       await setup.tokenList[1]
         .connect(admin)
         .transfer(setup.lbpWrapper.address, INITIAL_BALANCES[1].toString());
-
-      userData = ethers.utils.defaultAbiCoder.encode(
-        ["uint256", "uint256[]"],
-        [JOIN_KIND_INIT, INITIAL_BALANCES]
-      );
     });
     it("$ reverts when not called by owner", async () => {
       await expect(
@@ -178,7 +173,6 @@ describe("Contract: LBPWrapper", async () => {
       ).to.be.revertedWith("LBPWrapper: admin owner function");
     });
 
-    // ToDo - STILL HAVE TO TEST WITH INTERNAL BALANS
     it("$ add liquidity to the pool", async () => {
       const eventName = "PoolBalanceChanged";
       const { abi } = VaultArtifact;
@@ -187,8 +181,9 @@ describe("Contract: LBPWrapper", async () => {
       expect((await setup.lbp.balanceOf(owner.address)).toString()).to.equal(
         "0"
       );
+      // check balance of beneficiary before joinPool()
+      expect(await sortedTokens[0].balanceOf(beneficiary.address)).to.equal(0);
 
-      // console.log("here = " + INITIAL_BALANCES[0]);
       const tx = await setup.lbpWrapper
         .connect(admin)
         .fundPool(
@@ -213,6 +208,10 @@ describe("Contract: LBPWrapper", async () => {
       expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
       expect((await setup.lbp.balanceOf(owner.address)).toString()).not.equal(
         "0"
+      );
+      // Check balance beneficiary after joinPool()
+      expect(await sortedTokens[0].balanceOf(beneficiary.address)).to.equal(
+        amountToAddForFee
       );
     });
     it("$ revert when adding liquidity more then once", async () => {
