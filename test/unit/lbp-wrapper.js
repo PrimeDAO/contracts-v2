@@ -51,9 +51,9 @@ describe.only("Contract: LBPWrapper", async () => {
   const END_WEIGHTS = [parseEther("0.4").toString(), parseEther("0.6")];
   const POOL_SWAP_FEE_PERCENTAGE = parseEther("0.01").toString();
   const NEW_SWAP_FEE_PERCENTAGE = parseEther("0.02").toString();
-  const SWAP_FEE_PERCENTAGE = 1e12;
+  const SWAP_FEE_PERCENTAGE = parseUnits("1", 16);
   const JOIN_KIND_INIT = 0;
-  const PROJECT_FEE = parseUnits("5", 17);
+  const PRIME_DAO_FEE_PERCENTAGE = parseUnits("5", 17);
 
   const fromInternalBalance = false;
   let userData, poolId, admin, owner, beneficiary, amountToAddForFee;
@@ -85,7 +85,7 @@ describe.only("Contract: LBPWrapper", async () => {
           endTime,
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
-          PROJECT_FEE,
+          PRIME_DAO_FEE_PERCENTAGE,
           beneficiary.address
         );
       setup.lbp = setup.Lbp.attach(await setup.lbpWrapper.lbp());
@@ -96,7 +96,7 @@ describe.only("Contract: LBPWrapper", async () => {
         beneficiary.address
       );
       expect(await setup.lbpWrapper.primeDaoFeePercentage()).to.equal(
-        PROJECT_FEE
+        PRIME_DAO_FEE_PERCENTAGE
       );
     });
 
@@ -114,7 +114,7 @@ describe.only("Contract: LBPWrapper", async () => {
             endTime,
             END_WEIGHTS,
             SWAP_FEE_PERCENTAGE,
-            PROJECT_FEE,
+            PRIME_DAO_FEE_PERCENTAGE,
             beneficiary.address
           )
       ).to.be.revertedWith("LBPWrapper: already initialized");
@@ -148,7 +148,7 @@ describe.only("Contract: LBPWrapper", async () => {
 
       // Add fee amount on top
       amountToAddForFee = INITIAL_BALANCES[0]
-        .mul(PROJECT_FEE)
+        .mul(PRIME_DAO_FEE_PERCENTAGE)
         .div(HUNDRED_PERCENT);
       INITIAL_BALANCES[0] = INITIAL_BALANCES[0].add(amountToAddForFee);
 

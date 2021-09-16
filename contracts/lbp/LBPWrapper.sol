@@ -74,6 +74,14 @@ contract LBPWrapper {
         address _beneficiary
     ) external returns (address) {
         require(!initialized, "LBPWrapper: already initialized");
+        require(
+            _swapFeePercentage >= 1e12 && _swapFeePercentage <= 1e17,
+            "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+        );
+        require(
+            _beneficiary != address(0),
+            "LBPWrapper: _beneficiary cannot be zero address"
+        );
 
         initialized = true;
         admin = msg.sender;
@@ -116,23 +124,24 @@ contract LBPWrapper {
 
         IVault vault = lbp.getVault();
 
-        // calculate the primeDaoFeeAmount from the amount of project tokens and the primeDaoFeePercentage
-        uint256 feeConvertedForCalculation = HUNDRED_PERCENT +
-            primeDaoFeePercentage;
-        uint256 projectTokenAmount = (_amounts[0] /
-            feeConvertedForCalculation) * HUNDRED_PERCENT;
-        uint256 primeDaoFeeAmount = _amounts[0] - projectTokenAmount;
+        if (primeDaoFeePercentage != 0) {
+            // calculate the primeDaoFeeAmount from the amount of project tokens and the primeDaoFeePercentage
+            uint256 feeConvertedForCalculation = HUNDRED_PERCENT +
+                primeDaoFeePercentage;
+            uint256 projectTokenAmount = (_amounts[0] /
+                feeConvertedForCalculation) * HUNDRED_PERCENT;
+            uint256 primeDaoFeeAmount = _amounts[0] - projectTokenAmount;
 
-        // adjust project token amount to amount before fee got added
-        _amounts[0] = projectTokenAmount;
+            // adjust project token amount to amount before fee got added
+            _amounts[0] = projectTokenAmount;
 
-        // approve tokens to Balancer Vault
+            // transfer primeDaoFee to beneficiary
+            _tokens[0].transfer(beneficiary, primeDaoFeeAmount);
+        }
+
         for (uint8 i; i < _tokens.length; i++) {
             _tokens[i].approve(address(vault), _amounts[i]);
         }
-
-        // ToDo - Line below does not work (Invalid Signature), this also needs to be tested
-        _tokens[0].transfer(beneficiary, primeDaoFeeAmount);
 
         IVault.JoinPoolRequest memory request = IVault.JoinPoolRequest({
             maxAmountsIn: _amounts,

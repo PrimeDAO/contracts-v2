@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { parseEther } = ethers.utils;
+const { parseEther, parseUnits } = ethers.utils;
 
 const init = require("../test-init.js");
 const balancer = require("../helpers/balancer.js");
@@ -37,8 +37,8 @@ function sortTokens(tokens) {
 }
 
 describe.only(">> Contract: LBPWrapperFactory", () => {
-  let setup, swapsEnabled, primeDaoFeePercentage, primeDaoAddress;
-  let tokenAddresses, admin, owner, sortedTokens, newOwner, newLBPFactory;
+  let setup, primeDaoFeePercentage, beneficiary;
+  let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
   const startTime = Date.now();
   const endTime = startTime + 100000;
@@ -55,6 +55,7 @@ describe.only(">> Contract: LBPWrapperFactory", () => {
   const SWAP_FEE_PERCENTAGE_CHANGED = (1e16).toString();
   const TO_LOW_SWAP_FEE_PERCENTAGE = 1e10;
   const TO_HIGH_SWAP_FEE_PERCENTAGE = (1e18).toString();
+  const PRIME_DAO_FEE_PERCENTAGE = parseUnits("5", 17);
 
   const ZERO_ADDRESS = constants.ZERO_ADDRESS;
 
@@ -62,74 +63,32 @@ describe.only(">> Contract: LBPWrapperFactory", () => {
     beforeEach("!! setup", async () => {
       setup = await deploy();
 
-      swapsEnabled = true;
       primeDaoFeePercentage = 10;
 
       ({
         root: owner,
         prime: admin,
-        beneficiary: newOwner,
-        buyer1: primeDaoAddress,
-        buyer2: newProjcetFeeBeneficiary,
+        beneficiary: beneficiary,
+        // buyer1: primeDaoAddress,
+        // buyer2: newProjcetFeeBeneficiary,
       } = setup.roles);
       sortedTokens = sortTokens(setup.tokenList);
       // Need to solve this in tokens.js helper file for > 2 tokens.
       tokenAddresses = sortedTokens.map((token) => token.address);
     });
-    it("$ revert on deploy LBPWrapperFactory with wrong value swap fee", async () => {
+    it("$ revert on deploy LBPWrapperFactory with zero address LBPFactory", async () => {
       await expect(
-        init.getContractInstance("LBPWrapperFactory", owner, [
-          setup.lbpFactory.address,
-          TO_LOW_SWAP_FEE_PERCENTAGE,
-          primeDaoFeePercentage,
-          primeDaoAddress.address,
-        ])
-      ).to.be.revertedWith(
-        "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
-      );
-      await expect(
-        init.getContractInstance("LBPWrapperFactory", owner, [
-          setup.lbpFactory.address,
-          TO_HIGH_SWAP_FEE_PERCENTAGE,
-          primeDaoFeePercentage,
-          primeDaoAddress.address,
-        ])
-      ).to.be.revertedWith(
-        "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
-      );
-    });
-    it("$ revert on deploy LBPWrapperFactory with invalid primeDaoAddress", async () => {
-      await expect(
-        init.getContractInstance("LBPWrapperFactory", owner, [
-          setup.lbpFactory.address,
-          SWAP_FEE_PERCENTAGE,
-          primeDaoFeePercentage,
-          ZERO_ADDRESS,
-        ])
-      ).to.be.revertedWith("LBPWrapperFactory: primeDaoAddress cannot be zero");
+        init.getContractInstance("LBPWrapperFactory", owner, [ZERO_ADDRESS])
+      ).to.be.revertedWith("LBPWrapperFactory: LBPFactory cannot be zero");
     });
     it("$ deploy LBPWrapperFactory", async () => {
       setup.LbpWrapperFactory = await init.getContractInstance(
         "LBPWrapperFactory",
         owner,
-        [
-          setup.lbpFactory.address,
-          SWAP_FEE_PERCENTAGE,
-          primeDaoFeePercentage,
-          primeDaoAddress.address,
-        ]
+        [setup.lbpFactory.address]
       );
       expect(await setup.LbpWrapperFactory.LBPFactory()).to.equal(
         setup.lbpFactory.address
-      );
-      expect(await setup.LbpWrapperFactory.primeDaoFeePercentage()).to.equal(
-        10
-      );
-      expect(await setup.LbpWrapperFactory.swapFeePercentage()).to.equal(
-        SWAP_FEE_PERCENTAGE
-      );
-      expect(await setup.LbpWrapperFactory.primeDaoAddress()).to.equal(
-        primeDaoAddress.address
       );
     });
   });
@@ -145,6 +104,9 @@ describe.only(">> Contract: LBPWrapperFactory", () => {
         endTime,
         END_WEIGHTS,
         admin.address,
+        SWAP_FEE_PERCENTAGE,
+        primeDaoFeePercentage,
+        beneficiary.address,
       ];
     });
     it("$ reverts if deploying LBPWrapper & mastercopy is not set", async () => {
@@ -180,84 +142,6 @@ describe.only(">> Contract: LBPWrapperFactory", () => {
       );
     });
   });
-  context("» set new swapFeePercentage", () => {
-    it("$ reverts on not called by owner", async () => {
-      await expect(
-        setup.LbpWrapperFactory.connect(admin).setSwapFeePercentage(
-          SWAP_FEE_PERCENTAGE_CHANGED
-        )
-      ).to.be.revertedWith("Ownable: caller is not the owner");
-    });
-    it("$ reverts on calling with wrong value swap fee", async () => {
-      await expect(
-        setup.LbpWrapperFactory.setSwapFeePercentage(
-          TO_HIGH_SWAP_FEE_PERCENTAGE
-        )
-      ).to.be.revertedWith(
-        "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
-      );
-      await expect(
-        setup.LbpWrapperFactory.setSwapFeePercentage(TO_LOW_SWAP_FEE_PERCENTAGE)
-      ).to.be.revertedWith(
-        "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
-      );
-    });
-    it("$ success", async () => {
-      await setup.LbpWrapperFactory.setSwapFeePercentage(
-        SWAP_FEE_PERCENTAGE_CHANGED
-      );
-      expect(await setup.LbpWrapperFactory.swapFeePercentage()).to.equal(
-        SWAP_FEE_PERCENTAGE_CHANGED
-      );
-    });
-  });
-  context("» set new primeDaoAddress", () => {
-    it("$ reverts on not called by owner", async () => {
-      await expect(
-        setup.LbpWrapperFactory.connect(admin).setPrimeDaoAddress(
-          newProjcetFeeBeneficiary.address
-        )
-      ).to.be.revertedWith("Ownable: caller is not the owner");
-    });
-    it("$ revert on invalid beneficiary address", async () => {
-      await expect(
-        setup.LbpWrapperFactory.setPrimeDaoAddress(ZERO_ADDRESS)
-      ).to.be.revertedWith("LBPWrapperFactory: primeDaoAddress cannot be zero");
-      await expect(
-        setup.LbpWrapperFactory.setPrimeDaoAddress(
-          setup.LbpWrapperFactory.address
-        )
-      ).to.be.revertedWith(
-        "LBPWrapperFactory: primeDaoAddress cannot be tje same as LBPFactory"
-      );
-    });
-    it("$ succeeds", async () => {
-      await setup.LbpWrapperFactory.setPrimeDaoAddress(
-        newProjcetFeeBeneficiary.address
-      );
-      expect(await setup.LbpWrapperFactory.primeDaoAddress()).to.equal(
-        newProjcetFeeBeneficiary.address
-      );
-    });
-  });
-  context("» set new primeDaoFeePercentage", () => {
-    primeDaoFeePercentage = 5;
-    it("$ reverts on not called by owner", async () => {
-      await expect(
-        setup.LbpWrapperFactory.connect(admin).setPrimeDaoFeePercentage(
-          primeDaoFeePercentage
-        )
-      ).to.be.revertedWith("Ownable: caller is not the owner");
-    });
-    it("$ succeeds", async () => {
-      await setup.LbpWrapperFactory.setPrimeDaoFeePercentage(
-        primeDaoFeePercentage
-      );
-      expect(await setup.LbpWrapperFactory.primeDaoFeePercentage()).to.equal(
-        primeDaoFeePercentage
-      );
-    });
-  });
   context("» set new LBPFactory", () => {
     before("!! deploy new LBP Factory", async () => {
       newLBPFactory = await balancer.getLbpFactoryInstance(setup);
@@ -288,6 +172,66 @@ describe.only(">> Contract: LBPWrapperFactory", () => {
       );
     });
   });
+  context("» deploy LBP using LBPWrapper with wrong values", () => {
+    let params;
+    it("$ reverts on invalid swapFeePercentage", async () => {
+      params = [
+        NAME,
+        SYMBOL,
+        tokenAddresses,
+        START_WEIGHTS,
+        startTime,
+        endTime,
+        END_WEIGHTS,
+        admin.address,
+        TO_LOW_SWAP_FEE_PERCENTAGE,
+        primeDaoFeePercentage,
+        beneficiary.address,
+      ];
+      await expect(
+        setup.LbpWrapperFactory.connect(owner).deployLBPUsingWrapper(...params)
+      ).to.be.revertedWith(
+        "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+      );
+
+      params = [
+        NAME,
+        SYMBOL,
+        tokenAddresses,
+        START_WEIGHTS,
+        startTime,
+        endTime,
+        END_WEIGHTS,
+        admin.address,
+        TO_HIGH_SWAP_FEE_PERCENTAGE,
+        primeDaoFeePercentage,
+        beneficiary.address,
+      ];
+      await expect(
+        setup.LbpWrapperFactory.connect(owner).deployLBPUsingWrapper(...params)
+      ).to.be.revertedWith(
+        "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+      );
+    });
+    it("$ reverts on invalid beneficiary address", async () => {
+      params = [
+        NAME,
+        SYMBOL,
+        tokenAddresses,
+        START_WEIGHTS,
+        startTime,
+        endTime,
+        END_WEIGHTS,
+        admin.address,
+        SWAP_FEE_PERCENTAGE_CHANGED,
+        primeDaoFeePercentage,
+        ZERO_ADDRESS,
+      ];
+      await expect(
+        setup.LbpWrapperFactory.connect(owner).deployLBPUsingWrapper(...params)
+      ).to.be.revertedWith("LBPWrapper: _beneficiary cannot be zero address");
+    });
+  });
   context("» deploy LBP using LBPWrapper", () => {
     let params;
     before("!! setup for deploying LBPWrapper", async () => {
@@ -300,9 +244,12 @@ describe.only(">> Contract: LBPWrapperFactory", () => {
         endTime,
         END_WEIGHTS,
         admin.address,
+        SWAP_FEE_PERCENTAGE_CHANGED,
+        primeDaoFeePercentage,
+        beneficiary.address,
       ];
     });
-    it("$ deploys LBP", async () => {
+    it("$ deploys LBP successful", async () => {
       const tx = await setup.LbpWrapperFactory.connect(
         owner
       ).deployLBPUsingWrapper(...params);
