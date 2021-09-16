@@ -28,7 +28,10 @@ contract LBPWrapper {
 
     uint256 private constant HUNDRED_PERCENT = 10e18;
 
+    IERC20[] public tokens;
+
     ILBP public lbp;
+    // IERC20[] tokens;
 
     modifier onlyAdmin() {
         require(msg.sender == admin, "LBPWrapper: admin owner function");
@@ -46,6 +49,15 @@ contract LBPWrapper {
         );
         admin = _newAdmin;
     }
+
+    /**
+     * @dev                             will withdraw project and funding tokens if available
+     * @param _receiver                 address that receives the project and funding tokens
+     */
+    function retrieveProjectAndFundingToken(address _receiver)
+        external
+        onlyAdmin
+    {}
 
     /**
      * @dev                             initialize lbp wrapper contract
@@ -87,6 +99,7 @@ contract LBPWrapper {
         admin = msg.sender;
         primeDaoFeePercentage = _primeDaoFeePercentage;
         beneficiary = _beneficiary;
+        tokens = _tokens;
 
         lbp = ILBP(
             ILBPFactory(_LBPFactory).create(
