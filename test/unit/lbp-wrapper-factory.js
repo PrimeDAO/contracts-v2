@@ -10,33 +10,23 @@ const { constants, BN, expectRevert } = require("@openzeppelin/test-helpers");
 const deploy = async () => {
   const setup = await init.initialize(await ethers.getSigners());
 
-  setup.vault = await balancer.getVaultInstance(setup);
+  setup.vault = await balancer.getVaultInstance();
 
-  setup.lbpFactory = await balancer.getLbpFactoryInstance(setup);
+  setup.lbpFactory = await balancer.getLbpFactoryInstance(setup.vault);
 
   setup.lbpWrapper = await init.getContractInstance(
     "LBPWrapper",
     setup.roles.root
   );
 
-  setup.Lbp = balancer.getLbpFactory(setup);
+  setup.Lbp = balancer.getLbpFactory(setup.roles.root);
 
   setup.tokenList = await tokens.getErc20TokenInstances(2, setup.roles.root);
 
   return setup;
 };
 
-function sortTokens(tokens) {
-  if (tokens[0].address > tokens[1].address) {
-    const temp = tokens[0];
-    tokens[0] = tokens[1];
-    tokens[1] = temp;
-  }
-
-  return tokens;
-}
-
-describe.only(">> Contract: LBPWrapperFactory", () => {
+describe(">> Contract: LBPWrapperFactory", () => {
   let setup, primeDaoFeePercentage, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
@@ -65,16 +55,9 @@ describe.only(">> Contract: LBPWrapperFactory", () => {
 
       primeDaoFeePercentage = 10;
 
-      ({
-        root: owner,
-        prime: admin,
-        beneficiary: beneficiary,
-        // buyer1: primeDaoAddress,
-        // buyer2: newProjcetFeeBeneficiary,
-      } = setup.roles);
-      sortedTokens = sortTokens(setup.tokenList);
-      // Need to solve this in tokens.js helper file for > 2 tokens.
-      tokenAddresses = sortedTokens.map((token) => token.address);
+      ({ root: owner, prime: admin, beneficiary: beneficiary } = setup.roles);
+
+      tokenAddresses = setup.tokenList.map((token) => token.address);
     });
     it("$ revert on deploy LBPWrapperFactory with zero address LBPFactory", async () => {
       await expect(
@@ -144,7 +127,7 @@ describe.only(">> Contract: LBPWrapperFactory", () => {
   });
   context("» set new LBPFactory", () => {
     before("!! deploy new LBP Factory", async () => {
-      newLBPFactory = await balancer.getLbpFactoryInstance(setup);
+      newLBPFactory = await balancer.getLbpFactoryInstance(setup.vault);
     });
     it("$ reverts on zero address", async () => {
       await expect(

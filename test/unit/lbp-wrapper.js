@@ -1,82 +1,223 @@
 const { expect } = require("chai");
 const { ethers, artifacts } = require("hardhat");
-const { parseEther } = ethers.utils;
+const { parseEther, parseUnits } = ethers.utils;
 
 const init = require("../test-init.js");
 const balancer = require("../helpers/balancer.js");
 const tokens = require("../helpers/tokens.js");
 const { constants } = require("@openzeppelin/test-helpers");
 const VaultArtifact = require("../../imports/Vault.json");
-const { parseUnits, formatUnits, big } = require("@ethersproject/units");
+const { formatUnits, big } = require("@ethersproject/units");
+const { ZERO_ADDRESS } = require("@openzeppelin/test-helpers/src/constants");
+const { zeroPad } = require("@ethersproject/bytes");
 
-const deploy = async () => {
-  const setup = await init.initialize(await ethers.getSigners());
+const setupFixture = deployments.createFixture(
+  async ({ deployments }, options) => {
+    const { deploy } = deployments;
+    const { root } = await ethers.getNamedSigners();
 
-  setup.vault = await balancer.getVaultInstance(setup);
+    const vaultInstance = await balancer.getVaultInstance();
+    const lbpFactoryInstance = await balancer.getLbpFactoryInstance(
+      vaultInstance
+    );
 
-  setup.lbpFactory = await balancer.getLbpFactoryInstance(setup);
+    await deploy("LbpWrapper", {
+      contract: "LBPWrapper",
+      from: root.address,
+      log: true,
+    });
 
-  setup.Lbp = balancer.getLbpFactory(setup);
+    const contractInstances = {
+      lbpFactoryInstance: lbpFactoryInstance,
+      lbpContractFactory: await balancer.getLbpFactory(root),
+      lbpWrapperInstance: await ethers.getContract("LbpWrapper"),
+      tokenInstances: await tokens.getErc20TokenInstances(2, root),
+    };
 
-  setup.LBPWrapper = await init.getLBPWrapperFactory(setup);
+    return { ...contractInstances };
+  }
+);
 
-  setup.tokenList = await tokens.getErc20TokenInstances(2, setup.roles.root);
+const setupInitialState = async (contractInstances, initialState) => {
+  const HUNDRED_PERCENT = parseUnits("10", 18);
 
-  return setup;
-};
+  const signers = await ethers.getSigners();
+  [owner, admin, beneficiary] = signers;
+  // }
 
-function sortTokens(tokens) {
-  if (tokens[0].address > tokens[1].address) {
-    const temp = tokens[0];
-    tokens[0] = tokens[1];
-    tokens[1] = temp;
+  const {
+    lbpFactoryInstance,
+    lbpContractFactory,
+    lbpWrapperInstance,
+    tokenInstances,
+  } = contractInstances;
+
+  const tokenAddresses = tokenInstances.map((token) => token.address);
+
+  const { initializeLBPParams, OwnerAdmin, funds, userData } = initialState;
+
+  if (initializeLBPParams) {
+    if (OwnerAdmin) {
+      await lbpWrapperInstance
+        .connect(admin)
+        .initializeLBP(...initializeLBPParams);
+    } else {
+      await lbpWrapperInstance
+        .connect(owner)
+        .initializeLBP(...initializeLBPParams);
+    }
   }
 
-  return tokens;
-}
+  if (funds) {
+    const { initialBalances, primeDaoFeePercentage } = funds;
+    await tokenInstances[0]
+      .connect(owner)
+      .transfer(admin.address, initialBalances[0].mul(2).toString());
+    await tokenInstances[1]
+      .connect(owner)
+      .transfer(admin.address, initialBalances[1].mul(2).toString());
 
-describe.only("Contract: LBPWrapper", async () => {
+    // Add fee amount on top
+    const amountToAddForFee = initialBalances[0]
+      .mul(primeDaoFeePercentage)
+      .div(HUNDRED_PERCENT);
+    initialBalances[0] = initialBalances[0].add(amountToAddForFee);
+
+    await tokenInstances[0]
+      .connect(admin)
+      .transfer(lbpWrapperInstance.address, initialBalances[0].toString());
+    await tokenInstances[1]
+      .connect(admin)
+      .transfer(lbpWrapperInstance.address, initialBalances[1].toString());
+
+    if (userData) {
+      await lbpWrapperInstance.connect(admin).fundPool(
+        tokenAddresses,
+        initialBalances,
+        owner.address,
+        false, // fromInternalBalance
+        userData
+      );
+    }
+  }
+
+  return { lbpWrapperInstance, tokenInstances };
+};
+
+describe(">> Contract: LBPWrapper", () => {
   let setup;
-  let swapsEnabled;
-  let tokenAddresses;
-  let sortedTokens;
   const NAME = "Test";
   const SYMBOL = "TT";
   let startTime = Date.now();
   let endTime = startTime + 100000;
   let WEIGHTS = [parseEther("0.6").toString(), parseEther("0.4")];
   const HUNDRED_PERCENT = parseUnits("10", 18);
-  const FIVE_PERCENT = parseUnits("10", 16).mul(5);
+  // const FIVE_PERCENT = parseUnits("10", 16).mul(5);
   const INITIAL_BALANCES = [parseUnits("2000", 18), parseUnits("1000", 18)];
   const END_WEIGHTS = [parseEther("0.4").toString(), parseEther("0.6")];
-  const POOL_SWAP_FEE_PERCENTAGE = parseEther("0.01").toString();
-  const NEW_SWAP_FEE_PERCENTAGE = parseEther("0.02").toString();
   const SWAP_FEE_PERCENTAGE = parseUnits("1", 16);
+  const TO_LOW_SWAP_FEE_PERCENTAGE = parseUnits("1", 10);
+  const TO_HIGH_SWAP_FEE_PERCENTAGE = parseUnits("1", 18);
   const JOIN_KIND_INIT = 0;
   const PRIME_DAO_FEE_PERCENTAGE = parseUnits("5", 17);
+  const FROM_INTERNAL_BALANCE = false;
 
-  const fromInternalBalance = false;
-  let userData, poolId, admin, owner, beneficiary, amountToAddForFee;
+  let poolId,
+    admin,
+    owner,
+    beneficiary,
+    initializeLBPParams,
+    amountToAddForFee,
+    lbpFactoryInstance,
+    contractInstances,
+    lbpWrapperInstance,
+    tokenInstances,
+    lbpContractFactory,
+    lbpInstance,
+    tokenAddresses;
 
-  context(">> deploy LBP Wrapper", async () => {
-    before("!! setup", async () => {
-      setup = await deploy();
-      swapsEnabled = true;
-
-      sortedTokens = sortTokens(setup.tokenList);
-      tokenAddresses = sortedTokens.map((token) => token.address);
-      ({ root: owner, prime: admin, beneficiary: beneficiary } = setup.roles);
-    });
-    it("$ deploy LBPWrapper", async () => {
-      setup.lbpWrapper = await setup.LBPWrapper.deploy();
-    });
+  before(async () => {
+    const signers = await ethers.getSigners();
+    [owner, admin, beneficiary, receiver] = signers;
   });
-  context(">> deploy LBP using Wrapper", async () => {
-    it("$ success", async () => {
-      await setup.lbpWrapper
-        .connect(owner)
-        .initializeLBP(
-          setup.lbpFactory.address,
+
+  beforeEach(async () => {
+    contractInstances = await setupFixture();
+    ({
+      lbpFactoryInstance,
+      lbpContractFactory,
+      lbpWrapperInstance,
+      tokenInstances,
+    } = contractInstances);
+
+    tokenAddresses = tokenInstances.map((token) => token.address);
+
+    initializeLBPParams = [
+      lbpFactoryInstance.address,
+      NAME,
+      SYMBOL,
+      tokenAddresses,
+      WEIGHTS,
+      startTime,
+      endTime,
+      END_WEIGHTS,
+      SWAP_FEE_PERCENTAGE,
+      PRIME_DAO_FEE_PERCENTAGE,
+      beneficiary.address,
+    ];
+  });
+
+  describe("# deploy LBP using Wrapper", () => {
+    describe("$ deploy LBP using Wrapper fails", () => {
+      let invalidInitializeLBPParams;
+
+      it("» revert on swap fee to high", async () => {
+        invalidInitializeLBPParams = [
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          TO_HIGH_SWAP_FEE_PERCENTAGE,
+          PRIME_DAO_FEE_PERCENTAGE,
+          beneficiary.address,
+        ];
+        await expect(
+          lbpWrapperInstance
+            .connect(owner)
+            .initializeLBP(...invalidInitializeLBPParams)
+        ).to.be.revertedWith(
+          "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+        );
+      });
+      it("» revert on swap fee to low", async () => {
+        invalidInitializeLBPParams = [
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          TO_LOW_SWAP_FEE_PERCENTAGE,
+          PRIME_DAO_FEE_PERCENTAGE,
+          beneficiary.address,
+        ];
+        await expect(
+          lbpWrapperInstance
+            .connect(owner)
+            .initializeLBP(...invalidInitializeLBPParams)
+        ).to.be.revertedWith(
+          "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+        );
+      });
+      it("» revert on beneficiary address being zero", async () => {
+        invalidInitializeLBPParams = [
+          lbpFactoryInstance.address,
           NAME,
           SYMBOL,
           tokenAddresses,
@@ -86,157 +227,268 @@ describe.only("Contract: LBPWrapper", async () => {
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
           PRIME_DAO_FEE_PERCENTAGE,
+          ZERO_ADDRESS,
+        ];
+        await expect(
+          lbpWrapperInstance
+            .connect(owner)
+            .initializeLBP(...invalidInitializeLBPParams)
+        ).to.be.revertedWith("LBPWrapper: _beneficiary cannot be zero address");
+      });
+    });
+    describe("$ deploy LBP using Wrapper succeeds", () => {
+      it("» success", async () => {
+        await lbpWrapperInstance
+          .connect(owner)
+          .initializeLBP(...initializeLBPParams);
+        lbpInstance = lbpContractFactory.attach(await lbpWrapperInstance.lbp());
+        poolId = await lbpInstance.getPoolId();
+
+        expect(await lbpWrapperInstance.lbp()).not.equal(ZERO_ADDRESS);
+        expect(await lbpWrapperInstance.beneficiary()).to.equal(
           beneficiary.address
         );
-      setup.lbp = setup.Lbp.attach(await setup.lbpWrapper.lbp());
-      poolId = await setup.lbp.getPoolId();
-
-      expect(await setup.lbpWrapper.lbp()).not.equal(constants.ZERO_ADDRESS);
-      expect(await setup.lbpWrapper.beneficiary()).to.equal(
-        beneficiary.address
-      );
-      expect(await setup.lbpWrapper.primeDaoFeePercentage()).to.equal(
-        PRIME_DAO_FEE_PERCENTAGE
-      );
-    });
-
-    it("$ reverts when invoking it again", async () => {
-      await expect(
-        setup.lbpWrapper
-          .connect(admin)
-          .initializeLBP(
-            setup.lbpFactory.address,
-            NAME,
-            SYMBOL,
-            tokenAddresses,
-            WEIGHTS,
-            startTime,
-            endTime,
-            END_WEIGHTS,
-            SWAP_FEE_PERCENTAGE,
-            PRIME_DAO_FEE_PERCENTAGE,
-            beneficiary.address
-          )
-      ).to.be.revertedWith("LBPWrapper: already initialized");
+        expect(await lbpWrapperInstance.primeDaoFeePercentage()).to.equal(
+          PRIME_DAO_FEE_PERCENTAGE
+        );
+      });
+      it("» reverts when invoking it again", async () => {
+        await lbpWrapperInstance
+          .connect(owner)
+          .initializeLBP(...initializeLBPParams);
+        await expect(
+          lbpWrapperInstance
+            .connect(admin)
+            .initializeLBP(...initializeLBPParams)
+        ).to.be.revertedWith("LBPWrapper: already initialized");
+      });
     });
   });
-  context(">> transfers ownership to admin", async () => {
-    it("$ reverts when new owner address is zero", async () => {
+  describe("# transfers ownership of LBPWrapper", async () => {
+    beforeEach(async () => {
+      const initialState = {
+        initializeLBPParams,
+      };
+
+      ({ lbpWrapperInstance } = await setupInitialState(
+        contractInstances,
+        initialState
+      ));
+    });
+    it("» reverts when new owner address is zero", async () => {
       await expect(
-        setup.lbpWrapper
+        lbpWrapperInstance
           .connect(owner)
           .transferAdminRights(constants.ZERO_ADDRESS)
       ).to.be.revertedWith("LBPWrapper: new owner cannot be zero");
     });
-    it("$ success", async () => {
-      await setup.lbpWrapper.connect(owner).transferAdminRights(admin.address);
-      expect(await setup.lbpWrapper.admin()).to.equal(admin.address);
+    it("» success", async () => {
+      await lbpWrapperInstance
+        .connect(owner)
+        .transferAdminRights(admin.address);
+      expect(await lbpWrapperInstance.admin()).to.equal(admin.address);
     });
   });
-  context(">> add liquidity to the pool", async () => {
-    before("!! transfer balances", async () => {
-      userData = ethers.utils.defaultAbiCoder.encode(
-        ["uint256", "uint256[]"],
-        [JOIN_KIND_INIT, INITIAL_BALANCES]
-      );
-      await setup.tokenList[0]
-        .connect(owner)
-        .transfer(admin.address, INITIAL_BALANCES[0].mul(2).toString());
-      await setup.tokenList[1]
-        .connect(owner)
-        .transfer(admin.address, INITIAL_BALANCES[1].mul(2).toString());
-
-      // Add fee amount on top
-      amountToAddForFee = INITIAL_BALANCES[0]
-        .mul(PRIME_DAO_FEE_PERCENTAGE)
-        .div(HUNDRED_PERCENT);
-      INITIAL_BALANCES[0] = INITIAL_BALANCES[0].add(amountToAddForFee);
-
-      await setup.tokenList[0]
-        .connect(admin)
-        .transfer(setup.lbpWrapper.address, INITIAL_BALANCES[0].toString());
-      await setup.tokenList[1]
-        .connect(admin)
-        .transfer(setup.lbpWrapper.address, INITIAL_BALANCES[1].toString());
+  describe("# retrieve tokens through retrieveProjectAndFundingToken", () => {
+    describe("$ retrieves tokens before call to fundPool()", () => {
+      beforeEach(async () => {
+        const funds = {
+          initialBalances: INITIAL_BALANCES,
+          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE,
+        };
+        const initialState = {
+          initializeLBPParams,
+          OwnerAdmin: true,
+          funds,
+        };
+        ({ lbpWrapperInstance, tokenInstances } = await setupInitialState(
+          contractInstances,
+          initialState
+        ));
+      });
+      it("» reverts when not called by admin", async () => {
+        await expect(
+          lbpWrapperInstance.retrieveProjectAndFundingToken(receiver.address)
+        ).to.be.revertedWith("LBPWrapper: admin owner function");
+      });
+      it("» reverts when receiver address is zero", async () => {
+        await expect(
+          lbpWrapperInstance
+            .connect(admin)
+            .retrieveProjectAndFundingToken(ZERO_ADDRESS)
+        ).to.be.revertedWith(
+          "LBPWrapper: receiver of project and funding tokens can't be zero"
+        );
+      });
+      it("» retrieves back the funds to admin", async () => {
+        expect(
+          await tokenInstances[0].balanceOf(lbpWrapperInstance.address)
+        ).to.equal(INITIAL_BALANCES[0]);
+        expect(
+          await tokenInstances[1].balanceOf(lbpWrapperInstance.address)
+        ).to.equal(INITIAL_BALANCES[1]);
+        await lbpWrapperInstance
+          .connect(admin)
+          .retrieveProjectAndFundingToken(receiver.address);
+        expect(await tokenInstances[0].balanceOf(receiver.address)).to.equal(
+          INITIAL_BALANCES[0]
+        );
+        expect(await tokenInstances[1].balanceOf(receiver.address)).to.equal(
+          INITIAL_BALANCES[1]
+        );
+      });
     });
-    it("$ reverts when not called by owner", async () => {
-      await expect(
-        setup.lbpWrapper
+    describe("$ try retrieve funds after call fundPool", () => {
+      let userData;
+      beforeEach(async () => {
+        userData = ethers.utils.defaultAbiCoder.encode(
+          ["uint256", "uint256[]"],
+          [JOIN_KIND_INIT, INITIAL_BALANCES]
+        );
+        // Specifies funds and fee to be sent to setpInitialState
+        const funds = {
+          initialBalances: INITIAL_BALANCES,
+          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE,
+        };
+        const initialState = {
+          initializeLBPParams,
+          OwnerAdmin: true,
+          funds,
+          userData,
+        };
+        ({ lbpWrapperInstance, tokenInstances } = await setupInitialState(
+          contractInstances,
+          initialState
+        ));
+      });
+      it("» reverts tokens are in the pool", async () => {
+        await lbpWrapperInstance
+          .connect(admin)
+          .retrieveProjectAndFundingToken(receiver.address);
+      });
+    });
+  });
+  describe("# add liquidity to the pool", () => {
+    describe("$ adding liquidity fails", async () => {
+      let userData;
+      before(async () => {
+        await tokenInstances[0]
           .connect(owner)
-          .fundPool(
+          .transfer(admin.address, INITIAL_BALANCES[0].mul(2).toString());
+        await tokenInstances[1]
+          .connect(owner)
+          .transfer(admin.address, INITIAL_BALANCES[1].mul(2).toString());
+
+        // Add fee amount on top
+        amountToAddForFee = INITIAL_BALANCES[0]
+          .mul(PRIME_DAO_FEE_PERCENTAGE)
+          .div(HUNDRED_PERCENT);
+        INITIAL_BALANCES[0] = INITIAL_BALANCES[0].add(amountToAddForFee);
+
+        await tokenInstances[0]
+          .connect(admin)
+          .transfer(lbpWrapperInstance.address, INITIAL_BALANCES[0].toString());
+        await tokenInstances[1]
+          .connect(admin)
+          .transfer(lbpWrapperInstance.address, INITIAL_BALANCES[1].toString());
+
+        userData = ethers.utils.defaultAbiCoder.encode(
+          ["uint256", "uint256[]"],
+          [JOIN_KIND_INIT, INITIAL_BALANCES]
+        );
+      });
+      beforeEach(async () => {
+        const initialState = {
+          initializeLBPParams,
+          OwnerAdmin: true,
+          // funds,
+        };
+        ({ lbpWrapperInstance, tokenInstances } = await setupInitialState(
+          contractInstances,
+          initialState
+        ));
+      });
+      it("» reverts when not called by owner", async () => {
+        await expect(
+          lbpWrapperInstance.fundPool(
             tokenAddresses,
             INITIAL_BALANCES,
             owner.address,
-            fromInternalBalance,
+            FROM_INTERNAL_BALANCE,
             userData
           )
-      ).to.be.revertedWith("LBPWrapper: admin owner function");
-    });
+        ).to.be.revertedWith("LBPWrapper: admin owner function");
+      });
 
-    it("$ add liquidity to the pool", async () => {
-      const eventName = "PoolBalanceChanged";
-      const { abi } = VaultArtifact;
-      const vaultInterface = new ethers.utils.Interface(abi);
+      it("» add liquidity to the pool", async () => {
+        const eventName = "PoolBalanceChanged";
+        const { abi } = VaultArtifact;
+        const vaultInterface = new ethers.utils.Interface(abi);
 
-      expect((await setup.lbp.balanceOf(owner.address)).toString()).to.equal(
-        "0"
-      );
-      // check balance of beneficiary before joinPool()
-      expect(await sortedTokens[0].balanceOf(beneficiary.address)).to.equal(0);
-
-      const tx = await setup.lbpWrapper
-        .connect(admin)
-        .fundPool(
-          tokenAddresses,
-          INITIAL_BALANCES,
-          owner.address,
-          fromInternalBalance,
-          userData
+        // console.log(await lbpInstance.address.balanceOf(admin.address));
+        expect(
+          (await lbpInstance.balanceOf(owner.address)).toString()
+        ).to.equal("0");
+        // check balance of beneficiary before joinPool()
+        expect(await tokenInstances[0].balanceOf(beneficiary.address)).to.equal(
+          0
         );
 
-      const receipt = await tx.wait();
-      const vaultAddress = setup.vault.address;
-      const vaultEvent = receipt.events.find(
-        (log) => log.address === vaultAddress
-      );
-      const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
-
-      expect(decodedVaultEvent.name).to.equal(eventName);
-      expect(decodedVaultEvent.args[0]).to.equal(poolId);
-      expect(decodedVaultEvent.args[1]).to.equal(setup.lbpWrapper.address);
-      expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
-      expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
-      expect((await setup.lbp.balanceOf(owner.address)).toString()).not.equal(
-        "0"
-      );
-      // Check balance beneficiary after joinPool()
-      expect(await sortedTokens[0].balanceOf(beneficiary.address)).to.equal(
-        amountToAddForFee
-      );
-    });
-    it("$ revert when adding liquidity more then once", async () => {
-      await expect(
-        setup.lbpWrapper
+        const tx = await lbpWrapperInstance
           .connect(admin)
           .fundPool(
             tokenAddresses,
             INITIAL_BALANCES,
             owner.address,
-            fromInternalBalance,
+            FROM_INTERNAL_BALANCE,
             userData
-          )
-      ).to.be.revertedWith("LBPWrapper: pool has already been funded");
+          );
+
+        const receipt = await tx.wait();
+        const vaultAddress = setup.vault.address;
+        const vaultEvent = receipt.events.find(
+          (log) => log.address === vaultAddress
+        );
+        const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+
+        expect(decodedVaultEvent.name).to.equal(eventName);
+        expect(decodedVaultEvent.args[0]).to.equal(poolId);
+        expect(decodedVaultEvent.args[1]).to.equal(lbpWrapperInstance.address);
+        expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
+        expect(
+          (await lbpInstance.balanceOf(owner.address)).toString()
+        ).not.equal("0");
+        // Check balance beneficiary after joinPool()
+        expect(await tokenInstances[0].balanceOf(beneficiary.address)).to.equal(
+          amountToAddForFee
+        );
+      });
+      it("» revert when adding liquidity more then once", async () => {
+        await expect(
+          lbpWrapperInstance
+            .connect(admin)
+            .fundPool(
+              tokenAddresses,
+              INITIAL_BALANCES,
+              owner.address,
+              FROM_INTERNAL_BALANCE,
+              userData
+            )
+        ).to.be.revertedWith("LBPWrapper: pool has already been funded");
+      });
     });
   });
-  context(">> pause the LBP", async () => {
-    it("$ revert on being called by not the owner", async () => {
+  context("# pause the LBP", async () => {
+    it("» revert on being called by not the owner", async () => {
       await expect(
-        setup.lbpWrapper.connect(owner).setSwapEnabled(false)
+        lbpWrapperInstance.connect(owner).setSwapEnabled(false)
       ).to.be.revertedWith("LBPWrapper: admin owner function");
     });
-    it("$ pauses the LBP", async () => {
-      await setup.lbpWrapper.connect(admin).setSwapEnabled(false);
-      expect(await setup.lbp.getSwapEnabled()).to.equal(false);
+    it("» pauses the LBP", async () => {
+      expect(await lbpWrapperInstance.admin()).to.equal(admin.address);
+      await lbpWrapperInstance.connect(admin).setSwapEnabled(false);
+      expect(await lbpInstance.getSwapEnabled()).to.equal(false);
     });
   });
 });

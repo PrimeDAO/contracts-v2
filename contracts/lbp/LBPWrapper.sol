@@ -57,7 +57,16 @@ contract LBPWrapper {
     function retrieveProjectAndFundingToken(address _receiver)
         external
         onlyAdmin
-    {}
+    {
+        require(
+            _receiver != address(0),
+            "LBPWrapper: receiver of project and funding tokens can't be zero"
+        );
+
+        for (uint8 i; i < tokens.length; i++) {
+            tokens[i].transfer(_receiver, tokens[i].balanceOf(address(this)));
+        }
+    }
 
     /**
      * @dev                             initialize lbp wrapper contract
