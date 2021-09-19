@@ -19,7 +19,6 @@ import "../utils/interface/ILBP.sol";
 import "hardhat/console.sol"; // <<<<<<<<<<<<<<< Remove
 
 contract LBPWrapper {
-
     // constants
     uint256 private constant HUNDRED_PERCENT = 10e18;
 
@@ -30,7 +29,6 @@ contract LBPWrapper {
     ILBP public lbp; // address of LBP that is managed by this contract.
     IERC20[] public tokens; // tokens that are used in the LBP
     uint256[] public amounts; // amount of tokens that are going to be added as liquidity in LBP
-
 
     bool public poolFunded; // true:- LBP is funded; false:- LBP is yet not funded.
     bool public initialized; // true:- LBP created; false:- LBP not yet created. Makes sure, only initialized once.
@@ -98,6 +96,10 @@ contract LBPWrapper {
         uint256 _primeDaoFeePercentage
     ) external returns (address) {
         require(!initialized, "LBPWrapper: already initialized");
+        require(
+            _beneficiary != address(0),
+            "LBPWrapper: _beneficiary cannot be zero address"
+        );
 
         initialized = true;
         admin = msg.sender;
@@ -118,7 +120,11 @@ contract LBPWrapper {
             )
         );
 
-        lbp.updateWeightsGradually(_startTimeEndTime[0], _startTimeEndTime[1], _endWeights);
+        lbp.updateWeightsGradually(
+            _startTimeEndTime[0],
+            _startTimeEndTime[1],
+            _endWeights
+        );
 
         return address(lbp);
     }
@@ -174,14 +180,20 @@ contract LBPWrapper {
     /**
      * @dev     get required amount of tokens
      */
-    function projectTokensRequired() public view returns(uint256 projectTokenAmounts){
-        projectTokenAmounts = amounts[0] + ((amounts[0]*primeDaoFeePercentage)/HUNDRED_PERCENT);
+    function projectTokensRequired()
+        public
+        view
+        returns (uint256 projectTokenAmounts)
+    {
+        projectTokenAmounts =
+            amounts[0] +
+            ((amounts[0] * primeDaoFeePercentage) / HUNDRED_PERCENT);
     }
 
     /**
      * @dev     get required amount of tokens
      */
-    function feeAmountRequired() public view returns(uint256 feeAmount){
-        feeAmount = (amounts[0]*primeDaoFeePercentage)/HUNDRED_PERCENT;
+    function feeAmountRequired() public view returns (uint256 feeAmount) {
+        feeAmount = (amounts[0] * primeDaoFeePercentage) / HUNDRED_PERCENT;
     }
 }
