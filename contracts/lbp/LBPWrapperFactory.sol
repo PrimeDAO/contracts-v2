@@ -77,9 +77,9 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
      * @param _name                     LBP name
      * @param _symbol                   LBP symbol
      * @param _tokens                   array of tokens sorted for the LBP
+     * @param _amounts                  array of amounts of tokens that needs to be added as liquidity
      * @param _weights                  array of start weights for respective tokens
-     * @param _startTime                start time
-     * @param _endTime                  end time
+     * @param _startTimeEndtime         array of start time and end time
      * @param _endWeights               array of end weights for respective tokens
      * @param _admin                    address of admin/owner of LBP
      * @param _swapFeePercentage        value to be set as swap fee in the pool
@@ -87,17 +87,17 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
      * @param _beneficiary              address who is the receiver of the primeDaoFeePercentage
      */
     function deployLBPUsingWrapper(
+        address _admin,
+        address _beneficiary,
         string memory _name,
         string memory _symbol,
         IERC20[] memory _tokens,
+        uint256[] memory _amounts,
         uint256[] memory _weights,
-        uint256 _startTime,
-        uint256 _endTime,
+        uint256[] memory _startTimeEndtime,
         uint256[] memory _endWeights,
-        address _admin,
         uint256 _swapFeePercentage,
-        uint256 _primeDaoFeePercentage,
-        address _beneficiary
+        uint256 _primeDaoFeePercentage
     ) external onlyOwner {
         require(
             wrapperMasterCopy != address(0),
@@ -108,16 +108,16 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
 
         address lbp = LBPWrapper(wrapper).initializeLBP(
             LBPFactory,
+            _beneficiary,
             _name,
             _symbol,
             _tokens,
+            _amounts,
             _weights,
-            _startTime,
-            _endTime,
+            _startTimeEndtime,
             _endWeights,
             _swapFeePercentage,
-            _primeDaoFeePercentage,
-            _beneficiary
+            _primeDaoFeePercentage
         );
 
         LBPWrapper(wrapper).transferAdminRights(_admin);
