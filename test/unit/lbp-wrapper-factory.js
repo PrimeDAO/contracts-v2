@@ -36,6 +36,7 @@ describe(">> Contract: LBPWrapperFactory", () => {
   const NAME = "SEED-MKR POOL";
   const SYMBOL = "SEED-MKR";
 
+  const amounts = [1e18, 10e18].map((amount) => amount.toString());
   const START_WEIGHTS = [0.7e18, 0.3e18].map((weight) => weight.toString());
   const END_WEIGHTS = [0.3e18, 0.7e18].map((weight) => weight.toString());
   const ADMIN_BALANCE = [32.667e18, 30000e6].map((balance) =>
@@ -79,17 +80,17 @@ describe(">> Contract: LBPWrapperFactory", () => {
     let params;
     before("!! setup for deploying LBPWrapper", async () => {
       params = [
+        admin.address,
+        beneficiary.address,
         NAME,
         SYMBOL,
         tokenAddresses,
+        amounts,
         START_WEIGHTS,
-        startTime,
-        endTime,
+        [startTime, endTime],
         END_WEIGHTS,
-        admin.address,
         SWAP_FEE_PERCENTAGE,
         primeDaoFeePercentage,
-        beneficiary.address,
       ];
     });
     it("$ reverts if deploying LBPWrapper & mastercopy is not set", async () => {
@@ -159,56 +160,56 @@ describe(">> Contract: LBPWrapperFactory", () => {
     let params;
     it("$ reverts on invalid swapFeePercentage", async () => {
       params = [
+        admin.address,
+        beneficiary.address,
         NAME,
         SYMBOL,
         tokenAddresses,
+        amounts,
         START_WEIGHTS,
-        startTime,
-        endTime,
+        [startTime, endTime],
         END_WEIGHTS,
-        admin.address,
         TO_LOW_SWAP_FEE_PERCENTAGE,
         primeDaoFeePercentage,
-        beneficiary.address,
       ];
       await expect(
         setup.LbpWrapperFactory.connect(owner).deployLBPUsingWrapper(...params)
       ).to.be.revertedWith(
-        "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+        "BAL#203" //MIN_SWAP_FEE_PERCENTAGE
       );
 
       params = [
+        admin.address,
+        beneficiary.address,
         NAME,
         SYMBOL,
         tokenAddresses,
+        amounts,
         START_WEIGHTS,
-        startTime,
-        endTime,
+        [startTime, endTime],
         END_WEIGHTS,
-        admin.address,
         TO_HIGH_SWAP_FEE_PERCENTAGE,
         primeDaoFeePercentage,
-        beneficiary.address,
       ];
       await expect(
         setup.LbpWrapperFactory.connect(owner).deployLBPUsingWrapper(...params)
       ).to.be.revertedWith(
-        "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+        "BAL#202" //MAX_SWAP_FEE_PERCENTAGE
       );
     });
     it("$ reverts on invalid beneficiary address", async () => {
       params = [
+        admin.address,
+        ZERO_ADDRESS,
         NAME,
         SYMBOL,
         tokenAddresses,
+        amounts,
         START_WEIGHTS,
-        startTime,
-        endTime,
+        [startTime, endTime],
         END_WEIGHTS,
-        admin.address,
         SWAP_FEE_PERCENTAGE_CHANGED,
         primeDaoFeePercentage,
-        ZERO_ADDRESS,
       ];
       await expect(
         setup.LbpWrapperFactory.connect(owner).deployLBPUsingWrapper(...params)
@@ -219,17 +220,17 @@ describe(">> Contract: LBPWrapperFactory", () => {
     let params;
     before("!! setup for deploying LBPWrapper", async () => {
       params = [
+        admin.address,
+        beneficiary.address,
         NAME,
         SYMBOL,
         tokenAddresses,
+        amounts,
         START_WEIGHTS,
-        startTime,
-        endTime,
+        [startTime, endTime],
         END_WEIGHTS,
-        admin.address,
         SWAP_FEE_PERCENTAGE_CHANGED,
         primeDaoFeePercentage,
-        beneficiary.address,
       ];
     });
     it("$ deploys LBP successful", async () => {

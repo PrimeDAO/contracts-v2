@@ -38,6 +38,33 @@ const setupFixture = deployments.createFixture(
   }
 );
 
+const paramGenerator = {};
+paramGenerator.initializeParams = (
+  factory,
+  name,
+  symbol,
+  tokens,
+  amounts,
+  startWeights,
+  startTime,
+  endTime,
+  endWeights,
+  swapFee,
+  primeFee,
+  beneficiary) => ([
+    factory,
+    beneficiary,
+    name,
+    symbol,
+    tokens,
+    amounts,
+    startWeights,
+    [startTime, endTime],
+    endWeights,
+    swapFee,
+    primeFee,
+  ]);
+
 const setupInitialState = async (contractInstances, initialState) => {
   const HUNDRED_PERCENT = parseUnits("10", 18);
 
@@ -85,16 +112,15 @@ const setupInitialState = async (contractInstances, initialState) => {
 
     await tokenInstances[0]
       .connect(admin)
-      .transfer(lbpWrapperInstance.address, initialBalances[0].toString());
+      .approve(lbpWrapperInstance.address, initialBalances[0].toString());
     await tokenInstances[1]
       .connect(admin)
-      .transfer(lbpWrapperInstance.address, initialBalances[1].toString());
+      .approve(lbpWrapperInstance.address, initialBalances[1].toString());
 
     if (userData) {
       await lbpWrapperInstance.connect(admin).fundPool(
         tokenAddresses,
-        initialBalances,
-        owner.address,
+        admin.address,
         false, // fromInternalBalance
         userData
       );
@@ -110,6 +136,7 @@ describe(">> Contract: LBPWrapper", () => {
   const SYMBOL = "TT";
   let startTime = Date.now();
   let endTime = startTime + 100000;
+  const amounts = [1e18, 10e18].map((amount) => amount.toString());
   let WEIGHTS = [parseEther("0.6").toString(), parseEther("0.4")];
   const HUNDRED_PERCENT = parseUnits("10", 18);
   // const FIVE_PERCENT = parseUnits("10", 16).mul(5);
@@ -152,11 +179,12 @@ describe(">> Contract: LBPWrapper", () => {
 
     tokenAddresses = tokenInstances.map((token) => token.address);
 
-    initializeLBPParams = [
+    initializeLBPParams = paramGenerator.initializeParams(
       lbpFactoryInstance.address,
       NAME,
       SYMBOL,
       tokenAddresses,
+      amounts,
       WEIGHTS,
       startTime,
       endTime,
@@ -164,7 +192,7 @@ describe(">> Contract: LBPWrapper", () => {
       SWAP_FEE_PERCENTAGE,
       PRIME_DAO_FEE_PERCENTAGE,
       beneficiary.address,
-    ];
+    );
   });
 
   describe("# deploy LBP using Wrapper", () => {
@@ -172,11 +200,12 @@ describe(">> Contract: LBPWrapper", () => {
       let invalidInitializeLBPParams;
 
       it("» revert on swap fee to high", async () => {
-        invalidInitializeLBPParams = [
+        invalidInitializeLBPParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
           SYMBOL,
           tokenAddresses,
+          amounts,
           WEIGHTS,
           startTime,
           endTime,
@@ -184,21 +213,22 @@ describe(">> Contract: LBPWrapper", () => {
           TO_HIGH_SWAP_FEE_PERCENTAGE,
           PRIME_DAO_FEE_PERCENTAGE,
           beneficiary.address,
-        ];
+        );
         await expect(
           lbpWrapperInstance
             .connect(owner)
             .initializeLBP(...invalidInitializeLBPParams)
         ).to.be.revertedWith(
-          "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+          "BAL#202" //MAX_SWAP_FEE_PERCENTAGE
         );
       });
       it("» revert on swap fee to low", async () => {
-        invalidInitializeLBPParams = [
+        invalidInitializeLBPParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
           SYMBOL,
           tokenAddresses,
+          amounts,
           WEIGHTS,
           startTime,
           endTime,
@@ -206,21 +236,22 @@ describe(">> Contract: LBPWrapper", () => {
           TO_LOW_SWAP_FEE_PERCENTAGE,
           PRIME_DAO_FEE_PERCENTAGE,
           beneficiary.address,
-        ];
+        );
         await expect(
           lbpWrapperInstance
             .connect(owner)
             .initializeLBP(...invalidInitializeLBPParams)
         ).to.be.revertedWith(
-          "LBPWrapper: swap fee has to be >= 0.0001% and <= 10% for the LBP"
+          "BAL#203" //MIN_SWAP_FEE_PERCENTAGE
         );
       });
       it("» revert on beneficiary address being zero", async () => {
-        invalidInitializeLBPParams = [
+        invalidInitializeLBPParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
           SYMBOL,
           tokenAddresses,
+          amounts,
           WEIGHTS,
           startTime,
           endTime,
@@ -228,7 +259,7 @@ describe(">> Contract: LBPWrapper", () => {
           SWAP_FEE_PERCENTAGE,
           PRIME_DAO_FEE_PERCENTAGE,
           ZERO_ADDRESS,
-        ];
+        );
         await expect(
           lbpWrapperInstance
             .connect(owner)
@@ -280,7 +311,7 @@ describe(">> Contract: LBPWrapper", () => {
         lbpWrapperInstance
           .connect(owner)
           .transferAdminRights(constants.ZERO_ADDRESS)
-      ).to.be.revertedWith("LBPWrapper: new owner cannot be zero");
+      ).to.be.revertedWith("LBPWrapper: new admin cannot be zero");
     });
     it("» success", async () => {
       await lbpWrapperInstance
@@ -309,7 +340,7 @@ describe(">> Contract: LBPWrapper", () => {
       it("» reverts when not called by admin", async () => {
         await expect(
           lbpWrapperInstance.retrieveProjectAndFundingToken(receiver.address)
-        ).to.be.revertedWith("LBPWrapper: admin owner function");
+        ).to.be.revertedWith("LBPWrapper: only admin function");
       });
       it("» reverts when receiver address is zero", async () => {
         await expect(
@@ -387,10 +418,10 @@ describe(">> Contract: LBPWrapper", () => {
 
         await tokenInstances[0]
           .connect(admin)
-          .transfer(lbpWrapperInstance.address, INITIAL_BALANCES[0].toString());
+          .approve(lbpWrapperInstance.address, INITIAL_BALANCES[0].toString());
         await tokenInstances[1]
           .connect(admin)
-          .transfer(lbpWrapperInstance.address, INITIAL_BALANCES[1].toString());
+          .approve(lbpWrapperInstance.address, INITIAL_BALANCES[1].toString());
 
         userData = ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256[]"],
@@ -412,20 +443,17 @@ describe(">> Contract: LBPWrapper", () => {
         await expect(
           lbpWrapperInstance.fundPool(
             tokenAddresses,
-            INITIAL_BALANCES,
-            owner.address,
+            admin.address,
             FROM_INTERNAL_BALANCE,
             userData
           )
-        ).to.be.revertedWith("LBPWrapper: admin owner function");
+        ).to.be.revertedWith("LBPWrapper: only admin function");
       });
 
       it("» add liquidity to the pool", async () => {
         const eventName = "PoolBalanceChanged";
         const { abi } = VaultArtifact;
         const vaultInterface = new ethers.utils.Interface(abi);
-
-        // console.log(await lbpInstance.address.balanceOf(admin.address));
         expect(
           (await lbpInstance.balanceOf(owner.address)).toString()
         ).to.equal("0");
@@ -434,12 +462,25 @@ describe(">> Contract: LBPWrapper", () => {
           0
         );
 
+        await tokenInstances[0]
+          .connect(owner)
+          .transfer(admin.address, INITIAL_BALANCES[0].mul(2).toString());
+        await tokenInstances[1]
+          .connect(owner)
+          .transfer(admin.address, INITIAL_BALANCES[1].mul(2).toString());
+
+        await tokenInstances[0]
+          .connect(admin)
+          .approve(lbpWrapperInstance.address, INITIAL_BALANCES[0].toString());
+        await tokenInstances[1]
+          .connect(admin)
+          .approve(lbpWrapperInstance.address, INITIAL_BALANCES[1].toString());
+          
         const tx = await lbpWrapperInstance
           .connect(admin)
           .fundPool(
             tokenAddresses,
-            INITIAL_BALANCES,
-            owner.address,
+            admin.address,
             FROM_INTERNAL_BALANCE,
             userData
           );
@@ -470,8 +511,7 @@ describe(">> Contract: LBPWrapper", () => {
             .connect(admin)
             .fundPool(
               tokenAddresses,
-              INITIAL_BALANCES,
-              owner.address,
+              admin.address,
               FROM_INTERNAL_BALANCE,
               userData
             )
@@ -483,7 +523,7 @@ describe(">> Contract: LBPWrapper", () => {
     it("» revert on being called by not the owner", async () => {
       await expect(
         lbpWrapperInstance.connect(owner).setSwapEnabled(false)
-      ).to.be.revertedWith("LBPWrapper: admin owner function");
+      ).to.be.revertedWith("LBPWrapper: only admin function");
     });
     it("» pauses the LBP", async () => {
       expect(await lbpWrapperInstance.admin()).to.equal(admin.address);
