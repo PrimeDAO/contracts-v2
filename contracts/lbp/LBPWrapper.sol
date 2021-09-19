@@ -19,33 +19,34 @@ import "../utils/interface/ILBP.sol";
 import "hardhat/console.sol"; // <<<<<<<<<<<<<<< Remove
 
 contract LBPWrapper {
-    address public admin;
-    address public beneficiary;
 
-    bool public poolFunded;
-    bool public initialized;
-    uint256 public primeDaoFeePercentage;
-
+    // constants
     uint256 private constant HUNDRED_PERCENT = 10e18;
 
-    IERC20[] public tokens;
+    // locked parameter
+    address public admin; // The address of the admin of this contract.
+    address public beneficiary; // The address that recieves fees
+    uint256 public primeDaoFeePercentage; // fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
+    ILBP public lbp; // address of LBP that is managed by this contract.
+    IERC20[] public tokens; // tokens that are used in the LBP
 
-    ILBP public lbp;
-    // IERC20[] tokens;
+
+    bool public poolFunded; // true:- LBP is funded; false:- LBP is yet not funded.
+    bool public initialized; // true:- LBP created; false:- LBP not yet created. Makes sure, only initialized once.
 
     modifier onlyAdmin() {
-        require(msg.sender == admin, "LBPWrapper: admin owner function");
+        require(msg.sender == admin, "LBPWrapper: only admin function");
         _;
     }
 
     /**
-     * @dev                             transfer ownership to new owner
-     * @param _newAdmin                 new owner address
+     * @dev                             transfer admin rights to new admin
+     * @param _newAdmin                 new admin address
      */
     function transferAdminRights(address _newAdmin) external onlyAdmin {
         require(
             _newAdmin != address(0),
-            "LBPWrapper: new owner cannot be zero"
+            "LBPWrapper: new admin cannot be zero"
         );
         admin = _newAdmin;
     }
