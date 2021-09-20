@@ -168,6 +168,42 @@ contract LBPWrapper {
     }
 
     /**
+     * @dev exit pool or remove liquidity from pool
+     * @param _tokens                   array of tokens sorted for the LBP
+     * @param _receiver                 address who will be credited with the tokens after removing liquidity
+     * @param _minAmountsOut            array of minimum amounts out
+     * @param _toInternalBalance        fund tokens to the internal user balance
+     * @param _userData                 userData specifies the type of exit
+     */
+    function removeLiquidity(
+        IERC20[] memory _tokens,
+        address payable _receiver,
+        uint256[] memory _minAmountsOut,
+        bool _toInternalBalance,
+        bytes memory _userData
+    ) external{
+        uint256 endTime;
+        (, endTime,) = lbp.getGradualWeightUpdateParams();
+        require(
+            block.timestamp >= endTime,
+            "LBPWrapper: cannot exit before endtime"
+        );
+
+        IVault vault = lbp.getVault();
+
+        IVault.ExitPoolRequest memory request = IVault.ExitPoolRequest({
+            minAmountsOut: _minAmountsOut,
+            userData: _userData,
+            toInternalBalance: _toInternalBalance,
+            assets: _tokens
+        });
+
+        lbp.approve(address(vault), lbp.balanceOf(address(this)));
+
+        vault.exitPool(lbp.getPoolId(), address(this), _receiver, request);
+    }
+
+    /**
      * @dev                             can pause/unpause trading
      * @param _swapEnabled              enable/disable swapping
      */
