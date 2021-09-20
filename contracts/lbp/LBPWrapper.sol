@@ -186,14 +186,8 @@ contract LBPWrapper {
             _receiver != payable(address(0)),
             "LBPWrapper: receiver of project and funding tokens can't be zero"
         );
-        require(
-            holdsPoolTokens(),
-            "LBPWrapper: pool tokens were withdrawn"
-        );
-        require(
-            endTimeReached(),
-            "LBPWrapper: cannot exit before endtime"
-        );
+        require(holdsPoolTokens(), "LBPWrapper: pool tokens were withdrawn");
+        require(endTimeReached(), "LBPWrapper: cannot exit before endtime");
 
         IVault vault = lbp.getVault();
 
@@ -222,10 +216,7 @@ contract LBPWrapper {
      * @dev                             will withdraw pool tokens if available
      * @param _receiver                 address that receives the project and funding tokens
      */
-    function withdrawPoolTokens(address _receiver)
-        external
-        onlyAdmin
-    {
+    function withdrawPoolTokens(address _receiver) external onlyAdmin {
         require(
             _receiver != address(0),
             "LBPWrapper: receiver of pool tokens can't be zero"
@@ -234,10 +225,7 @@ contract LBPWrapper {
             endTimeReached(),
             "LBPWrapper: can withdraw only after endtime"
         );
-        require(
-            holdsPoolTokens(),
-            "LBPWrapper: pool tokens were withdrawn"
-        );
+        require(holdsPoolTokens(), "LBPWrapper: pool tokens were withdrawn");
 
         lbp.transfer(_receiver, lbp.balanceOf(address(this)));
     }
@@ -258,7 +246,8 @@ contract LBPWrapper {
         view
         returns (uint256 projectTokenAmounts)
     {
-        projectTokenAmounts = amounts[0] +
+        projectTokenAmounts =
+            amounts[0] +
             ((amounts[0] * primeDaoFeePercentage) / HUNDRED_PERCENT);
     }
 
@@ -272,14 +261,14 @@ contract LBPWrapper {
     /**
      * @dev checks if LBPWrapper holds the pool tokens or not
      */
-    function holdsPoolTokens() public view returns (bool isHoldingPoolTokens){
+    function holdsPoolTokens() public view returns (bool isHoldingPoolTokens) {
         return lbp.balanceOf(address(this)) > 0;
     }
 
     /**
      * @dev checks if end time is reached or not
      */
-    function endTimeReached() public view returns (bool isEndtimeReached){
+    function endTimeReached() public view returns (bool isEndtimeReached) {
         uint256 endTime;
         (, endTime, ) = lbp.getGradualWeightUpdateParams();
         return block.timestamp >= endTime;
