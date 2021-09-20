@@ -743,7 +743,9 @@ describe(">> Contract: LBPWrapper", () => {
             false,
             exitUserData
           )
-      ).to.be.revertedWith("LBPWrapper: cannot remove liqudity from the pool before endtime");
+      ).to.be.revertedWith(
+        "LBPWrapper: cannot remove liqudity from the pool before endtime"
+      );
     });
     it(">> exits or remove liquidity after endTime", async () => {
       await time.increase(1000);
@@ -813,7 +815,9 @@ describe(">> Contract: LBPWrapper", () => {
     it(">> reverts when trying to withdraw before end time", async () => {
       await expect(
         lbpWrapperInstance.connect(admin).withdrawPoolTokens(admin.address)
-      ).to.be.revertedWith("LBPWrapper: cannot withdraw pool tokens before endtime");
+      ).to.be.revertedWith(
+        "LBPWrapper: cannot withdraw pool tokens before endtime"
+      );
     });
     it(">> withdraw pool tokens", async () => {
       await time.increase(1000);
@@ -829,7 +833,9 @@ describe(">> Contract: LBPWrapper", () => {
       await lbpWrapperInstance.connect(admin).withdrawPoolTokens(admin.address);
       await expect(
         lbpWrapperInstance.connect(admin).withdrawPoolTokens(admin.address)
-      ).to.be.revertedWith("LBPWrapper: wrapper dosen't have any pool tokens to withdraw");
+      ).to.be.revertedWith(
+        "LBPWrapper: wrapper dosen't have any pool tokens to withdraw"
+      );
     });
     it(">> reverts when trying to remove liquidity after withdrawing pool tokens", async () => {
       await time.increase(1000);
@@ -844,7 +850,9 @@ describe(">> Contract: LBPWrapper", () => {
             false,
             exitUserData
           )
-      ).to.be.revertedWith("LBPWrapper: wrapper dosen't have any pool tokens to remove liquidity");
+      ).to.be.revertedWith(
+        "LBPWrapper: wrapper dosen't have any pool tokens to remove liquidity"
+      );
     });
   });
 });

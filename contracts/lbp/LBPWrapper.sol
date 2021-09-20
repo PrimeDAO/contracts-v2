@@ -186,7 +186,10 @@ contract LBPWrapper {
             _receiver != payable(address(0)),
             "LBPWrapper: receiver of project and funding tokens can't be zero"
         );
-        require(lbp.balanceOf(address(this)) > 0, "LBPWrapper: wrapper dosen't have any pool tokens to remove liquidity");
+        require(
+            lbp.balanceOf(address(this)) > 0,
+            "LBPWrapper: wrapper dosen't have any pool tokens to remove liquidity"
+        );
 
         uint256 endTime;
         (, endTime, ) = lbp.getGradualWeightUpdateParams();
@@ -236,7 +239,10 @@ contract LBPWrapper {
             "LBPWrapper: cannot withdraw pool tokens before endtime"
         );
 
-        require(lbp.balanceOf(address(this)) > 0, "LBPWrapper: wrapper dosen't have any pool tokens to withdraw");
+        require(
+            lbp.balanceOf(address(this)) > 0,
+            "LBPWrapper: wrapper dosen't have any pool tokens to withdraw"
+        );
 
         lbp.transfer(_receiver, lbp.balanceOf(address(this)));
     }
