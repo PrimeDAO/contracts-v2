@@ -10,6 +10,7 @@ const VaultArtifact = require("../../imports/Vault.json");
 const { formatUnits, big } = require("@ethersproject/units");
 const { ZERO_ADDRESS } = require("@openzeppelin/test-helpers/src/constants");
 const { zeroPad } = require("@ethersproject/bytes");
+const { BigNumber } = require("@ethersproject/bignumber");
 
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
@@ -28,6 +29,7 @@ const setupFixture = deployments.createFixture(
     });
 
     const contractInstances = {
+      vaultInstance: vaultInstance,
       lbpFactoryInstance: lbpFactoryInstance,
       lbpContractFactory: await balancer.getLbpFactory(root),
       lbpWrapperInstance: await ethers.getContract("LbpWrapper"),
@@ -44,26 +46,27 @@ paramGenerator.initializeParams = (
   name,
   symbol,
   tokens,
-  amounts,
+  INITIAL_BALANCES,
   startWeights,
   startTime,
   endTime,
   endWeights,
   swapFee,
   primeFee,
-  beneficiary) => ([
-    factory,
-    beneficiary,
-    name,
-    symbol,
-    tokens,
-    amounts,
-    startWeights,
-    [startTime, endTime],
-    endWeights,
-    swapFee,
-    primeFee,
-  ]);
+  beneficiary
+) => [
+  factory,
+  beneficiary,
+  name,
+  symbol,
+  tokens,
+  INITIAL_BALANCES,
+  startWeights,
+  [startTime, endTime],
+  endWeights,
+  swapFee,
+  primeFee,
+];
 
 const setupInitialState = async (contractInstances, initialState) => {
   const HUNDRED_PERCENT = parseUnits("10", 18);
@@ -136,7 +139,6 @@ describe(">> Contract: LBPWrapper", () => {
   const SYMBOL = "TT";
   let startTime = Date.now();
   let endTime = startTime + 100000;
-  const amounts = [1e18, 10e18].map((amount) => amount.toString());
   let WEIGHTS = [parseEther("0.6").toString(), parseEther("0.4")];
   const HUNDRED_PERCENT = parseUnits("10", 18);
   // const FIVE_PERCENT = parseUnits("10", 16).mul(5);
@@ -157,6 +159,7 @@ describe(">> Contract: LBPWrapper", () => {
     amountToAddForFee,
     lbpFactoryInstance,
     contractInstances,
+    vaultInstance,
     lbpWrapperInstance,
     tokenInstances,
     lbpContractFactory,
@@ -171,6 +174,7 @@ describe(">> Contract: LBPWrapper", () => {
   beforeEach(async () => {
     contractInstances = await setupFixture();
     ({
+      vaultInstance,
       lbpFactoryInstance,
       lbpContractFactory,
       lbpWrapperInstance,
@@ -184,14 +188,14 @@ describe(">> Contract: LBPWrapper", () => {
       NAME,
       SYMBOL,
       tokenAddresses,
-      amounts,
+      INITIAL_BALANCES,
       WEIGHTS,
       startTime,
       endTime,
       END_WEIGHTS,
       SWAP_FEE_PERCENTAGE,
       PRIME_DAO_FEE_PERCENTAGE,
-      beneficiary.address,
+      beneficiary.address
     );
   });
 
@@ -205,14 +209,14 @@ describe(">> Contract: LBPWrapper", () => {
           NAME,
           SYMBOL,
           tokenAddresses,
-          amounts,
+          INITIAL_BALANCES,
           WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
           TO_HIGH_SWAP_FEE_PERCENTAGE,
           PRIME_DAO_FEE_PERCENTAGE,
-          beneficiary.address,
+          beneficiary.address
         );
         await expect(
           lbpWrapperInstance
@@ -228,14 +232,14 @@ describe(">> Contract: LBPWrapper", () => {
           NAME,
           SYMBOL,
           tokenAddresses,
-          amounts,
+          INITIAL_BALANCES,
           WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
           TO_LOW_SWAP_FEE_PERCENTAGE,
           PRIME_DAO_FEE_PERCENTAGE,
-          beneficiary.address,
+          beneficiary.address
         );
         await expect(
           lbpWrapperInstance
@@ -251,14 +255,14 @@ describe(">> Contract: LBPWrapper", () => {
           NAME,
           SYMBOL,
           tokenAddresses,
-          amounts,
+          INITIAL_BALANCES,
           WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
           PRIME_DAO_FEE_PERCENTAGE,
-          ZERO_ADDRESS,
+          ZERO_ADDRESS
         );
         await expect(
           lbpWrapperInstance
@@ -352,6 +356,12 @@ describe(">> Contract: LBPWrapper", () => {
         );
       });
       it("» retrieves back the funds to admin", async () => {
+        await tokenInstances[0]
+          .connect(admin)
+          .transfer(lbpWrapperInstance.address, INITIAL_BALANCES[0].toString());
+        await tokenInstances[1]
+          .connect(admin)
+          .transfer(lbpWrapperInstance.address, INITIAL_BALANCES[1].toString());
         expect(
           await tokenInstances[0].balanceOf(lbpWrapperInstance.address)
         ).to.equal(INITIAL_BALANCES[0]);
@@ -403,30 +413,15 @@ describe(">> Contract: LBPWrapper", () => {
     describe("$ adding liquidity fails", async () => {
       let userData;
       before(async () => {
-        await tokenInstances[0]
-          .connect(owner)
-          .transfer(admin.address, INITIAL_BALANCES[0].mul(2).toString());
-        await tokenInstances[1]
-          .connect(owner)
-          .transfer(admin.address, INITIAL_BALANCES[1].mul(2).toString());
+        userData = ethers.utils.defaultAbiCoder.encode(
+          ["uint256", "uint256[]"],
+          [JOIN_KIND_INIT, INITIAL_BALANCES]
+        );
 
         // Add fee amount on top
         amountToAddForFee = INITIAL_BALANCES[0]
           .mul(PRIME_DAO_FEE_PERCENTAGE)
           .div(HUNDRED_PERCENT);
-        INITIAL_BALANCES[0] = INITIAL_BALANCES[0].add(amountToAddForFee);
-
-        await tokenInstances[0]
-          .connect(admin)
-          .approve(lbpWrapperInstance.address, INITIAL_BALANCES[0].toString());
-        await tokenInstances[1]
-          .connect(admin)
-          .approve(lbpWrapperInstance.address, INITIAL_BALANCES[1].toString());
-
-        userData = ethers.utils.defaultAbiCoder.encode(
-          ["uint256", "uint256[]"],
-          [JOIN_KIND_INIT, INITIAL_BALANCES]
-        );
       });
       beforeEach(async () => {
         const initialState = {
@@ -438,6 +433,19 @@ describe(">> Contract: LBPWrapper", () => {
           contractInstances,
           initialState
         ));
+        await tokenInstances[0]
+          .connect(owner)
+          .transfer(admin.address, INITIAL_BALANCES[0].mul(2).toString());
+        await tokenInstances[1]
+          .connect(owner)
+          .transfer(admin.address, INITIAL_BALANCES[1].mul(2).toString());
+
+        await tokenInstances[0]
+          .connect(admin)
+          .approve(lbpWrapperInstance.address, INITIAL_BALANCES[0].mul(2).toString());
+        await tokenInstances[1]
+          .connect(admin)
+          .approve(lbpWrapperInstance.address, INITIAL_BALANCES[1].mul(2).toString());
       });
       it("» reverts when not called by owner", async () => {
         await expect(
@@ -455,27 +463,13 @@ describe(">> Contract: LBPWrapper", () => {
         const { abi } = VaultArtifact;
         const vaultInterface = new ethers.utils.Interface(abi);
         expect(
-          (await lbpInstance.balanceOf(owner.address)).toString()
+          (await lbpInstance.balanceOf(lbpWrapperInstance.address)).toString()
         ).to.equal("0");
         // check balance of beneficiary before joinPool()
         expect(await tokenInstances[0].balanceOf(beneficiary.address)).to.equal(
           0
         );
 
-        await tokenInstances[0]
-          .connect(owner)
-          .transfer(admin.address, INITIAL_BALANCES[0].mul(2).toString());
-        await tokenInstances[1]
-          .connect(owner)
-          .transfer(admin.address, INITIAL_BALANCES[1].mul(2).toString());
-
-        await tokenInstances[0]
-          .connect(admin)
-          .approve(lbpWrapperInstance.address, INITIAL_BALANCES[0].toString());
-        await tokenInstances[1]
-          .connect(admin)
-          .approve(lbpWrapperInstance.address, INITIAL_BALANCES[1].toString());
-          
         const tx = await lbpWrapperInstance
           .connect(admin)
           .fundPool(
@@ -486,7 +480,7 @@ describe(">> Contract: LBPWrapper", () => {
           );
 
         const receipt = await tx.wait();
-        const vaultAddress = setup.vault.address;
+        const vaultAddress = vaultInstance.address;
         const vaultEvent = receipt.events.find(
           (log) => log.address === vaultAddress
         );
@@ -498,7 +492,7 @@ describe(">> Contract: LBPWrapper", () => {
         expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
         expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
         expect(
-          (await lbpInstance.balanceOf(owner.address)).toString()
+          (await lbpInstance.balanceOf(lbpWrapperInstance.address)).toString()
         ).not.equal("0");
         // Check balance beneficiary after joinPool()
         expect(await tokenInstances[0].balanceOf(beneficiary.address)).to.equal(
@@ -506,6 +500,15 @@ describe(">> Contract: LBPWrapper", () => {
         );
       });
       it("» revert when adding liquidity more then once", async () => {
+        // adding initial liquidity
+        await lbpWrapperInstance
+            .connect(admin)
+            .fundPool(
+              tokenAddresses,
+              admin.address,
+              FROM_INTERNAL_BALANCE,
+              userData
+            );
         await expect(
           lbpWrapperInstance
             .connect(admin)
@@ -520,6 +523,17 @@ describe(">> Contract: LBPWrapper", () => {
     });
   });
   context("# pause the LBP", async () => {
+    beforeEach(async () => {
+      const initialState = {
+        initializeLBPParams,
+        OwnerAdmin: true,
+        // funds,
+      };
+      ({ lbpWrapperInstance, tokenInstances } = await setupInitialState(
+        contractInstances,
+        initialState
+      ));
+    });
     it("» revert on being called by not the owner", async () => {
       await expect(
         lbpWrapperInstance.connect(owner).setSwapEnabled(false)
