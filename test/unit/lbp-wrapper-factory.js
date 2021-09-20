@@ -26,7 +26,7 @@ const deploy = async () => {
   return setup;
 };
 
-describe(">> Contract: LBPWrapperFactory", () => {
+describe.only(">> Contract: LBPWrapperFactory", () => {
   let setup, primeDaoFeePercentage, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
@@ -63,7 +63,7 @@ describe(">> Contract: LBPWrapperFactory", () => {
     it("$ revert on deploy LBPWrapperFactory with zero address LBPFactory", async () => {
       await expect(
         init.getContractInstance("LBPWrapperFactory", owner, [ZERO_ADDRESS])
-      ).to.be.revertedWith("LBPWrapperFactory: LBPFactory cannot be zero");
+      ).to.be.revertedWith("LBPWrapperFactory: LBPFactory can not be zero");
     });
     it("$ deploy LBPWrapperFactory", async () => {
       setup.LbpWrapperFactory = await init.getContractInstance(
@@ -103,13 +103,13 @@ describe(">> Contract: LBPWrapperFactory", () => {
     it("$ reverts on zero address", async () => {
       await expect(
         setup.LbpWrapperFactory.setMasterCopy(ZERO_ADDRESS)
-      ).to.be.revertedWith("LBPWrapperFactory: mastercopy cannot be zero");
+      ).to.be.revertedWith("LBPWrapperFactory: mastercopy can not be zero");
     });
     it("$ reverts on same address as LBPWrapperFactory", async () => {
       await expect(
         setup.LbpWrapperFactory.setMasterCopy(setup.LbpWrapperFactory.address)
       ).to.be.revertedWith(
-        "LBPWrapperFactory: mastercopy cannot be the same as LBPWrapperFactory"
+        "LBPWrapperFactory: mastercopy can not be the same as LBPWrapperFactory"
       );
     });
     it("$ reverts on called not by owner", async () => {
@@ -133,13 +133,13 @@ describe(">> Contract: LBPWrapperFactory", () => {
     it("$ reverts on zero address", async () => {
       await expect(
         setup.LbpWrapperFactory.setLBPFactory(ZERO_ADDRESS)
-      ).to.be.revertedWith("LBPWrapperFactory: LBPFactory cannot be zero");
+      ).to.be.revertedWith("LBPWrapperFactory: LBPFactory can not be zero");
     });
     it("$ reverts on same address as LBPWrapperFactory", async () => {
       await expect(
         setup.LbpWrapperFactory.setLBPFactory(setup.LbpWrapperFactory.address)
       ).to.be.revertedWith(
-        "LBPWrapperFactory: LBPFactory cannot be the same as LBPWrapperFactory"
+        "LBPWrapperFactory: LBPFactory can not be the same as LBPWrapperFactory"
       );
     });
     it("$ reverts on called not by owner", async () => {
@@ -213,7 +213,7 @@ describe(">> Contract: LBPWrapperFactory", () => {
       ];
       await expect(
         setup.LbpWrapperFactory.connect(owner).deployLBPUsingWrapper(...params)
-      ).to.be.revertedWith("LBPWrapper: _beneficiary cannot be zero address");
+      ).to.be.revertedWith("LBPWrapper: _beneficiary can not be zero address");
     });
   });
   context("» deploy LBP using LBPWrapper", () => {

@@ -45,27 +45,9 @@ contract LBPWrapper {
     function transferAdminRights(address _newAdmin) external onlyAdmin {
         require(
             _newAdmin != address(0),
-            "LBPWrapper: new admin cannot be zero"
+            "LBPWrapper: new admin can not be zero"
         );
         admin = _newAdmin;
-    }
-
-    /**
-     * @dev                             will withdraw project and funding tokens if available
-     * @param _receiver                 address that receives the project and funding tokens
-     */
-    function retrieveProjectAndFundingToken(address _receiver)
-        external
-        onlyAdmin
-    {
-        require(
-            _receiver != address(0),
-            "LBPWrapper: receiver of project and funding tokens can't be zero"
-        );
-
-        for (uint8 i; i < tokens.length; i++) {
-            tokens[i].transfer(_receiver, tokens[i].balanceOf(address(this)));
-        }
     }
 
     /**
@@ -98,7 +80,7 @@ contract LBPWrapper {
         require(!initialized, "LBPWrapper: already initialized");
         require(
             _beneficiary != address(0),
-            "LBPWrapper: _beneficiary cannot be zero address"
+            "LBPWrapper: _beneficiary can not be zero address"
         );
 
         initialized = true;
@@ -171,14 +153,12 @@ contract LBPWrapper {
      * @dev exit pool or remove liquidity from pool
      * @param _tokens                   array of tokens sorted for the LBP
      * @param _receiver                 address who will be credited with the tokens after removing liquidity
-     * @param _minAmountsOut            array of minimum amounts out
      * @param _toInternalBalance        fund tokens to the internal user balance
      * @param _userData                 userData specifies the type of exit
      */
     function removeLiquidity(
         IERC20[] memory _tokens,
         address payable _receiver,
-        uint256[] memory _minAmountsOut,
         bool _toInternalBalance,
         bytes memory _userData
     ) external {
@@ -188,7 +168,7 @@ contract LBPWrapper {
         );
         require(
             lbp.balanceOf(address(this)) > 0,
-            "LBPWrapper: wrapper dosen't have any pool tokens to remove liquidity"
+            "LBPWrapper: wrapper does not have any pool tokens to remove liquidity"
         );
 
         uint256 endTime;
@@ -196,8 +176,11 @@ contract LBPWrapper {
 
         require(
             block.timestamp >= endTime,
-            "LBPWrapper: cannot remove liqudity from the pool before endtime"
+            "LBPWrapper: can not remove liqudity from the pool before endtime"
         );
+
+        // to remove all funding from the pool. Initializes to [0, 0]
+        uint256[] memory _minAmountsOut = new uint256[](2);
 
         IVault vault = lbp.getVault();
 
@@ -214,17 +197,19 @@ contract LBPWrapper {
     }
 
     /*
-        DISCLAIMER: This is an advanced functaionality
-        By invoking this method, you are withdrawing the pool tokens, which are necessary to exit pool.
-        If you do so, LBPWrapper, will no longer be able to remove liquidity.
-        By invoking this method you agree that you know what you are doing. And for any loss of funds,
-        LBPWrapper creator or PrimeDAO, won't be responsible.
-        After withdrawing Pool tokens, you have to remove liquidity directly from Balancer's LBP,
-        and LBPWrapper or PrimeDAO will no longer provide support to do so.
+        DISCLAIMER:
+        The method below is an advanced functionality. By invoking this method, you are withdrawing
+        the BPT tokens, which are necessary to exit the pool. If you chose to remove the BPT tokens,
+        the LBPManager will no longer be able to remove liquidity. By withdrawing the BPT tokens
+        you agree on removing all the responsibility from the LBPManger for removing liquidity from
+        the pool and transferring this responsibility to the holder of the BPT tokens. Any possible
+        loss of funds by choosing to withdraw the BPT tokens is not the responsibility of
+        LBPManager or PrimeDao. After withdrawing the BPT tokens, liquidity has to be withdrawn
+        directly from Balancer's LBP. LBPWrapper or PrimeDAO will no longer provide support to do so.
     */
     /**
      * @dev                             will withdraw pool tokens if available
-     * @param _receiver                 address that receives the project and funding tokens
+     * @param _receiver                 address that receives the pool tokens
      */
     function withdrawPoolTokens(address _receiver) external onlyAdmin {
         require(
@@ -236,12 +221,12 @@ contract LBPWrapper {
         (, endTime, ) = lbp.getGradualWeightUpdateParams();
         require(
             block.timestamp >= endTime,
-            "LBPWrapper: cannot withdraw pool tokens before endtime"
+            "LBPWrapper: can not withdraw pool tokens before endtime"
         );
 
         require(
             lbp.balanceOf(address(this)) > 0,
-            "LBPWrapper: wrapper dosen't have any pool tokens to withdraw"
+            "LBPWrapper: wrapper does not have any pool tokens to withdraw"
         );
 
         lbp.transfer(_receiver, lbp.balanceOf(address(this)));
@@ -271,7 +256,7 @@ contract LBPWrapper {
     /**
      * @dev     get required amount of tokens
      */
-    function feeAmountRequired() public view returns (uint256 feeAmount) {
+    function feeAmountRequired() internal view returns (uint256 feeAmount) {
         feeAmount = (amounts[0] * primeDaoFeePercentage) / HUNDRED_PERCENT;
     }
 }

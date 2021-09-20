@@ -35,7 +35,7 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
     constructor(address _LBPFactory) {
         require(
             _LBPFactory != address(0),
-            "LBPWrapperFactory: LBPFactory cannot be zero"
+            "LBPWrapperFactory: LBPFactory can not be zero"
         );
         LBPFactory = _LBPFactory;
     }
@@ -47,11 +47,11 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
     function setMasterCopy(address _masterCopy) external onlyOwner {
         require(
             _masterCopy != address(0),
-            "LBPWrapperFactory: mastercopy cannot be zero"
+            "LBPWrapperFactory: mastercopy can not be zero"
         );
         require(
             _masterCopy != address(this),
-            "LBPWrapperFactory: mastercopy cannot be the same as LBPWrapperFactory"
+            "LBPWrapperFactory: mastercopy can not be the same as LBPWrapperFactory"
         );
         wrapperMasterCopy = _masterCopy;
     }
@@ -63,11 +63,11 @@ contract LBPWrapperFactory is CloneFactory, Ownable {
     function setLBPFactory(address _LBPFactory) external onlyOwner {
         require(
             _LBPFactory != address(0),
-            "LBPWrapperFactory: LBPFactory cannot be zero"
+            "LBPWrapperFactory: LBPFactory can not be zero"
         );
         require(
             _LBPFactory != address(this),
-            "LBPWrapperFactory: LBPFactory cannot be the same as LBPWrapperFactory"
+            "LBPWrapperFactory: LBPFactory can not be the same as LBPWrapperFactory"
         );
         LBPFactory = _LBPFactory;
     }
