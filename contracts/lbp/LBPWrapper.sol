@@ -181,11 +181,17 @@ contract LBPWrapper {
         uint256[] memory _minAmountsOut,
         bool _toInternalBalance,
         bytes memory _userData
-    ) external{
-        uint256 endTime;
-        (, endTime,) = lbp.getGradualWeightUpdateParams();
+    ) external {
         require(
-            block.timestamp >= endTime,
+            _receiver != payable(address(0)),
+            "LBPWrapper: receiver of project and funding tokens can't be zero"
+        );
+        require(
+            holdsPoolTokens(),
+            "LBPWrapper: pool tokens were withdrawn"
+        );
+        require(
+            endTimeReached(),
             "LBPWrapper: cannot exit before endtime"
         );
 
@@ -201,6 +207,39 @@ contract LBPWrapper {
         lbp.approve(address(vault), lbp.balanceOf(address(this)));
 
         vault.exitPool(lbp.getPoolId(), address(this), _receiver, request);
+    }
+
+    /*
+        DISCLAIMER: This is an advanced functaionality
+        By invoking this method, you are withdrawing the pool tokens, which are necessary to exit pool.
+        If you do so, LBPWrapper, will no longer be able to remove liquidity.
+        By invoking this method you agree that you know what you are doing. And for any loss of funds,
+        LBPWrapper creator or PrimeDAO, won't be responsible.
+        After withdrawing Pool tokens, you have to remove liquidity directly from Balancer's LBP,
+        and LBPWrapper or PrimeDAO will no longer provide support to do so.
+    */
+    /**
+     * @dev                             will withdraw pool tokens if available
+     * @param _receiver                 address that receives the project and funding tokens
+     */
+    function withdrawPoolTokens(address _receiver)
+        external
+        onlyAdmin
+    {
+        require(
+            _receiver != address(0),
+            "LBPWrapper: receiver of pool tokens can't be zero"
+        );
+        require(
+            endTimeReached(),
+            "LBPWrapper: can withdraw only after endtime"
+        );
+        require(
+            holdsPoolTokens(),
+            "LBPWrapper: pool tokens were withdrawn"
+        );
+
+        lbp.transfer(_receiver, lbp.balanceOf(address(this)));
     }
 
     /**
@@ -219,8 +258,7 @@ contract LBPWrapper {
         view
         returns (uint256 projectTokenAmounts)
     {
-        projectTokenAmounts =
-            amounts[0] +
+        projectTokenAmounts = amounts[0] +
             ((amounts[0] * primeDaoFeePercentage) / HUNDRED_PERCENT);
     }
 
@@ -229,5 +267,21 @@ contract LBPWrapper {
      */
     function feeAmountRequired() public view returns (uint256 feeAmount) {
         feeAmount = (amounts[0] * primeDaoFeePercentage) / HUNDRED_PERCENT;
+    }
+
+    /**
+     * @dev checks if LBPWrapper holds the pool tokens or not
+     */
+    function holdsPoolTokens() public view returns (bool isHoldingPoolTokens){
+        return lbp.balanceOf(address(this)) > 0;
+    }
+
+    /**
+     * @dev checks if end time is reached or not
+     */
+    function endTimeReached() public view returns (bool isEndtimeReached){
+        uint256 endTime;
+        (, endTime, ) = lbp.getGradualWeightUpdateParams();
+        return block.timestamp >= endTime;
     }
 }
