@@ -162,7 +162,7 @@ describe(">> Contract: LBPWrapper", () => {
   // const FIVE_PERCENT = parseUnits("10", 16).mul(5);
   const INITIAL_BALANCES = [parseUnits("2000", 18), parseUnits("1000", 18)];
   const END_WEIGHTS = [parseEther("0.4").toString(), parseEther("0.6")];
-  const ZERO_AMOUNT_ARRAY = [0,0];
+  const ZERO_AMOUNT_ARRAY = [0, 0];
   const SWAP_FEE_PERCENTAGE = parseUnits("1", 16);
   const TO_LOW_SWAP_FEE_PERCENTAGE = parseUnits("1", 10);
   const TO_HIGH_SWAP_FEE_PERCENTAGE = parseUnits("1", 18);
@@ -743,7 +743,7 @@ describe(">> Contract: LBPWrapper", () => {
             false,
             exitUserData
           )
-      ).to.be.revertedWith("LBPWrapper: cannot exit before endtime");
+      ).to.be.revertedWith("LBPWrapper: cannot remove liqudity from the pool before endtime");
     });
     it(">> exits or remove liquidity after endTime", async () => {
       await time.increase(1000);
@@ -813,7 +813,7 @@ describe(">> Contract: LBPWrapper", () => {
     it(">> reverts when trying to withdraw before end time", async () => {
       await expect(
         lbpWrapperInstance.connect(admin).withdrawPoolTokens(admin.address)
-      ).to.be.revertedWith("LBPWrapper: can withdraw only after endtime");
+      ).to.be.revertedWith("LBPWrapper: cannot withdraw pool tokens before endtime");
     });
     it(">> withdraw pool tokens", async () => {
       await time.increase(1000);
@@ -829,7 +829,7 @@ describe(">> Contract: LBPWrapper", () => {
       await lbpWrapperInstance.connect(admin).withdrawPoolTokens(admin.address);
       await expect(
         lbpWrapperInstance.connect(admin).withdrawPoolTokens(admin.address)
-      ).to.be.revertedWith("LBPWrapper: pool tokens were withdrawn");
+      ).to.be.revertedWith("LBPWrapper: wrapper dosen't have any pool tokens to withdraw");
     });
     it(">> reverts when trying to remove liquidity after withdrawing pool tokens", async () => {
       await time.increase(1000);
@@ -844,7 +844,7 @@ describe(">> Contract: LBPWrapper", () => {
             false,
             exitUserData
           )
-      ).to.be.revertedWith("LBPWrapper: pool tokens were withdrawn");
+      ).to.be.revertedWith("LBPWrapper: wrapper dosen't have any pool tokens to remove liquidity");
     });
   });
 });

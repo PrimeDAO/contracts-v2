@@ -186,8 +186,15 @@ contract LBPWrapper {
             _receiver != payable(address(0)),
             "LBPWrapper: receiver of project and funding tokens can't be zero"
         );
-        require(holdsPoolTokens(), "LBPWrapper: pool tokens were withdrawn");
-        require(endTimeReached(), "LBPWrapper: cannot exit before endtime");
+        require(lbp.balanceOf(address(this)) > 0, "LBPWrapper: wrapper dosen't have any pool tokens to remove liquidity");
+
+        uint256 endTime;
+        (, endTime, ) = lbp.getGradualWeightUpdateParams();
+
+        require(
+            block.timestamp >= endTime,
+            "LBPWrapper: cannot remove liqudity from the pool before endtime"
+        );
 
         IVault vault = lbp.getVault();
 
@@ -221,11 +228,15 @@ contract LBPWrapper {
             _receiver != address(0),
             "LBPWrapper: receiver of pool tokens can't be zero"
         );
+
+        uint256 endTime;
+        (, endTime, ) = lbp.getGradualWeightUpdateParams();
         require(
-            endTimeReached(),
-            "LBPWrapper: can withdraw only after endtime"
+            block.timestamp >= endTime,
+            "LBPWrapper: cannot withdraw pool tokens before endtime"
         );
-        require(holdsPoolTokens(), "LBPWrapper: pool tokens were withdrawn");
+
+        require(lbp.balanceOf(address(this)) > 0, "LBPWrapper: wrapper dosen't have any pool tokens to withdraw");
 
         lbp.transfer(_receiver, lbp.balanceOf(address(this)));
     }
@@ -256,21 +267,5 @@ contract LBPWrapper {
      */
     function feeAmountRequired() public view returns (uint256 feeAmount) {
         feeAmount = (amounts[0] * primeDaoFeePercentage) / HUNDRED_PERCENT;
-    }
-
-    /**
-     * @dev checks if LBPWrapper holds the pool tokens or not
-     */
-    function holdsPoolTokens() public view returns (bool isHoldingPoolTokens) {
-        return lbp.balanceOf(address(this)) > 0;
-    }
-
-    /**
-     * @dev checks if end time is reached or not
-     */
-    function endTimeReached() public view returns (bool isEndtimeReached) {
-        uint256 endTime;
-        (, endTime, ) = lbp.getGradualWeightUpdateParams();
-        return block.timestamp >= endTime;
     }
 }
