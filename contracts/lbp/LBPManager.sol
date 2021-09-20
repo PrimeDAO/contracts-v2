@@ -18,7 +18,7 @@ import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
 import "hardhat/console.sol"; // <<<<<<<<<<<<<<< Remove
 
-contract LBPWrapper {
+contract LBPManager {
     // constants
     uint256 private constant HUNDRED_PERCENT = 10e18;
 
@@ -34,7 +34,7 @@ contract LBPWrapper {
     bool public initialized; // true:- LBP created; false:- LBP not yet created. Makes sure, only initialized once.
 
     modifier onlyAdmin() {
-        require(msg.sender == admin, "LBPWrapper: only admin function");
+        require(msg.sender == admin, "LBPManager: only admin function");
         _;
     }
 
@@ -45,7 +45,7 @@ contract LBPWrapper {
     function transferAdminRights(address _newAdmin) external onlyAdmin {
         require(
             _newAdmin != address(0),
-            "LBPWrapper: new admin can not be zero"
+            "LBPManager: new admin can not be zero"
         );
         admin = _newAdmin;
     }
@@ -77,10 +77,10 @@ contract LBPWrapper {
         uint256 _swapFeePercentage,
         uint256 _primeDaoFeePercentage
     ) external returns (address) {
-        require(!initialized, "LBPWrapper: already initialized");
+        require(!initialized, "LBPManager: already initialized");
         require(
             _beneficiary != address(0),
-            "LBPWrapper: _beneficiary can not be zero address"
+            "LBPManager: _beneficiary can not be zero address"
         );
 
         initialized = true;
@@ -124,7 +124,7 @@ contract LBPWrapper {
         bool _fromInternalBalance,
         bytes memory _userData
     ) public onlyAdmin {
-        require(!poolFunded, "LBPWrapper: pool has already been funded");
+        require(!poolFunded, "LBPManager: pool has already been funded");
         poolFunded = true;
 
         IVault vault = lbp.getVault();
@@ -164,11 +164,11 @@ contract LBPWrapper {
     ) external {
         require(
             _receiver != payable(address(0)),
-            "LBPWrapper: receiver of project and funding tokens can't be zero"
+            "LBPManager: receiver of project and funding tokens can't be zero"
         );
         require(
             lbp.balanceOf(address(this)) > 0,
-            "LBPWrapper: wrapper does not have any pool tokens to remove liquidity"
+            "LBPManager: wrapper does not have any pool tokens to remove liquidity"
         );
 
         uint256 endTime;
@@ -176,7 +176,7 @@ contract LBPWrapper {
 
         require(
             block.timestamp >= endTime,
-            "LBPWrapper: can not remove liqudity from the pool before endtime"
+            "LBPManager: can not remove liqudity from the pool before endtime"
         );
 
         // to remove all funding from the pool. Initializes to [0, 0]
@@ -205,7 +205,7 @@ contract LBPWrapper {
         the pool and transferring this responsibility to the holder of the BPT tokens. Any possible
         loss of funds by choosing to withdraw the BPT tokens is not the responsibility of
         LBPManager or PrimeDao. After withdrawing the BPT tokens, liquidity has to be withdrawn
-        directly from Balancer's LBP. LBPWrapper or PrimeDAO will no longer provide support to do so.
+        directly from Balancer's LBP. LBPManager or PrimeDAO will no longer provide support to do so.
     */
     /**
      * @dev                             will withdraw pool tokens if available
@@ -214,19 +214,19 @@ contract LBPWrapper {
     function withdrawPoolTokens(address _receiver) external onlyAdmin {
         require(
             _receiver != address(0),
-            "LBPWrapper: receiver of pool tokens can't be zero"
+            "LBPManager: receiver of pool tokens can't be zero"
         );
 
         uint256 endTime;
         (, endTime, ) = lbp.getGradualWeightUpdateParams();
         require(
             block.timestamp >= endTime,
-            "LBPWrapper: can not withdraw pool tokens before endtime"
+            "LBPManager: can not withdraw pool tokens before endtime"
         );
 
         require(
             lbp.balanceOf(address(this)) > 0,
-            "LBPWrapper: wrapper does not have any pool tokens to withdraw"
+            "LBPManager: wrapper does not have any pool tokens to withdraw"
         );
 
         lbp.transfer(_receiver, lbp.balanceOf(address(this)));

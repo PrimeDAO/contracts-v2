@@ -38,7 +38,7 @@ const getGnosisProxyInstance = async (setup) => {
 };
 
 const getLBPWrapperFactory = async (setup) => {
-  return await ethers.getContractFactory("LBPWrapper", setup.roles.root);
+  return await ethers.getContractFactory("LBPManager", setup.roles.root);
 };
 
 const getContractInstance = async (factoryName, address, args) => {

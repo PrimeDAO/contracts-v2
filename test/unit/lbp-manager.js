@@ -1,7 +1,6 @@
 const { expect } = require("chai");
-const { ethers, artifacts } = require("hardhat");
+const { ethers } = require("hardhat");
 const { parseEther, parseUnits } = ethers.utils;
-
 const balancer = require("../helpers/balancer.js");
 const tokens = require("../helpers/tokens.js");
 const {
@@ -21,8 +20,8 @@ const setupFixture = deployments.createFixture(
       vaultInstance
     );
 
-    await deploy("LbpWrapper", {
-      contract: "LBPWrapper",
+    await deploy("LbpManager", {
+      contract: "LBPManager",
       from: root.address,
       log: true,
     });
@@ -31,7 +30,7 @@ const setupFixture = deployments.createFixture(
       vaultInstance: vaultInstance,
       lbpFactoryInstance: lbpFactoryInstance,
       lbpContractFactory: await balancer.getLbpFactory(root),
-      lbpWrapperInstance: await ethers.getContract("LbpWrapper"),
+      lbpManagerInstance: await ethers.getContract("LbpManager"),
       tokenInstances: await tokens.getErc20TokenInstances(2, root),
     };
 
@@ -69,33 +68,34 @@ paramGenerator.initializeParams = (
 
 const setupInitialState = async (contractInstances, initialState) => {
   let amountToAddForFee;
+
   const HUNDRED_PERCENT = parseUnits("10", 18);
   const JOIN_KIND_INIT = 0;
-
   const signers = await ethers.getSigners();
+
   [owner, admin, beneficiary] = signers;
   amountToAddForFee = BigNumber.from(0);
 
   const {
     lbpFactoryInstance,
     lbpContractFactory,
-    lbpWrapperInstance,
+    lbpManagerInstance,
     tokenInstances,
   } = contractInstances;
 
-  const tokenAddresses = tokenInstances.map((token) => token.address);
-
-  const { initializeLBPParams, OwnerAdmin, fundingAmount, poolFunded } =
+  const { initializeLBPParams, noOwnerTransfer, fundingAmount, poolFunded } =
     initialState;
 
+  const tokenAddresses = tokenInstances.map((token) => token.address);
+
   if (initializeLBPParams) {
-    if (OwnerAdmin) {
-      await lbpWrapperInstance
-        .connect(admin)
+    if (noOwnerTransfer) {
+      await lbpManagerInstance
+        .connect(owner)
         .initializeLBP(...initializeLBPParams);
     } else {
-      await lbpWrapperInstance
-        .connect(owner)
+      await lbpManagerInstance
+        .connect(admin)
         .initializeLBP(...initializeLBPParams);
     }
   }
@@ -123,25 +123,25 @@ const setupInitialState = async (contractInstances, initialState) => {
     // reset allowance
     await tokenInstances[0]
       .connect(admin)
-      .approve(lbpWrapperInstance.address, 0);
+      .approve(lbpManagerInstance.address, 0);
     await tokenInstances[1]
       .connect(admin)
-      .approve(lbpWrapperInstance.address, 0);
+      .approve(lbpManagerInstance.address, 0);
 
-    // approve allowance from admin to LBPWrapper
+    // approve allowance from admin to LBPManager
     await tokenInstances[0]
       .connect(admin)
-      .approve(lbpWrapperInstance.address, initialBalancesCopy[0].toString());
+      .approve(lbpManagerInstance.address, initialBalancesCopy[0].toString());
     await tokenInstances[1]
       .connect(admin)
-      .approve(lbpWrapperInstance.address, initialBalancesCopy[1].toString());
+      .approve(lbpManagerInstance.address, initialBalancesCopy[1].toString());
 
     if (poolFunded) {
       const userData = ethers.utils.defaultAbiCoder.encode(
         ["uint256", "uint256[]"],
         [JOIN_KIND_INIT, initialBalances]
       );
-      await lbpWrapperInstance.connect(admin).fundPool(
+      await lbpManagerInstance.connect(admin).fundPool(
         tokenAddresses,
         admin.address,
         false, // fromInternalBalance
@@ -151,11 +151,11 @@ const setupInitialState = async (contractInstances, initialState) => {
   }
 
   const lbpContractInstance = await lbpContractFactory.attach(
-    await lbpWrapperInstance.lbp()
+    await lbpManagerInstance.lbp()
   );
 
   return {
-    lbpWrapperInstance,
+    lbpManagerInstance,
     tokenInstances,
     amountToAddForFee,
     lbpContractInstance,
@@ -163,7 +163,7 @@ const setupInitialState = async (contractInstances, initialState) => {
   };
 };
 
-describe.only(">> Contract: LBPWrapper", () => {
+describe.only(">> Contract: LBPManager", () => {
   let setup;
   const NAME = "Test";
   const SYMBOL = "TT";
@@ -191,7 +191,7 @@ describe.only(">> Contract: LBPWrapper", () => {
     lbpFactoryInstance,
     contractInstances,
     vaultInstance,
-    lbpWrapperInstance,
+    lbpManagerInstance,
     tokenInstances,
     lbpContractFactory,
     lbpInstance,
@@ -208,7 +208,7 @@ describe.only(">> Contract: LBPWrapper", () => {
       vaultInstance,
       lbpFactoryInstance,
       lbpContractFactory,
-      lbpWrapperInstance,
+      lbpManagerInstance,
       tokenInstances,
     } = contractInstances);
 
@@ -250,7 +250,7 @@ describe.only(">> Contract: LBPWrapper", () => {
           beneficiary.address
         );
         await expect(
-          lbpWrapperInstance
+          lbpManagerInstance
             .connect(owner)
             .initializeLBP(...invalidInitializeLBPParams)
         ).to.be.revertedWith(
@@ -273,7 +273,7 @@ describe.only(">> Contract: LBPWrapper", () => {
           beneficiary.address
         );
         await expect(
-          lbpWrapperInstance
+          lbpManagerInstance
             .connect(owner)
             .initializeLBP(...invalidInitializeLBPParams)
         ).to.be.revertedWith(
@@ -296,63 +296,64 @@ describe.only(">> Contract: LBPWrapper", () => {
           ZERO_ADDRESS
         );
         await expect(
-          lbpWrapperInstance
+          lbpManagerInstance
             .connect(owner)
             .initializeLBP(...invalidInitializeLBPParams)
         ).to.be.revertedWith(
-          "LBPWrapper: _beneficiary can not be zero address"
+          "LBPManager: _beneficiary can not be zero address"
         );
       });
     });
     describe("$ deploy LBP using Wrapper succeeds", () => {
       it("» success", async () => {
-        await lbpWrapperInstance
+        await lbpManagerInstance
           .connect(owner)
           .initializeLBP(...initializeLBPParams);
-        lbpInstance = lbpContractFactory.attach(await lbpWrapperInstance.lbp());
+        lbpInstance = lbpContractFactory.attach(await lbpManagerInstance.lbp());
         poolId = await lbpInstance.getPoolId();
 
-        expect(await lbpWrapperInstance.lbp()).not.equal(ZERO_ADDRESS);
-        expect(await lbpWrapperInstance.beneficiary()).to.equal(
+        expect(await lbpManagerInstance.lbp()).not.equal(ZERO_ADDRESS);
+        expect(await lbpManagerInstance.beneficiary()).to.equal(
           beneficiary.address
         );
-        expect(await lbpWrapperInstance.primeDaoFeePercentage()).to.equal(
+        expect(await lbpManagerInstance.primeDaoFeePercentage()).to.equal(
           PRIME_DAO_FEE_PERCENTAGE_ZERO
         );
       });
       it("» reverts when invoking it again", async () => {
-        await lbpWrapperInstance
+        await lbpManagerInstance
           .connect(owner)
           .initializeLBP(...initializeLBPParams);
         await expect(
-          lbpWrapperInstance
+          lbpManagerInstance
             .connect(admin)
             .initializeLBP(...initializeLBPParams)
-        ).to.be.revertedWith("LBPWrapper: already initialized");
+        ).to.be.revertedWith("LBPManager: already initialized");
       });
     });
   });
-  describe("# transfers ownership of LBPWrapper", async () => {
+  describe("# transfers ownership of LBPManager", async () => {
     beforeEach(async () => {
       const initialState = {
         initializeLBPParams,
+        noOwnerTransfer: true,
       };
 
-      ({ lbpWrapperInstance } = await setupInitialState(
+      ({ lbpManagerInstance } = await setupInitialState(
         contractInstances,
         initialState
       ));
     });
     it("» reverts when new owner address is zero", async () => {
       await expect(
-        lbpWrapperInstance.connect(owner).transferAdminRights(ZERO_ADDRESS)
-      ).to.be.revertedWith("LBPWrapper: new admin can not be zero");
+        lbpManagerInstance.connect(owner).transferAdminRights(ZERO_ADDRESS)
+      ).to.be.revertedWith("LBPManager: new admin can not be zero");
     });
     it("» success", async () => {
-      await lbpWrapperInstance
+      await lbpManagerInstance
         .connect(owner)
         .transferAdminRights(admin.address);
-      expect(await lbpWrapperInstance.admin()).to.equal(admin.address);
+      expect(await lbpManagerInstance.admin()).to.equal(admin.address);
     });
   });
   describe("# add liquidity to the pool", () => {
@@ -368,21 +369,20 @@ describe.only(">> Contract: LBPWrapper", () => {
         };
         const initialState = {
           initializeLBPParams,
-          OwnerAdmin: true,
           fundingAmount,
         };
-        ({ lbpWrapperInstance, tokenInstances, amountToAddForFee } =
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
           await setupInitialState(contractInstances, initialState));
       });
       it("» reverts when not called by owner", async () => {
         await expect(
-          lbpWrapperInstance.fundPool(
+          lbpManagerInstance.fundPool(
             tokenAddresses,
             admin.address,
             FROM_INTERNAL_BALANCE,
             userData
           )
-        ).to.be.revertedWith("LBPWrapper: only admin function");
+        ).to.be.revertedWith("LBPManager: only admin function");
       });
     });
     describe("$ try adding liquidity twice", () => {
@@ -393,16 +393,15 @@ describe.only(">> Contract: LBPWrapper", () => {
         };
         const initialState = {
           initializeLBPParams,
-          OwnerAdmin: true,
           fundingAmount,
           poolFunded: true,
         };
-        ({ lbpWrapperInstance, tokenInstances, amountToAddForFee } =
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
           await setupInitialState(contractInstances, initialState));
       });
       it("» reverts when adding liquidity twice", async () => {
         await expect(
-          lbpWrapperInstance
+          lbpManagerInstance
             .connect(admin)
             .fundPool(
               tokenAddresses,
@@ -410,7 +409,7 @@ describe.only(">> Contract: LBPWrapper", () => {
               FROM_INTERNAL_BALANCE,
               userData
             )
-        ).to.be.revertedWith("LBPWrapper: pool has already been funded");
+        ).to.be.revertedWith("LBPManager: pool has already been funded");
       });
     });
     describe("$ adding liquidity with primeDaoFee being 5 percent", async () => {
@@ -444,10 +443,9 @@ describe.only(">> Contract: LBPWrapper", () => {
 
         const initialState = {
           initializeLBPParams,
-          OwnerAdmin: true,
           fundingAmount,
         };
-        ({ lbpWrapperInstance, tokenInstances, amountToAddForFee } =
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
           await setupInitialState(contractInstances, initialState));
       });
       it("» success", async () => {
@@ -456,14 +454,14 @@ describe.only(">> Contract: LBPWrapper", () => {
         const vaultInterface = new ethers.utils.Interface(abi);
 
         expect(
-          (await lbpInstance.balanceOf(lbpWrapperInstance.address)).toString()
+          (await lbpInstance.balanceOf(lbpManagerInstance.address)).toString()
         ).to.equal("0");
 
         // check balance of beneficiary before joinPool()
         expect((await tokenInstances[0].balanceOf(beneficiary.address)).eq(0))
           .to.be.true;
 
-        const tx = await lbpWrapperInstance
+        const tx = await lbpManagerInstance
           .connect(admin)
           .fundPool(
             tokenAddresses,
@@ -481,10 +479,10 @@ describe.only(">> Contract: LBPWrapper", () => {
 
         expect(decodedVaultEvent.name).to.equal(eventName);
         expect(decodedVaultEvent.args[0]).to.equal(poolId);
-        expect(decodedVaultEvent.args[1]).to.equal(lbpWrapperInstance.address);
+        expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
         expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
         expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
-        expect((await lbpInstance.balanceOf(lbpWrapperInstance.address)).eq(0))
+        expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
           .to.be.false;
         // Check balance beneficiary after joinPool()
         expect(await tokenInstances[0].balanceOf(beneficiary.address)).to.equal(
@@ -508,10 +506,9 @@ describe.only(">> Contract: LBPWrapper", () => {
 
         const initialState = {
           initializeLBPParams,
-          OwnerAdmin: true,
           fundingAmount,
         };
-        ({ lbpWrapperInstance, tokenInstances, amountToAddForFee } =
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
           await setupInitialState(contractInstances, initialState));
       });
       it("» success", async () => {
@@ -520,14 +517,14 @@ describe.only(">> Contract: LBPWrapper", () => {
         const vaultInterface = new ethers.utils.Interface(abi);
 
         expect(
-          (await lbpInstance.balanceOf(lbpWrapperInstance.address)).toString()
+          (await lbpInstance.balanceOf(lbpManagerInstance.address)).toString()
         ).to.equal("0");
 
         // check balance of beneficiary before joinPool()
         expect((await tokenInstances[0].balanceOf(beneficiary.address)).eq(0))
           .to.be.true;
 
-        const tx = await lbpWrapperInstance
+        const tx = await lbpManagerInstance
           .connect(admin)
           .fundPool(
             tokenAddresses,
@@ -545,10 +542,10 @@ describe.only(">> Contract: LBPWrapper", () => {
 
         expect(decodedVaultEvent.name).to.equal(eventName);
         expect(decodedVaultEvent.args[0]).to.equal(poolId);
-        expect(decodedVaultEvent.args[1]).to.equal(lbpWrapperInstance.address);
+        expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
         expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
         expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
-        expect((await lbpInstance.balanceOf(lbpWrapperInstance.address)).eq(0))
+        expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
           .to.be.false;
         // Check balance beneficiary after joinPool()
         expect(await tokenInstances[0].balanceOf(beneficiary.address)).to.equal(
@@ -566,26 +563,25 @@ describe.only(">> Contract: LBPWrapper", () => {
 
       const initialState = {
         initializeLBPParams,
-        OwnerAdmin: true,
         fundingAmount,
         poolFunded: true,
       };
-      ({ lbpWrapperInstance, tokenInstances, amountToAddForFee } =
+      ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
         await setupInitialState(contractInstances, initialState));
     });
     it("» revert on being called by not the owner", async () => {
       await expect(
-        lbpWrapperInstance.connect(owner).setSwapEnabled(false)
-      ).to.be.revertedWith("LBPWrapper: only admin function");
+        lbpManagerInstance.connect(owner).setSwapEnabled(false)
+      ).to.be.revertedWith("LBPManager: only admin function");
     });
     it("» setSwapEnabled to false", async () => {
-      expect(await lbpWrapperInstance.admin()).to.equal(admin.address);
-      await lbpWrapperInstance.connect(admin).setSwapEnabled(false);
+      expect(await lbpManagerInstance.admin()).to.equal(admin.address);
+      await lbpManagerInstance.connect(admin).setSwapEnabled(false);
       expect(await lbpInstance.getSwapEnabled()).to.be.false;
     });
     it("» setSwapEnabled to true", async () => {
-      expect(await lbpWrapperInstance.admin()).to.equal(admin.address);
-      await lbpWrapperInstance.connect(admin).setSwapEnabled(true);
+      expect(await lbpManagerInstance.admin()).to.equal(admin.address);
+      await lbpManagerInstance.connect(admin).setSwapEnabled(true);
       expect(await lbpInstance.getSwapEnabled()).to.be.true;
     });
   });
@@ -600,19 +596,18 @@ describe.only(">> Contract: LBPWrapper", () => {
         };
         const initialState = {
           initializeLBPParams,
-          OwnerAdmin: true,
           fundingAmount,
           poolFunded: true,
         };
         ({
-          lbpWrapperInstance,
+          lbpManagerInstance,
           tokenInstances,
           lbpContractInstance,
           tokenAddresses,
         } = await setupInitialState(contractInstances, initialState));
 
         const BPTbalance = await lbpContractInstance.balanceOf(
-          lbpWrapperInstance.address
+          lbpManagerInstance.address
         );
         exitUserData = ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256"],
@@ -621,20 +616,20 @@ describe.only(">> Contract: LBPWrapper", () => {
       });
       it("» reverts when trying to remove liquidity where receiver address is zero address", async () => {
         await expect(
-          lbpWrapperInstance
+          lbpManagerInstance
             .connect(admin)
             .removeLiquidity(tokenAddresses, ZERO_ADDRESS, false, exitUserData)
         ).to.be.revertedWith(
-          "LBPWrapper: receiver of project and funding tokens can't be zero"
+          "LBPManager: receiver of project and funding tokens can't be zero"
         );
       });
       it("» reverts when trying to remove liquidity before endTime", async () => {
         await expect(
-          lbpWrapperInstance
+          lbpManagerInstance
             .connect(admin)
             .removeLiquidity(tokenAddresses, admin.address, false, exitUserData)
         ).to.be.revertedWith(
-          "LBPWrapper: can not remove liqudity from the pool before endtime"
+          "LBPManager: can not remove liqudity from the pool before endtime"
         );
       });
     });
@@ -648,19 +643,18 @@ describe.only(">> Contract: LBPWrapper", () => {
         };
         const initialState = {
           initializeLBPParams,
-          OwnerAdmin: true,
           fundingAmount,
           poolFunded: true,
         };
         ({
-          lbpWrapperInstance,
+          lbpManagerInstance,
           tokenInstances,
           lbpContractInstance,
           tokenAddresses,
         } = await setupInitialState(contractInstances, initialState));
 
         const BPTbalance = await lbpContractInstance.balanceOf(
-          lbpWrapperInstance.address
+          lbpManagerInstance.address
         );
         exitUserData = ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256"],
@@ -674,7 +668,7 @@ describe.only(">> Contract: LBPWrapper", () => {
           await lbpContractInstance.getPoolId()
         );
         // exit pool
-        await lbpWrapperInstance
+        await lbpManagerInstance
           .connect(admin)
           .removeLiquidity(tokenAddresses, admin.address, false, exitUserData);
         // balance after exit pool
@@ -684,7 +678,7 @@ describe.only(">> Contract: LBPWrapper", () => {
           );
 
         expect(
-          await lbpContractInstance.balanceOf(lbpWrapperInstance.address)
+          await lbpContractInstance.balanceOf(lbpManagerInstance.address)
         ).to.equal(0);
         for (let i = 0; i < poolBalances.length; i++) {
           expect(poolBalances[i].gt(poolBalancesAfterExit[i])).to.be.true;
@@ -703,19 +697,18 @@ describe.only(">> Contract: LBPWrapper", () => {
         };
         const initialState = {
           initializeLBPParams,
-          OwnerAdmin: true,
           fundingAmount,
           poolFunded: true,
         };
         ({
-          lbpWrapperInstance,
+          lbpManagerInstance,
           tokenInstances,
           lbpContractInstance,
           tokenAddresses,
         } = await setupInitialState(contractInstances, initialState));
 
         const BPTbalance = await lbpContractInstance.balanceOf(
-          lbpWrapperInstance.address
+          lbpManagerInstance.address
         );
         exitUserData = ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256"],
@@ -724,16 +717,16 @@ describe.only(">> Contract: LBPWrapper", () => {
       });
       it("» reverts when receiver address is zero address", async () => {
         await expect(
-          lbpWrapperInstance.connect(admin).withdrawPoolTokens(ZERO_ADDRESS)
+          lbpManagerInstance.connect(admin).withdrawPoolTokens(ZERO_ADDRESS)
         ).to.be.revertedWith(
-          "LBPWrapper: receiver of pool tokens can't be zero"
+          "LBPManager: receiver of pool tokens can't be zero"
         );
       });
       it("» reverts when trying to withdraw before end time", async () => {
         await expect(
-          lbpWrapperInstance.connect(admin).withdrawPoolTokens(admin.address)
+          lbpManagerInstance.connect(admin).withdrawPoolTokens(admin.address)
         ).to.be.revertedWith(
-          "LBPWrapper: can not withdraw pool tokens before endtime"
+          "LBPManager: can not withdraw pool tokens before endtime"
         );
       });
     });
@@ -747,19 +740,18 @@ describe.only(">> Contract: LBPWrapper", () => {
         };
         const initialState = {
           initializeLBPParams,
-          OwnerAdmin: true,
           fundingAmount,
           poolFunded: true,
         };
         ({
-          lbpWrapperInstance,
+          lbpManagerInstance,
           tokenInstances,
           lbpContractInstance,
           tokenAddresses,
         } = await setupInitialState(contractInstances, initialState));
 
         const BPTbalance = await lbpContractInstance.balanceOf(
-          lbpWrapperInstance.address
+          lbpManagerInstance.address
         );
         exitUserData = ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256"],
@@ -770,9 +762,9 @@ describe.only(">> Contract: LBPWrapper", () => {
         await time.increase(1000);
         // check balance before withdrawing pool tokens
         const balance = await lbpContractInstance.balanceOf(
-          lbpWrapperInstance.address
+          lbpManagerInstance.address
         );
-        await lbpWrapperInstance
+        await lbpManagerInstance
           .connect(admin)
           .withdrawPoolTokens(admin.address);
         expect(await lbpContractInstance.balanceOf(admin.address)).to.equal(
@@ -781,26 +773,26 @@ describe.only(">> Contract: LBPWrapper", () => {
       });
       it("» reverts when withdrawing again", async () => {
         await time.increase(1000);
-        await lbpWrapperInstance
+        await lbpManagerInstance
           .connect(admin)
           .withdrawPoolTokens(admin.address);
         await expect(
-          lbpWrapperInstance.connect(admin).withdrawPoolTokens(admin.address)
+          lbpManagerInstance.connect(admin).withdrawPoolTokens(admin.address)
         ).to.be.revertedWith(
-          "LBPWrapper: wrapper does not have any pool tokens to withdraw"
+          "LBPManager: wrapper does not have any pool tokens to withdraw"
         );
       });
       it("» reverts when trying to remove liquidity after withdrawing pool tokens", async () => {
         await time.increase(1000);
-        await lbpWrapperInstance
+        await lbpManagerInstance
           .connect(admin)
           .withdrawPoolTokens(admin.address);
         await expect(
-          lbpWrapperInstance
+          lbpManagerInstance
             .connect(admin)
             .removeLiquidity(tokenAddresses, admin.address, false, exitUserData)
         ).to.be.revertedWith(
-          "LBPWrapper: wrapper does not have any pool tokens to remove liquidity"
+          "LBPManager: wrapper does not have any pool tokens to remove liquidity"
         );
       });
     });
