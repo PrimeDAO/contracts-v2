@@ -164,14 +164,11 @@ const setupInitialState = async (contractInstances, initialState) => {
 };
 
 describe.only(">> Contract: LBPManager", () => {
-  let setup;
   const NAME = "Test";
   const SYMBOL = "TT";
   let startTime = Math.floor(Date.now() / 1000);
   let endTime = startTime + 1000;
   let WEIGHTS = [parseEther("0.6").toString(), parseEther("0.4")];
-  const HUNDRED_PERCENT = parseUnits("10", 18);
-  // const FIVE_PERCENT = parseUnits("10", 16).mul(5);
   const INITIAL_BALANCES = [parseUnits("2000", 18), parseUnits("1000", 18)];
   const END_WEIGHTS = [parseEther("0.4").toString(), parseEther("0.6")];
   const SWAP_FEE_PERCENTAGE = parseUnits("1", 16);
@@ -634,7 +631,6 @@ describe.only(">> Contract: LBPManager", () => {
       });
     });
     describe("$ success on call exit pool", () => {
-      // let exitUserData;
       beforeEach(async () => {
         // Specifies funds and fee to be sent to setpInitialState
         const fundingAmount = {
@@ -688,7 +684,6 @@ describe.only(">> Contract: LBPManager", () => {
   });
   describe("# withdraw Balancer pool tokens", () => {
     describe("$ fails on withdrawing pool tokens", () => {
-      // let exitUserData;
       beforeEach(async () => {
         // Specifies funds and fee to be sent to setpInitialState
         const fundingAmount = {
@@ -731,7 +726,6 @@ describe.only(">> Contract: LBPManager", () => {
       });
     });
     describe("$ succes on withdraw pool tokens", () => {
-      // let exitUserData;
       beforeEach(async () => {
         // Specifies funds and fee to be sent to setpInitialState
         const fundingAmount = {
