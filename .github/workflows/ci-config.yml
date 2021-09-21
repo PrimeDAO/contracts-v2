@@ -27,7 +27,7 @@ jobs:
       - name: Lints the project
         run: npm run lint
 
-  build and test:
+  build-and-test:
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -46,7 +46,7 @@ jobs:
       - name: Tests the project
         run: npm run test
 
-  build and coverage:
+  build-and-coverage:
     runs-on: ubuntu-latest
 
     needs: test
