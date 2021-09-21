@@ -118,7 +118,7 @@ contract LBPManager {
      * @param _fromInternalBalance      fund tokens from the internal user balance
      * @param _userData                 userData specifies the type of join
      */
-    function fundPool(
+    function addLiquidity(
         IERC20[] memory _tokens,
         address _sender,
         bool _fromInternalBalance,
