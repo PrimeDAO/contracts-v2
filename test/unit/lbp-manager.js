@@ -38,6 +38,10 @@ const setupFixture = deployments.createFixture(
   }
 );
 
+const reverseArray = (array) => {
+  return array.slice().reverse();
+};
+
 const paramGenerator = {};
 paramGenerator.initializeParams = (
   factory,
@@ -67,11 +71,12 @@ paramGenerator.initializeParams = (
 ];
 
 const setupInitialState = async (contractInstances, initialState) => {
-  let amountToAddForFee;
+  let amountToAddForFee, index;
 
   const HUNDRED_PERCENT = parseUnits("10", 18);
   const JOIN_KIND_INIT = 0;
   const signers = await ethers.getSigners();
+  const FUNDING_TOKEN_INDEX = 0;
 
   [owner, admin, beneficiary] = signers;
   amountToAddForFee = BigNumber.from(0);
@@ -83,8 +88,13 @@ const setupInitialState = async (contractInstances, initialState) => {
     tokenInstances,
   } = contractInstances;
 
-  const { initializeLBPParams, noOwnerTransfer, fundingAmount, poolFunded } =
-    initialState;
+  const {
+    initializeLBPParams,
+    noOwnerTransfer,
+    fundingAmount,
+    poolFunded,
+    fundingTokenIndex,
+  } = initialState;
 
   const tokenAddresses = tokenInstances.map((token) => token.address);
 
@@ -114,10 +124,12 @@ const setupInitialState = async (contractInstances, initialState) => {
 
     // Add fee amount on top
     if (primeDaoFeePercentage) {
-      amountToAddForFee = initialBalancesCopy[0]
+      index = fundingTokenIndex ? fundingTokenIndex : 0;
+      amountToAddForFee = initialBalancesCopy[index]
         .mul(primeDaoFeePercentage)
         .div(HUNDRED_PERCENT);
-      initialBalancesCopy[0] = initialBalancesCopy[0].add(amountToAddForFee);
+      initialBalancesCopy[index] =
+        initialBalancesCopy[index].add(amountToAddForFee);
     }
 
     // reset allowance
@@ -141,12 +153,14 @@ const setupInitialState = async (contractInstances, initialState) => {
         ["uint256", "uint256[]"],
         [JOIN_KIND_INIT, initialBalances]
       );
-      await lbpManagerInstance.connect(admin).fundPool(
-        tokenAddresses,
-        admin.address,
-        false, // fromInternalBalance
-        userData
-      );
+      await lbpManagerInstance
+        .connect(admin)
+        .addLiquidity(
+          tokenAddresses,
+          FUNDING_TOKEN_INDEX,
+          admin.address,
+          userData
+        );
     }
   }
 
@@ -177,8 +191,8 @@ describe.only(">> Contract: LBPManager", () => {
   const JOIN_KIND_INIT = 0;
   const EXIT_KIND = 1;
   const PRIME_DAO_FEE_PERCENTAGE_FIVE = parseUnits("5", 17);
+  const PRIME_DAO_FEE_PERCENTAGE_ONE = parseUnits("1", 17);
   const PRIME_DAO_FEE_PERCENTAGE_ZERO = 0;
-  const FROM_INTERNAL_BALANCE = false;
 
   let poolId,
     admin,
@@ -354,12 +368,16 @@ describe.only(">> Contract: LBPManager", () => {
     });
   });
   describe("# add liquidity to the pool", () => {
+    let fundingTokenIndex;
     describe("$ adding liquidity fails", () => {
       beforeEach(async () => {
         userData = ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256[]"],
           [JOIN_KIND_INIT, INITIAL_BALANCES]
         );
+
+        fundingTokenIndex = 0;
+
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
           primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
@@ -373,13 +391,13 @@ describe.only(">> Contract: LBPManager", () => {
       });
       it("» reverts when not called by owner", async () => {
         await expect(
-          lbpManagerInstance.fundPool(
+          lbpManagerInstance.addLiquidity(
             tokenAddresses,
+            fundingTokenIndex,
             admin.address,
-            FROM_INTERNAL_BALANCE,
             userData
           )
-        ).to.be.revertedWith("LBPManager: only admin function");
+        ).to.be.revertedWith("LBPManager: caller should be admin");
       });
     });
     describe("$ try adding liquidity twice", () => {
@@ -388,6 +406,9 @@ describe.only(">> Contract: LBPManager", () => {
           initialBalances: INITIAL_BALANCES,
           primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
         };
+
+        fundingTokenIndex = 0;
+
         const initialState = {
           initializeLBPParams,
           fundingAmount,
@@ -400,16 +421,16 @@ describe.only(">> Contract: LBPManager", () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
-            .fundPool(
+            .addLiquidity(
               tokenAddresses,
+              fundingTokenIndex,
               admin.address,
-              FROM_INTERNAL_BALANCE,
               userData
             )
         ).to.be.revertedWith("LBPManager: pool has already been funded");
       });
     });
-    describe("$ adding liquidity with primeDaoFee being 5 percent", async () => {
+    describe("$ adding liquidity with 5 percent primeDaoFee", async () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
@@ -433,6 +454,8 @@ describe.only(">> Contract: LBPManager", () => {
           [JOIN_KIND_INIT, INITIAL_BALANCES]
         );
 
+        fundingTokenIndex = 0;
+
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
           primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_FIVE,
@@ -455,15 +478,20 @@ describe.only(">> Contract: LBPManager", () => {
         ).to.equal("0");
 
         // check balance of beneficiary before joinPool()
-        expect((await tokenInstances[0].balanceOf(beneficiary.address)).eq(0))
-          .to.be.true;
+        expect(
+          (
+            await tokenInstances[fundingTokenIndex].balanceOf(
+              beneficiary.address
+            )
+          ).eq(0)
+        ).to.be.true;
 
         const tx = await lbpManagerInstance
           .connect(admin)
-          .fundPool(
+          .addLiquidity(
             tokenAddresses,
+            fundingTokenIndex,
             admin.address,
-            FROM_INTERNAL_BALANCE,
             userData
           );
 
@@ -482,12 +510,97 @@ describe.only(">> Contract: LBPManager", () => {
         expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
           .to.be.false;
         // Check balance beneficiary after joinPool()
-        expect(await tokenInstances[0].balanceOf(beneficiary.address)).to.equal(
-          amountToAddForFee
-        );
+        expect(
+          await tokenInstances[fundingTokenIndex].balanceOf(beneficiary.address)
+        ).to.equal(amountToAddForFee);
       });
     });
-    describe("$ adding liquidity with primeDaoFee being 0 percent", async () => {
+    describe("$ adding liquidity with 1 percent primeDaoFee", async () => {
+      let userData, amountToAddForFee;
+
+      beforeEach(async () => {
+        initializeLBPParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          INITIAL_BALANCES,
+          WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          SWAP_FEE_PERCENTAGE,
+          PRIME_DAO_FEE_PERCENTAGE_ONE,
+          beneficiary.address
+        );
+
+        userData = ethers.utils.defaultAbiCoder.encode(
+          ["uint256", "uint256[]"],
+          [JOIN_KIND_INIT, INITIAL_BALANCES]
+        );
+
+        fundingTokenIndex = 0;
+
+        const fundingAmount = {
+          initialBalances: INITIAL_BALANCES,
+          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ONE,
+        };
+
+        const initialState = {
+          initializeLBPParams,
+          fundingAmount,
+        };
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
+          await setupInitialState(contractInstances, initialState));
+      });
+      it("» success", async () => {
+        const eventName = "PoolBalanceChanged";
+        const { abi } = VaultArtifact;
+        const vaultInterface = new ethers.utils.Interface(abi);
+
+        expect(
+          (await lbpInstance.balanceOf(lbpManagerInstance.address)).toString()
+        ).to.equal("0");
+
+        // check balance of beneficiary before joinPool()
+        expect(
+          (
+            await tokenInstances[fundingTokenIndex].balanceOf(
+              beneficiary.address
+            )
+          ).eq(0)
+        ).to.be.true;
+
+        const tx = await lbpManagerInstance
+          .connect(admin)
+          .addLiquidity(
+            tokenAddresses,
+            fundingTokenIndex,
+            admin.address,
+            userData
+          );
+
+        const receipt = await tx.wait();
+        const vaultAddress = vaultInstance.address;
+        const vaultEvent = receipt.events.find(
+          (log) => log.address === vaultAddress
+        );
+        const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+
+        expect(decodedVaultEvent.name).to.equal(eventName);
+        expect(decodedVaultEvent.args[0]).to.equal(poolId);
+        expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
+        expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
+        expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
+          .to.be.false;
+        // Check balance beneficiary after joinPool()
+        expect(
+          await tokenInstances[fundingTokenIndex].balanceOf(beneficiary.address)
+        ).to.equal(amountToAddForFee);
+      });
+    });
+    describe("$ adding liquidity with 0 percent primeDaoFee", async () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
@@ -495,6 +608,8 @@ describe.only(">> Contract: LBPManager", () => {
           ["uint256", "uint256[]"],
           [JOIN_KIND_INIT, INITIAL_BALANCES]
         );
+
+        fundingTokenIndex = 0;
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
@@ -518,15 +633,20 @@ describe.only(">> Contract: LBPManager", () => {
         ).to.equal("0");
 
         // check balance of beneficiary before joinPool()
-        expect((await tokenInstances[0].balanceOf(beneficiary.address)).eq(0))
-          .to.be.true;
+        expect(
+          (
+            await tokenInstances[fundingTokenIndex].balanceOf(
+              beneficiary.address
+            )
+          ).eq(0)
+        ).to.be.true;
 
         const tx = await lbpManagerInstance
           .connect(admin)
-          .fundPool(
+          .addLiquidity(
             tokenAddresses,
+            fundingTokenIndex,
             admin.address,
-            FROM_INTERNAL_BALANCE,
             userData
           );
 
@@ -545,9 +665,187 @@ describe.only(">> Contract: LBPManager", () => {
         expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
           .to.be.false;
         // Check balance beneficiary after joinPool()
-        expect(await tokenInstances[0].balanceOf(beneficiary.address)).to.equal(
-          amountToAddForFee
+        expect(
+          await tokenInstances[fundingTokenIndex].balanceOf(beneficiary.address)
+        ).to.equal(amountToAddForFee);
+      });
+    });
+    describe("$ adding liquidity with unsorted tokenList and 5 percent primeDaoFee", async () => {
+      let userData, amountToAddForFee;
+
+      beforeEach(async () => {
+        amountToAddForFee = BigNumber.from(0);
+        const HUNDRED_PERCENT = parseUnits("10", 18);
+
+        // reverse weights and amounts
+        const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
+        const reverseWeights = reverseArray(WEIGHTS);
+        const reverseEndWeights = reverseArray(END_WEIGHTS);
+
+        initializeLBPParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          reverseInitialBalance,
+          reverseWeights,
+          startTime,
+          endTime,
+          reverseEndWeights,
+          SWAP_FEE_PERCENTAGE,
+          PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          beneficiary.address
         );
+
+        userData = ethers.utils.defaultAbiCoder.encode(
+          ["uint256", "uint256[]"],
+          [JOIN_KIND_INIT, reverseInitialBalance]
+        );
+
+        const fundingAmount = {
+          initialBalances: reverseInitialBalance,
+          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_FIVE,
+        };
+
+        fundingTokenIndex = 1;
+
+        const initialState = {
+          initializeLBPParams,
+          fundingAmount,
+          fundingTokenIndex: fundingTokenIndex,
+        };
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
+          await setupInitialState(contractInstances, initialState));
+      });
+      it("» success", async () => {
+        const eventName = "PoolBalanceChanged";
+        const { abi } = VaultArtifact;
+        const vaultInterface = new ethers.utils.Interface(abi);
+
+        expect(
+          (await lbpInstance.balanceOf(lbpManagerInstance.address)).toString()
+        ).to.equal("0");
+
+        // check balance of beneficiary before joinPool()
+        expect((await tokenInstances[0].balanceOf(beneficiary.address)).eq(0))
+          .to.be.true;
+
+        const tx = await lbpManagerInstance
+          .connect(admin)
+          .addLiquidity(
+            tokenAddresses,
+            fundingTokenIndex,
+            admin.address,
+            userData
+          );
+
+        const receipt = await tx.wait();
+        const vaultAddress = vaultInstance.address;
+        const vaultEvent = receipt.events.find(
+          (log) => log.address === vaultAddress
+        );
+        const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+
+        expect(decodedVaultEvent.name).to.equal(eventName);
+        expect(decodedVaultEvent.args[0]).to.equal(poolId);
+        expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
+        expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
+        expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
+          .to.be.false;
+        // Check balance beneficiary after joinPool()
+        expect(
+          await tokenInstances[fundingTokenIndex].balanceOf(beneficiary.address)
+        ).to.equal(amountToAddForFee);
+      });
+    });
+    describe("$ adding liquidity with unsorted tokenList and 0 percent primeDaoFee", async () => {
+      let userData, amountToAddForFee;
+
+      beforeEach(async () => {
+        amountToAddForFee = BigNumber.from(0);
+        const HUNDRED_PERCENT = parseUnits("10", 18);
+
+        // reverse weights and amounts
+        const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
+        const reverseWeights = reverseArray(WEIGHTS);
+        const reverseEndWeights = reverseArray(END_WEIGHTS);
+
+        initializeLBPParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          reverseInitialBalance,
+          reverseWeights,
+          startTime,
+          endTime,
+          reverseEndWeights,
+          SWAP_FEE_PERCENTAGE,
+          PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          beneficiary.address
+        );
+
+        userData = ethers.utils.defaultAbiCoder.encode(
+          ["uint256", "uint256[]"],
+          [JOIN_KIND_INIT, reverseInitialBalance]
+        );
+
+        const fundingAmount = {
+          initialBalances: reverseInitialBalance,
+          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+        };
+
+        fundingTokenIndex = 1;
+
+        const initialState = {
+          initializeLBPParams,
+          fundingAmount,
+          fundingTokenIndex: fundingTokenIndex,
+        };
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
+          await setupInitialState(contractInstances, initialState));
+      });
+      it("» success", async () => {
+        const eventName = "PoolBalanceChanged";
+        const { abi } = VaultArtifact;
+        const vaultInterface = new ethers.utils.Interface(abi);
+
+        expect(
+          (await lbpInstance.balanceOf(lbpManagerInstance.address)).toString()
+        ).to.equal("0");
+
+        // check balance of beneficiary before joinPool()
+        expect((await tokenInstances[0].balanceOf(beneficiary.address)).eq(0))
+          .to.be.true;
+
+        const tx = await lbpManagerInstance
+          .connect(admin)
+          .addLiquidity(
+            tokenAddresses,
+            fundingTokenIndex,
+            admin.address,
+            userData
+          );
+
+        const receipt = await tx.wait();
+        const vaultAddress = vaultInstance.address;
+        const vaultEvent = receipt.events.find(
+          (log) => log.address === vaultAddress
+        );
+        const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+
+        expect(decodedVaultEvent.name).to.equal(eventName);
+        expect(decodedVaultEvent.args[0]).to.equal(poolId);
+        expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
+        expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
+        expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
+          .to.be.false;
+        // Check balance beneficiary after joinPool()
+        expect(
+          await tokenInstances[fundingTokenIndex].balanceOf(beneficiary.address)
+        ).to.equal(amountToAddForFee);
       });
     });
   });
@@ -569,7 +867,7 @@ describe.only(">> Contract: LBPManager", () => {
     it("» revert on being called by not the owner", async () => {
       await expect(
         lbpManagerInstance.connect(owner).setSwapEnabled(false)
-      ).to.be.revertedWith("LBPManager: only admin function");
+      ).to.be.revertedWith("LBPManager: caller should be admin");
     });
     it("» setSwapEnabled to false", async () => {
       expect(await lbpManagerInstance.admin()).to.equal(admin.address);
