@@ -57,7 +57,7 @@ contract LBPManager {
      * @param _name                     LBP name
      * @param _symbol                   LBP symbol
      * @param _tokens                   array of tokens sorted for the LBP
-     * @param _weights                  array of amounts of tokens that would be added as liquidity.
+     * @param _amounts                  array of amounts of tokens that would be added as liquidity.
      * @param _weights                  array of start weights for respective tokens
      * @param _startTimeEndTime         array of start time and end time
      * @param _endWeights               array of end weights for respective tokens
@@ -150,7 +150,7 @@ contract LBPManager {
     }
 
     /**
-     * @dev exit pool or remove liquidity from pool
+     * @dev                             exit pool or remove liquidity from pool
      * @param _tokens                   array of tokens sorted for the LBP
      * @param _receiver                 address who will be credited with the tokens after removing liquidity
      * @param _toInternalBalance        fund tokens to the internal user balance
@@ -241,20 +241,18 @@ contract LBPManager {
     }
 
     /**
-     * @dev     get required amount of tokens
+     * @dev     get required amount of project tokens to cover for fees and the actual LBP
      */
     function projectTokensRequired()
         public
         view
         returns (uint256 projectTokenAmounts)
     {
-        projectTokenAmounts =
-            amounts[0] +
-            ((amounts[0] * primeDaoFeePercentage) / HUNDRED_PERCENT);
+        projectTokenAmounts = amounts[0] + feeAmountRequired();
     }
 
     /**
-     * @dev     get required amount of tokens
+     * @dev     get required amount of project tokens to cover for fees
      */
     function feeAmountRequired() internal view returns (uint256 feeAmount) {
         feeAmount = (amounts[0] * primeDaoFeePercentage) / HUNDRED_PERCENT;
