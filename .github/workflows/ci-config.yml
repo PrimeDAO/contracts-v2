@@ -10,22 +10,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
-  lint:
-    runs-on: ubuntu-latest
-
-      # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-        # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-
-        # Runs a single command using the runners shell
-      - name: Lints the project
-        run: npm run lint
-
-  build-and-test:
+  build-lint-and-test:
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -39,6 +24,10 @@ jobs:
       # Runs a single command using the runners shell
       - name: Installs needed packages using npm
         run: npm i
+
+      # Runs a single command using the runners shell
+      - name: Lints the project
+        run: npm run lint
 
       # Runs a single command using the runners shell
       - name: Tests the project
