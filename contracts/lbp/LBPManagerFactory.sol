@@ -19,12 +19,12 @@ import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "./LBPManager.sol";
 
 contract LBPManagerFactory is CloneFactory, Ownable {
-    address public wrapperMasterCopy;
+    address public lbpManagerMasterCopy;
     address public LBPFactory;
 
-    event LBPDeployedUsingWrapper(
+    event LBPDeployedUsingManager(
         address indexed lbp,
-        address indexed wrapper,
+        address indexed lbpManager,
         address indexed admin
     );
 
@@ -41,7 +41,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
     }
 
     /**
-     * @dev                             set new master copy of LBP wrapper
+     * @dev                             set new master copy of LBP manager
      * @param _masterCopy               address of master copy
      */
     function setMasterCopy(address _masterCopy) external onlyOwner {
@@ -53,7 +53,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
             _masterCopy != address(this),
             "LBPManagerFactory: mastercopy can not be the same as LBPManagerFactory"
         );
-        wrapperMasterCopy = _masterCopy;
+        lbpManagerMasterCopy = _masterCopy;
     }
 
     /**
@@ -73,7 +73,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
     }
 
     /**
-     * @dev                             initialize lbp wrapper contract
+     * @dev                             initialize lbp manager contract
      * @param _name                     LBP name
      * @param _symbol                   LBP symbol
      * @param _tokens                   array of tokens sorted for the LBP
@@ -86,7 +86,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
      * @param _primeDaoFeePercentage    fee percentage for providing the LBP service
      * @param _beneficiary              address who is the receiver of the primeDaoFeePercentage
      */
-    function deployLBPUsingWrapper(
+    function deployLBPUsingManager(
         address _admin,
         address _beneficiary,
         string memory _name,
@@ -100,13 +100,13 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         uint256 _primeDaoFeePercentage
     ) external onlyOwner {
         require(
-            wrapperMasterCopy != address(0),
+            lbpManagerMasterCopy != address(0),
             "LBPManagerFactory: LBPManager mastercopy is not set"
         );
 
-        address wrapper = createClone(wrapperMasterCopy);
+        address lbpManager = createClone(lbpManagerMasterCopy);
 
-        address lbp = LBPManager(wrapper).initializeLBP(
+        address lbp = LBPManager(lbpManager).initializeLBP(
             LBPFactory,
             _beneficiary,
             _name,
@@ -120,8 +120,8 @@ contract LBPManagerFactory is CloneFactory, Ownable {
             _primeDaoFeePercentage
         );
 
-        LBPManager(wrapper).transferAdminRights(_admin);
+        LBPManager(lbpManager).transferAdminRights(_admin);
 
-        emit LBPDeployedUsingWrapper(lbp, wrapper, _admin);
+        emit LBPDeployedUsingManager(lbp, lbpManager, _admin);
     }
 }

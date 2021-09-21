@@ -95,7 +95,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
     });
     it("$ reverts if deploying LBPManager & mastercopy is not set", async () => {
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingWrapper(...params)
+        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
       ).to.be.revertedWith(
         "LBPManagerFactory: LBPManager mastercopy is not set"
       );
@@ -121,7 +121,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
     });
     it("$ succeeds on valid master copy", async () => {
       await setup.lbpManagerFactory.setMasterCopy(setup.lbpManager.address);
-      expect(await setup.lbpManagerFactory.wrapperMasterCopy()).to.equal(
+      expect(await setup.lbpManagerFactory.lbpManagerMasterCopy()).to.equal(
         setup.lbpManager.address
       );
     });
@@ -173,7 +173,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         primeDaoFeePercentage,
       ];
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingWrapper(...params)
+        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
       ).to.be.revertedWith(
         "BAL#203" //MIN_SWAP_FEE_PERCENTAGE
       );
@@ -192,7 +192,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         primeDaoFeePercentage,
       ];
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingWrapper(...params)
+        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
       ).to.be.revertedWith(
         "BAL#202" //MAX_SWAP_FEE_PERCENTAGE
       );
@@ -212,7 +212,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         primeDaoFeePercentage,
       ];
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingWrapper(...params)
+        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
       ).to.be.revertedWith("LBPManager: _beneficiary can not be zero address");
     });
   });
@@ -236,15 +236,15 @@ describe.only(">> Contract: LBPManagerFactory", () => {
     it("$ deploys LBP successful", async () => {
       const tx = await setup.lbpManagerFactory
         .connect(owner)
-        .deployLBPUsingWrapper(...params);
+        .deployLBPUsingManager(...params);
       const receipt = await tx.wait();
 
       const args = receipt.events.filter((data) => {
-        return data.event === "LBPDeployedUsingWrapper";
+        return data.event === "LBPDeployedUsingManager";
       })[0].args;
 
       setup.lbp = setup.Lbp.attach(args.lbp);
-      expect(await setup.lbp.getOwner()).to.equal(args.wrapper);
+      expect(await setup.lbp.getOwner()).to.equal(args.lbpManager);
       expect(await args.admin).to.equal(admin.address);
       expect(await args.primeDaoAddress).to.equal();
     });
