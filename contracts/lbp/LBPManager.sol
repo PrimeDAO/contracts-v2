@@ -16,7 +16,6 @@ import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
-import "hardhat/console.sol"; // <<<<<<<<<<<<<<< Remove
 
 /**
  * @title PrimeDAO LBPManager contract

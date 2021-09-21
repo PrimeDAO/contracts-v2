@@ -26,7 +26,7 @@ const deploy = async () => {
   return setup;
 };
 
-describe.only(">> Contract: LBPManagerFactory", () => {
+describe(">> Contract: LBPManagerFactory", () => {
   let setup, primeDaoFeePercentage, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 

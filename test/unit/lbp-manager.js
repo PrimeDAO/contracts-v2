@@ -1,14 +1,15 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { parseEther, parseUnits } = ethers.utils;
-const balancer = require("../helpers/balancer.js");
-const tokens = require("../helpers/tokens.js");
 const {
   constants: { ZERO_ADDRESS },
   time,
 } = require("@openzeppelin/test-helpers");
-const VaultArtifact = require("../../imports/Vault.json");
 const { BigNumber } = require("@ethersproject/bignumber");
+
+const VaultArtifact = require("../../imports/Vault.json");
+const balancer = require("../helpers/balancer.js");
+const tokens = require("../helpers/tokens.js");
 
 const setupFixture = deployments.createFixture(
   async ({ deployments }, options) => {
@@ -177,23 +178,7 @@ const setupInitialState = async (contractInstances, initialState) => {
   };
 };
 
-describe.only(">> Contract: LBPManager", () => {
-  const NAME = "Test";
-  const SYMBOL = "TT";
-  let startTime = Math.floor(Date.now() / 1000);
-  let endTime = startTime + 1000;
-  let WEIGHTS = [parseEther("0.6").toString(), parseEther("0.4")];
-  const INITIAL_BALANCES = [parseUnits("2000", 18), parseUnits("1000", 18)];
-  const END_WEIGHTS = [parseEther("0.4").toString(), parseEther("0.6")];
-  const SWAP_FEE_PERCENTAGE = parseUnits("1", 16);
-  const TO_LOW_SWAP_FEE_PERCENTAGE = parseUnits("1", 10);
-  const TO_HIGH_SWAP_FEE_PERCENTAGE = parseUnits("1", 18);
-  const JOIN_KIND_INIT = 0;
-  const EXIT_KIND = 1;
-  const PRIME_DAO_FEE_PERCENTAGE_FIVE = parseUnits("5", 17);
-  const PRIME_DAO_FEE_PERCENTAGE_ONE = parseUnits("1", 17);
-  const PRIME_DAO_FEE_PERCENTAGE_ZERO = 0;
-
+describe(">> Contract: LBPManager", () => {
   let poolId,
     admin,
     owner,
@@ -207,6 +192,23 @@ describe.only(">> Contract: LBPManager", () => {
     lbpContractFactory,
     lbpInstance,
     tokenAddresses;
+
+  const NAME = "Test";
+  const SYMBOL = "TT";
+  const INITIAL_BALANCES = [parseUnits("2000", 18), parseUnits("1000", 18)];
+  const END_WEIGHTS = [parseEther("0.4").toString(), parseEther("0.6")];
+  const SWAP_FEE_PERCENTAGE = parseUnits("1", 16);
+  const TO_LOW_SWAP_FEE_PERCENTAGE = parseUnits("1", 10);
+  const TO_HIGH_SWAP_FEE_PERCENTAGE = parseUnits("1", 18);
+  const JOIN_KIND_INIT = 0;
+  const EXIT_KIND = 1;
+  const PRIME_DAO_FEE_PERCENTAGE_FIVE = parseUnits("5", 17);
+  const PRIME_DAO_FEE_PERCENTAGE_ONE = parseUnits("1", 17);
+  const PRIME_DAO_FEE_PERCENTAGE_ZERO = 0;
+
+  let startTime = Math.floor(Date.now() / 1000);
+  let endTime = startTime + 1000;
+  let WEIGHTS = [parseEther("0.6").toString(), parseEther("0.4")];
 
   before(async () => {
     const signers = await ethers.getSigners();

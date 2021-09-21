@@ -18,6 +18,10 @@ import "../utils/CloneFactory.sol";
 import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "./LBPManager.sol";
 
+/**
+ * @title PrimeDAO LBPManager Factory
+ * @dev   Enable PrimeDAO governance to create new LBPManager contracts.
+ */
 contract LBPManagerFactory is CloneFactory, Ownable {
     address public lbpManagerMasterCopy;
     address public LBPFactory;
@@ -29,8 +33,8 @@ contract LBPManagerFactory is CloneFactory, Ownable {
     );
 
     /**
-     * @dev                             constructor
-     * @param _LBPFactory               address of lbp factory
+     * @dev                             Constructor.
+     * @param _LBPFactory               The address of Balancers LBP factory.
      */
     constructor(address _LBPFactory) {
         require(
@@ -41,8 +45,8 @@ contract LBPManagerFactory is CloneFactory, Ownable {
     }
 
     /**
-     * @dev                             set new master copy of LBP manager
-     * @param _masterCopy               address of master copy
+     * @dev                             Set LBPManager contract which works as a base for clones.
+     * @param _masterCopy               The address of the new LBPManager basis.
      */
     function setMasterCopy(address _masterCopy) external onlyOwner {
         require(
@@ -57,8 +61,8 @@ contract LBPManagerFactory is CloneFactory, Ownable {
     }
 
     /**
-     * @dev                         set new master copy of Balancer LBP Factory
-     * @param _LBPFactory           address of LBP factory
+     * @dev                             Set Balancers LBP Factory contract as basis for deploying LBPs.
+     * @param _LBPFactory               The address of Balancers LBP factory.
      */
     function setLBPFactory(address _LBPFactory) external onlyOwner {
         require(
@@ -73,25 +77,35 @@ contract LBPManagerFactory is CloneFactory, Ownable {
     }
 
     /**
-     * @dev                             initialize lbp manager contract
-     * @param _name                     LBP name
-     * @param _symbol                   LBP symbol
-     * @param _tokens                   array of tokens sorted for the LBP
-     * @param _amounts                  array of amounts of tokens that needs to be added as liquidity
-     * @param _weights                  array of start weights for respective tokens
-     * @param _startTimeEndtime         array of start time and end time
-     * @param _endWeights               array of end weights for respective tokens
-     * @param _admin                    address of admin/owner of LBP
-     * @param _swapFeePercentage        value to be set as swap fee in the pool
-     * @param _primeDaoFeePercentage    fee percentage for providing the LBP service
-     * @param _beneficiary              address who is the receiver of the primeDaoFeePercentage
+     * @dev                             Deploy and initialize LBPManager.
+     * @param _admin                    The address of the admin of the LBPManager.
+     * @param _beneficiary              The address that receives the _primeDaoFeePercentage.
+     * @param _name                     Name of the LBP.
+     * @param _symbol                   Symbol of the LBP.
+     * @param _tokenList                Sorted array containing two parameters:
+                                            - The address of the project token being distributed.
+                                            - The address of the funding token being exchanged for the project token.
+     * @param _amounts                  Sorted array to match the _tokenList, containing two parameters:
+                                            - The amounts of project token to be added as liquidity to the LBP.
+                                            - The amounts of funding token to be added as liquidity to the LBP.
+     * @param _weights                  Sorted array to match the _tokenList, containing two parametes:
+                                            - The start weight for the project token in the LBP.
+                                            - The start weight for the funding token in the LBP.
+     * @param _startTimeEndtime         Array containing two parameters:
+                                            - Start time for the LBP.
+                                            - End time for the LBP.
+     * @param _endWeights               Sorted array to match the _tokenList, containing two parametes:
+                                            - The end weight for the project token in the LBP.
+                                            - The end weight for the funding token in the LBP.
+     * @param _swapFeePercentage        Percentage of fee paid for every swap in the LBP.
+     * @param _primeDaoFeePercentage    Percentage of fee paid to PrimeDao for providing the service of the LBP Manager.
      */
     function deployLBPUsingManager(
         address _admin,
         address _beneficiary,
         string memory _name,
         string memory _symbol,
-        IERC20[] memory _tokens,
+        IERC20[] memory _tokenList,
         uint256[] memory _amounts,
         uint256[] memory _weights,
         uint256[] memory _startTimeEndtime,
@@ -111,7 +125,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
             _beneficiary,
             _name,
             _symbol,
-            _tokens,
+            _tokenList,
             _amounts,
             _weights,
             _startTimeEndtime,
