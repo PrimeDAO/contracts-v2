@@ -32,9 +32,7 @@ const getErc20TokenInstances = async (params, from) => {
 
   if (tokenList.length == 2) {
     if (tokenList[0].address > tokenList[1].address) {
-      const temp = tokenList[0];
-      tokenList[0] = tokenList[1];
-      tokenList[1] = temp;
+      tokenList.reverse();
     }
   }
 
