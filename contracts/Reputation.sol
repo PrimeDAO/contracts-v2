@@ -39,7 +39,9 @@ contract Reputation is ERC20, Ownable {
     /**
      * @dev                  Reputation constructor function.
      */
-    constructor() ERC20("PrimeDAO Reputation", "REP") {}
+    constructor(string _tokenName, string _tokenSymbol)
+        ERC20(_tokenName, _tokenSymbol)
+    {}
 
     /**
      * @dev  Overrides standard ERC20 transfer function, to make tokens non-trasferable.
