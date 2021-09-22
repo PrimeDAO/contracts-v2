@@ -82,7 +82,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
      * @param _beneficiary              The address that receives the _primeDaoFeePercentage.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
-     * @param _tokenList                Sorted array containing two parameters:
+     * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
                                             - The address of the project token being distributed.
                                             - The address of the funding token being exchanged for the project token.
      * @param _amounts                  Sorted array to match the _tokenList, containing two parameters:

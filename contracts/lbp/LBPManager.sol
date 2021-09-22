@@ -60,7 +60,7 @@ contract LBPManager {
      * @param _beneficiary              The address that receives the _primeDaoFeePercentage.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
-     * @param _tokenList                Sorted array containing two parameters:
+     * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
                                             - The address of the project token being distributed.
                                             - The address of the funding token being exchanged for the project token.
      * @param _amounts                  Sorted array to match the _tokenList, containing two parameters:
@@ -127,7 +127,7 @@ contract LBPManager {
 
     /**
      * @dev                             Subtracts the primeDaoFee and adds liquidity to the LBP.
-     * @param _tokenList                Sorted array containing two parameters:
+     * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
                                             - The address of the project token being distributed.
                                             - The address of the funding token being exchanged for the project token.
      * @param _projectTokenIndex        Index for the _tokenList array for the funding token.
@@ -171,7 +171,7 @@ contract LBPManager {
 
     /**
      * @dev                             exit pool or remove liquidity from pool
-     * @param _tokenList                Sorted array containing two parameters:
+     * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
                                             - The address of the project token being distributed.
                                             - The address of the funding token being exchanged for the project token.
      * @param _receiver                 Address of the liquidity receiver, after exiting the LBP.
@@ -278,7 +278,7 @@ contract LBPManager {
     /**
      * @dev     Get required amount of project tokens to cover for fees.
      */
-    function feeAmountRequired(uint8 _projectTokenIndex)
+    function _feeAmountRequired(uint8 _projectTokenIndex)
         internal
         view
         returns (uint256 feeAmount)
