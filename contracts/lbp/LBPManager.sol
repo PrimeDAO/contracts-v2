@@ -150,7 +150,7 @@ contract LBPManager {
             _tokenList[_projectTokenIndex].transferFrom(
                 _sender,
                 beneficiary,
-                feeAmountRequired(_projectTokenIndex)
+                _feeAmountRequired(_projectTokenIndex)
             );
         }
 
@@ -162,7 +162,7 @@ contract LBPManager {
         IVault.JoinPoolRequest memory request = IVault.JoinPoolRequest({
             maxAmountsIn: amounts,
             userData: _userData,
-            fromInternalBalance: false, // It is not possible to add liquidity thought the internal Vault balance.
+            fromInternalBalance: false, // It is not possible to add liquidity through the internal Vault balance.
             assets: _tokenList
         });
 
@@ -272,7 +272,7 @@ contract LBPManager {
     {
         projectTokenAmounts =
             amounts[_projectTokenIndex] +
-            feeAmountRequired(_projectTokenIndex);
+            _feeAmountRequired(_projectTokenIndex);
     }
 
     /**
