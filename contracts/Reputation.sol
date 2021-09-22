@@ -39,7 +39,7 @@ contract Reputation is ERC20, Ownable {
     /**
      * @dev                  Reputation constructor function.
      */
-    constructor(string _tokenName, string _tokenSymbol)
+    constructor(string memory _tokenName, string memory _tokenSymbol)
         ERC20(_tokenName, _tokenSymbol)
     {}
 
