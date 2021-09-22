@@ -94,7 +94,7 @@ const setupInitialState = async (contractInstances, initialState) => {
     noOwnerTransfer,
     fundingAmount,
     poolFunded,
-    fundingTokenIndex,
+    projectTokenIndex,
   } = initialState;
 
   const tokenAddresses = tokenInstances.map((token) => token.address);
@@ -125,7 +125,7 @@ const setupInitialState = async (contractInstances, initialState) => {
 
     // Add fee amount on top
     if (primeDaoFeePercentage) {
-      index = fundingTokenIndex ? fundingTokenIndex : 0;
+      index = projectTokenIndex ? projectTokenIndex : 0;
       amountToAddForFee = initialBalancesCopy[index]
         .mul(primeDaoFeePercentage)
         .div(HUNDRED_PERCENT);
@@ -369,8 +369,71 @@ describe(">> Contract: LBPManager", () => {
       expect(await lbpManagerInstance.admin()).to.equal(admin.address);
     });
   });
+  describe("# calculate project tokens required", () => {
+    let projectTokenIndex;
+    describe("$ calculate with zero percent", () => {
+      beforeEach(async () => {
+        projectTokenIndex = 0;
+
+        const fundingAmount = {
+          initialBalances: INITIAL_BALANCES,
+          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+        };
+
+        const initialState = {
+          initializeLBPParams,
+          fundingAmount,
+        };
+
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
+          await setupInitialState(contractInstances, initialState));
+      });
+      it("» success", async () => {
+        expect(
+          await lbpManagerInstance.projectTokensRequired(projectTokenIndex)
+        ).to.equal(amountToAddForFee.add(INITIAL_BALANCES[0]));
+      });
+    });
+    describe("$ calculate with five percent", () => {
+      beforeEach(async () => {
+        initializeLBPParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          INITIAL_BALANCES,
+          WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          SWAP_FEE_PERCENTAGE,
+          PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          beneficiary.address
+        );
+        projectTokenIndex = 0;
+
+        const fundingAmount = {
+          initialBalances: INITIAL_BALANCES,
+          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_FIVE,
+        };
+
+        const initialState = {
+          initializeLBPParams,
+          fundingAmount,
+        };
+
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
+          await setupInitialState(contractInstances, initialState));
+      });
+      it("» success", async () => {
+        expect(
+          await lbpManagerInstance.projectTokensRequired(projectTokenIndex)
+        ).to.equal(amountToAddForFee.add(INITIAL_BALANCES[0]));
+      });
+    });
+  });
   describe("# add liquidity to the pool", () => {
-    let fundingTokenIndex;
+    let projectTokenIndex;
     describe("$ adding liquidity fails", () => {
       beforeEach(async () => {
         userData = ethers.utils.defaultAbiCoder.encode(
@@ -378,7 +441,7 @@ describe(">> Contract: LBPManager", () => {
           [JOIN_KIND_INIT, INITIAL_BALANCES]
         );
 
-        fundingTokenIndex = 0;
+        projectTokenIndex = 0;
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
@@ -395,7 +458,7 @@ describe(">> Contract: LBPManager", () => {
         await expect(
           lbpManagerInstance.addLiquidity(
             tokenAddresses,
-            fundingTokenIndex,
+            projectTokenIndex,
             admin.address,
             userData
           )
@@ -409,7 +472,7 @@ describe(">> Contract: LBPManager", () => {
           primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
         };
 
-        fundingTokenIndex = 0;
+        projectTokenIndex = 0;
 
         const initialState = {
           initializeLBPParams,
@@ -425,7 +488,7 @@ describe(">> Contract: LBPManager", () => {
             .connect(admin)
             .addLiquidity(
               tokenAddresses,
-              fundingTokenIndex,
+              projectTokenIndex,
               admin.address,
               userData
             )
@@ -456,7 +519,7 @@ describe(">> Contract: LBPManager", () => {
           [JOIN_KIND_INIT, INITIAL_BALANCES]
         );
 
-        fundingTokenIndex = 0;
+        projectTokenIndex = 0;
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
@@ -482,7 +545,7 @@ describe(">> Contract: LBPManager", () => {
         // check balance of beneficiary before joinPool()
         expect(
           (
-            await tokenInstances[fundingTokenIndex].balanceOf(
+            await tokenInstances[projectTokenIndex].balanceOf(
               beneficiary.address
             )
           ).eq(0)
@@ -492,7 +555,7 @@ describe(">> Contract: LBPManager", () => {
           .connect(admin)
           .addLiquidity(
             tokenAddresses,
-            fundingTokenIndex,
+            projectTokenIndex,
             admin.address,
             userData
           );
@@ -513,7 +576,7 @@ describe(">> Contract: LBPManager", () => {
           .to.be.false;
         // Check balance beneficiary after joinPool()
         expect(
-          await tokenInstances[fundingTokenIndex].balanceOf(beneficiary.address)
+          await tokenInstances[projectTokenIndex].balanceOf(beneficiary.address)
         ).to.equal(amountToAddForFee);
       });
     });
@@ -541,7 +604,7 @@ describe(">> Contract: LBPManager", () => {
           [JOIN_KIND_INIT, INITIAL_BALANCES]
         );
 
-        fundingTokenIndex = 0;
+        projectTokenIndex = 0;
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
@@ -567,7 +630,7 @@ describe(">> Contract: LBPManager", () => {
         // check balance of beneficiary before joinPool()
         expect(
           (
-            await tokenInstances[fundingTokenIndex].balanceOf(
+            await tokenInstances[projectTokenIndex].balanceOf(
               beneficiary.address
             )
           ).eq(0)
@@ -577,7 +640,7 @@ describe(">> Contract: LBPManager", () => {
           .connect(admin)
           .addLiquidity(
             tokenAddresses,
-            fundingTokenIndex,
+            projectTokenIndex,
             admin.address,
             userData
           );
@@ -598,7 +661,7 @@ describe(">> Contract: LBPManager", () => {
           .to.be.false;
         // Check balance beneficiary after joinPool()
         expect(
-          await tokenInstances[fundingTokenIndex].balanceOf(beneficiary.address)
+          await tokenInstances[projectTokenIndex].balanceOf(beneficiary.address)
         ).to.equal(amountToAddForFee);
       });
     });
@@ -611,7 +674,7 @@ describe(">> Contract: LBPManager", () => {
           [JOIN_KIND_INIT, INITIAL_BALANCES]
         );
 
-        fundingTokenIndex = 0;
+        projectTokenIndex = 0;
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
@@ -637,7 +700,7 @@ describe(">> Contract: LBPManager", () => {
         // check balance of beneficiary before joinPool()
         expect(
           (
-            await tokenInstances[fundingTokenIndex].balanceOf(
+            await tokenInstances[projectTokenIndex].balanceOf(
               beneficiary.address
             )
           ).eq(0)
@@ -647,7 +710,7 @@ describe(">> Contract: LBPManager", () => {
           .connect(admin)
           .addLiquidity(
             tokenAddresses,
-            fundingTokenIndex,
+            projectTokenIndex,
             admin.address,
             userData
           );
@@ -668,7 +731,7 @@ describe(">> Contract: LBPManager", () => {
           .to.be.false;
         // Check balance beneficiary after joinPool()
         expect(
-          await tokenInstances[fundingTokenIndex].balanceOf(beneficiary.address)
+          await tokenInstances[projectTokenIndex].balanceOf(beneficiary.address)
         ).to.equal(amountToAddForFee);
       });
     });
@@ -709,12 +772,12 @@ describe(">> Contract: LBPManager", () => {
           primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_FIVE,
         };
 
-        fundingTokenIndex = 1;
+        projectTokenIndex = 1;
 
         const initialState = {
           initializeLBPParams,
           fundingAmount,
-          fundingTokenIndex: fundingTokenIndex,
+          projectTokenIndex: projectTokenIndex,
         };
         ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
           await setupInitialState(contractInstances, initialState));
@@ -736,7 +799,7 @@ describe(">> Contract: LBPManager", () => {
           .connect(admin)
           .addLiquidity(
             tokenAddresses,
-            fundingTokenIndex,
+            projectTokenIndex,
             admin.address,
             userData
           );
@@ -757,7 +820,7 @@ describe(">> Contract: LBPManager", () => {
           .to.be.false;
         // Check balance beneficiary after joinPool()
         expect(
-          await tokenInstances[fundingTokenIndex].balanceOf(beneficiary.address)
+          await tokenInstances[projectTokenIndex].balanceOf(beneficiary.address)
         ).to.equal(amountToAddForFee);
       });
     });
@@ -798,12 +861,12 @@ describe(">> Contract: LBPManager", () => {
           primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
         };
 
-        fundingTokenIndex = 1;
+        projectTokenIndex = 1;
 
         const initialState = {
           initializeLBPParams,
           fundingAmount,
-          fundingTokenIndex: fundingTokenIndex,
+          projectTokenIndex: projectTokenIndex,
         };
         ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
           await setupInitialState(contractInstances, initialState));
@@ -825,7 +888,7 @@ describe(">> Contract: LBPManager", () => {
           .connect(admin)
           .addLiquidity(
             tokenAddresses,
-            fundingTokenIndex,
+            projectTokenIndex,
             admin.address,
             userData
           );
@@ -846,7 +909,7 @@ describe(">> Contract: LBPManager", () => {
           .to.be.false;
         // Check balance beneficiary after joinPool()
         expect(
-          await tokenInstances[fundingTokenIndex].balanceOf(beneficiary.address)
+          await tokenInstances[projectTokenIndex].balanceOf(beneficiary.address)
         ).to.equal(amountToAddForFee);
       });
     });

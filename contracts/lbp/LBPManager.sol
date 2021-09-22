@@ -16,6 +16,7 @@ import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
+import "hardhat/console.sol";
 
 /**
  * @title PrimeDAO LBPManager contract
@@ -130,13 +131,13 @@ contract LBPManager {
      * @param _tokenList                Sorted array containing two parameters:
                                             - The address of the project token being distributed.
                                             - The address of the funding token being exchanged for the project token.
-     * @param _fundingTokenIndex        Index for the _tokenList array for the funding token.
+     * @param _projectTokenIndex        Index for the _tokenList array for the funding token.
      * @param _sender                   Address of the liquidity provider.
      * @param _userData                 UserData object that specifies the type of join.
      */
     function addLiquidity(
         IERC20[] memory _tokenList,
-        uint8 _fundingTokenIndex,
+        uint8 _projectTokenIndex,
         address _sender,
         bytes memory _userData
     ) external onlyAdmin {
@@ -147,10 +148,10 @@ contract LBPManager {
 
         if (primeDaoFeePercentage != 0) {
             // Transfer primeDaoFee to beneficiary.
-            _tokenList[_fundingTokenIndex].transferFrom(
+            _tokenList[_projectTokenIndex].transferFrom(
                 _sender,
                 beneficiary,
-                feeAmountRequired(_fundingTokenIndex)
+                feeAmountRequired(_projectTokenIndex)
             );
         }
 
@@ -265,26 +266,26 @@ contract LBPManager {
     /**
      * @dev     Get required amount of project tokens to cover for fees and the actual LBP.
      */
-    function projectTokensRequired(uint8 _fundingTokenIndex)
-        internal
+    function projectTokensRequired(uint8 _projectTokenIndex)
+        external
         view
         returns (uint256 projectTokenAmounts)
     {
         projectTokenAmounts =
-            amounts[_fundingTokenIndex] +
-            feeAmountRequired(_fundingTokenIndex);
+            amounts[_projectTokenIndex] +
+            feeAmountRequired(_projectTokenIndex);
     }
 
     /**
      * @dev     Get required amount of project tokens to cover for fees.
      */
-    function feeAmountRequired(uint8 _fundingTokenIndex)
+    function feeAmountRequired(uint8 _projectTokenIndex)
         internal
         view
         returns (uint256 feeAmount)
     {
         feeAmount =
-            (amounts[_fundingTokenIndex] * primeDaoFeePercentage) /
+            (amounts[_projectTokenIndex] * primeDaoFeePercentage) /
             HUNDRED_PERCENT;
     }
 }
