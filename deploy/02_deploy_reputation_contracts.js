@@ -5,7 +5,7 @@ const deployFunction = async ({ getNamedAccounts, deployments }) => {
   await deploy("Reputation", {
     contract: "Reputation",
     from: root,
-    args: [],
+    args: ["PrimeDAO Rating Reputation", "PRR"],
     log: true,
   });
 };
