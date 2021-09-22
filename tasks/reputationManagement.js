@@ -32,8 +32,8 @@ task("batchMint", "Mints initial REP balances")
     types.string
   )
   .setAction(async ({ filename, contractname }, { ethers }) => {
-    const targetExportPath = path.resolve(__dirname, `../inputs/${filename}`);
-    const balances = JSON.parse(await fs.readFile(targetExportPath));
+    const filePath = path.resolve(__dirname, `../inputs/${filename}`);
+    const balances = JSON.parse(await fs.readFile(filePath));
 
     const { repHolders, repAmounts } = getReputationParams(balances);
     const batchMintAmount = formatEther(
