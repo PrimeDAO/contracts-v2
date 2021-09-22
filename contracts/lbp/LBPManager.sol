@@ -266,7 +266,7 @@ contract LBPManager {
      * @dev     Get required amount of project tokens to cover for fees and the actual LBP.
      */
     function projectTokensRequired(uint8 _fundingTokenIndex)
-        public
+        internal
         view
         returns (uint256 projectTokenAmounts)
     {
