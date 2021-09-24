@@ -243,8 +243,8 @@ describe(">> Contract: LBPManager", () => {
     );
   });
 
-  describe("# deploy LBP using Wrapper", () => {
-    describe("$ deploy LBP using Wrapper fails", () => {
+  describe("# deploy LBP using Manager", () => {
+    describe("$ deploy LBP using Manager fails", () => {
       let invalidInitializeLBPParams;
 
       it("» revert on swap fee to high", async () => {
@@ -317,7 +317,7 @@ describe(">> Contract: LBPManager", () => {
         );
       });
     });
-    describe("$ deploy LBP using Wrapper succeeds", () => {
+    describe("$ deploy LBP using Manager succeeds", () => {
       it("» success", async () => {
         await lbpManagerInstance
           .connect(owner)
@@ -973,6 +973,16 @@ describe(">> Contract: LBPManager", () => {
           ["uint256", "uint256"],
           [EXIT_KIND, BPTbalance.toString()]
         );
+      });
+      it("» it reverts on not called by admin", async () => {
+        await expect(
+          lbpManagerInstance.removeLiquidity(
+            tokenAddresses,
+            admin.address,
+            false,
+            exitUserData
+          )
+        ).to.be.revertedWith("LBPManager: caller should be admin");
       });
       it("» reverts when trying to remove liquidity where receiver address is zero address", async () => {
         await expect(
