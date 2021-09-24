@@ -202,7 +202,7 @@ contract LBPManager {
         );
 
         // To remove all funding from the pool. Initializes to [0, 0]
-        uint256[] memory _minAmountsOut = new uint256[](2);
+        uint256[] memory _minAmountsOut = new uint256[](tokenList.length);
 
         IVault vault = lbp.getVault();
 
