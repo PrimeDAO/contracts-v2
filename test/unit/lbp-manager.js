@@ -1136,7 +1136,7 @@ describe(">> Contract: LBPManager", () => {
         await expect(
           lbpManagerInstance.connect(admin).withdrawPoolTokens(admin.address)
         ).to.be.revertedWith(
-          "LBPManager: wrapper does not have any pool tokens to withdraw"
+          "LBPManager: manager does not have any pool tokens to withdraw"
         );
       });
       it("» reverts when trying to remove liquidity after withdrawing pool tokens", async () => {
@@ -1149,7 +1149,7 @@ describe(">> Contract: LBPManager", () => {
             .connect(admin)
             .removeLiquidity(tokenAddresses, admin.address, false, exitUserData)
         ).to.be.revertedWith(
-          "LBPManager: wrapper does not have any pool tokens to remove liquidity"
+          "LBPManager: manager does not have any pool tokens to remove liquidity"
         );
       });
     });

@@ -190,7 +190,7 @@ contract LBPManager {
         );
         require(
             lbp.balanceOf(address(this)) > 0,
-            "LBPManager: wrapper does not have any pool tokens to remove liquidity"
+            "LBPManager: manager does not have any pool tokens to remove liquidity"
         );
 
         uint256 endTime;
@@ -248,7 +248,7 @@ contract LBPManager {
 
         require(
             lbp.balanceOf(address(this)) > 0,
-            "LBPManager: wrapper does not have any pool tokens to withdraw"
+            "LBPManager: manager does not have any pool tokens to withdraw"
         );
 
         lbp.transfer(_receiver, lbp.balanceOf(address(this)));
