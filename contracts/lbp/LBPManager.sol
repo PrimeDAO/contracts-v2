@@ -183,7 +183,7 @@ contract LBPManager {
         address payable _receiver,
         bool _toInternalBalance,
         bytes memory _userData
-    ) external {
+    ) external onlyAdmin {
         require(
             _receiver != payable(address(0)),
             "LBPManager: receiver of project and funding tokens can't be zero"
