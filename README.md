@@ -111,7 +111,7 @@ to verify contracts, the enviornment variable should contain `ETHERSCAN_API_KEY`
 
 `npx hardhat verify --network mainnet <0xsome_contract_address>`
 
-constructor arguments can be passed as follows:
+single constructor argument can be passed as follows:
 `npx hardhat verify --network mainnet <0xsome_contract_address> "Constructor argument 1"`
 
 multiple constructor arguments can be passed as follows:
