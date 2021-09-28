@@ -10,10 +10,16 @@ task(
   "transferOwnership",
   "Transfers ownership of Reputation to specified address"
 )
+  .addParam(
+    "contractname",
+    "name of the Reputation token: Reputation or RatingReputation",
+    undefined,
+    types.string
+  )
   .addParam("owner", "address of new owner", undefined, types.string)
-  .setAction(async ({ owner }, { ethers }) => {
-    console.log(`Transferring ownership to ${owner}`);
-    const reputationInstance = await ethers.getContract("Reputation");
+  .setAction(async ({ owner, contractname }, { ethers }) => {
+    console.log(`Transferring ownership of ${contractname} to ${owner}`);
+    const reputationInstance = await ethers.getContract(contractname);
     const tx = await reputationInstance.transferOwnership(owner);
     console.log("tx: ", tx.hash);
   });
