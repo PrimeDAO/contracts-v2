@@ -156,12 +156,7 @@ const setupInitialState = async (contractInstances, initialState) => {
       );
       await lbpManagerInstance
         .connect(admin)
-        .addLiquidity(
-          tokenAddresses,
-          FUNDING_TOKEN_INDEX,
-          admin.address,
-          userData
-        );
+        .addLiquidity(FUNDING_TOKEN_INDEX, admin.address, userData);
     }
   }
 
@@ -178,7 +173,7 @@ const setupInitialState = async (contractInstances, initialState) => {
   };
 };
 
-describe.only(">> Contract: LBPManager", () => {
+describe(">> Contract: LBPManager", () => {
   let poolId,
     admin,
     owner,
@@ -315,6 +310,32 @@ describe.only(">> Contract: LBPManager", () => {
         ).to.be.revertedWith(
           "LBPManager: _beneficiary can not be zero address"
         );
+      });
+      it("» revert on token list bigger then 2", async () => {
+        const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
+        const largeTokenListAddresses = largeTokenList.map(
+          (token) => token.address
+        );
+
+        invalidInitializeLBPParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          largeTokenListAddresses,
+          INITIAL_BALANCES,
+          WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          SWAP_FEE_PERCENTAGE,
+          PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          beneficiary.address
+        );
+        await expect(
+          lbpManagerInstance
+            .connect(owner)
+            .initializeLBP(...invalidInitializeLBPParams)
+        ).to.be.revertedWith("LBPManager: token list size is not 2");
       });
     });
     describe("$ deploy LBP using Manager succeeds", () => {
@@ -457,7 +478,6 @@ describe.only(">> Contract: LBPManager", () => {
       it("» reverts when not called by owner", async () => {
         await expect(
           lbpManagerInstance.addLiquidity(
-            tokenAddresses,
             projectTokenIndex,
             admin.address,
             userData
@@ -486,12 +506,7 @@ describe.only(">> Contract: LBPManager", () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
-            .addLiquidity(
-              tokenAddresses,
-              projectTokenIndex,
-              admin.address,
-              userData
-            )
+            .addLiquidity(projectTokenIndex, admin.address, userData)
         ).to.be.revertedWith("LBPManager: pool has already been funded");
       });
     });
@@ -553,12 +568,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const tx = await lbpManagerInstance
           .connect(admin)
-          .addLiquidity(
-            tokenAddresses,
-            projectTokenIndex,
-            admin.address,
-            userData
-          );
+          .addLiquidity(projectTokenIndex, admin.address, userData);
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
@@ -638,12 +648,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const tx = await lbpManagerInstance
           .connect(admin)
-          .addLiquidity(
-            tokenAddresses,
-            projectTokenIndex,
-            admin.address,
-            userData
-          );
+          .addLiquidity(projectTokenIndex, admin.address, userData);
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
@@ -708,12 +713,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const tx = await lbpManagerInstance
           .connect(admin)
-          .addLiquidity(
-            tokenAddresses,
-            projectTokenIndex,
-            admin.address,
-            userData
-          );
+          .addLiquidity(projectTokenIndex, admin.address, userData);
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
@@ -797,12 +797,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const tx = await lbpManagerInstance
           .connect(admin)
-          .addLiquidity(
-            tokenAddresses,
-            projectTokenIndex,
-            admin.address,
-            userData
-          );
+          .addLiquidity(projectTokenIndex, admin.address, userData);
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
@@ -886,12 +881,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const tx = await lbpManagerInstance
           .connect(admin)
-          .addLiquidity(
-            tokenAddresses,
-            projectTokenIndex,
-            admin.address,
-            userData
-          );
+          .addLiquidity(projectTokenIndex, admin.address, userData);
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
@@ -976,19 +966,14 @@ describe.only(">> Contract: LBPManager", () => {
       });
       it("» it reverts on not called by admin", async () => {
         await expect(
-          lbpManagerInstance.removeLiquidity(
-            tokenAddresses,
-            admin.address,
-            false,
-            exitUserData
-          )
+          lbpManagerInstance.removeLiquidity(admin.address, false, exitUserData)
         ).to.be.revertedWith("LBPManager: caller should be admin");
       });
       it("» reverts when trying to remove liquidity where receiver address is zero address", async () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
-            .removeLiquidity(tokenAddresses, ZERO_ADDRESS, false, exitUserData)
+            .removeLiquidity(ZERO_ADDRESS, false, exitUserData)
         ).to.be.revertedWith(
           "LBPManager: receiver of project and funding tokens can't be zero"
         );
@@ -997,7 +982,7 @@ describe.only(">> Contract: LBPManager", () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
-            .removeLiquidity(tokenAddresses, admin.address, false, exitUserData)
+            .removeLiquidity(admin.address, false, exitUserData)
         ).to.be.revertedWith(
           "LBPManager: can not remove liqudity from the pool before endtime"
         );
@@ -1039,7 +1024,7 @@ describe.only(">> Contract: LBPManager", () => {
         // exit pool
         await lbpManagerInstance
           .connect(admin)
-          .removeLiquidity(tokenAddresses, admin.address, false, exitUserData);
+          .removeLiquidity(admin.address, false, exitUserData);
         // balance after exit pool
         const { balances: poolBalancesAfterExit } =
           await vaultInstance.getPoolTokens(
@@ -1157,7 +1142,7 @@ describe.only(">> Contract: LBPManager", () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
-            .removeLiquidity(tokenAddresses, admin.address, false, exitUserData)
+            .removeLiquidity(admin.address, false, exitUserData)
         ).to.be.revertedWith(
           "LBPManager: manager does not have any pool tokens to remove liquidity"
         );

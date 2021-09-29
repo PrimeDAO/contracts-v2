@@ -30,7 +30,7 @@ contract LBPManager {
     address public beneficiary; // The address that recieves fees.
     uint256 public primeDaoFeePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
     ILBP public lbp; // The address of LBP that is managed by this contract.
-    IERC20[2] public tokenList; // The tokens that are used in the LBP.
+    IERC20[] public tokenList; // The tokens that are used in the LBP.
     uint256[] public amounts; // The amount of tokens that are going to be added as liquidity in LBP.
 
     // Contract logic
@@ -83,26 +83,27 @@ contract LBPManager {
         address _beneficiary,
         string memory _name,
         string memory _symbol,
-        IERC20[2] _tokenList,
+        IERC20[] memory _tokenList,
         uint256[] memory _amounts,
         uint256[] memory _weights,
         uint256[] memory _startTimeEndTime,
         uint256[] memory _endWeights,
         uint256 _swapFeePercentage,
         uint256 _primeDaoFeePercentage
-    ) public returns (address) {
+    ) external returns (address) {
         require(!initialized, "LBPManager: already initialized");
         require(
             _beneficiary != address(0),
             "LBPManager: _beneficiary can not be zero address"
         );
+        require(_tokenList.length == 2, "LBPManager: token list size is not 2");
 
         initialized = true;
         admin = msg.sender;
         primeDaoFeePercentage = _primeDaoFeePercentage;
         beneficiary = _beneficiary;
-        tokenList[0] = _tokenList[0];
-        tokenList[1] = _tokenList[1];
+        amounts = _amounts;
+        tokenList = _tokenList;
 
         lbp = ILBP(
             ILBPFactory(_LBPFactory).create(
@@ -127,15 +128,11 @@ contract LBPManager {
 
     /**
      * @dev                             Subtracts the primeDaoFee and adds liquidity to the LBP.
-     * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
-                                            - The address of the project token being distributed.
-                                            - The address of the funding token being exchanged for the project token.
      * @param _projectTokenIndex        Index for the _tokenList array for the funding token.
      * @param _sender                   Address of the liquidity provider.
      * @param _userData                 UserData object that specifies the type of join.
      */
     function addLiquidity(
-        IERC20[] memory _tokenList,
         uint8 _projectTokenIndex,
         address _sender,
         bytes memory _userData
@@ -147,23 +144,23 @@ contract LBPManager {
 
         if (primeDaoFeePercentage != 0) {
             // Transfer primeDaoFee to beneficiary.
-            _tokenList[_projectTokenIndex].transferFrom(
+            tokenList[_projectTokenIndex].transferFrom(
                 _sender,
                 beneficiary,
                 _feeAmountRequired(_projectTokenIndex)
             );
         }
 
-        for (uint8 i; i < _tokenList.length; i++) {
-            _tokenList[i].transferFrom(_sender, address(this), amounts[i]);
-            _tokenList[i].approve(address(vault), amounts[i]);
+        for (uint8 i; i < tokenList.length; i++) {
+            tokenList[i].transferFrom(_sender, address(this), amounts[i]);
+            tokenList[i].approve(address(vault), amounts[i]);
         }
 
         IVault.JoinPoolRequest memory request = IVault.JoinPoolRequest({
             maxAmountsIn: amounts,
             userData: _userData,
             fromInternalBalance: false, // It is not possible to add liquidity through the internal Vault balance.
-            assets: _tokenList
+            assets: tokenList
         });
 
         vault.joinPool(lbp.getPoolId(), address(this), address(this), request);
@@ -171,15 +168,11 @@ contract LBPManager {
 
     /**
      * @dev                             exit pool or remove liquidity from pool
-     * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
-                                            - The address of the project token being distributed.
-                                            - The address of the funding token being exchanged for the project token.
      * @param _receiver                 Address of the liquidity receiver, after exiting the LBP.
      * @param _toInternalBalance        Balancer's Vault option to send the liquidity from the LBP to the _receivers internal Vault balance.
      * @param _userData                 UserData object that specifies the type of exit.
      */
     function removeLiquidity(
-        IERC20[] memory _tokenList,
         address payable _receiver,
         bool _toInternalBalance,
         bytes memory _userData
@@ -210,7 +203,7 @@ contract LBPManager {
             minAmountsOut: _minAmountsOut,
             userData: _userData,
             toInternalBalance: _toInternalBalance,
-            assets: _tokenList
+            assets: tokenList
         });
 
         lbp.approve(address(vault), lbp.balanceOf(address(this)));

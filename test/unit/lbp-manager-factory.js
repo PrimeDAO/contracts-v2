@@ -26,7 +26,7 @@ const deploy = async () => {
   return setup;
 };
 
-describe.only(">> Contract: LBPManagerFactory", () => {
+describe(">> Contract: LBPManagerFactory", () => {
   let setup, primeDaoFeePercentage, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
@@ -214,6 +214,29 @@ describe.only(">> Contract: LBPManagerFactory", () => {
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
       ).to.be.revertedWith("LBPManager: _beneficiary can not be zero address");
+    });
+    it("$ reverts on to large token list array", async () => {
+      const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
+      const largeTokenListAddresses = largeTokenList.map(
+        (token) => token.address
+      );
+
+      params = [
+        admin.address,
+        beneficiary.address,
+        NAME,
+        SYMBOL,
+        largeTokenListAddresses,
+        amounts,
+        START_WEIGHTS,
+        [startTime, endTime],
+        END_WEIGHTS,
+        SWAP_FEE_PERCENTAGE_CHANGED,
+        primeDaoFeePercentage,
+      ];
+      await expect(
+        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
+      ).to.be.revertedWith("LBPManager: token list size is not 2");
     });
   });
   context("» deploy LBP using LBPManager", () => {
