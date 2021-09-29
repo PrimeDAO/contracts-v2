@@ -178,7 +178,7 @@ const setupInitialState = async (contractInstances, initialState) => {
   };
 };
 
-describe(">> Contract: LBPManager", () => {
+describe.only(">> Contract: LBPManager", () => {
   let poolId,
     admin,
     owner,

@@ -30,7 +30,7 @@ contract LBPManager {
     address public beneficiary; // The address that recieves fees.
     uint256 public primeDaoFeePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
     ILBP public lbp; // The address of LBP that is managed by this contract.
-    IERC20[] public tokenList; // The tokens that are used in the LBP.
+    IERC20[2] public tokenList; // The tokens that are used in the LBP.
     uint256[] public amounts; // The amount of tokens that are going to be added as liquidity in LBP.
 
     // Contract logic
@@ -83,14 +83,14 @@ contract LBPManager {
         address _beneficiary,
         string memory _name,
         string memory _symbol,
-        IERC20[] memory _tokenList,
+        IERC20[2] _tokenList,
         uint256[] memory _amounts,
         uint256[] memory _weights,
         uint256[] memory _startTimeEndTime,
         uint256[] memory _endWeights,
         uint256 _swapFeePercentage,
         uint256 _primeDaoFeePercentage
-    ) external returns (address) {
+    ) public returns (address) {
         require(!initialized, "LBPManager: already initialized");
         require(
             _beneficiary != address(0),
@@ -101,8 +101,8 @@ contract LBPManager {
         admin = msg.sender;
         primeDaoFeePercentage = _primeDaoFeePercentage;
         beneficiary = _beneficiary;
-        amounts = _amounts;
-        tokenList = _tokenList;
+        tokenList[0] = _tokenList[0];
+        tokenList[1] = _tokenList[1];
 
         lbp = ILBP(
             ILBPFactory(_LBPFactory).create(
