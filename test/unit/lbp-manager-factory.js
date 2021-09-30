@@ -63,7 +63,7 @@ describe(">> Contract: LBPManagerFactory", () => {
     it("$ revert on deploy LBPManagerFactory with zero address LBPFactory", async () => {
       await expect(
         init.getContractInstance("LBPManagerFactory", owner, [ZERO_ADDRESS])
-      ).to.be.revertedWith("LBPManagerFactory: LBPFactory can not be zero");
+      ).to.be.revertedWith("LBPMFactory: LBPFactory is zero");
     });
     it("$ deploy LBPManagerFactory", async () => {
       setup.lbpManagerFactory = await init.getContractInstance(
@@ -96,21 +96,17 @@ describe(">> Contract: LBPManagerFactory", () => {
     it("$ reverts if deploying LBPManager & mastercopy is not set", async () => {
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
-      ).to.be.revertedWith(
-        "LBPManagerFactory: LBPManager mastercopy is not set"
-      );
+      ).to.be.revertedWith("LBPMFactory: LBPManager mastercopy not set");
     });
     it("$ reverts on zero address", async () => {
       await expect(
         setup.lbpManagerFactory.setMasterCopy(ZERO_ADDRESS)
-      ).to.be.revertedWith("LBPManagerFactory: mastercopy can not be zero");
+      ).to.be.revertedWith("LBPMFactory: mastercopy is zero");
     });
     it("$ reverts on same address as LBPManagerFactory", async () => {
       await expect(
         setup.lbpManagerFactory.setMasterCopy(setup.lbpManagerFactory.address)
-      ).to.be.revertedWith(
-        "LBPManagerFactory: mastercopy can not be the same as LBPManagerFactory"
-      );
+      ).to.be.revertedWith("LBPMFactory: mastercopy same as LBPManagerFactory");
     });
     it("$ reverts on called not by owner", async () => {
       await expect(
@@ -133,14 +129,12 @@ describe(">> Contract: LBPManagerFactory", () => {
     it("$ reverts on zero address", async () => {
       await expect(
         setup.lbpManagerFactory.setLBPFactory(ZERO_ADDRESS)
-      ).to.be.revertedWith("LBPManagerFactory: LBPFactory can not be zero");
+      ).to.be.revertedWith("LBPMFactory: LBPFactory is zero");
     });
     it("$ reverts on same address as LBPManagerFactory", async () => {
       await expect(
         setup.lbpManagerFactory.setLBPFactory(setup.lbpManagerFactory.address)
-      ).to.be.revertedWith(
-        "LBPManagerFactory: LBPFactory can not be the same as LBPManagerFactory"
-      );
+      ).to.be.revertedWith("LBPMFactory: LBPFactory same as LBPManagerFactory");
     });
     it("$ reverts on called not by owner", async () => {
       await expect(
@@ -213,7 +207,7 @@ describe(">> Contract: LBPManagerFactory", () => {
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
-      ).to.be.revertedWith("LBPManager: _beneficiary can not be zero address");
+      ).to.be.revertedWith("LBPManager: _beneficiary is zero");
     });
     it("$ reverts on to large token list array", async () => {
       const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
@@ -236,7 +230,7 @@ describe(">> Contract: LBPManagerFactory", () => {
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
-      ).to.be.revertedWith("LBPManager: token list size is not 2");
+      ).to.be.revertedWith("LBPManager: token list to long");
     });
   });
   context("» deploy LBP using LBPManager", () => {

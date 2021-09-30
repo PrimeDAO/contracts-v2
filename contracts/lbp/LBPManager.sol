@@ -92,11 +92,8 @@ contract LBPManager {
         uint256 _primeDaoFeePercentage
     ) external returns (address) {
         require(!initialized, "LBPManager: already initialized");
-        require(
-            _beneficiary != address(0),
-            "LBPManager: _beneficiary can not be zero address"
-        );
-        require(_tokenList.length == 2, "LBPManager: token list size is not 2");
+        require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
+        require(_tokenList.length == 2, "LBPManager: token list to long");
 
         initialized = true;
         admin = msg.sender;
@@ -137,7 +134,7 @@ contract LBPManager {
         address _sender,
         bytes memory _userData
     ) external onlyAdmin {
-        require(!poolFunded, "LBPManager: pool has already been funded");
+        require(!poolFunded, "LBPManager: pool already funded");
         poolFunded = true;
 
         IVault vault = lbp.getVault();
@@ -179,20 +176,17 @@ contract LBPManager {
     ) external onlyAdmin {
         require(
             _receiver != payable(address(0)),
-            "LBPManager: receiver of project and funding tokens can't be zero"
+            "LBPManager: receiver is zero"
         );
         require(
             lbp.balanceOf(address(this)) > 0,
-            "LBPManager: manager does not have any pool tokens to remove liquidity"
+            "LBPManager: no BPT token balance"
         );
 
         uint256 endTime;
         (, endTime, ) = lbp.getGradualWeightUpdateParams();
 
-        require(
-            block.timestamp >= endTime,
-            "LBPManager: can not remove liqudity from the pool before endtime"
-        );
+        require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
         // To remove all funding from the pool. Initializes to [0, 0]
         uint256[] memory _minAmountsOut = new uint256[](tokenList.length);
@@ -227,21 +221,15 @@ contract LBPManager {
      * @param _receiver                 Address of the BPT tokens receiver.
      */
     function withdrawPoolTokens(address _receiver) external onlyAdmin {
-        require(
-            _receiver != address(0),
-            "LBPManager: receiver of pool tokens can't be zero"
-        );
+        require(_receiver != address(0), "LBPManager: receiver is zero");
 
         uint256 endTime;
         (, endTime, ) = lbp.getGradualWeightUpdateParams();
-        require(
-            block.timestamp >= endTime,
-            "LBPManager: can not withdraw pool tokens before endtime"
-        );
+        require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
         require(
             lbp.balanceOf(address(this)) > 0,
-            "LBPManager: manager does not have any pool tokens to withdraw"
+            "LBPManager: no BPT token balance"
         );
 
         lbp.transfer(_receiver, lbp.balanceOf(address(this)));

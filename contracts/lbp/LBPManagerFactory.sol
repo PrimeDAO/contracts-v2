@@ -37,10 +37,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
      * @param _LBPFactory               The address of Balancers LBP factory.
      */
     constructor(address _LBPFactory) {
-        require(
-            _LBPFactory != address(0),
-            "LBPManagerFactory: LBPFactory can not be zero"
-        );
+        require(_LBPFactory != address(0), "LBPMFactory: LBPFactory is zero");
         LBPFactory = _LBPFactory;
     }
 
@@ -49,13 +46,10 @@ contract LBPManagerFactory is CloneFactory, Ownable {
      * @param _masterCopy               The address of the new LBPManager basis.
      */
     function setMasterCopy(address _masterCopy) external onlyOwner {
-        require(
-            _masterCopy != address(0),
-            "LBPManagerFactory: mastercopy can not be zero"
-        );
+        require(_masterCopy != address(0), "LBPMFactory: mastercopy is zero");
         require(
             _masterCopy != address(this),
-            "LBPManagerFactory: mastercopy can not be the same as LBPManagerFactory"
+            "LBPMFactory: mastercopy same as LBPManagerFactory"
         );
         lbpManagerMasterCopy = _masterCopy;
     }
@@ -65,13 +59,10 @@ contract LBPManagerFactory is CloneFactory, Ownable {
      * @param _LBPFactory               The address of Balancers LBP factory.
      */
     function setLBPFactory(address _LBPFactory) external onlyOwner {
-        require(
-            _LBPFactory != address(0),
-            "LBPManagerFactory: LBPFactory can not be zero"
-        );
+        require(_LBPFactory != address(0), "LBPMFactory: LBPFactory is zero");
         require(
             _LBPFactory != address(this),
-            "LBPManagerFactory: LBPFactory can not be the same as LBPManagerFactory"
+            "LBPMFactory: LBPFactory same as LBPManagerFactory"
         );
         LBPFactory = _LBPFactory;
     }
@@ -115,7 +106,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
     ) external onlyOwner {
         require(
             lbpManagerMasterCopy != address(0),
-            "LBPManagerFactory: LBPManager mastercopy is not set"
+            "LBPMFactory: LBPManager mastercopy not set"
         );
 
         address lbpManager = createClone(lbpManagerMasterCopy);

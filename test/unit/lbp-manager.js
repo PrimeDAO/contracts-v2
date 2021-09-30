@@ -307,9 +307,7 @@ describe(">> Contract: LBPManager", () => {
           lbpManagerInstance
             .connect(owner)
             .initializeLBP(...invalidInitializeLBPParams)
-        ).to.be.revertedWith(
-          "LBPManager: _beneficiary can not be zero address"
-        );
+        ).to.be.revertedWith("LBPManager: _beneficiary is zero");
       });
       it("» revert on token list bigger then 2", async () => {
         const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
@@ -335,7 +333,7 @@ describe(">> Contract: LBPManager", () => {
           lbpManagerInstance
             .connect(owner)
             .initializeLBP(...invalidInitializeLBPParams)
-        ).to.be.revertedWith("LBPManager: token list size is not 2");
+        ).to.be.revertedWith("LBPManager: token list to long");
       });
     });
     describe("$ deploy LBP using Manager succeeds", () => {
@@ -507,7 +505,7 @@ describe(">> Contract: LBPManager", () => {
           lbpManagerInstance
             .connect(admin)
             .addLiquidity(projectTokenIndex, admin.address, userData)
-        ).to.be.revertedWith("LBPManager: pool has already been funded");
+        ).to.be.revertedWith("LBPManager: pool already funded");
       });
     });
     describe("$ adding liquidity with 5 percent primeDaoFee", async () => {
@@ -974,18 +972,14 @@ describe(">> Contract: LBPManager", () => {
           lbpManagerInstance
             .connect(admin)
             .removeLiquidity(ZERO_ADDRESS, false, exitUserData)
-        ).to.be.revertedWith(
-          "LBPManager: receiver of project and funding tokens can't be zero"
-        );
+        ).to.be.revertedWith("LBPManager: receiver is zero");
       });
       it("» reverts when trying to remove liquidity before endTime", async () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
             .removeLiquidity(admin.address, false, exitUserData)
-        ).to.be.revertedWith(
-          "LBPManager: can not remove liqudity from the pool before endtime"
-        );
+        ).to.be.revertedWith("LBPManager: endtime not reached");
       });
     });
     describe("$ success on call exit pool", () => {
@@ -1071,16 +1065,12 @@ describe(">> Contract: LBPManager", () => {
       it("» reverts when receiver address is zero address", async () => {
         await expect(
           lbpManagerInstance.connect(admin).withdrawPoolTokens(ZERO_ADDRESS)
-        ).to.be.revertedWith(
-          "LBPManager: receiver of pool tokens can't be zero"
-        );
+        ).to.be.revertedWith("LBPManager: receiver is zero");
       });
       it("» reverts when trying to withdraw before end time", async () => {
         await expect(
           lbpManagerInstance.connect(admin).withdrawPoolTokens(admin.address)
-        ).to.be.revertedWith(
-          "LBPManager: can not withdraw pool tokens before endtime"
-        );
+        ).to.be.revertedWith("LBPManager: endtime not reached");
       });
     });
     describe("$ succes on withdraw pool tokens", () => {
@@ -1130,9 +1120,7 @@ describe(">> Contract: LBPManager", () => {
           .withdrawPoolTokens(admin.address);
         await expect(
           lbpManagerInstance.connect(admin).withdrawPoolTokens(admin.address)
-        ).to.be.revertedWith(
-          "LBPManager: manager does not have any pool tokens to withdraw"
-        );
+        ).to.be.revertedWith("LBPManager: no BPT token balance");
       });
       it("» reverts when trying to remove liquidity after withdrawing pool tokens", async () => {
         await time.increase(1000);
@@ -1143,9 +1131,7 @@ describe(">> Contract: LBPManager", () => {
           lbpManagerInstance
             .connect(admin)
             .removeLiquidity(admin.address, false, exitUserData)
-        ).to.be.revertedWith(
-          "LBPManager: manager does not have any pool tokens to remove liquidity"
-        );
+        ).to.be.revertedWith("LBPManager: no BPT token balance");
       });
     });
   });
