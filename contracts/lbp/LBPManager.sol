@@ -66,7 +66,7 @@ contract LBPManager {
      * @param _amounts                  Sorted array to match the _tokenList, containing two parameters:
                                             - The amounts of project token to be added as liquidity to the LBP.
                                             - The amounts of funding token to be added as liquidity to the LBP.
-     * @param _weights                  Sorted array to match the _tokenList, containing two parametes:
+     * @param _startWeights             Sorted array to match the _tokenList, containing two parametes:
                                             - The start weight for the project token in the LBP.
                                             - The start weight for the funding token in the LBP.
      * @param _startTimeEndTime         Array containing two parameters:
@@ -85,7 +85,7 @@ contract LBPManager {
         string memory _symbol,
         IERC20[] memory _tokenList,
         uint256[] memory _amounts,
-        uint256[] memory _weights,
+        uint256[] memory _startWeights,
         uint256[] memory _startTimeEndTime,
         uint256[] memory _endWeights,
         uint256 _swapFeePercentage,
@@ -107,7 +107,7 @@ contract LBPManager {
                 _name,
                 _symbol,
                 _tokenList,
-                _weights,
+                _startWeights,
                 _swapFeePercentage,
                 address(this),
                 true // SwapEnabled is set to true at pool creation.

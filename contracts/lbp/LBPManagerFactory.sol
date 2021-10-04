@@ -79,7 +79,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
      * @param _amounts                  Sorted array to match the _tokenList, containing two parameters:
                                             - The amounts of project token to be added as liquidity to the LBP.
                                             - The amounts of funding token to be added as liquidity to the LBP.
-     * @param _weights                  Sorted array to match the _tokenList, containing two parametes:
+     * @param _startWeights                  Sorted array to match the _tokenList, containing two parametes:
                                             - The start weight for the project token in the LBP.
                                             - The start weight for the funding token in the LBP.
      * @param _startTimeEndtime         Array containing two parameters:
@@ -98,7 +98,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         string memory _symbol,
         IERC20[] memory _tokenList,
         uint256[] memory _amounts,
-        uint256[] memory _weights,
+        uint256[] memory _startWeights,
         uint256[] memory _startTimeEndtime,
         uint256[] memory _endWeights,
         uint256 _swapFeePercentage,
@@ -118,7 +118,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
             _symbol,
             _tokenList,
             _amounts,
-            _weights,
+            _startWeights,
             _startTimeEndtime,
             _endWeights,
             _swapFeePercentage,

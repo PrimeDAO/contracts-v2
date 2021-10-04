@@ -173,7 +173,7 @@ const setupInitialState = async (contractInstances, initialState) => {
   };
 };
 
-describe(">> Contract: LBPManager", () => {
+describe.only(">> Contract: LBPManager", () => {
   let poolId,
     admin,
     owner,
@@ -203,7 +203,7 @@ describe(">> Contract: LBPManager", () => {
 
   let startTime = Math.floor(Date.now() / 1000);
   let endTime = startTime + 1000;
-  let WEIGHTS = [parseEther("0.6").toString(), parseEther("0.4")];
+  let START_WEIGHTS = [parseEther("0.6").toString(), parseEther("0.4")];
 
   before(async () => {
     const signers = await ethers.getSigners();
@@ -228,7 +228,7 @@ describe(">> Contract: LBPManager", () => {
       SYMBOL,
       tokenAddresses,
       INITIAL_BALANCES,
-      WEIGHTS,
+      START_WEIGHTS,
       startTime,
       endTime,
       END_WEIGHTS,
@@ -249,7 +249,7 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           tokenAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
@@ -272,7 +272,7 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           tokenAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
@@ -295,7 +295,7 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           tokenAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
@@ -321,7 +321,7 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           largeTokenListAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
@@ -421,7 +421,7 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           tokenAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
@@ -518,7 +518,7 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           tokenAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
@@ -598,7 +598,7 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           tokenAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
@@ -740,9 +740,9 @@ describe(">> Contract: LBPManager", () => {
         amountToAddForFee = BigNumber.from(0);
         const HUNDRED_PERCENT = parseUnits("10", 18);
 
-        // reverse weights and amounts
+        // reverse START_weights and amounts
         const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
-        const reverseWeights = reverseArray(WEIGHTS);
+        const reverseWeights = reverseArray(START_WEIGHTS);
         const reverseEndWeights = reverseArray(END_WEIGHTS);
 
         initializeLBPParams = paramGenerator.initializeParams(
@@ -824,9 +824,9 @@ describe(">> Contract: LBPManager", () => {
         amountToAddForFee = BigNumber.from(0);
         const HUNDRED_PERCENT = parseUnits("10", 18);
 
-        // reverse weights and amounts
+        // reverse START_weights and amounts
         const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
-        const reverseWeights = reverseArray(WEIGHTS);
+        const reverseWeights = reverseArray(START_WEIGHTS);
         const reverseEndWeights = reverseArray(END_WEIGHTS);
 
         initializeLBPParams = paramGenerator.initializeParams(
