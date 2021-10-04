@@ -97,6 +97,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
                                             - The end weight for the funding token in the LBP.
      * @param _swapFeePercentage        Percentage of fee paid for every swap in the LBP.
      * @param _fee                      Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
+     * @param _metaData                 IPFS Hash of the LBP creation wizard information.
      */
     function deployLBPManager(
         address _admin,
@@ -109,7 +110,8 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         uint256[] memory _startTimeEndtime,
         uint256[] memory _endWeights,
         uint256 _swapFeePercentage,
-        uint256 _fee
+        uint256 _fee,
+        bytes memory _metaData
     ) external onlyOwner {
         require(
             masterCopy != address(0),
@@ -129,7 +131,8 @@ contract LBPManagerFactory is CloneFactory, Ownable {
             _startTimeEndtime,
             _endWeights,
             _swapFeePercentage,
-            _fee
+            _fee,
+            _metaData
         );
 
         LBPManager(lbpManager).transferAdminRights(_admin);

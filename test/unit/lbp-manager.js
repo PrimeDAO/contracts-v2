@@ -55,8 +55,9 @@ paramGenerator.initializeParams = (
   endTime,
   endWeights,
   swapFee,
-  primeFee,
-  beneficiary
+  fee,
+  beneficiary,
+  METADATA
 ) => [
   factory,
   beneficiary,
@@ -68,7 +69,8 @@ paramGenerator.initializeParams = (
   [startTime, endTime],
   endWeights,
   swapFee,
-  primeFee,
+  fee,
+  METADATA,
 ];
 
 const setupInitialState = async (contractInstances, initialState) => {
@@ -200,6 +202,7 @@ describe(">> Contract: LBPManager", () => {
   const FEE_PERCENTAGE_FIVE = parseUnits("5", 17);
   const FEE_PERCENTAGE_ONE = parseUnits("1", 17);
   const FEE_PERCENTAGE_ZERO = 0;
+  const METADATA = "0x7B502C3A1F48C8609AE212CDFB639DEE39673F5E"; // Random hash string
 
   let startTime = Math.floor(Date.now() / 1000);
   let endTime = startTime + 1000;
@@ -234,7 +237,8 @@ describe(">> Contract: LBPManager", () => {
       END_WEIGHTS,
       SWAP_FEE_PERCENTAGE,
       FEE_PERCENTAGE_ZERO,
-      beneficiary.address
+      beneficiary.address,
+      METADATA
     );
   });
 
@@ -255,7 +259,8 @@ describe(">> Contract: LBPManager", () => {
           END_WEIGHTS,
           TO_HIGH_SWAP_FEE_PERCENTAGE,
           FEE_PERCENTAGE_ZERO,
-          beneficiary.address
+          beneficiary.address,
+          METADATA
         );
         await expect(
           lbpManagerInstance
@@ -278,7 +283,8 @@ describe(">> Contract: LBPManager", () => {
           END_WEIGHTS,
           TO_LOW_SWAP_FEE_PERCENTAGE,
           FEE_PERCENTAGE_ZERO,
-          beneficiary.address
+          beneficiary.address,
+          METADATA
         );
         await expect(
           lbpManagerInstance
@@ -301,7 +307,8 @@ describe(">> Contract: LBPManager", () => {
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
           FEE_PERCENTAGE_ZERO,
-          ZERO_ADDRESS
+          ZERO_ADDRESS,
+          METADATA
         );
         await expect(
           lbpManagerInstance
@@ -327,7 +334,8 @@ describe(">> Contract: LBPManager", () => {
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
           FEE_PERCENTAGE_ZERO,
-          beneficiary.address
+          beneficiary.address,
+          METADATA
         );
         await expect(
           lbpManagerInstance
@@ -350,6 +358,9 @@ describe(">> Contract: LBPManager", () => {
         );
         expect(await lbpManagerInstance.feePercentage()).to.equal(
           FEE_PERCENTAGE_ZERO
+        );
+        expect(await lbpManagerInstance.metadata()).to.equal(
+          METADATA.toLowerCase()
         );
       });
       it("» reverts when invoking it again", async () => {
@@ -427,7 +438,8 @@ describe(">> Contract: LBPManager", () => {
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
           FEE_PERCENTAGE_FIVE,
-          beneficiary.address
+          beneficiary.address,
+          METADATA
         );
         projectTokenIndex = 0;
 
@@ -524,7 +536,8 @@ describe(">> Contract: LBPManager", () => {
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
           FEE_PERCENTAGE_FIVE,
-          beneficiary.address
+          beneficiary.address,
+          METADATA
         );
 
         userData = ethers.utils.defaultAbiCoder.encode(
@@ -604,7 +617,8 @@ describe(">> Contract: LBPManager", () => {
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
           FEE_PERCENTAGE_ONE,
-          beneficiary.address
+          beneficiary.address,
+          METADATA
         );
 
         userData = ethers.utils.defaultAbiCoder.encode(
@@ -757,7 +771,8 @@ describe(">> Contract: LBPManager", () => {
           reverseEndWeights,
           SWAP_FEE_PERCENTAGE,
           FEE_PERCENTAGE_FIVE,
-          beneficiary.address
+          beneficiary.address,
+          METADATA
         );
 
         userData = ethers.utils.defaultAbiCoder.encode(
@@ -841,7 +856,8 @@ describe(">> Contract: LBPManager", () => {
           reverseEndWeights,
           SWAP_FEE_PERCENTAGE,
           FEE_PERCENTAGE_ZERO,
-          beneficiary.address
+          beneficiary.address,
+          METADATA
         );
 
         userData = ethers.utils.defaultAbiCoder.encode(

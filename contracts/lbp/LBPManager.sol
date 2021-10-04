@@ -30,9 +30,10 @@ contract LBPManager {
     address public beneficiary; // The address that recieves fees.
     uint256 public feePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
     uint8 private projectTokenIndex; // The address of the project token.
+    uint256[] public amounts; // The amount of tokens that are going to be added as liquidity in LBP.
+    bytes public metadata; // IPFS Hash of the LBP creation wizard information.
     ILBP public lbp; // The address of LBP that is managed by this contract.
     IERC20[] public tokenList; // The tokens that are used in the LBP.
-    uint256[] public amounts; // The amount of tokens that are going to be added as liquidity in LBP.
 
     // Contract logic
     bool public poolFunded; // true:- LBP is funded; false:- LBP is yet not funded.
@@ -75,6 +76,7 @@ contract LBPManager {
                                             - The end weight for the funding token in the LBP.
      * @param _swapFeePercentage        Percentage of fee paid for every swap in the LBP.
      * @param _feePercentage            Percentage of fee paid to _beneficiary for providing the service of the LBP Manager.
+     * @param _metadata                 IPFS Hash of the LBP creation wizard information.
      */
     function initializeLBP(
         address _LBPFactory,
@@ -87,7 +89,8 @@ contract LBPManager {
         uint256[] memory _startTimeEndTime,
         uint256[] memory _endWeights,
         uint256 _swapFeePercentage,
-        uint256 _feePercentage
+        uint256 _feePercentage,
+        bytes memory _metadata
     ) external returns (address) {
         require(!initialized, "LBPManager: already initialized");
         require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
@@ -98,6 +101,7 @@ contract LBPManager {
         beneficiary = _beneficiary;
         amounts = _amounts;
         tokenList = _tokenList;
+        metadata = _metadata;
 
         lbp = ILBP(
             ILBPFactory(_LBPFactory).create(

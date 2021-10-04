@@ -47,6 +47,7 @@ describe(">> Contract: LBPManagerFactory", () => {
   const TO_LOW_SWAP_FEE_PERCENTAGE = 1e10;
   const TO_HIGH_SWAP_FEE_PERCENTAGE = (1e18).toString();
   const ZERO_ADDRESS = constants.ZERO_ADDRESS;
+  const METADATA = "0x";
 
   context("» deploy LBP LBPManagerFactory", () => {
     beforeEach("!! setup", async () => {
@@ -89,6 +90,7 @@ describe(">> Contract: LBPManagerFactory", () => {
         END_WEIGHTS,
         SWAP_FEE_PERCENTAGE,
         fee,
+        METADATA,
       ];
     });
     it("$ reverts if deploying LBPManager & mastercopy is not set", async () => {
@@ -163,6 +165,7 @@ describe(">> Contract: LBPManagerFactory", () => {
         END_WEIGHTS,
         TO_LOW_SWAP_FEE_PERCENTAGE,
         fee,
+        METADATA,
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
@@ -182,6 +185,7 @@ describe(">> Contract: LBPManagerFactory", () => {
         END_WEIGHTS,
         TO_HIGH_SWAP_FEE_PERCENTAGE,
         fee,
+        METADATA,
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
@@ -202,6 +206,7 @@ describe(">> Contract: LBPManagerFactory", () => {
         END_WEIGHTS,
         SWAP_FEE_PERCENTAGE_CHANGED,
         fee,
+        METADATA,
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
@@ -225,6 +230,7 @@ describe(">> Contract: LBPManagerFactory", () => {
         END_WEIGHTS,
         SWAP_FEE_PERCENTAGE_CHANGED,
         fee,
+        METADATA,
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
@@ -246,6 +252,7 @@ describe(">> Contract: LBPManagerFactory", () => {
         END_WEIGHTS,
         SWAP_FEE_PERCENTAGE_CHANGED,
         fee,
+        METADATA,
       ];
     });
     it("$ deploys LBP successful", async () => {
