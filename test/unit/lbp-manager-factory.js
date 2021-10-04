@@ -27,7 +27,7 @@ const deploy = async () => {
 };
 
 describe.only(">> Contract: LBPManagerFactory", () => {
-  let setup, primeDaoFeePercentage, beneficiary;
+  let setup, fee, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
   const startTime = Date.now();
@@ -46,15 +46,13 @@ describe.only(">> Contract: LBPManagerFactory", () => {
   const SWAP_FEE_PERCENTAGE_CHANGED = (1e16).toString();
   const TO_LOW_SWAP_FEE_PERCENTAGE = 1e10;
   const TO_HIGH_SWAP_FEE_PERCENTAGE = (1e18).toString();
-  const PRIME_DAO_FEE_PERCENTAGE = parseUnits("5", 17);
-
   const ZERO_ADDRESS = constants.ZERO_ADDRESS;
 
   context("» deploy LBP LBPManagerFactory", () => {
     beforeEach("!! setup", async () => {
       setup = await deploy();
 
-      primeDaoFeePercentage = 10;
+      fee = 10;
 
       ({ root: owner, prime: admin, beneficiary: beneficiary } = setup.roles);
 
@@ -90,7 +88,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         [startTime, endTime],
         END_WEIGHTS,
         SWAP_FEE_PERCENTAGE,
-        primeDaoFeePercentage,
+        fee,
       ];
     });
     it("$ reverts if deploying LBPManager & mastercopy is not set", async () => {
@@ -164,7 +162,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         [startTime, endTime],
         END_WEIGHTS,
         TO_LOW_SWAP_FEE_PERCENTAGE,
-        primeDaoFeePercentage,
+        fee,
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
@@ -183,7 +181,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         [startTime, endTime],
         END_WEIGHTS,
         TO_HIGH_SWAP_FEE_PERCENTAGE,
-        primeDaoFeePercentage,
+        fee,
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
@@ -203,7 +201,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         [startTime, endTime],
         END_WEIGHTS,
         SWAP_FEE_PERCENTAGE_CHANGED,
-        primeDaoFeePercentage,
+        fee,
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
@@ -226,7 +224,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         [startTime, endTime],
         END_WEIGHTS,
         SWAP_FEE_PERCENTAGE_CHANGED,
-        primeDaoFeePercentage,
+        fee,
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
@@ -247,7 +245,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         [startTime, endTime],
         END_WEIGHTS,
         SWAP_FEE_PERCENTAGE_CHANGED,
-        primeDaoFeePercentage,
+        fee,
       ];
     });
     it("$ deploys LBP successful", async () => {

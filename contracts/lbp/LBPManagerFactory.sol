@@ -19,8 +19,8 @@ import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "./LBPManager.sol";
 
 /**
- * @title PrimeDAO LBPManager Factory
- * @dev   Enable PrimeDAO governance to create new LBPManager contracts.
+ * @title LBPManager Factory
+ * @dev   Governance to create new LBPManager contracts.
  */
 contract LBPManagerFactory is CloneFactory, Ownable {
     address public lbpManagerMasterCopy;
@@ -70,7 +70,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
     /**
      * @dev                             Deploy and initialize LBPManager.
      * @param _admin                    The address of the admin of the LBPManager.
-     * @param _beneficiary              The address that receives the _primeDaoFeePercentage.
+     * @param _beneficiary              The address that receives the _fee.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
      * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
@@ -89,7 +89,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
                                             - The end weight for the project token in the LBP.
                                             - The end weight for the funding token in the LBP.
      * @param _swapFeePercentage        Percentage of fee paid for every swap in the LBP.
-     * @param _primeDaoFeePercentage    Percentage of fee paid to PrimeDao for providing the service of the LBP Manager.
+     * @param _fee                      Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
      */
     function deployLBPUsingManager(
         address _admin,
@@ -102,7 +102,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         uint256[] memory _startTimeEndtime,
         uint256[] memory _endWeights,
         uint256 _swapFeePercentage,
-        uint256 _primeDaoFeePercentage
+        uint256 _fee
     ) external onlyOwner {
         require(
             lbpManagerMasterCopy != address(0),
@@ -122,7 +122,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
             _startTimeEndtime,
             _endWeights,
             _swapFeePercentage,
-            _primeDaoFeePercentage
+            _fee
         );
 
         LBPManager(lbpManager).transferAdminRights(_admin);

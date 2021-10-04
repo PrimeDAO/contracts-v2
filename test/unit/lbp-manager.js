@@ -112,7 +112,7 @@ const setupInitialState = async (contractInstances, initialState) => {
   }
 
   if (fundingAmount) {
-    const { initialBalances, primeDaoFeePercentage } = fundingAmount;
+    const { initialBalances, feePercentage } = fundingAmount;
 
     const initialBalancesCopy = Object.assign({}, initialBalances);
 
@@ -124,10 +124,10 @@ const setupInitialState = async (contractInstances, initialState) => {
       .transfer(admin.address, initialBalancesCopy[1].mul(2).toString());
 
     // Add fee amount on top
-    if (primeDaoFeePercentage) {
+    if (feePercentage) {
       index = projectTokenIndex ? projectTokenIndex : 0;
       amountToAddForFee = initialBalancesCopy[index]
-        .mul(primeDaoFeePercentage)
+        .mul(feePercentage)
         .div(HUNDRED_PERCENT);
       initialBalancesCopy[index] =
         initialBalancesCopy[index].add(amountToAddForFee);
@@ -197,9 +197,9 @@ describe.only(">> Contract: LBPManager", () => {
   const TO_HIGH_SWAP_FEE_PERCENTAGE = parseUnits("1", 18);
   const JOIN_KIND_INIT = 0;
   const EXIT_KIND = 1;
-  const PRIME_DAO_FEE_PERCENTAGE_FIVE = parseUnits("5", 17);
-  const PRIME_DAO_FEE_PERCENTAGE_ONE = parseUnits("1", 17);
-  const PRIME_DAO_FEE_PERCENTAGE_ZERO = 0;
+  const FEE_PERCENTAGE_FIVE = parseUnits("5", 17);
+  const FEE_PERCENTAGE_ONE = parseUnits("1", 17);
+  const FEE_PERCENTAGE_ZERO = 0;
 
   let startTime = Math.floor(Date.now() / 1000);
   let endTime = startTime + 1000;
@@ -233,7 +233,7 @@ describe.only(">> Contract: LBPManager", () => {
       endTime,
       END_WEIGHTS,
       SWAP_FEE_PERCENTAGE,
-      PRIME_DAO_FEE_PERCENTAGE_ZERO,
+      FEE_PERCENTAGE_ZERO,
       beneficiary.address
     );
   });
@@ -254,7 +254,7 @@ describe.only(">> Contract: LBPManager", () => {
           endTime,
           END_WEIGHTS,
           TO_HIGH_SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          FEE_PERCENTAGE_ZERO,
           beneficiary.address
         );
         await expect(
@@ -277,7 +277,7 @@ describe.only(">> Contract: LBPManager", () => {
           endTime,
           END_WEIGHTS,
           TO_LOW_SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          FEE_PERCENTAGE_ZERO,
           beneficiary.address
         );
         await expect(
@@ -300,7 +300,7 @@ describe.only(">> Contract: LBPManager", () => {
           endTime,
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          FEE_PERCENTAGE_ZERO,
           ZERO_ADDRESS
         );
         await expect(
@@ -326,7 +326,7 @@ describe.only(">> Contract: LBPManager", () => {
           endTime,
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          FEE_PERCENTAGE_ZERO,
           beneficiary.address
         );
         await expect(
@@ -348,8 +348,8 @@ describe.only(">> Contract: LBPManager", () => {
         expect(await lbpManagerInstance.beneficiary()).to.equal(
           beneficiary.address
         );
-        expect(await lbpManagerInstance.primeDaoFeePercentage()).to.equal(
-          PRIME_DAO_FEE_PERCENTAGE_ZERO
+        expect(await lbpManagerInstance.feePercentage()).to.equal(
+          FEE_PERCENTAGE_ZERO
         );
       });
       it("» reverts when invoking it again", async () => {
@@ -396,7 +396,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
 
         const initialState = {
@@ -426,14 +426,14 @@ describe.only(">> Contract: LBPManager", () => {
           endTime,
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          FEE_PERCENTAGE_FIVE,
           beneficiary.address
         );
         projectTokenIndex = 0;
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          feePercentage: FEE_PERCENTAGE_FIVE,
         };
 
         const initialState = {
@@ -464,7 +464,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
           initializeLBPParams,
@@ -487,7 +487,7 @@ describe.only(">> Contract: LBPManager", () => {
       beforeEach(async () => {
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
 
         projectTokenIndex = 0;
@@ -508,7 +508,7 @@ describe.only(">> Contract: LBPManager", () => {
         ).to.be.revertedWith("LBPManager: pool already funded");
       });
     });
-    describe("$ adding liquidity with 5 percent primeDaoFee", async () => {
+    describe("$ adding liquidity with 5 percent fee", async () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
@@ -523,7 +523,7 @@ describe.only(">> Contract: LBPManager", () => {
           endTime,
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          FEE_PERCENTAGE_FIVE,
           beneficiary.address
         );
 
@@ -536,7 +536,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          feePercentage: FEE_PERCENTAGE_FIVE,
         };
 
         const initialState = {
@@ -588,7 +588,7 @@ describe.only(">> Contract: LBPManager", () => {
         ).to.equal(amountToAddForFee);
       });
     });
-    describe("$ adding liquidity with 1 percent primeDaoFee", async () => {
+    describe("$ adding liquidity with 1 percent fee", async () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
@@ -603,7 +603,7 @@ describe.only(">> Contract: LBPManager", () => {
           endTime,
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_ONE,
+          FEE_PERCENTAGE_ONE,
           beneficiary.address
         );
 
@@ -616,7 +616,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ONE,
+          feePercentage: FEE_PERCENTAGE_ONE,
         };
 
         const initialState = {
@@ -668,7 +668,7 @@ describe.only(">> Contract: LBPManager", () => {
         ).to.equal(amountToAddForFee);
       });
     });
-    describe("$ adding liquidity with 0 percent primeDaoFee", async () => {
+    describe("$ adding liquidity with 0 percent fee", async () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
@@ -681,7 +681,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
 
         const initialState = {
@@ -733,7 +733,7 @@ describe.only(">> Contract: LBPManager", () => {
         ).to.equal(amountToAddForFee);
       });
     });
-    describe("$ adding liquidity with unsorted tokenList and 5 percent primeDaoFee", async () => {
+    describe("$ adding liquidity with unsorted tokenList and 5 percent fee", async () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
@@ -756,7 +756,7 @@ describe.only(">> Contract: LBPManager", () => {
           endTime,
           reverseEndWeights,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          FEE_PERCENTAGE_FIVE,
           beneficiary.address
         );
 
@@ -767,7 +767,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: reverseInitialBalance,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          feePercentage: FEE_PERCENTAGE_FIVE,
         };
 
         projectTokenIndex = 1;
@@ -817,7 +817,7 @@ describe.only(">> Contract: LBPManager", () => {
         ).to.equal(amountToAddForFee);
       });
     });
-    describe("$ adding liquidity with unsorted tokenList and 0 percent primeDaoFee", async () => {
+    describe("$ adding liquidity with unsorted tokenList and 0 percent fee", async () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
@@ -840,7 +840,7 @@ describe.only(">> Contract: LBPManager", () => {
           endTime,
           reverseEndWeights,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          FEE_PERCENTAGE_ZERO,
           beneficiary.address
         );
 
@@ -851,7 +851,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: reverseInitialBalance,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
 
         projectTokenIndex = 1;
@@ -906,7 +906,7 @@ describe.only(">> Contract: LBPManager", () => {
     beforeEach(async () => {
       const fundingAmount = {
         initialBalances: INITIAL_BALANCES,
-        primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+        feePercentage: FEE_PERCENTAGE_ZERO,
       };
 
       const initialState = {
@@ -940,7 +940,7 @@ describe.only(">> Contract: LBPManager", () => {
         // Specifies funds and fee to be sent to setpInitialState
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
           initializeLBPParams,
@@ -987,7 +987,7 @@ describe.only(">> Contract: LBPManager", () => {
         // Specifies funds and fee to be sent to setpInitialState
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
           initializeLBPParams,
@@ -1040,7 +1040,7 @@ describe.only(">> Contract: LBPManager", () => {
         // Specifies funds and fee to be sent to setpInitialState
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
           initializeLBPParams,
@@ -1078,7 +1078,7 @@ describe.only(">> Contract: LBPManager", () => {
         // Specifies funds and fee to be sent to setpInitialState
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
           initializeLBPParams,

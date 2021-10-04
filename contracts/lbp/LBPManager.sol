@@ -18,17 +18,17 @@ import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
 
 /**
- * @title PrimeDAO LBPManager contract
+ * @title LBPManager contract
  * @dev   Smart contract for managing a Balancer LBP.
  */
 contract LBPManager {
     // Constants
-    uint256 private constant HUNDRED_PERCENT = 10e18; // Used in calculating the PrimeDao fee.
+    uint256 private constant HUNDRED_PERCENT = 10e18; // Used in calculating the fee.
 
     // Locked parameter
     address public admin; // The address of the admin of this contract.
     address public beneficiary; // The address that recieves fees.
-    uint256 public primeDaoFeePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
+    uint256 public feePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
     ILBP public lbp; // The address of LBP that is managed by this contract.
     IERC20[] public tokenList; // The tokens that are used in the LBP.
     uint256[] public amounts; // The amount of tokens that are going to be added as liquidity in LBP.
@@ -57,7 +57,7 @@ contract LBPManager {
     /**
      * @dev                             Initialize LBPManager.
      * @param _LBPFactory               LBP factory address.
-     * @param _beneficiary              The address that receives the _primeDaoFeePercentage.
+     * @param _beneficiary              The address that receives the _fee.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
      * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
@@ -76,7 +76,7 @@ contract LBPManager {
                                             - The end weight for the project token in the LBP.
                                             - The end weight for the funding token in the LBP.
      * @param _swapFeePercentage        Percentage of fee paid for every swap in the LBP.
-     * @param _primeDaoFeePercentage    Percentage of fee paid to PrimeDao for providing the service of the LBP Manager.
+     * @param _feePercentage            Percentage of fee paid to _beneficiary for providing the service of the LBP Manager.
      */
     function initializeLBP(
         address _LBPFactory,
@@ -89,7 +89,7 @@ contract LBPManager {
         uint256[] memory _startTimeEndTime,
         uint256[] memory _endWeights,
         uint256 _swapFeePercentage,
-        uint256 _primeDaoFeePercentage
+        uint256 _feePercentage
     ) external returns (address) {
         require(!initialized, "LBPManager: already initialized");
         require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
@@ -97,7 +97,7 @@ contract LBPManager {
 
         initialized = true;
         admin = msg.sender;
-        primeDaoFeePercentage = _primeDaoFeePercentage;
+        feePercentage = _feePercentage;
         beneficiary = _beneficiary;
         amounts = _amounts;
         tokenList = _tokenList;
@@ -124,7 +124,7 @@ contract LBPManager {
     }
 
     /**
-     * @dev                             Subtracts the primeDaoFee and adds liquidity to the LBP.
+     * @dev                             Subtracts the fee and adds liquidity to the LBP.
      * @param _projectTokenIndex        Index for the _tokenList array for the funding token.
      * @param _sender                   Address of the liquidity provider.
      * @param _userData                 UserData object that specifies the type of join.
@@ -139,8 +139,8 @@ contract LBPManager {
 
         IVault vault = lbp.getVault();
 
-        if (primeDaoFeePercentage != 0) {
-            // Transfer primeDaoFee to beneficiary.
+        if (feePercentage != 0) {
+            // Transfer fee to beneficiary.
             tokenList[_projectTokenIndex].transferFrom(
                 _sender,
                 beneficiary,
@@ -265,7 +265,7 @@ contract LBPManager {
         returns (uint256 feeAmount)
     {
         feeAmount =
-            (amounts[_projectTokenIndex] * primeDaoFeePercentage) /
+            (amounts[_projectTokenIndex] * feePercentage) /
             HUNDRED_PERCENT;
     }
 }
