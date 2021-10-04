@@ -74,8 +74,8 @@ contract LBPManager {
      * @param _endWeights               Sorted array to match the _tokenList, containing two parametes:
                                             - The end weight for the project token in the LBP.
                                             - The end weight for the funding token in the LBP.
-     * @param _swapFeePercentage        Percentage of fee paid for every swap in the LBP.
-     * @param _feePercentage            Percentage of fee paid to _beneficiary for providing the service of the LBP Manager.
+
+     * @param _fee            Percentage of fee paid to _beneficiary for providing the service of the LBP Manager.
      * @param _metadata                 IPFS Hash of the LBP creation wizard information.
      */
     function initializeLBP(
@@ -88,39 +88,40 @@ contract LBPManager {
         uint256[] memory _startWeights,
         uint256[] memory _startTimeEndTime,
         uint256[] memory _endWeights,
-        uint256 _swapFeePercentage,
-        uint256 _feePercentage,
+        uint256[] memory _fee,
+        // uint256 _feePercentage,
         bytes memory _metadata
     ) external returns (address) {
         require(!initialized, "LBPManager: already initialized");
         require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
+        {
+            initialized = true;
+            admin = msg.sender;
+            feePercentage = _fee[1];
+            beneficiary = _beneficiary;
+            amounts = _amounts;
+            tokenList = _tokenList;
+            metadata = _metadata;
+        }
+        {
+            lbp = ILBP(
+                ILBPFactory(_LBPFactory).create(
+                    _name,
+                    _symbol,
+                    _tokenList,
+                    _startWeights,
+                    _fee[0],
+                    address(this),
+                    true // SwapEnabled is set to true at pool creation.
+                )
+            );
 
-        initialized = true;
-        admin = msg.sender;
-        feePercentage = _feePercentage;
-        beneficiary = _beneficiary;
-        amounts = _amounts;
-        tokenList = _tokenList;
-        metadata = _metadata;
-
-        lbp = ILBP(
-            ILBPFactory(_LBPFactory).create(
-                _name,
-                _symbol,
-                _tokenList,
-                _startWeights,
-                _swapFeePercentage,
-                address(this),
-                true // SwapEnabled is set to true at pool creation.
-            )
-        );
-
-        lbp.updateWeightsGradually(
-            _startTimeEndTime[0],
-            _startTimeEndTime[1],
-            _endWeights
-        );
-
+            lbp.updateWeightsGradually(
+                _startTimeEndTime[0],
+                _startTimeEndTime[1],
+                _endWeights
+            );
+        }
         return address(lbp);
     }
 
