@@ -121,7 +121,7 @@ describe(">> Contract: LBPManagerFactory", () => {
     });
     it("$ succeeds on valid master copy", async () => {
       await setup.lbpManagerFactory.setMasterCopy(setup.lbpManager.address);
-      expect(await setup.lbpManagerFactory.lbpManagerMasterCopy()).to.equal(
+      expect(await setup.lbpManagerFactory.masterCopy()).to.equal(
         setup.lbpManager.address
       );
     });

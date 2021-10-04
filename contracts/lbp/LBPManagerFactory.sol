@@ -23,7 +23,7 @@ import "./LBPManager.sol";
  * @dev   Enable PrimeDAO governance to create new LBPManager contracts.
  */
 contract LBPManagerFactory is CloneFactory, Ownable {
-    address public lbpManagerMasterCopy;
+    address public masterCopy;
     address public LBPFactory;
 
     event LBPDeployedUsingManager(
@@ -65,7 +65,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         onlyOwner
         validAddress(_masterCopy)
     {
-        lbpManagerMasterCopy = _masterCopy;
+        masterCopy = _masterCopy;
     }
 
     /**
@@ -118,11 +118,11 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         uint256 _primeDaoFeePercentage
     ) external onlyOwner {
         require(
-            lbpManagerMasterCopy != address(0),
+            masterCopy != address(0),
             "LBPManagerFactory: LBPManager mastercopy is not set"
         );
 
-        address lbpManager = createClone(lbpManagerMasterCopy);
+        address lbpManager = createClone(masterCopy);
 
         address lbp = LBPManager(lbpManager).initializeLBP(
             LBPFactory,
