@@ -91,7 +91,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
      * @param _swapFeePercentage        Percentage of fee paid for every swap in the LBP.
      * @param _fee                      Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
      */
-    function deployLBPUsingManager(
+    function deployLBPManager(
         address _admin,
         address _beneficiary,
         string memory _name,

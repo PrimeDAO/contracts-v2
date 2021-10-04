@@ -26,7 +26,7 @@ const deploy = async () => {
   return setup;
 };
 
-describe.only(">> Contract: LBPManagerFactory", () => {
+describe(">> Contract: LBPManagerFactory", () => {
   let setup, fee, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
@@ -93,7 +93,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
     });
     it("$ reverts if deploying LBPManager & mastercopy is not set", async () => {
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
+        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
       ).to.be.revertedWith("LBPMFactory: LBPManager mastercopy not set");
     });
     it("$ reverts on zero address", async () => {
@@ -165,7 +165,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         fee,
       ];
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
+        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
       ).to.be.revertedWith(
         "BAL#203" //MIN_SWAP_FEE_PERCENTAGE
       );
@@ -184,7 +184,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         fee,
       ];
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
+        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
       ).to.be.revertedWith(
         "BAL#202" //MAX_SWAP_FEE_PERCENTAGE
       );
@@ -204,7 +204,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         fee,
       ];
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
+        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
       ).to.be.revertedWith("LBPManager: _beneficiary is zero");
     });
     it("$ reverts on to large token list array", async () => {
@@ -227,7 +227,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         fee,
       ];
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
+        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
       ).to.be.revertedWith("LBPManager: token list to long");
     });
   });
@@ -251,7 +251,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
     it("$ deploys LBP successful", async () => {
       const tx = await setup.lbpManagerFactory
         .connect(owner)
-        .deployLBPUsingManager(...params);
+        .deployLBPManager(...params);
       const receipt = await tx.wait();
 
       const args = receipt.events.filter((data) => {
