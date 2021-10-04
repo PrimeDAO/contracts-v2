@@ -96,7 +96,6 @@ contract LBPManager {
             _beneficiary != address(0),
             "LBPManager: _beneficiary can not be zero address"
         );
-        require(_tokenList.length == 2, "LBPManager: token list size is not 2");
 
         initialized = true;
         admin = msg.sender;

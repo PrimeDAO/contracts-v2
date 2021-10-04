@@ -26,7 +26,7 @@ const deploy = async () => {
   return setup;
 };
 
-describe(">> Contract: LBPManagerFactory", () => {
+describe.only(">> Contract: LBPManagerFactory", () => {
   let setup, primeDaoFeePercentage, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
@@ -217,9 +217,9 @@ describe(">> Contract: LBPManagerFactory", () => {
     });
     it("$ reverts on to large token list array", async () => {
       const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
-      const largeTokenListAddresses = largeTokenList.map(
-        (token) => token.address
-      );
+      const largeTokenListAddresses = largeTokenList
+        .map((token) => token.address)
+        .sort((a, b) => a - b);
 
       params = [
         admin.address,
@@ -236,7 +236,7 @@ describe(">> Contract: LBPManagerFactory", () => {
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
-      ).to.be.revertedWith("LBPManager: token list size is not 2");
+      ).to.be.revertedWith("BAL#103");
     });
   });
   context("» deploy LBP using LBPManager", () => {
