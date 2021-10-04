@@ -38,7 +38,7 @@ contract LBPManager {
     bool public initialized; // true:- LBP created; false:- LBP not yet created. Makes sure, only initialized once.
 
     modifier onlyAdmin() {
-        require(msg.sender == admin, "LBPManager: caller should be admin");
+        require(msg.sender == admin, "LBPManager: caller is not admin");
         _;
     }
 
@@ -47,10 +47,7 @@ contract LBPManager {
      * @param _newAdmin                 Address of the new admin.
      */
     function transferAdminRights(address _newAdmin) external onlyAdmin {
-        require(
-            _newAdmin != address(0),
-            "LBPManager: new admin can not be zero"
-        );
+        require(_newAdmin != address(0), "LBPManager: new admin is zero");
         admin = _newAdmin;
     }
 

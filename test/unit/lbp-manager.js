@@ -379,7 +379,7 @@ describe(">> Contract: LBPManager", () => {
     it("» reverts when new owner address is zero", async () => {
       await expect(
         lbpManagerInstance.connect(owner).transferAdminRights(ZERO_ADDRESS)
-      ).to.be.revertedWith("LBPManager: new admin can not be zero");
+      ).to.be.revertedWith("LBPManager: new admin is zero");
     });
     it("» success", async () => {
       await lbpManagerInstance
@@ -480,7 +480,7 @@ describe(">> Contract: LBPManager", () => {
             admin.address,
             userData
           )
-        ).to.be.revertedWith("LBPManager: caller should be admin");
+        ).to.be.revertedWith("LBPManager: caller is not admin");
       });
     });
     describe("$ try adding liquidity twice", () => {
@@ -920,7 +920,7 @@ describe(">> Contract: LBPManager", () => {
     it("» revert on being called by not the owner", async () => {
       await expect(
         lbpManagerInstance.connect(owner).setSwapEnabled(false)
-      ).to.be.revertedWith("LBPManager: caller should be admin");
+      ).to.be.revertedWith("LBPManager: caller is not admin");
     });
     it("» setSwapEnabled to false", async () => {
       expect(await lbpManagerInstance.admin()).to.equal(admin.address);
@@ -965,7 +965,7 @@ describe(">> Contract: LBPManager", () => {
       it("» it reverts on not called by admin", async () => {
         await expect(
           lbpManagerInstance.removeLiquidity(admin.address, false, exitUserData)
-        ).to.be.revertedWith("LBPManager: caller should be admin");
+        ).to.be.revertedWith("LBPManager: caller is not admin");
       });
       it("» reverts when trying to remove liquidity where receiver address is zero address", async () => {
         await expect(
