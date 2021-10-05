@@ -81,7 +81,6 @@ const setupInitialState = async (contractInstances, initialState) => {
   [owner, admin, beneficiary] = signers;
 
   const {
-    lbpFactoryInstance,
     lbpContractFactory,
     lbpManagerInstance,
     tokenInstances,
@@ -183,8 +182,6 @@ describe.only(">> Contract: LBPManager", () => {
   const SWAP_FEE_PERCENTAGE = parseUnits("1", 16);
   const TO_LOW_SWAP_FEE_PERCENTAGE = parseUnits("1", 10);
   const TO_HIGH_SWAP_FEE_PERCENTAGE = parseUnits("1", 18);
-  const JOIN_KIND_INIT = 0;
-  const EXIT_KIND = 1;
   const FEE_PERCENTAGE_FIVE = parseUnits("5", 17);
   const FEE_PERCENTAGE_ONE = parseUnits("1", 17);
   const FEE_PERCENTAGE_ZERO = 0;
@@ -704,7 +701,6 @@ describe.only(">> Contract: LBPManager", () => {
 
       beforeEach(async () => {
         amountToAddForFee = BigNumber.from(0);
-        const HUNDRED_PERCENT = parseUnits("10", 18);
 
         // reverse START_weights and amounts
         const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
@@ -916,16 +912,12 @@ describe.only(">> Contract: LBPManager", () => {
       });
       it("» reverts when trying to remove liquidity where receiver address is zero address", async () => {
         await expect(
-          lbpManagerInstance
-            .connect(admin)
-            .removeLiquidity(ZERO_ADDRESS)
+          lbpManagerInstance.connect(admin).removeLiquidity(ZERO_ADDRESS)
         ).to.be.revertedWith("LBPManager: receiver is zero");
       });
       it("» reverts when trying to remove liquidity before endTime", async () => {
         await expect(
-          lbpManagerInstance
-            .connect(admin)
-            .removeLiquidity(admin.address)
+          lbpManagerInstance.connect(admin).removeLiquidity(admin.address)
         ).to.be.revertedWith("LBPManager: endtime not reached");
       });
     });
@@ -955,9 +947,7 @@ describe.only(">> Contract: LBPManager", () => {
           await lbpContractInstance.getPoolId()
         );
         // exit pool
-        await lbpManagerInstance
-          .connect(admin)
-          .removeLiquidity(admin.address);
+        await lbpManagerInstance.connect(admin).removeLiquidity(admin.address);
         // balance after exit pool
         const { balances: poolBalancesAfterExit } =
           await vaultInstance.getPoolTokens(
@@ -1051,9 +1041,7 @@ describe.only(">> Contract: LBPManager", () => {
           .connect(admin)
           .withdrawPoolTokens(admin.address);
         await expect(
-          lbpManagerInstance
-            .connect(admin)
-            .removeLiquidity(admin.address)
+          lbpManagerInstance.connect(admin).removeLiquidity(admin.address)
         ).to.be.revertedWith("LBPManager: no BPT token balance");
       });
     });
