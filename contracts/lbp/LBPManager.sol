@@ -56,7 +56,7 @@ contract LBPManager {
     /**
      * @dev                             Initialize LBPManager.
      * @param _LBPFactory               LBP factory address.
-     * @param _beneficiary              The address that receives the _fee.
+     * @param _beneficiary              The address that receives the feePercentage.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
      * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
@@ -74,8 +74,9 @@ contract LBPManager {
      * @param _endWeights               Sorted array to match the _tokenList, containing two parametes:
                                             - The end weight for the project token in the LBP.
                                             - The end weight for the funding token in the LBP.
-
-     * @param _fee            Percentage of fee paid to _beneficiary for providing the service of the LBP Manager.
+    * @param _fees                     Array containing two parameters:
+                                            - Percentage of fee paid for every swap in the LBP.
+                                            - Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
      * @param _metadata                 IPFS Hash of the LBP creation wizard information.
      */
     function initializeLBP(
@@ -88,8 +89,7 @@ contract LBPManager {
         uint256[] memory _startWeights,
         uint256[] memory _startTimeEndTime,
         uint256[] memory _endWeights,
-        uint256[] memory _fee,
-        // uint256 _feePercentage,
+        uint256[] memory _fees,
         bytes memory _metadata
     ) external returns (address) {
         require(!initialized, "LBPManager: already initialized");
@@ -97,7 +97,7 @@ contract LBPManager {
         {
             initialized = true;
             admin = msg.sender;
-            feePercentage = _fee[1];
+            feePercentage = _fees[1];
             beneficiary = _beneficiary;
             amounts = _amounts;
             tokenList = _tokenList;
@@ -110,7 +110,7 @@ contract LBPManager {
                     _symbol,
                     _tokenList,
                     _startWeights,
-                    _fee[0],
+                    _fees[0], // swapFeePercentage
                     address(this),
                     true // SwapEnabled is set to true at pool creation.
                 )

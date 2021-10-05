@@ -26,8 +26,8 @@ const deploy = async () => {
   return setup;
 };
 
-describe.only(">> Contract: LBPManagerFactory", () => {
-  let setup, fee, beneficiary;
+describe(">> Contract: LBPManagerFactory", () => {
+  let setup, fees, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
   const startTime = Date.now();
@@ -54,7 +54,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
     beforeEach("!! setup", async () => {
       setup = await deploy();
 
-      fee = [SWAP_FEE_PERCENTAGE, 10];
+      fees = [SWAP_FEE_PERCENTAGE, 10];
 
       ({ root: owner, prime: admin, beneficiary: beneficiary } = setup.roles);
 
@@ -79,7 +79,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
   context("» set MasterCopy of LBPManager", () => {
     let params;
     before("!! setup for deploying LBPManager", async () => {
-      fee = [SWAP_FEE_PERCENTAGE, PRIME_FEE];
+      fees = [SWAP_FEE_PERCENTAGE, PRIME_FEE];
       params = [
         admin.address,
         beneficiary.address,
@@ -90,7 +90,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        fee,
+        fees,
         METADATA,
       ];
     });
@@ -154,7 +154,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
   context("» deploy LBP using LBPManager with wrong values", () => {
     let params;
     it("$ reverts on invalid swapFeePercentage", async () => {
-      fee = [TO_LOW_SWAP_FEE_PERCENTAGE, PRIME_FEE];
+      fees = [TO_LOW_SWAP_FEE_PERCENTAGE, PRIME_FEE];
       params = [
         admin.address,
         beneficiary.address,
@@ -165,7 +165,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        fee,
+        fees,
         METADATA,
       ];
       await expect(
@@ -173,7 +173,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
       ).to.be.revertedWith(
         "BAL#203" //MIN_SWAP_FEE_PERCENTAGE
       );
-      fee = [TO_HIGH_SWAP_FEE_PERCENTAGE, PRIME_FEE];
+      fees = [TO_HIGH_SWAP_FEE_PERCENTAGE, PRIME_FEE];
       params = [
         admin.address,
         beneficiary.address,
@@ -184,7 +184,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        fee,
+        fees,
         METADATA,
       ];
       await expect(
@@ -194,7 +194,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
       );
     });
     it("$ reverts on invalid beneficiary address", async () => {
-      fee = [SWAP_FEE_PERCENTAGE_CHANGED, PRIME_FEE];
+      fees = [SWAP_FEE_PERCENTAGE_CHANGED, PRIME_FEE];
       params = [
         admin.address,
         ZERO_ADDRESS,
@@ -205,7 +205,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        fee,
+        fees,
         METADATA,
       ];
       await expect(
@@ -228,7 +228,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        fee,
+        fees,
         METADATA,
       ];
       await expect(
@@ -249,7 +249,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        fee,
+        fees,
         METADATA,
       ];
     });

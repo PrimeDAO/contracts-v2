@@ -54,8 +54,7 @@ paramGenerator.initializeParams = (
   startTime,
   endTime,
   endWeights,
-  swapFee,
-  fee,
+  fees,
   beneficiary,
   METADATA
 ) => [
@@ -68,8 +67,7 @@ paramGenerator.initializeParams = (
   startWeights,
   [startTime, endTime],
   endWeights,
-  swapFee,
-  fee,
+  fees,
   METADATA,
 ];
 
@@ -175,7 +173,7 @@ const setupInitialState = async (contractInstances, initialState) => {
   };
 };
 
-describe.only(">> Contract: LBPManager", () => {
+describe(">> Contract: LBPManager", () => {
   let poolId,
     admin,
     owner,
@@ -188,7 +186,8 @@ describe.only(">> Contract: LBPManager", () => {
     tokenInstances,
     lbpContractFactory,
     lbpInstance,
-    tokenAddresses;
+    tokenAddresses,
+    fees;
 
   const NAME = "Test";
   const SYMBOL = "TT";
@@ -225,6 +224,8 @@ describe.only(">> Contract: LBPManager", () => {
 
     tokenAddresses = tokenInstances.map((token) => token.address);
 
+    fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
+
     initializeLBPParams = paramGenerator.initializeParams(
       lbpFactoryInstance.address,
       NAME,
@@ -235,8 +236,7 @@ describe.only(">> Contract: LBPManager", () => {
       startTime,
       endTime,
       END_WEIGHTS,
-      SWAP_FEE_PERCENTAGE,
-      FEE_PERCENTAGE_ZERO,
+      fees,
       beneficiary.address,
       METADATA
     );
@@ -247,6 +247,7 @@ describe.only(">> Contract: LBPManager", () => {
       let invalidInitializeLBPParams;
 
       it("» revert on swap fee to high", async () => {
+        fees = [TO_HIGH_SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
         invalidInitializeLBPParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
@@ -257,8 +258,7 @@ describe.only(">> Contract: LBPManager", () => {
           startTime,
           endTime,
           END_WEIGHTS,
-          TO_HIGH_SWAP_FEE_PERCENTAGE,
-          FEE_PERCENTAGE_ZERO,
+          fees,
           beneficiary.address,
           METADATA
         );
@@ -271,6 +271,7 @@ describe.only(">> Contract: LBPManager", () => {
         );
       });
       it("» revert on swap fee to low", async () => {
+        fees = [TO_LOW_SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
         invalidInitializeLBPParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
@@ -281,8 +282,7 @@ describe.only(">> Contract: LBPManager", () => {
           startTime,
           endTime,
           END_WEIGHTS,
-          TO_LOW_SWAP_FEE_PERCENTAGE,
-          FEE_PERCENTAGE_ZERO,
+          fees,
           beneficiary.address,
           METADATA
         );
@@ -305,8 +305,7 @@ describe.only(">> Contract: LBPManager", () => {
           startTime,
           endTime,
           END_WEIGHTS,
-          SWAP_FEE_PERCENTAGE,
-          FEE_PERCENTAGE_ZERO,
+          fees,
           ZERO_ADDRESS,
           METADATA
         );
@@ -332,8 +331,7 @@ describe.only(">> Contract: LBPManager", () => {
           startTime,
           endTime,
           END_WEIGHTS,
-          SWAP_FEE_PERCENTAGE,
-          FEE_PERCENTAGE_ZERO,
+          fees,
           beneficiary.address,
           METADATA
         );
@@ -426,6 +424,7 @@ describe.only(">> Contract: LBPManager", () => {
     });
     describe("$ calculate with five percent", () => {
       beforeEach(async () => {
+        fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_FIVE];
         initializeLBPParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
@@ -436,8 +435,7 @@ describe.only(">> Contract: LBPManager", () => {
           startTime,
           endTime,
           END_WEIGHTS,
-          SWAP_FEE_PERCENTAGE,
-          FEE_PERCENTAGE_FIVE,
+          fees,
           beneficiary.address,
           METADATA
         );
@@ -524,6 +522,8 @@ describe.only(">> Contract: LBPManager", () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
+        fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_FIVE];
+
         initializeLBPParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
@@ -534,8 +534,7 @@ describe.only(">> Contract: LBPManager", () => {
           startTime,
           endTime,
           END_WEIGHTS,
-          SWAP_FEE_PERCENTAGE,
-          FEE_PERCENTAGE_FIVE,
+          fees,
           beneficiary.address,
           METADATA
         );
@@ -605,6 +604,8 @@ describe.only(">> Contract: LBPManager", () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
+        fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ONE];
+
         initializeLBPParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
@@ -615,8 +616,7 @@ describe.only(">> Contract: LBPManager", () => {
           startTime,
           endTime,
           END_WEIGHTS,
-          SWAP_FEE_PERCENTAGE,
-          FEE_PERCENTAGE_ONE,
+          fees,
           beneficiary.address,
           METADATA
         );
@@ -758,6 +758,7 @@ describe.only(">> Contract: LBPManager", () => {
         const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
         const reverseWeights = reverseArray(START_WEIGHTS);
         const reverseEndWeights = reverseArray(END_WEIGHTS);
+        fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_FIVE];
 
         initializeLBPParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
@@ -769,8 +770,7 @@ describe.only(">> Contract: LBPManager", () => {
           startTime,
           endTime,
           reverseEndWeights,
-          SWAP_FEE_PERCENTAGE,
-          FEE_PERCENTAGE_FIVE,
+          fees,
           beneficiary.address,
           METADATA
         );
@@ -854,8 +854,7 @@ describe.only(">> Contract: LBPManager", () => {
           startTime,
           endTime,
           reverseEndWeights,
-          SWAP_FEE_PERCENTAGE,
-          FEE_PERCENTAGE_ZERO,
+          fees,
           beneficiary.address,
           METADATA
         );
