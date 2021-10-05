@@ -26,7 +26,7 @@ const deploy = async () => {
   return setup;
 };
 
-describe.only(">> Contract: LBPManagerFactory", () => {
+describe(">> Contract: LBPManagerFactory", () => {
   let setup, fee, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
@@ -274,14 +274,11 @@ describe.only(">> Contract: LBPManagerFactory", () => {
       const receipt = await tx.wait();
 
       const args = receipt.events.filter((data) => {
-        return data.event === "DeployLBPManager";
+        return data.event === "LBPManagerDeployed";
       })[0].args;
 
-      console.log(args[2]);
-      console.log(METADATA);
-
       expect(args[1]).to.equal(admin.address);
-      expect(args[2]).to.equal(METADATA.toString());
+      expect(args[2]).to.equal(METADATA);
     });
   });
 });
