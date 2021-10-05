@@ -12,22 +12,18 @@
 // solium-disable linebreak-style
 pragma solidity 0.8.6;
 
-
 import "./interface/Safe.sol";
 import "@gnosis.pm/safe-contracts/contracts/interfaces/ISignatureValidator.sol";
-
 
 /**
  * @title PrimeDAO Signer Contract
  * @dev   Enables signing SeedFactory.deploySeed() transaction before sending it to Gnosis Safe.
  */
 contract SignerV2 is ISignatureValidator {
-
-
     bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH =
-    0x7a9f5b2bf4dbb53eb85e012c6094a3d71d76e5bfe821f44ab63ed59311264e35;
-    bytes32 private constant MSG_TYPEHASH         =
-    0xa1a7ad659422d5fc08fdc481fd7d8af8daf7993bc4e833452b0268ceaab66e5d; // mapping for msg typehash 
+        0x7a9f5b2bf4dbb53eb85e012c6094a3d71d76e5bfe821f44ab63ed59311264e35;
+    bytes32 private constant MSG_TYPEHASH =
+        0xa1a7ad659422d5fc08fdc481fd7d8af8daf7993bc4e833452b0268ceaab66e5d; // mapping for msg typehash
 
     mapping(bytes32 => bytes32) public approvedSignatures;
 
@@ -49,16 +45,12 @@ contract SignerV2 is ISignatureValidator {
      * @param _contracts          array of contract addresses
      * @param _functionSignatures array of function signatures
      */
-    constructor (
+    constructor(
         address _safe,
         address[] memory _contracts,
         bytes4[] memory _functionSignatures
-    )
-    {
-        require(
-            _safe != address(0),
-            "Signer: Safe address cannot be zero"
-        );
+    ) {
+        require(_safe != address(0), "Signer: Safe address cannot be zero");
         safe = _safe;
         for (uint256 i; i < _contracts.length; i++) {
             allowedTransactions[_contracts[i]][_functionSignatures[i]] = true;
@@ -89,9 +81,7 @@ contract SignerV2 is ISignatureValidator {
         address _gasToken,
         address _refundReceiver,
         uint256 _nonce
-    ) external returns(bytes memory signature, bytes32 hash)
-    {
-
+    ) external returns (bytes memory signature, bytes32 hash) {
         // check if transaction parameters are correct
         require(
             allowedTransactions[_to][_getFunctionHashFromData(_data)],
@@ -99,8 +89,8 @@ contract SignerV2 is ISignatureValidator {
         );
         require(
             _value == 0 &&
-            _refundReceiver == address(0) &&
-            _operation == Enum.Operation.Call,
+                _refundReceiver == address(0) &&
+                _operation == Enum.Operation.Call,
             "Signer: invalid arguments provided"
         );
 
@@ -116,18 +106,27 @@ contract SignerV2 is ISignatureValidator {
             _gasToken,
             _refundReceiver,
             _nonce
-            );
+        );
 
-        bytes memory paddedAddress = bytes.concat(bytes12(0), bytes20(address(this)));
+        bytes memory paddedAddress = bytes.concat(
+            bytes12(0),
+            bytes20(address(this))
+        );
         bytes memory messageHash = _encodeMessageHash(hash);
         // check if transaction is not signed before
         require(
             approvedSignatures[hash] != keccak256(messageHash),
             "Signer: transaction already signed"
-            );
+        );
 
         // generate signature and add it to approvedSignatures mapping
-        signature = bytes.concat(paddedAddress, bytes32(uint256(65)), bytes1(0), bytes32(uint256(messageHash.length)), messageHash);
+        signature = bytes.concat(
+            paddedAddress,
+            bytes32(uint256(65)),
+            bytes1(0),
+            bytes32(uint256(messageHash.length)),
+            messageHash
+        );
         approvedSignatures[hash] = keccak256(messageHash);
         emit SignatureCreated(signature, hash);
     }
@@ -137,8 +136,14 @@ contract SignerV2 is ISignatureValidator {
      * @param _data        Encoded transaction hash supplied to verify signature.
      * @param _signature   Signature that needs to be verified.
      */
-    function isValidSignature(bytes memory _data, bytes memory _signature) public virtual override view returns(bytes4) {
-        if (_data.length==32) {
+    function isValidSignature(bytes memory _data, bytes memory _signature)
+        public
+        view
+        virtual
+        override
+        returns (bytes4)
+    {
+        if (_data.length == 32) {
             bytes32 hash;
             assembly {
                 hash := mload(add(_data, 32))
@@ -158,7 +163,11 @@ contract SignerV2 is ISignatureValidator {
      * @dev               Get the byte hash of function call i.e. first four bytes of data
      * @param data        encoded transaction data.
      */
-    function _getFunctionHashFromData(bytes memory data) private pure returns(bytes4 functionHash) {
+    function _getFunctionHashFromData(bytes memory data)
+        private
+        pure
+        returns (bytes4 functionHash)
+    {
         assembly {
             functionHash := mload(add(data, 32))
         }
@@ -168,11 +177,20 @@ contract SignerV2 is ISignatureValidator {
      * @dev                encode message with contants
      * @param message      the message that needs to be encoded
      */
-    function _encodeMessageHash(bytes32 message) private pure returns (bytes memory) {
+    function _encodeMessageHash(bytes32 message)
+        private
+        pure
+        returns (bytes memory)
+    {
         bytes32 safeMessageHash = keccak256(abi.encode(MSG_TYPEHASH, message));
         return
             abi.encodePacked(
-                bytes1(0x19), bytes1(0x23), keccak256(abi.encode(DOMAIN_SEPARATOR_TYPEHASH, safeMessageHash)));
+                bytes1(0x19),
+                bytes1(0x23),
+                keccak256(
+                    abi.encode(DOMAIN_SEPARATOR_TYPEHASH, safeMessageHash)
+                )
+            );
     }
 
     /**
@@ -180,10 +198,7 @@ contract SignerV2 is ISignatureValidator {
      * @param _safe        safe address
      */
     function setSafe(address _safe) public onlySafe {
-        require(
-            _safe != address(0),
-            "Signer: new safe cannot be zero address"
-        );
+        require(_safe != address(0), "Signer: new safe cannot be zero address");
         safe = _safe;
     }
 
@@ -192,9 +207,18 @@ contract SignerV2 is ISignatureValidator {
      * @param _contract           contract address
      * @param _functionSignature function signature for the contract
      */
-    function approveNewTransaction(address _contract, bytes4 _functionSignature) external onlySafe{
-        require(_contract != address(0), "Signer: contract address cannot be zero");
-        require(_functionSignature != bytes4(0), "Signer: function signature cannot be zero");
+    function approveNewTransaction(address _contract, bytes4 _functionSignature)
+        external
+        onlySafe
+    {
+        require(
+            _contract != address(0),
+            "Signer: contract address cannot be zero"
+        );
+        require(
+            _functionSignature != bytes4(0),
+            "Signer: function signature cannot be zero"
+        );
         allowedTransactions[_contract][_functionSignature] = true;
     }
 }
