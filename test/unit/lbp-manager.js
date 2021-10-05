@@ -87,12 +87,8 @@ const setupInitialState = async (contractInstances, initialState) => {
     tokenInstances,
   } = contractInstances;
 
-  const {
-    initializeLBPParams,
-    noOwnerTransfer,
-    fundingAmount,
-    poolFunded
-  } = initialState;
+  const { initializeLBPParams, noOwnerTransfer, fundingAmount, poolFunded } =
+    initialState;
 
   const tokenAddresses = tokenInstances.map((token) => token.address);
 
@@ -122,9 +118,10 @@ const setupInitialState = async (contractInstances, initialState) => {
 
     // Add fee amount on top
     if (feePercentage) {
-      amountToAddForFee = initialBalancesCopy[PROJECT_TOKEN_INDEX]
-        .mul(feePercentage)
-        .div(HUNDRED_PERCENT);
+      amountToAddForFee =
+        initialBalancesCopy[PROJECT_TOKEN_INDEX].mul(feePercentage).div(
+          HUNDRED_PERCENT
+        );
       initialBalancesCopy[PROJECT_TOKEN_INDEX] =
         initialBalancesCopy[PROJECT_TOKEN_INDEX].add(amountToAddForFee);
     }
@@ -146,9 +143,7 @@ const setupInitialState = async (contractInstances, initialState) => {
       .approve(lbpManagerInstance.address, initialBalancesCopy[1]);
 
     if (poolFunded) {
-      await lbpManagerInstance
-        .connect(admin)
-        .addLiquidity(admin.address);
+      await lbpManagerInstance.connect(admin).addLiquidity(admin.address);
     }
   }
 
@@ -369,7 +364,7 @@ describe.only(">> Contract: LBPManager", () => {
     beforeEach(async () => {
       const initialState = {
         initializeLBPParams,
-        noOwnerTransfer: true
+        noOwnerTransfer: true,
       };
 
       ({ lbpManagerInstance } = await setupInitialState(
@@ -392,7 +387,6 @@ describe.only(">> Contract: LBPManager", () => {
   describe("# calculate project tokens required", () => {
     describe("$ calculate with zero percent", () => {
       beforeEach(async () => {
-
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
           feePercentage: FEE_PERCENTAGE_ZERO,
@@ -400,7 +394,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const initialState = {
           initializeLBPParams,
-          fundingAmount
+          fundingAmount,
         };
 
         ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
@@ -437,7 +431,7 @@ describe.only(">> Contract: LBPManager", () => {
 
         const initialState = {
           initializeLBPParams,
-          fundingAmount
+          fundingAmount,
         };
 
         ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
@@ -459,16 +453,14 @@ describe.only(">> Contract: LBPManager", () => {
         };
         const initialState = {
           initializeLBPParams,
-          fundingAmount
+          fundingAmount,
         };
         ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
           await setupInitialState(contractInstances, initialState));
       });
       it("» reverts when not called by owner", async () => {
         await expect(
-          lbpManagerInstance.addLiquidity(
-            admin.address
-          )
+          lbpManagerInstance.addLiquidity(admin.address)
         ).to.be.revertedWith("LBPManager: caller is not admin");
       });
     });
@@ -482,16 +474,14 @@ describe.only(">> Contract: LBPManager", () => {
         const initialState = {
           initializeLBPParams,
           fundingAmount,
-          poolFunded: true
+          poolFunded: true,
         };
         ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
           await setupInitialState(contractInstances, initialState));
       });
       it("» reverts when adding liquidity twice", async () => {
         await expect(
-          lbpManagerInstance
-            .connect(admin)
-            .addLiquidity(admin.address)
+          lbpManagerInstance.connect(admin).addLiquidity(admin.address)
         ).to.be.revertedWith("LBPManager: pool already funded");
       });
     });
@@ -566,7 +556,9 @@ describe.only(">> Contract: LBPManager", () => {
           .to.be.false;
         // Check balance beneficiary after joinPool()
         expect(
-          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(beneficiary.address)
+          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+            beneficiary.address
+          )
         ).to.equal(amountToAddForFee);
       });
     });
@@ -641,7 +633,9 @@ describe.only(">> Contract: LBPManager", () => {
           .to.be.false;
         // Check balance beneficiary after joinPool()
         expect(
-          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(beneficiary.address)
+          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+            beneficiary.address
+          )
         ).to.equal(amountToAddForFee);
       });
     });
@@ -699,7 +693,9 @@ describe.only(">> Contract: LBPManager", () => {
           .to.be.false;
         // Check balance beneficiary after joinPool()
         expect(
-          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(beneficiary.address)
+          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+            beneficiary.address
+          )
         ).to.equal(amountToAddForFee);
       });
     });
@@ -777,7 +773,9 @@ describe.only(">> Contract: LBPManager", () => {
           .to.be.false;
         // Check balance beneficiary after joinPool()
         expect(
-          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(beneficiary.address)
+          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+            beneficiary.address
+          )
         ).to.equal(amountToAddForFee);
       });
     });
@@ -853,7 +851,9 @@ describe.only(">> Contract: LBPManager", () => {
           .to.be.false;
         // Check balance beneficiary after joinPool()
         expect(
-          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(beneficiary.address)
+          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+            beneficiary.address
+          )
         ).to.equal(amountToAddForFee);
       });
     });
@@ -890,7 +890,6 @@ describe.only(">> Contract: LBPManager", () => {
     });
   });
   describe("# withdraw liquidity from the pool", () => {
-    let exitUserData;
     describe("$ fails on call exit pool", () => {
       beforeEach(async () => {
         // Specifies funds and fee to be sent to setpInitialState
@@ -909,32 +908,24 @@ describe.only(">> Contract: LBPManager", () => {
           lbpContractInstance,
           tokenAddresses,
         } = await setupInitialState(contractInstances, initialState));
-
-        const BPTbalance = await lbpContractInstance.balanceOf(
-          lbpManagerInstance.address
-        );
-        exitUserData = ethers.utils.defaultAbiCoder.encode(
-          ["uint256", "uint256"],
-          [EXIT_KIND, BPTbalance]
-        );
       });
       it("» it reverts on not called by admin", async () => {
         await expect(
-          lbpManagerInstance.removeLiquidity(admin.address, false, exitUserData)
+          lbpManagerInstance.removeLiquidity(admin.address)
         ).to.be.revertedWith("LBPManager: caller is not admin");
       });
       it("» reverts when trying to remove liquidity where receiver address is zero address", async () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
-            .removeLiquidity(ZERO_ADDRESS, false, exitUserData)
+            .removeLiquidity(ZERO_ADDRESS)
         ).to.be.revertedWith("LBPManager: receiver is zero");
       });
       it("» reverts when trying to remove liquidity before endTime", async () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
-            .removeLiquidity(admin.address, false, exitUserData)
+            .removeLiquidity(admin.address)
         ).to.be.revertedWith("LBPManager: endtime not reached");
       });
     });
@@ -956,14 +947,6 @@ describe.only(">> Contract: LBPManager", () => {
           lbpContractInstance,
           tokenAddresses,
         } = await setupInitialState(contractInstances, initialState));
-
-        const BPTbalance = await lbpContractInstance.balanceOf(
-          lbpManagerInstance.address
-        );
-        exitUserData = ethers.utils.defaultAbiCoder.encode(
-          ["uint256", "uint256"],
-          [EXIT_KIND, BPTbalance]
-        );
       });
       it("» exits or remove liquidity after endTime", async () => {
         await time.increase(1000);
@@ -974,7 +957,7 @@ describe.only(">> Contract: LBPManager", () => {
         // exit pool
         await lbpManagerInstance
           .connect(admin)
-          .removeLiquidity(admin.address, false, exitUserData);
+          .removeLiquidity(admin.address);
         // balance after exit pool
         const { balances: poolBalancesAfterExit } =
           await vaultInstance.getPoolTokens(
@@ -1009,14 +992,6 @@ describe.only(">> Contract: LBPManager", () => {
           lbpContractInstance,
           tokenAddresses,
         } = await setupInitialState(contractInstances, initialState));
-
-        const BPTbalance = await lbpContractInstance.balanceOf(
-          lbpManagerInstance.address
-        );
-        exitUserData = ethers.utils.defaultAbiCoder.encode(
-          ["uint256", "uint256"],
-          [EXIT_KIND, BPTbalance]
-        );
       });
       it("» reverts when receiver address is zero address", async () => {
         await expect(
@@ -1047,14 +1022,6 @@ describe.only(">> Contract: LBPManager", () => {
           lbpContractInstance,
           tokenAddresses,
         } = await setupInitialState(contractInstances, initialState));
-
-        const BPTbalance = await lbpContractInstance.balanceOf(
-          lbpManagerInstance.address
-        );
-        exitUserData = ethers.utils.defaultAbiCoder.encode(
-          ["uint256", "uint256"],
-          [EXIT_KIND, BPTbalance]
-        );
       });
       it("» withdraw pool tokens", async () => {
         await time.increase(1000);
@@ -1086,7 +1053,7 @@ describe.only(">> Contract: LBPManager", () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
-            .removeLiquidity(admin.address, false, exitUserData)
+            .removeLiquidity(admin.address)
         ).to.be.revertedWith("LBPManager: no BPT token balance");
       });
     });

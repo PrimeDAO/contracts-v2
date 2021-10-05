@@ -171,8 +171,8 @@ contract LBPManager {
 
         IVault.JoinPoolRequest memory request = IVault.JoinPoolRequest({
             maxAmountsIn: amounts,
-            userData: abi.encode(0, amounts),// JOIN_KIND_INIT = 0, used when adding liquidity for the first time.
-            fromInternalBalance: false,// It is not possible to add liquidity through the internal Vault balance.
+            userData: abi.encode(0, amounts), // JOIN_KIND_INIT = 0, used when adding liquidity for the first time.
+            fromInternalBalance: false, // It is not possible to add liquidity through the internal Vault balance.
             assets: tokenList
         });
 
@@ -182,14 +182,8 @@ contract LBPManager {
     /**
      * @dev                             exit pool or remove liquidity from pool
      * @param _receiver                 Address of the liquidity receiver, after exiting the LBP.
-     * @param _toInternalBalance        Balancer's Vault option to send the liquidity from the LBP to the _receivers internal Vault balance.
-     * @param _userData                 UserData object that specifies the type of exit.
      */
-    function removeLiquidity(
-        address payable _receiver,
-        bool _toInternalBalance,
-        bytes memory _userData
-    ) external onlyAdmin {
+    function removeLiquidity(address payable _receiver) external onlyAdmin {
         require(
             _receiver != payable(address(0)),
             "LBPManager: receiver is zero"
@@ -204,15 +198,12 @@ contract LBPManager {
 
         require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
-        // To remove all funding from the pool. Initializes to [0, 0]
-        uint256[] memory _minAmountsOut = new uint256[](tokenList.length);
-
         IVault vault = lbp.getVault();
 
         IVault.ExitPoolRequest memory request = IVault.ExitPoolRequest({
-            minAmountsOut: _minAmountsOut,
-            userData: _userData,
-            toInternalBalance: _toInternalBalance,
+            minAmountsOut: new uint256[](tokenList.length), // To remove all funding from the pool. Initializes to [0, 0]
+            userData: abi.encode(1, lbp.balanceOf(address(this))),
+            toInternalBalance: false,
             assets: tokenList
         });
 
