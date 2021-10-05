@@ -27,7 +27,7 @@ const deploy = async () => {
 };
 
 describe(">> Contract: LBPManagerFactory", () => {
-  let setup, fee, beneficiary;
+  let setup, fees, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
   const startTime = Date.now();
@@ -47,12 +47,14 @@ describe(">> Contract: LBPManagerFactory", () => {
   const TO_LOW_SWAP_FEE_PERCENTAGE = 1e10;
   const TO_HIGH_SWAP_FEE_PERCENTAGE = (1e18).toString();
   const ZERO_ADDRESS = constants.ZERO_ADDRESS;
+  const METADATA = "0x";
+  const PRIME_FEE = 10;
 
   context("» deploy LBP LBPManagerFactory", () => {
     beforeEach("!! setup", async () => {
       setup = await deploy();
 
-      fee = 10;
+      fees = [SWAP_FEE_PERCENTAGE, 10];
 
       ({ root: owner, prime: admin, beneficiary: beneficiary } = setup.roles);
 
@@ -77,6 +79,7 @@ describe(">> Contract: LBPManagerFactory", () => {
   context("» set MasterCopy of LBPManager", () => {
     let params;
     before("!! setup for deploying LBPManager", async () => {
+      fees = [SWAP_FEE_PERCENTAGE, PRIME_FEE];
       params = [
         admin.address,
         beneficiary.address,
@@ -87,8 +90,8 @@ describe(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        SWAP_FEE_PERCENTAGE,
-        fee,
+        fees,
+        METADATA,
       ];
     });
     it("$ reverts if deploying LBPManager & mastercopy is not set", async () => {
@@ -151,6 +154,7 @@ describe(">> Contract: LBPManagerFactory", () => {
   context("» deploy LBP using LBPManager with wrong values", () => {
     let params;
     it("$ reverts on invalid swapFeePercentage", async () => {
+      fees = [TO_LOW_SWAP_FEE_PERCENTAGE, PRIME_FEE];
       params = [
         admin.address,
         beneficiary.address,
@@ -161,15 +165,15 @@ describe(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        TO_LOW_SWAP_FEE_PERCENTAGE,
-        fee,
+        fees,
+        METADATA,
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
       ).to.be.revertedWith(
         "BAL#203" //MIN_SWAP_FEE_PERCENTAGE
       );
-
+      fees = [TO_HIGH_SWAP_FEE_PERCENTAGE, PRIME_FEE];
       params = [
         admin.address,
         beneficiary.address,
@@ -180,8 +184,8 @@ describe(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        TO_HIGH_SWAP_FEE_PERCENTAGE,
-        fee,
+        fees,
+        METADATA,
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
@@ -190,6 +194,7 @@ describe(">> Contract: LBPManagerFactory", () => {
       );
     });
     it("$ reverts on invalid beneficiary address", async () => {
+      fees = [SWAP_FEE_PERCENTAGE_CHANGED, PRIME_FEE];
       params = [
         admin.address,
         ZERO_ADDRESS,
@@ -200,8 +205,8 @@ describe(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        SWAP_FEE_PERCENTAGE_CHANGED,
-        fee,
+        fees,
+        METADATA,
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
@@ -223,8 +228,8 @@ describe(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        SWAP_FEE_PERCENTAGE_CHANGED,
-        fee,
+        fees,
+        METADATA,
       ];
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
@@ -244,8 +249,8 @@ describe(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        SWAP_FEE_PERCENTAGE_CHANGED,
-        fee,
+        fees,
+        METADATA,
       ];
     });
     it("$ deploys LBP successful", async () => {
@@ -255,7 +260,7 @@ describe(">> Contract: LBPManagerFactory", () => {
       const receipt = await tx.wait();
 
       const args = receipt.events.filter((data) => {
-        return data.event === "LBPDeployedUsingManager";
+        return data.event === "DeployLBPManager";
       })[0].args;
 
       setup.lbp = setup.Lbp.attach(args.lbp);

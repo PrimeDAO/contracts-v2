@@ -26,7 +26,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
     address public masterCopy;
     address public LBPFactory;
 
-    event LBPDeployedUsingManager(
+    event DeployLBPManager(
         address indexed lbp,
         address indexed lbpManager,
         address indexed admin
@@ -77,7 +77,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
     /**
      * @dev                             Deploy and initialize LBPManager.
      * @param _admin                    The address of the admin of the LBPManager.
-     * @param _beneficiary              The address that receives the _fee.
+     * @param _beneficiary              The address that receives the _fees.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
      * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
@@ -95,8 +95,10 @@ contract LBPManagerFactory is CloneFactory, Ownable {
      * @param _endWeights               Sorted array to match the _tokenList, containing two parametes:
                                             - The end weight for the project token in the LBP.
                                             - The end weight for the funding token in the LBP.
-     * @param _swapFeePercentage        Percentage of fee paid for every swap in the LBP.
-     * @param _fee                      Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
+     * @param _fees                     Array containing two parameters:
+                                            - Percentage of fee paid for every swap in the LBP.
+                                            - Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
+     * @param _metaData                 IPFS Hash of the LBP creation wizard information.
      */
     function deployLBPManager(
         address _admin,
@@ -108,8 +110,8 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         uint256[] memory _startWeights,
         uint256[] memory _startTimeEndtime,
         uint256[] memory _endWeights,
-        uint256 _swapFeePercentage,
-        uint256 _fee
+        uint256[] memory _fees,
+        bytes memory _metaData
     ) external onlyOwner {
         require(
             masterCopy != address(0),
@@ -128,12 +130,12 @@ contract LBPManagerFactory is CloneFactory, Ownable {
             _startWeights,
             _startTimeEndtime,
             _endWeights,
-            _swapFeePercentage,
-            _fee
+            _fees,
+            _metaData
         );
 
         LBPManager(lbpManager).transferAdminRights(_admin);
 
-        emit LBPDeployedUsingManager(lbp, lbpManager, _admin);
+        emit DeployLBPManager(lbp, lbpManager, _admin);
     }
 }
