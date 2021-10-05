@@ -26,8 +26,8 @@ const deploy = async () => {
   return setup;
 };
 
-describe.only(">> Contract: LBPManagerFactory", () => {
-  let setup, primeDaoFeePercentage, beneficiary;
+describe(">> Contract: LBPManagerFactory", () => {
+  let setup, fees, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
   const startTime = Date.now();
@@ -46,15 +46,15 @@ describe.only(">> Contract: LBPManagerFactory", () => {
   const SWAP_FEE_PERCENTAGE_CHANGED = (1e16).toString();
   const TO_LOW_SWAP_FEE_PERCENTAGE = 1e10;
   const TO_HIGH_SWAP_FEE_PERCENTAGE = (1e18).toString();
-  const PRIME_DAO_FEE_PERCENTAGE = parseUnits("5", 17);
-
   const ZERO_ADDRESS = constants.ZERO_ADDRESS;
+  const METADATA = "0x";
+  const PRIME_FEE = 10;
 
   context("» deploy LBP LBPManagerFactory", () => {
     beforeEach("!! setup", async () => {
       setup = await deploy();
 
-      primeDaoFeePercentage = 10;
+      fees = [SWAP_FEE_PERCENTAGE, 10];
 
       ({ root: owner, prime: admin, beneficiary: beneficiary } = setup.roles);
 
@@ -63,7 +63,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
     it("$ revert on deploy LBPManagerFactory with zero address LBPFactory", async () => {
       await expect(
         init.getContractInstance("LBPManagerFactory", owner, [ZERO_ADDRESS])
-      ).to.be.revertedWith("LBPManagerFactory: LBPFactory can not be zero");
+      ).to.be.revertedWith("LBPMFactory: LBPFactory is zero");
     });
     it("$ deploy LBPManagerFactory", async () => {
       setup.lbpManagerFactory = await init.getContractInstance(
@@ -79,6 +79,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
   context("» set MasterCopy of LBPManager", () => {
     let params;
     before("!! setup for deploying LBPManager", async () => {
+      fees = [SWAP_FEE_PERCENTAGE, PRIME_FEE];
       params = [
         admin.address,
         beneficiary.address,
@@ -89,28 +90,24 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        SWAP_FEE_PERCENTAGE,
-        primeDaoFeePercentage,
+        fees,
+        METADATA,
       ];
     });
     it("$ reverts if deploying LBPManager & mastercopy is not set", async () => {
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
-      ).to.be.revertedWith(
-        "LBPManagerFactory: LBPManager mastercopy is not set"
-      );
+        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
+      ).to.be.revertedWith("LBPMFactory: LBPManager mastercopy not set");
     });
     it("$ reverts on zero address", async () => {
       await expect(
         setup.lbpManagerFactory.setMasterCopy(ZERO_ADDRESS)
-      ).to.be.revertedWith("address can not be zero");
+      ).to.be.revertedWith("LBPMFactory: address is zero");
     });
     it("$ reverts on same address as LBPManagerFactory", async () => {
       await expect(
         setup.lbpManagerFactory.setMasterCopy(setup.lbpManagerFactory.address)
-      ).to.be.revertedWith(
-        "LBPManagerFactory: address can not be the same as LBPManagerFactory"
-      );
+      ).to.be.revertedWith("LBPMFactory: address same as LBPManagerFactory");
     });
     it("$ reverts on called not by owner", async () => {
       await expect(
@@ -133,14 +130,12 @@ describe.only(">> Contract: LBPManagerFactory", () => {
     it("$ reverts on zero address", async () => {
       await expect(
         setup.lbpManagerFactory.setLBPFactory(ZERO_ADDRESS)
-      ).to.be.revertedWith("LBPManagerFactory: address can not be zero");
+      ).to.be.revertedWith("LBPMFactory: address is zero");
     });
     it("$ reverts on same address as LBPManagerFactory", async () => {
       await expect(
         setup.lbpManagerFactory.setLBPFactory(setup.lbpManagerFactory.address)
-      ).to.be.revertedWith(
-        "LBPManagerFactory: address can not be the same as LBPManagerFactory"
-      );
+      ).to.be.revertedWith("LBPMFactory: address same as LBPManagerFactory");
     });
     it("$ reverts on called not by owner", async () => {
       await expect(
@@ -159,6 +154,7 @@ describe.only(">> Contract: LBPManagerFactory", () => {
   context("» deploy LBP using LBPManager with wrong values", () => {
     let params;
     it("$ reverts on invalid swapFeePercentage", async () => {
+      fees = [TO_LOW_SWAP_FEE_PERCENTAGE, PRIME_FEE];
       params = [
         admin.address,
         beneficiary.address,
@@ -169,15 +165,15 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        TO_LOW_SWAP_FEE_PERCENTAGE,
-        primeDaoFeePercentage,
+        fees,
+        METADATA,
       ];
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
+        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
       ).to.be.revertedWith(
         "BAL#203" //MIN_SWAP_FEE_PERCENTAGE
       );
-
+      fees = [TO_HIGH_SWAP_FEE_PERCENTAGE, PRIME_FEE];
       params = [
         admin.address,
         beneficiary.address,
@@ -188,16 +184,17 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        TO_HIGH_SWAP_FEE_PERCENTAGE,
-        primeDaoFeePercentage,
+        fees,
+        METADATA,
       ];
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
+        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
       ).to.be.revertedWith(
         "BAL#202" //MAX_SWAP_FEE_PERCENTAGE
       );
     });
     it("$ reverts on invalid beneficiary address", async () => {
+      fees = [SWAP_FEE_PERCENTAGE_CHANGED, PRIME_FEE];
       params = [
         admin.address,
         ZERO_ADDRESS,
@@ -208,12 +205,12 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        SWAP_FEE_PERCENTAGE_CHANGED,
-        primeDaoFeePercentage,
+        fees,
+        METADATA,
       ];
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
-      ).to.be.revertedWith("LBPManager: _beneficiary can not be zero address");
+        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
+      ).to.be.revertedWith("LBPManager: _beneficiary is zero");
     });
     it("$ reverts on to large token list array", async () => {
       const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
@@ -231,11 +228,11 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        SWAP_FEE_PERCENTAGE_CHANGED,
-        primeDaoFeePercentage,
+        fees,
+        METADATA,
       ];
       await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPUsingManager(...params)
+        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
       ).to.be.revertedWith("BAL#103");
     });
   });
@@ -252,18 +249,18 @@ describe.only(">> Contract: LBPManagerFactory", () => {
         START_WEIGHTS,
         [startTime, endTime],
         END_WEIGHTS,
-        SWAP_FEE_PERCENTAGE_CHANGED,
-        primeDaoFeePercentage,
+        fees,
+        METADATA,
       ];
     });
     it("$ deploys LBP successful", async () => {
       const tx = await setup.lbpManagerFactory
         .connect(owner)
-        .deployLBPUsingManager(...params);
+        .deployLBPManager(...params);
       const receipt = await tx.wait();
 
       const args = receipt.events.filter((data) => {
-        return data.event === "LBPDeployedUsingManager";
+        return data.event === "DeployLBPManager";
       })[0].args;
 
       setup.lbp = setup.Lbp.attach(args.lbp);
