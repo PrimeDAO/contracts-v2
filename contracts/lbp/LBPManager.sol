@@ -18,13 +18,8 @@ import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
 
 /**
-<<<<<<< HEAD
- * @title LBPManager contract
- * @dev   Smart contract for managing a Balancer LBP.
-=======
  * @title LBPManager contract.
  * @dev   Smart contract for managing interactions with a Balancer LBP.
->>>>>>> main
  */
 contract LBPManager {
     // Constants
