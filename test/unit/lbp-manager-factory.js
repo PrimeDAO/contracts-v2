@@ -26,7 +26,7 @@ const deploy = async () => {
   return setup;
 };
 
-describe(">> Contract: LBPManagerFactory", () => {
+describe.only(">> Contract: LBPManagerFactory", () => {
   let setup, fee, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
@@ -277,12 +277,11 @@ describe(">> Contract: LBPManagerFactory", () => {
         return data.event === "DeployLBPManager";
       })[0].args;
 
-      console.log(args[0]);
-      // We need to get balancers emit to captcher the LBP and check who's the owner
-      // setup.lbp = setup.Lbp.attach(args.lbp);
-      // expect(await setup.lbp.getOwner()).to.equal(args.lbpManager);
-      expect(await args[1]).to.equal(admin.address);
-      expect(await args[2]).to.equal(METADATA);
+      console.log(args[2]);
+      console.log(METADATA);
+
+      expect(args[1]).to.equal(admin.address);
+      expect(args[2]).to.equal(METADATA.toString());
     });
   });
 });
