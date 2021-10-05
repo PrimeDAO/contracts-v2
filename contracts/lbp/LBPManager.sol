@@ -157,8 +157,6 @@ contract LBPManager {
         return address(lbp);
     }
 
-    // function sortArray()
-
     /**
      * @dev                             Subtracts the fee and adds liquidity to the LBP.
      * @param _sender                   Address of the liquidity provider.
