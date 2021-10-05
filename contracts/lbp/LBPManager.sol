@@ -29,6 +29,7 @@ contract LBPManager {
     address public admin; // The address of the admin of this contract.
     address public beneficiary; // The address that recieves fees.
     uint256 public feePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
+    uint8 private projectTokenIndex; // The address of the project token.
     ILBP public lbp; // The address of LBP that is managed by this contract.
     IERC20[] public tokenList; // The tokens that are used in the LBP.
     uint256[] public amounts; // The amount of tokens that are going to be added as liquidity in LBP.
@@ -90,7 +91,6 @@ contract LBPManager {
     ) external returns (address) {
         require(!initialized, "LBPManager: already initialized");
         require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
-        require(_tokenList.length == 2, "LBPManager: token list to long");
 
         initialized = true;
         admin = msg.sender;
@@ -133,15 +133,16 @@ contract LBPManager {
     ) external onlyAdmin {
         require(!poolFunded, "LBPManager: pool already funded");
         poolFunded = true;
+        projectTokenIndex = _projectTokenIndex;
 
         IVault vault = lbp.getVault();
 
         if (feePercentage != 0) {
             // Transfer fee to beneficiary.
-            tokenList[_projectTokenIndex].transferFrom(
+            tokenList[projectTokenIndex].transferFrom(
                 _sender,
                 beneficiary,
-                _feeAmountRequired(_projectTokenIndex)
+                _feeAmountRequired()
             );
         }
 
@@ -243,26 +244,20 @@ contract LBPManager {
     /**
      * @dev     Get required amount of project tokens to cover for fees and the actual LBP.
      */
-    function projectTokensRequired(uint8 _projectTokenIndex)
+    function projectTokensRequired()
         external
         view
         returns (uint256 projectTokenAmounts)
     {
-        projectTokenAmounts =
-            amounts[_projectTokenIndex] +
-            _feeAmountRequired(_projectTokenIndex);
+        projectTokenAmounts = amounts[projectTokenIndex] + _feeAmountRequired();
     }
 
     /**
      * @dev     Get required amount of project tokens to cover for fees.
      */
-    function _feeAmountRequired(uint8 _projectTokenIndex)
-        internal
-        view
-        returns (uint256 feeAmount)
-    {
+    function _feeAmountRequired() internal view returns (uint256 feeAmount) {
         feeAmount =
-            (amounts[_projectTokenIndex] * feePercentage) /
+            (amounts[projectTokenIndex] * feePercentage) /
             HUNDRED_PERCENT;
     }
 }

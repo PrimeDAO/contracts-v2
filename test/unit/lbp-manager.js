@@ -311,9 +311,9 @@ describe(">> Contract: LBPManager", () => {
       });
       it("» revert on token list bigger then 2", async () => {
         const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
-        const largeTokenListAddresses = largeTokenList.map(
-          (token) => token.address
-        );
+        const largeTokenListAddresses = largeTokenList
+          .map((token) => token.address)
+          .sort((a, b) => a - b);
 
         invalidInitializeLBPParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
@@ -333,7 +333,7 @@ describe(">> Contract: LBPManager", () => {
           lbpManagerInstance
             .connect(owner)
             .initializeLBP(...invalidInitializeLBPParams)
-        ).to.be.revertedWith("LBPManager: token list to long");
+        ).to.be.revertedWith("BAL#103");
       });
     });
     describe("$ deploy LBP using Manager succeeds", () => {
@@ -408,9 +408,9 @@ describe(">> Contract: LBPManager", () => {
           await setupInitialState(contractInstances, initialState));
       });
       it("» success", async () => {
-        expect(
-          await lbpManagerInstance.projectTokensRequired(projectTokenIndex)
-        ).to.equal(amountToAddForFee.add(INITIAL_BALANCES[0]));
+        expect(await lbpManagerInstance.projectTokensRequired()).to.equal(
+          amountToAddForFee.add(INITIAL_BALANCES[0])
+        );
       });
     });
     describe("$ calculate with five percent", () => {
@@ -445,9 +445,9 @@ describe(">> Contract: LBPManager", () => {
           await setupInitialState(contractInstances, initialState));
       });
       it("» success", async () => {
-        expect(
-          await lbpManagerInstance.projectTokensRequired(projectTokenIndex)
-        ).to.equal(amountToAddForFee.add(INITIAL_BALANCES[0]));
+        expect(await lbpManagerInstance.projectTokensRequired()).to.equal(
+          amountToAddForFee.add(INITIAL_BALANCES[0])
+        );
       });
     });
   });
