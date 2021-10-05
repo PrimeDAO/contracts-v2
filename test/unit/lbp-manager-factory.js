@@ -99,12 +99,12 @@ describe(">> Contract: LBPManagerFactory", () => {
     it("$ reverts on zero address", async () => {
       await expect(
         setup.lbpManagerFactory.setMasterCopy(ZERO_ADDRESS)
-      ).to.be.revertedWith("LBPMFactory: mastercopy is zero");
+      ).to.be.revertedWith("LBPMFactory: address is zero");
     });
     it("$ reverts on same address as LBPManagerFactory", async () => {
       await expect(
         setup.lbpManagerFactory.setMasterCopy(setup.lbpManagerFactory.address)
-      ).to.be.revertedWith("LBPMFactory: mastercopy same as LBPManagerFactory");
+      ).to.be.revertedWith("LBPMFactory: address same as LBPManagerFactory");
     });
     it("$ reverts on called not by owner", async () => {
       await expect(
@@ -115,7 +115,7 @@ describe(">> Contract: LBPManagerFactory", () => {
     });
     it("$ succeeds on valid master copy", async () => {
       await setup.lbpManagerFactory.setMasterCopy(setup.lbpManager.address);
-      expect(await setup.lbpManagerFactory.lbpManagerMasterCopy()).to.equal(
+      expect(await setup.lbpManagerFactory.masterCopy()).to.equal(
         setup.lbpManager.address
       );
     });
@@ -127,12 +127,12 @@ describe(">> Contract: LBPManagerFactory", () => {
     it("$ reverts on zero address", async () => {
       await expect(
         setup.lbpManagerFactory.setLBPFactory(ZERO_ADDRESS)
-      ).to.be.revertedWith("LBPMFactory: LBPFactory is zero");
+      ).to.be.revertedWith("LBPMFactory: address is zero");
     });
     it("$ reverts on same address as LBPManagerFactory", async () => {
       await expect(
         setup.lbpManagerFactory.setLBPFactory(setup.lbpManagerFactory.address)
-      ).to.be.revertedWith("LBPMFactory: LBPFactory same as LBPManagerFactory");
+      ).to.be.revertedWith("LBPMFactory: address same as LBPManagerFactory");
     });
     it("$ reverts on called not by owner", async () => {
       await expect(

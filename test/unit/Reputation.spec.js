@@ -6,8 +6,16 @@ const { getReputationParams } = require("../../tasks/utils/reputation");
 const { parseEther } = utils;
 
 const setupFixture = deployments.createFixture(
-  async ({ deployments }, options) => {
-    await deployments.fixture(["Reputation"]);
+  async ({ deployments, getNamedAccounts }, options) => {
+    const { deploy } = deployments;
+    const { root } = await getNamedAccounts();
+
+    await deploy("Reputation", {
+      contract: "Reputation",
+      from: root,
+      args: ["PrimeDAO Rating Reputation", "PRR"],
+      log: true,
+    });
 
     const { repHolders, repAmounts } = options;
 

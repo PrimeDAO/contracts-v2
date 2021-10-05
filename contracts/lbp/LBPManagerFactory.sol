@@ -23,7 +23,7 @@ import "./LBPManager.sol";
  * @dev   Governance to create new LBPManager contracts.
  */
 contract LBPManagerFactory is CloneFactory, Ownable {
-    address public lbpManagerMasterCopy;
+    address public masterCopy;
     address public LBPFactory;
 
     event LBPDeployedUsingManager(
@@ -41,29 +41,36 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         LBPFactory = _LBPFactory;
     }
 
+    modifier validAddress(address addressToCheck) {
+        require(addressToCheck != address(0), "LBPMFactory: address is zero");
+        require(
+            addressToCheck != address(this),
+            "LBPMFactory: address same as LBPManagerFactory"
+        );
+        _;
+    }
+
     /**
      * @dev                             Set LBPManager contract which works as a base for clones.
      * @param _masterCopy               The address of the new LBPManager basis.
      */
-    function setMasterCopy(address _masterCopy) external onlyOwner {
-        require(_masterCopy != address(0), "LBPMFactory: mastercopy is zero");
-        require(
-            _masterCopy != address(this),
-            "LBPMFactory: mastercopy same as LBPManagerFactory"
-        );
-        lbpManagerMasterCopy = _masterCopy;
+    function setMasterCopy(address _masterCopy)
+        external
+        onlyOwner
+        validAddress(_masterCopy)
+    {
+        masterCopy = _masterCopy;
     }
 
     /**
      * @dev                             Set Balancers LBP Factory contract as basis for deploying LBPs.
      * @param _LBPFactory               The address of Balancers LBP factory.
      */
-    function setLBPFactory(address _LBPFactory) external onlyOwner {
-        require(_LBPFactory != address(0), "LBPMFactory: LBPFactory is zero");
-        require(
-            _LBPFactory != address(this),
-            "LBPMFactory: LBPFactory same as LBPManagerFactory"
-        );
+    function setLBPFactory(address _LBPFactory)
+        external
+        onlyOwner
+        validAddress(_LBPFactory)
+    {
         LBPFactory = _LBPFactory;
     }
 
@@ -105,11 +112,11 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         uint256 _fee
     ) external onlyOwner {
         require(
-            lbpManagerMasterCopy != address(0),
+            masterCopy != address(0),
             "LBPMFactory: LBPManager mastercopy not set"
         );
 
-        address lbpManager = createClone(lbpManagerMasterCopy);
+        address lbpManager = createClone(masterCopy);
 
         address lbp = LBPManager(lbpManager).initializeLBP(
             LBPFactory,
