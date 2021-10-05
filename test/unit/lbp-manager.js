@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const { ethers } = require("hardhat");
+const { ethers, deployments } = require("hardhat");
 const { parseEther, parseUnits } = ethers.utils;
 const {
   constants: { ZERO_ADDRESS },
@@ -118,10 +118,10 @@ const setupInitialState = async (contractInstances, initialState) => {
 
     await tokenInstances[0]
       .connect(owner)
-      .transfer(admin.address, initialBalancesCopy[0].mul(2).toString());
+      .transfer(admin.address, initialBalancesCopy[0].mul(2));
     await tokenInstances[1]
       .connect(owner)
-      .transfer(admin.address, initialBalancesCopy[1].mul(2).toString());
+      .transfer(admin.address, initialBalancesCopy[1].mul(2));
 
     // Add fee amount on top
     if (feePercentage) {
@@ -144,10 +144,10 @@ const setupInitialState = async (contractInstances, initialState) => {
     // approve allowance from admin to LBPManager
     await tokenInstances[0]
       .connect(admin)
-      .approve(lbpManagerInstance.address, initialBalancesCopy[0].toString());
+      .approve(lbpManagerInstance.address, initialBalancesCopy[0]);
     await tokenInstances[1]
       .connect(admin)
-      .approve(lbpManagerInstance.address, initialBalancesCopy[1].toString());
+      .approve(lbpManagerInstance.address, initialBalancesCopy[1]);
 
     if (poolFunded) {
       const userData = ethers.utils.defaultAbiCoder.encode(
@@ -192,7 +192,7 @@ describe.only(">> Contract: LBPManager", () => {
   const NAME = "Test";
   const SYMBOL = "TT";
   const INITIAL_BALANCES = [parseUnits("2000", 18), parseUnits("1000", 18)];
-  const END_WEIGHTS = [parseEther("0.4").toString(), parseEther("0.6")];
+  const END_WEIGHTS = [parseEther("0.4"), parseEther("0.6")];
   const SWAP_FEE_PERCENTAGE = parseUnits("1", 16);
   const TO_LOW_SWAP_FEE_PERCENTAGE = parseUnits("1", 10);
   const TO_HIGH_SWAP_FEE_PERCENTAGE = parseUnits("1", 18);
@@ -205,7 +205,7 @@ describe.only(">> Contract: LBPManager", () => {
 
   let startTime = Math.floor(Date.now() / 1000);
   let endTime = startTime + 1000;
-  let START_WEIGHTS = [parseEther("0.6").toString(), parseEther("0.4")];
+  let START_WEIGHTS = [parseEther("0.6"), parseEther("0.4")];
 
   before(async () => {
     const signers = await ethers.getSigners();
@@ -974,7 +974,7 @@ describe.only(">> Contract: LBPManager", () => {
         );
         exitUserData = ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256"],
-          [EXIT_KIND, BPTbalance.toString()]
+          [EXIT_KIND, BPTbalance]
         );
       });
       it("» it reverts on not called by admin", async () => {
@@ -1021,7 +1021,7 @@ describe.only(">> Contract: LBPManager", () => {
         );
         exitUserData = ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256"],
-          [EXIT_KIND, BPTbalance.toString()]
+          [EXIT_KIND, BPTbalance]
         );
       });
       it("» exits or remove liquidity after endTime", async () => {
@@ -1074,7 +1074,7 @@ describe.only(">> Contract: LBPManager", () => {
         );
         exitUserData = ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256"],
-          [EXIT_KIND, BPTbalance.toString()]
+          [EXIT_KIND, BPTbalance]
         );
       });
       it("» reverts when receiver address is zero address", async () => {
@@ -1112,7 +1112,7 @@ describe.only(">> Contract: LBPManager", () => {
         );
         exitUserData = ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256"],
-          [EXIT_KIND, BPTbalance.toString()]
+          [EXIT_KIND, BPTbalance]
         );
       });
       it("» withdraw pool tokens", async () => {
