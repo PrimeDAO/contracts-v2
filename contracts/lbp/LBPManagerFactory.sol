@@ -26,7 +26,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
     address public masterCopy;
     address public LBPFactory;
 
-    event LBPDeployedUsingManager(
+    event DeployLBPManager(
         address indexed lbp,
         address indexed lbpManager,
         address indexed admin
@@ -136,6 +136,6 @@ contract LBPManagerFactory is CloneFactory, Ownable {
 
         LBPManager(lbpManager).transferAdminRights(_admin);
 
-        emit LBPDeployedUsingManager(lbp, lbpManager, _admin);
+        emit DeployLBPManager(lbp, lbpManager, _admin);
     }
 }

@@ -260,7 +260,7 @@ describe(">> Contract: LBPManagerFactory", () => {
       const receipt = await tx.wait();
 
       const args = receipt.events.filter((data) => {
-        return data.event === "LBPDeployedUsingManager";
+        return data.event === "DeployLBPManager";
       })[0].args;
 
       setup.lbp = setup.Lbp.attach(args.lbp);
