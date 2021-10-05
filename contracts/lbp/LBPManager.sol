@@ -23,12 +23,13 @@ import "../utils/interface/ILBP.sol";
  */
 contract LBPManager {
     // Constants
-    uint256 private constant HUNDRED_PERCENT = 10e18; // Used in calculating the PrimeDao fee.
+    uint256 private constant HUNDRED_PERCENT = 10e18; // Used in calculating the fee.
 
     // Locked parameter
     address public admin; // The address of the admin of this contract.
     address public beneficiary; // The address that recieves fees.
-    uint256 public primeDaoFeePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
+    uint256 public feePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
+    uint8 private projectTokenIndex; // The address of the project token.
     ILBP public lbp; // The address of LBP that is managed by this contract.
     IERC20[] public tokenList; // The tokens that are used in the LBP.
     uint256[] public amounts; // The amount of tokens that are going to be added as liquidity in LBP.
@@ -38,7 +39,7 @@ contract LBPManager {
     bool public initialized; // true:- LBP created; false:- LBP not yet created. Makes sure, only initialized once.
 
     modifier onlyAdmin() {
-        require(msg.sender == admin, "LBPManager: caller should be admin");
+        require(msg.sender == admin, "LBPManager: caller is not admin");
         _;
     }
 
@@ -47,17 +48,14 @@ contract LBPManager {
      * @param _newAdmin                 Address of the new admin.
      */
     function transferAdminRights(address _newAdmin) external onlyAdmin {
-        require(
-            _newAdmin != address(0),
-            "LBPManager: new admin can not be zero"
-        );
+        require(_newAdmin != address(0), "LBPManager: new admin is zero");
         admin = _newAdmin;
     }
 
     /**
      * @dev                             Initialize LBPManager.
      * @param _LBPFactory               LBP factory address.
-     * @param _beneficiary              The address that receives the _primeDaoFeePercentage.
+     * @param _beneficiary              The address that receives the _fee.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
      * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
@@ -66,7 +64,7 @@ contract LBPManager {
      * @param _amounts                  Sorted array to match the _tokenList, containing two parameters:
                                             - The amounts of project token to be added as liquidity to the LBP.
                                             - The amounts of funding token to be added as liquidity to the LBP.
-     * @param _weights                  Sorted array to match the _tokenList, containing two parametes:
+     * @param _startWeights             Sorted array to match the _tokenList, containing two parametes:
                                             - The start weight for the project token in the LBP.
                                             - The start weight for the funding token in the LBP.
      * @param _startTimeEndTime         Array containing two parameters:
@@ -76,7 +74,7 @@ contract LBPManager {
                                             - The end weight for the project token in the LBP.
                                             - The end weight for the funding token in the LBP.
      * @param _swapFeePercentage        Percentage of fee paid for every swap in the LBP.
-     * @param _primeDaoFeePercentage    Percentage of fee paid to PrimeDao for providing the service of the LBP Manager.
+     * @param _feePercentage            Percentage of fee paid to _beneficiary for providing the service of the LBP Manager.
      */
     function initializeLBP(
         address _LBPFactory,
@@ -85,21 +83,18 @@ contract LBPManager {
         string memory _symbol,
         IERC20[] memory _tokenList,
         uint256[] memory _amounts,
-        uint256[] memory _weights,
+        uint256[] memory _startWeights,
         uint256[] memory _startTimeEndTime,
         uint256[] memory _endWeights,
         uint256 _swapFeePercentage,
-        uint256 _primeDaoFeePercentage
+        uint256 _feePercentage
     ) external returns (address) {
         require(!initialized, "LBPManager: already initialized");
-        require(
-            _beneficiary != address(0),
-            "LBPManager: _beneficiary can not be zero address"
-        );
+        require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
 
         initialized = true;
         admin = msg.sender;
-        primeDaoFeePercentage = _primeDaoFeePercentage;
+        feePercentage = _feePercentage;
         beneficiary = _beneficiary;
         amounts = _amounts;
         tokenList = _tokenList;
@@ -109,7 +104,7 @@ contract LBPManager {
                 _name,
                 _symbol,
                 _tokenList,
-                _weights,
+                _startWeights,
                 _swapFeePercentage,
                 address(this),
                 true // SwapEnabled is set to true at pool creation.
@@ -126,44 +121,41 @@ contract LBPManager {
     }
 
     /**
-     * @dev                             Subtracts the primeDaoFee and adds liquidity to the LBP.
-     * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
-                                            - The address of the project token being distributed.
-                                            - The address of the funding token being exchanged for the project token.
+     * @dev                             Subtracts the fee and adds liquidity to the LBP.
      * @param _projectTokenIndex        Index for the _tokenList array for the funding token.
      * @param _sender                   Address of the liquidity provider.
      * @param _userData                 UserData object that specifies the type of join.
      */
     function addLiquidity(
-        IERC20[] memory _tokenList,
         uint8 _projectTokenIndex,
         address _sender,
         bytes memory _userData
     ) external onlyAdmin {
-        require(!poolFunded, "LBPManager: pool has already been funded");
+        require(!poolFunded, "LBPManager: pool already funded");
         poolFunded = true;
+        projectTokenIndex = _projectTokenIndex;
 
         IVault vault = lbp.getVault();
 
-        if (primeDaoFeePercentage != 0) {
-            // Transfer primeDaoFee to beneficiary.
-            _tokenList[_projectTokenIndex].transferFrom(
+        if (feePercentage != 0) {
+            // Transfer fee to beneficiary.
+            tokenList[projectTokenIndex].transferFrom(
                 _sender,
                 beneficiary,
-                _feeAmountRequired(_projectTokenIndex)
+                _feeAmountRequired()
             );
         }
 
-        for (uint8 i; i < _tokenList.length; i++) {
-            _tokenList[i].transferFrom(_sender, address(this), amounts[i]);
-            _tokenList[i].approve(address(vault), amounts[i]);
+        for (uint8 i; i < tokenList.length; i++) {
+            tokenList[i].transferFrom(_sender, address(this), amounts[i]);
+            tokenList[i].approve(address(vault), amounts[i]);
         }
 
         IVault.JoinPoolRequest memory request = IVault.JoinPoolRequest({
             maxAmountsIn: amounts,
             userData: _userData,
             fromInternalBalance: false, // It is not possible to add liquidity through the internal Vault balance.
-            assets: _tokenList
+            assets: tokenList
         });
 
         vault.joinPool(lbp.getPoolId(), address(this), address(this), request);
@@ -171,35 +163,28 @@ contract LBPManager {
 
     /**
      * @dev                             exit pool or remove liquidity from pool
-     * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
-                                            - The address of the project token being distributed.
-                                            - The address of the funding token being exchanged for the project token.
      * @param _receiver                 Address of the liquidity receiver, after exiting the LBP.
      * @param _toInternalBalance        Balancer's Vault option to send the liquidity from the LBP to the _receivers internal Vault balance.
      * @param _userData                 UserData object that specifies the type of exit.
      */
     function removeLiquidity(
-        IERC20[] memory _tokenList,
         address payable _receiver,
         bool _toInternalBalance,
         bytes memory _userData
     ) external onlyAdmin {
         require(
             _receiver != payable(address(0)),
-            "LBPManager: receiver of project and funding tokens can't be zero"
+            "LBPManager: receiver is zero"
         );
         require(
             lbp.balanceOf(address(this)) > 0,
-            "LBPManager: manager does not have any pool tokens to remove liquidity"
+            "LBPManager: no BPT token balance"
         );
 
         uint256 endTime;
         (, endTime, ) = lbp.getGradualWeightUpdateParams();
 
-        require(
-            block.timestamp >= endTime,
-            "LBPManager: can not remove liqudity from the pool before endtime"
-        );
+        require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
         // To remove all funding from the pool. Initializes to [0, 0]
         uint256[] memory _minAmountsOut = new uint256[](tokenList.length);
@@ -210,7 +195,7 @@ contract LBPManager {
             minAmountsOut: _minAmountsOut,
             userData: _userData,
             toInternalBalance: _toInternalBalance,
-            assets: _tokenList
+            assets: tokenList
         });
 
         lbp.approve(address(vault), lbp.balanceOf(address(this)));
@@ -234,21 +219,15 @@ contract LBPManager {
      * @param _receiver                 Address of the BPT tokens receiver.
      */
     function withdrawPoolTokens(address _receiver) external onlyAdmin {
-        require(
-            _receiver != address(0),
-            "LBPManager: receiver of pool tokens can't be zero"
-        );
+        require(_receiver != address(0), "LBPManager: receiver is zero");
 
         uint256 endTime;
         (, endTime, ) = lbp.getGradualWeightUpdateParams();
-        require(
-            block.timestamp >= endTime,
-            "LBPManager: can not withdraw pool tokens before endtime"
-        );
+        require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
         require(
             lbp.balanceOf(address(this)) > 0,
-            "LBPManager: manager does not have any pool tokens to withdraw"
+            "LBPManager: no BPT token balance"
         );
 
         lbp.transfer(_receiver, lbp.balanceOf(address(this)));
@@ -265,26 +244,20 @@ contract LBPManager {
     /**
      * @dev     Get required amount of project tokens to cover for fees and the actual LBP.
      */
-    function projectTokensRequired(uint8 _projectTokenIndex)
+    function projectTokensRequired()
         external
         view
         returns (uint256 projectTokenAmounts)
     {
-        projectTokenAmounts =
-            amounts[_projectTokenIndex] +
-            _feeAmountRequired(_projectTokenIndex);
+        projectTokenAmounts = amounts[projectTokenIndex] + _feeAmountRequired();
     }
 
     /**
      * @dev     Get required amount of project tokens to cover for fees.
      */
-    function _feeAmountRequired(uint8 _projectTokenIndex)
-        internal
-        view
-        returns (uint256 feeAmount)
-    {
+    function _feeAmountRequired() internal view returns (uint256 feeAmount) {
         feeAmount =
-            (amounts[_projectTokenIndex] * primeDaoFeePercentage) /
+            (amounts[projectTokenIndex] * feePercentage) /
             HUNDRED_PERCENT;
     }
 }

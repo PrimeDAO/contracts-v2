@@ -112,7 +112,7 @@ const setupInitialState = async (contractInstances, initialState) => {
   }
 
   if (fundingAmount) {
-    const { initialBalances, primeDaoFeePercentage } = fundingAmount;
+    const { initialBalances, feePercentage } = fundingAmount;
 
     const initialBalancesCopy = Object.assign({}, initialBalances);
 
@@ -124,10 +124,10 @@ const setupInitialState = async (contractInstances, initialState) => {
       .transfer(admin.address, initialBalancesCopy[1].mul(2).toString());
 
     // Add fee amount on top
-    if (primeDaoFeePercentage) {
+    if (feePercentage) {
       index = projectTokenIndex ? projectTokenIndex : 0;
       amountToAddForFee = initialBalancesCopy[index]
-        .mul(primeDaoFeePercentage)
+        .mul(feePercentage)
         .div(HUNDRED_PERCENT);
       initialBalancesCopy[index] =
         initialBalancesCopy[index].add(amountToAddForFee);
@@ -156,12 +156,7 @@ const setupInitialState = async (contractInstances, initialState) => {
       );
       await lbpManagerInstance
         .connect(admin)
-        .addLiquidity(
-          tokenAddresses,
-          FUNDING_TOKEN_INDEX,
-          admin.address,
-          userData
-        );
+        .addLiquidity(FUNDING_TOKEN_INDEX, admin.address, userData);
     }
   }
 
@@ -202,13 +197,13 @@ describe(">> Contract: LBPManager", () => {
   const TO_HIGH_SWAP_FEE_PERCENTAGE = parseUnits("1", 18);
   const JOIN_KIND_INIT = 0;
   const EXIT_KIND = 1;
-  const PRIME_DAO_FEE_PERCENTAGE_FIVE = parseUnits("5", 17);
-  const PRIME_DAO_FEE_PERCENTAGE_ONE = parseUnits("1", 17);
-  const PRIME_DAO_FEE_PERCENTAGE_ZERO = 0;
+  const FEE_PERCENTAGE_FIVE = parseUnits("5", 17);
+  const FEE_PERCENTAGE_ONE = parseUnits("1", 17);
+  const FEE_PERCENTAGE_ZERO = 0;
 
   let startTime = Math.floor(Date.now() / 1000);
   let endTime = startTime + 1000;
-  let WEIGHTS = [parseEther("0.6").toString(), parseEther("0.4")];
+  let START_WEIGHTS = [parseEther("0.6").toString(), parseEther("0.4")];
 
   before(async () => {
     const signers = await ethers.getSigners();
@@ -233,12 +228,12 @@ describe(">> Contract: LBPManager", () => {
       SYMBOL,
       tokenAddresses,
       INITIAL_BALANCES,
-      WEIGHTS,
+      START_WEIGHTS,
       startTime,
       endTime,
       END_WEIGHTS,
       SWAP_FEE_PERCENTAGE,
-      PRIME_DAO_FEE_PERCENTAGE_ZERO,
+      FEE_PERCENTAGE_ZERO,
       beneficiary.address
     );
   });
@@ -254,12 +249,12 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           tokenAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
           TO_HIGH_SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          FEE_PERCENTAGE_ZERO,
           beneficiary.address
         );
         await expect(
@@ -277,12 +272,12 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           tokenAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
           TO_LOW_SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          FEE_PERCENTAGE_ZERO,
           beneficiary.address
         );
         await expect(
@@ -300,21 +295,45 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           tokenAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          FEE_PERCENTAGE_ZERO,
           ZERO_ADDRESS
         );
         await expect(
           lbpManagerInstance
             .connect(owner)
             .initializeLBP(...invalidInitializeLBPParams)
-        ).to.be.revertedWith(
-          "LBPManager: _beneficiary can not be zero address"
+        ).to.be.revertedWith("LBPManager: _beneficiary is zero");
+      });
+      it("» revert on token list bigger then 2", async () => {
+        const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
+        const largeTokenListAddresses = largeTokenList
+          .map((token) => token.address)
+          .sort((a, b) => a - b);
+
+        invalidInitializeLBPParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          largeTokenListAddresses,
+          INITIAL_BALANCES,
+          START_WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          SWAP_FEE_PERCENTAGE,
+          FEE_PERCENTAGE_ZERO,
+          beneficiary.address
         );
+        await expect(
+          lbpManagerInstance
+            .connect(owner)
+            .initializeLBP(...invalidInitializeLBPParams)
+        ).to.be.revertedWith("BAL#103");
       });
     });
     describe("$ deploy LBP using Manager succeeds", () => {
@@ -329,8 +348,8 @@ describe(">> Contract: LBPManager", () => {
         expect(await lbpManagerInstance.beneficiary()).to.equal(
           beneficiary.address
         );
-        expect(await lbpManagerInstance.primeDaoFeePercentage()).to.equal(
-          PRIME_DAO_FEE_PERCENTAGE_ZERO
+        expect(await lbpManagerInstance.feePercentage()).to.equal(
+          FEE_PERCENTAGE_ZERO
         );
       });
       it("» reverts when invoking it again", async () => {
@@ -360,7 +379,7 @@ describe(">> Contract: LBPManager", () => {
     it("» reverts when new owner address is zero", async () => {
       await expect(
         lbpManagerInstance.connect(owner).transferAdminRights(ZERO_ADDRESS)
-      ).to.be.revertedWith("LBPManager: new admin can not be zero");
+      ).to.be.revertedWith("LBPManager: new admin is zero");
     });
     it("» success", async () => {
       await lbpManagerInstance
@@ -377,7 +396,7 @@ describe(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
 
         const initialState = {
@@ -389,9 +408,9 @@ describe(">> Contract: LBPManager", () => {
           await setupInitialState(contractInstances, initialState));
       });
       it("» success", async () => {
-        expect(
-          await lbpManagerInstance.projectTokensRequired(projectTokenIndex)
-        ).to.equal(amountToAddForFee.add(INITIAL_BALANCES[0]));
+        expect(await lbpManagerInstance.projectTokensRequired()).to.equal(
+          amountToAddForFee.add(INITIAL_BALANCES[0])
+        );
       });
     });
     describe("$ calculate with five percent", () => {
@@ -402,19 +421,19 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           tokenAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          FEE_PERCENTAGE_FIVE,
           beneficiary.address
         );
         projectTokenIndex = 0;
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          feePercentage: FEE_PERCENTAGE_FIVE,
         };
 
         const initialState = {
@@ -426,9 +445,9 @@ describe(">> Contract: LBPManager", () => {
           await setupInitialState(contractInstances, initialState));
       });
       it("» success", async () => {
-        expect(
-          await lbpManagerInstance.projectTokensRequired(projectTokenIndex)
-        ).to.equal(amountToAddForFee.add(INITIAL_BALANCES[0]));
+        expect(await lbpManagerInstance.projectTokensRequired()).to.equal(
+          amountToAddForFee.add(INITIAL_BALANCES[0])
+        );
       });
     });
   });
@@ -445,7 +464,7 @@ describe(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
           initializeLBPParams,
@@ -457,19 +476,18 @@ describe(">> Contract: LBPManager", () => {
       it("» reverts when not called by owner", async () => {
         await expect(
           lbpManagerInstance.addLiquidity(
-            tokenAddresses,
             projectTokenIndex,
             admin.address,
             userData
           )
-        ).to.be.revertedWith("LBPManager: caller should be admin");
+        ).to.be.revertedWith("LBPManager: caller is not admin");
       });
     });
     describe("$ try adding liquidity twice", () => {
       beforeEach(async () => {
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
 
         projectTokenIndex = 0;
@@ -486,16 +504,11 @@ describe(">> Contract: LBPManager", () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
-            .addLiquidity(
-              tokenAddresses,
-              projectTokenIndex,
-              admin.address,
-              userData
-            )
-        ).to.be.revertedWith("LBPManager: pool has already been funded");
+            .addLiquidity(projectTokenIndex, admin.address, userData)
+        ).to.be.revertedWith("LBPManager: pool already funded");
       });
     });
-    describe("$ adding liquidity with 5 percent primeDaoFee", async () => {
+    describe("$ adding liquidity with 5 percent fee", async () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
@@ -505,12 +518,12 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           tokenAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          FEE_PERCENTAGE_FIVE,
           beneficiary.address
         );
 
@@ -523,7 +536,7 @@ describe(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          feePercentage: FEE_PERCENTAGE_FIVE,
         };
 
         const initialState = {
@@ -553,12 +566,7 @@ describe(">> Contract: LBPManager", () => {
 
         const tx = await lbpManagerInstance
           .connect(admin)
-          .addLiquidity(
-            tokenAddresses,
-            projectTokenIndex,
-            admin.address,
-            userData
-          );
+          .addLiquidity(projectTokenIndex, admin.address, userData);
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
@@ -580,7 +588,7 @@ describe(">> Contract: LBPManager", () => {
         ).to.equal(amountToAddForFee);
       });
     });
-    describe("$ adding liquidity with 1 percent primeDaoFee", async () => {
+    describe("$ adding liquidity with 1 percent fee", async () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
@@ -590,12 +598,12 @@ describe(">> Contract: LBPManager", () => {
           SYMBOL,
           tokenAddresses,
           INITIAL_BALANCES,
-          WEIGHTS,
+          START_WEIGHTS,
           startTime,
           endTime,
           END_WEIGHTS,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_ONE,
+          FEE_PERCENTAGE_ONE,
           beneficiary.address
         );
 
@@ -608,7 +616,7 @@ describe(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ONE,
+          feePercentage: FEE_PERCENTAGE_ONE,
         };
 
         const initialState = {
@@ -638,12 +646,7 @@ describe(">> Contract: LBPManager", () => {
 
         const tx = await lbpManagerInstance
           .connect(admin)
-          .addLiquidity(
-            tokenAddresses,
-            projectTokenIndex,
-            admin.address,
-            userData
-          );
+          .addLiquidity(projectTokenIndex, admin.address, userData);
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
@@ -665,7 +668,7 @@ describe(">> Contract: LBPManager", () => {
         ).to.equal(amountToAddForFee);
       });
     });
-    describe("$ adding liquidity with 0 percent primeDaoFee", async () => {
+    describe("$ adding liquidity with 0 percent fee", async () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
@@ -678,7 +681,7 @@ describe(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
 
         const initialState = {
@@ -708,12 +711,7 @@ describe(">> Contract: LBPManager", () => {
 
         const tx = await lbpManagerInstance
           .connect(admin)
-          .addLiquidity(
-            tokenAddresses,
-            projectTokenIndex,
-            admin.address,
-            userData
-          );
+          .addLiquidity(projectTokenIndex, admin.address, userData);
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
@@ -735,16 +733,16 @@ describe(">> Contract: LBPManager", () => {
         ).to.equal(amountToAddForFee);
       });
     });
-    describe("$ adding liquidity with unsorted tokenList and 5 percent primeDaoFee", async () => {
+    describe("$ adding liquidity with unsorted tokenList and 5 percent fee", async () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
         amountToAddForFee = BigNumber.from(0);
         const HUNDRED_PERCENT = parseUnits("10", 18);
 
-        // reverse weights and amounts
+        // reverse START_weights and amounts
         const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
-        const reverseWeights = reverseArray(WEIGHTS);
+        const reverseWeights = reverseArray(START_WEIGHTS);
         const reverseEndWeights = reverseArray(END_WEIGHTS);
 
         initializeLBPParams = paramGenerator.initializeParams(
@@ -758,7 +756,7 @@ describe(">> Contract: LBPManager", () => {
           endTime,
           reverseEndWeights,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          FEE_PERCENTAGE_FIVE,
           beneficiary.address
         );
 
@@ -769,7 +767,7 @@ describe(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: reverseInitialBalance,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_FIVE,
+          feePercentage: FEE_PERCENTAGE_FIVE,
         };
 
         projectTokenIndex = 1;
@@ -797,12 +795,7 @@ describe(">> Contract: LBPManager", () => {
 
         const tx = await lbpManagerInstance
           .connect(admin)
-          .addLiquidity(
-            tokenAddresses,
-            projectTokenIndex,
-            admin.address,
-            userData
-          );
+          .addLiquidity(projectTokenIndex, admin.address, userData);
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
@@ -824,16 +817,16 @@ describe(">> Contract: LBPManager", () => {
         ).to.equal(amountToAddForFee);
       });
     });
-    describe("$ adding liquidity with unsorted tokenList and 0 percent primeDaoFee", async () => {
+    describe("$ adding liquidity with unsorted tokenList and 0 percent fee", async () => {
       let userData, amountToAddForFee;
 
       beforeEach(async () => {
         amountToAddForFee = BigNumber.from(0);
         const HUNDRED_PERCENT = parseUnits("10", 18);
 
-        // reverse weights and amounts
+        // reverse START_weights and amounts
         const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
-        const reverseWeights = reverseArray(WEIGHTS);
+        const reverseWeights = reverseArray(START_WEIGHTS);
         const reverseEndWeights = reverseArray(END_WEIGHTS);
 
         initializeLBPParams = paramGenerator.initializeParams(
@@ -847,7 +840,7 @@ describe(">> Contract: LBPManager", () => {
           endTime,
           reverseEndWeights,
           SWAP_FEE_PERCENTAGE,
-          PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          FEE_PERCENTAGE_ZERO,
           beneficiary.address
         );
 
@@ -858,7 +851,7 @@ describe(">> Contract: LBPManager", () => {
 
         const fundingAmount = {
           initialBalances: reverseInitialBalance,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
 
         projectTokenIndex = 1;
@@ -886,12 +879,7 @@ describe(">> Contract: LBPManager", () => {
 
         const tx = await lbpManagerInstance
           .connect(admin)
-          .addLiquidity(
-            tokenAddresses,
-            projectTokenIndex,
-            admin.address,
-            userData
-          );
+          .addLiquidity(projectTokenIndex, admin.address, userData);
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
@@ -918,7 +906,7 @@ describe(">> Contract: LBPManager", () => {
     beforeEach(async () => {
       const fundingAmount = {
         initialBalances: INITIAL_BALANCES,
-        primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+        feePercentage: FEE_PERCENTAGE_ZERO,
       };
 
       const initialState = {
@@ -932,7 +920,7 @@ describe(">> Contract: LBPManager", () => {
     it("» revert on being called by not the owner", async () => {
       await expect(
         lbpManagerInstance.connect(owner).setSwapEnabled(false)
-      ).to.be.revertedWith("LBPManager: caller should be admin");
+      ).to.be.revertedWith("LBPManager: caller is not admin");
     });
     it("» setSwapEnabled to false", async () => {
       expect(await lbpManagerInstance.admin()).to.equal(admin.address);
@@ -952,7 +940,7 @@ describe(">> Contract: LBPManager", () => {
         // Specifies funds and fee to be sent to setpInitialState
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
           initializeLBPParams,
@@ -976,31 +964,22 @@ describe(">> Contract: LBPManager", () => {
       });
       it("» it reverts on not called by admin", async () => {
         await expect(
-          lbpManagerInstance.removeLiquidity(
-            tokenAddresses,
-            admin.address,
-            false,
-            exitUserData
-          )
-        ).to.be.revertedWith("LBPManager: caller should be admin");
+          lbpManagerInstance.removeLiquidity(admin.address, false, exitUserData)
+        ).to.be.revertedWith("LBPManager: caller is not admin");
       });
       it("» reverts when trying to remove liquidity where receiver address is zero address", async () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
-            .removeLiquidity(tokenAddresses, ZERO_ADDRESS, false, exitUserData)
-        ).to.be.revertedWith(
-          "LBPManager: receiver of project and funding tokens can't be zero"
-        );
+            .removeLiquidity(ZERO_ADDRESS, false, exitUserData)
+        ).to.be.revertedWith("LBPManager: receiver is zero");
       });
       it("» reverts when trying to remove liquidity before endTime", async () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
-            .removeLiquidity(tokenAddresses, admin.address, false, exitUserData)
-        ).to.be.revertedWith(
-          "LBPManager: can not remove liqudity from the pool before endtime"
-        );
+            .removeLiquidity(admin.address, false, exitUserData)
+        ).to.be.revertedWith("LBPManager: endtime not reached");
       });
     });
     describe("$ success on call exit pool", () => {
@@ -1008,7 +987,7 @@ describe(">> Contract: LBPManager", () => {
         // Specifies funds and fee to be sent to setpInitialState
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
           initializeLBPParams,
@@ -1039,7 +1018,7 @@ describe(">> Contract: LBPManager", () => {
         // exit pool
         await lbpManagerInstance
           .connect(admin)
-          .removeLiquidity(tokenAddresses, admin.address, false, exitUserData);
+          .removeLiquidity(admin.address, false, exitUserData);
         // balance after exit pool
         const { balances: poolBalancesAfterExit } =
           await vaultInstance.getPoolTokens(
@@ -1061,7 +1040,7 @@ describe(">> Contract: LBPManager", () => {
         // Specifies funds and fee to be sent to setpInitialState
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
           initializeLBPParams,
@@ -1086,16 +1065,12 @@ describe(">> Contract: LBPManager", () => {
       it("» reverts when receiver address is zero address", async () => {
         await expect(
           lbpManagerInstance.connect(admin).withdrawPoolTokens(ZERO_ADDRESS)
-        ).to.be.revertedWith(
-          "LBPManager: receiver of pool tokens can't be zero"
-        );
+        ).to.be.revertedWith("LBPManager: receiver is zero");
       });
       it("» reverts when trying to withdraw before end time", async () => {
         await expect(
           lbpManagerInstance.connect(admin).withdrawPoolTokens(admin.address)
-        ).to.be.revertedWith(
-          "LBPManager: can not withdraw pool tokens before endtime"
-        );
+        ).to.be.revertedWith("LBPManager: endtime not reached");
       });
     });
     describe("$ succes on withdraw pool tokens", () => {
@@ -1103,7 +1078,7 @@ describe(">> Contract: LBPManager", () => {
         // Specifies funds and fee to be sent to setpInitialState
         const fundingAmount = {
           initialBalances: INITIAL_BALANCES,
-          primeDaoFeePercentage: PRIME_DAO_FEE_PERCENTAGE_ZERO,
+          feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
           initializeLBPParams,
@@ -1145,9 +1120,7 @@ describe(">> Contract: LBPManager", () => {
           .withdrawPoolTokens(admin.address);
         await expect(
           lbpManagerInstance.connect(admin).withdrawPoolTokens(admin.address)
-        ).to.be.revertedWith(
-          "LBPManager: manager does not have any pool tokens to withdraw"
-        );
+        ).to.be.revertedWith("LBPManager: no BPT token balance");
       });
       it("» reverts when trying to remove liquidity after withdrawing pool tokens", async () => {
         await time.increase(1000);
@@ -1157,10 +1130,8 @@ describe(">> Contract: LBPManager", () => {
         await expect(
           lbpManagerInstance
             .connect(admin)
-            .removeLiquidity(tokenAddresses, admin.address, false, exitUserData)
-        ).to.be.revertedWith(
-          "LBPManager: manager does not have any pool tokens to remove liquidity"
-        );
+            .removeLiquidity(admin.address, false, exitUserData)
+        ).to.be.revertedWith("LBPManager: no BPT token balance");
       });
     });
   });

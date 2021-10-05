@@ -19,8 +19,8 @@ import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "./LBPManager.sol";
 
 /**
- * @title PrimeDAO LBPManager Factory
- * @dev   Enable PrimeDAO governance to create new LBPManager contracts.
+ * @title LBPManager Factory
+ * @dev   Governance to create new LBPManager contracts.
  */
 contract LBPManagerFactory is CloneFactory, Ownable {
     address public masterCopy;
@@ -37,21 +37,15 @@ contract LBPManagerFactory is CloneFactory, Ownable {
      * @param _LBPFactory               The address of Balancers LBP factory.
      */
     constructor(address _LBPFactory) {
-        require(
-            _LBPFactory != address(0),
-            "LBPManagerFactory: LBPFactory can not be zero"
-        );
+        require(_LBPFactory != address(0), "LBPMFactory: LBPFactory is zero");
         LBPFactory = _LBPFactory;
     }
 
     modifier validAddress(address addressToCheck) {
-        require(
-            addressToCheck != address(0),
-            "LBPManagerFactory: address can not be zero"
-        );
+        require(addressToCheck != address(0), "LBPMFactory: address is zero");
         require(
             addressToCheck != address(this),
-            "LBPManagerFactory: address can not be the same as LBPManagerFactory"
+            "LBPMFactory: address same as LBPManagerFactory"
         );
         _;
     }
@@ -83,7 +77,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
     /**
      * @dev                             Deploy and initialize LBPManager.
      * @param _admin                    The address of the admin of the LBPManager.
-     * @param _beneficiary              The address that receives the _primeDaoFeePercentage.
+     * @param _beneficiary              The address that receives the _fee.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
      * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
@@ -92,7 +86,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
      * @param _amounts                  Sorted array to match the _tokenList, containing two parameters:
                                             - The amounts of project token to be added as liquidity to the LBP.
                                             - The amounts of funding token to be added as liquidity to the LBP.
-     * @param _weights                  Sorted array to match the _tokenList, containing two parametes:
+     * @param _startWeights                  Sorted array to match the _tokenList, containing two parametes:
                                             - The start weight for the project token in the LBP.
                                             - The start weight for the funding token in the LBP.
      * @param _startTimeEndtime         Array containing two parameters:
@@ -102,24 +96,24 @@ contract LBPManagerFactory is CloneFactory, Ownable {
                                             - The end weight for the project token in the LBP.
                                             - The end weight for the funding token in the LBP.
      * @param _swapFeePercentage        Percentage of fee paid for every swap in the LBP.
-     * @param _primeDaoFeePercentage    Percentage of fee paid to PrimeDao for providing the service of the LBP Manager.
+     * @param _fee                      Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
      */
-    function deployLBPUsingManager(
+    function deployLBPManager(
         address _admin,
         address _beneficiary,
         string memory _name,
         string memory _symbol,
         IERC20[] memory _tokenList,
         uint256[] memory _amounts,
-        uint256[] memory _weights,
+        uint256[] memory _startWeights,
         uint256[] memory _startTimeEndtime,
         uint256[] memory _endWeights,
         uint256 _swapFeePercentage,
-        uint256 _primeDaoFeePercentage
+        uint256 _fee
     ) external onlyOwner {
         require(
             masterCopy != address(0),
-            "LBPManagerFactory: LBPManager mastercopy is not set"
+            "LBPMFactory: LBPManager mastercopy not set"
         );
 
         address lbpManager = createClone(masterCopy);
@@ -131,11 +125,11 @@ contract LBPManagerFactory is CloneFactory, Ownable {
             _symbol,
             _tokenList,
             _amounts,
-            _weights,
+            _startWeights,
             _startTimeEndtime,
             _endWeights,
             _swapFeePercentage,
-            _primeDaoFeePercentage
+            _fee
         );
 
         LBPManager(lbpManager).transferAdminRights(_admin);
