@@ -16,6 +16,7 @@ import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
+import "hardhat/console.sol";
 
 /**
  * @title LBPManager contract.
@@ -116,9 +117,13 @@ contract LBPManager {
         beneficiary = _beneficiary;
         metadata = _metadata;
 
+        console.logAddress(address(_tokenList[0]));
+        console.logAddress(address(_tokenList[1]));
         if (address(_tokenList[0]) > address(_tokenList[1])) {
             tokenList.push(_tokenList[1]);
             tokenList.push(_tokenList[0]);
+            console.logAddress(address(tokenList[0]));
+            console.logAddress(address(tokenList[1]));
             amounts.push(_amounts[1]);
             amounts.push(_amounts[0]);
 
@@ -140,7 +145,7 @@ contract LBPManager {
             ILBPFactory(_LBPFactory).create(
                 _name,
                 _symbol,
-                _tokenList,
+                tokenList,
                 _startWeights,
                 _fees[0], // swapFeePercentage
                 address(this),
