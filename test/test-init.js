@@ -67,10 +67,19 @@ const gettokenInstances = async (setup) => {
   return { seedToken, fundingToken };
 };
 
+const signerV2 = async (setup) => {
+  const signerV2Factory = await ethers.getContractFactory(
+    "SignerV2",
+    setup.roles.root
+  );
+  return await signerV2Factory.deploy(setup.roles.root.address, [], []);
+}
+
 module.exports = {
   initialize,
   getGnosisProxyInstance,
   gettokenInstances,
   getLBPManagerFactory,
   getContractInstance,
+  signerV2
 };
