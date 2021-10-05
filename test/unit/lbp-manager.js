@@ -80,11 +80,8 @@ const setupInitialState = async (contractInstances, initialState) => {
 
   [owner, admin, beneficiary] = signers;
 
-  const {
-    lbpContractFactory,
-    lbpManagerInstance,
-    tokenInstances,
-  } = contractInstances;
+  const { lbpContractFactory, lbpManagerInstance, tokenInstances } =
+    contractInstances;
 
   const { initializeLBPParams, noOwnerTransfer, fundingAmount, poolFunded } =
     initialState;
@@ -519,9 +516,7 @@ describe.only(">> Contract: LBPManager", () => {
       });
       it("» success fee transferred", async () => {
         await expect(
-          lbpManagerInstance
-            .connect(admin)
-            .addLiquidity(projectTokenIndex, admin.address, userData)
+          lbpManagerInstance.connect(admin).addLiquidity(admin.address)
         )
           .to.emit(lbpManagerInstance, "FeeTransferred")
           .withArgs(beneficiary.address, tokenAddresses[0], amountToAddForFee);
