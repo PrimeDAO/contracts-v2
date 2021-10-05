@@ -16,6 +16,7 @@ import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
+import "hardhat/console.sol";
 
 /**
  * @title LBPManager contract.
@@ -28,6 +29,7 @@ contract LBPManager {
     // Locked parameter
     address public admin; // The address of the admin of this contract.
     address public beneficiary; // The address that recieves fees.
+    uint8 private projectTokenIndex; // The address of the project token.
     uint256 public primeDaoFeePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
     ILBP public lbp; // The address of LBP that is managed by this contract.
     IERC20[] public tokenList; // The tokens that are used in the LBP.
@@ -101,14 +103,29 @@ contract LBPManager {
         admin = msg.sender;
         primeDaoFeePercentage = _primeDaoFeePercentage;
         beneficiary = _beneficiary;
-        amounts = _amounts;
-        tokenList = _tokenList;
+
+        if (address(_tokenList[0]) > address(_tokenList[1])) {
+            console.log("HERE");
+            tokenList.push(_tokenList[1]);
+            tokenList.push(_tokenList[0]);
+            amounts.push(_amounts[1]);
+            amounts.push(_amounts[0]);
+
+            projectTokenIndex = 0;
+            uint256 swap = _weights[0];
+            _weights[0] = _weights[1];
+            _weights[1] = swap;
+        } else {
+            projectTokenIndex = 1;
+            tokenList = _tokenList;
+            amounts = _amounts;
+        }
 
         lbp = ILBP(
             ILBPFactory(_LBPFactory).create(
                 _name,
                 _symbol,
-                _tokenList,
+                tokenList,
                 _weights,
                 _swapFeePercentage,
                 address(this),
@@ -124,6 +141,8 @@ contract LBPManager {
 
         return address(lbp);
     }
+
+    // function sortArray()
 
     /**
      * @dev                             Subtracts the primeDaoFee and adds liquidity to the LBP.
@@ -143,10 +162,10 @@ contract LBPManager {
 
         if (primeDaoFeePercentage != 0) {
             // Transfer primeDaoFee to beneficiary.
-            tokenList[_projectTokenIndex].transferFrom(
+            tokenList[projectTokenIndex].transferFrom(
                 _sender,
                 beneficiary,
-                _feeAmountRequired(_projectTokenIndex)
+                _feeAmountRequired()
             );
         }
 
@@ -257,26 +276,20 @@ contract LBPManager {
     /**
      * @dev     Get required amount of project tokens to cover for fees and the actual LBP.
      */
-    function projectTokensRequired(uint8 _projectTokenIndex)
+    function projectTokensRequired()
         external
         view
         returns (uint256 projectTokenAmounts)
     {
-        projectTokenAmounts =
-            amounts[_projectTokenIndex] +
-            _feeAmountRequired(_projectTokenIndex);
+        projectTokenAmounts = amounts[projectTokenIndex] + _feeAmountRequired();
     }
 
     /**
      * @dev     Get required amount of project tokens to cover for fees.
      */
-    function _feeAmountRequired(uint8 _projectTokenIndex)
-        internal
-        view
-        returns (uint256 feeAmount)
-    {
+    function _feeAmountRequired() internal view returns (uint256 feeAmount) {
         feeAmount =
-            (amounts[_projectTokenIndex] * primeDaoFeePercentage) /
+            (amounts[projectTokenIndex] * primeDaoFeePercentage) /
             HUNDRED_PERCENT;
     }
 }

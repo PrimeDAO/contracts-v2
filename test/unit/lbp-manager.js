@@ -410,9 +410,9 @@ describe.only(">> Contract: LBPManager", () => {
           await setupInitialState(contractInstances, initialState));
       });
       it("» success", async () => {
-        expect(
-          await lbpManagerInstance.projectTokensRequired(projectTokenIndex)
-        ).to.equal(amountToAddForFee.add(INITIAL_BALANCES[0]));
+        expect(await lbpManagerInstance.projectTokensRequired()).to.equal(
+          amountToAddForFee.add(INITIAL_BALANCES[0])
+        );
       });
     });
     describe("$ calculate with five percent", () => {
@@ -447,9 +447,9 @@ describe.only(">> Contract: LBPManager", () => {
           await setupInitialState(contractInstances, initialState));
       });
       it("» success", async () => {
-        expect(
-          await lbpManagerInstance.projectTokensRequired(projectTokenIndex)
-        ).to.equal(amountToAddForFee.add(INITIAL_BALANCES[0]));
+        expect(await lbpManagerInstance.projectTokensRequired()).to.equal(
+          amountToAddForFee.add(INITIAL_BALANCES[0])
+        );
       });
     });
   });
