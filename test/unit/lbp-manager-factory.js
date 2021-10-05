@@ -128,7 +128,7 @@ describe(">> Contract: LBPManagerFactory", () => {
         setup.roles.root
       );
       await expect(setup.lbpManagerFactory.setMasterCopy(newMasterCopy.address))
-        .to.emit(setup.lbpManagerFactory, "LBPManagerMastercopyChanged")
+        .to.emit(setup.lbpManagerFactory, "MastercopyChanged")
         .withArgs(setup.lbpManager.address, newMasterCopy.address);
       expect(await setup.lbpManagerFactory.masterCopy()).to.equal(
         newMasterCopy.address

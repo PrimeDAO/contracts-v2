@@ -37,7 +37,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         address indexed newLBPFactory
     );
 
-    event LBPManagerMastercopyChanged(
+    event MastercopyChanged(
         address indexed oldMasterCopy,
         address indexed newMasterCopy
     );
@@ -69,7 +69,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         onlyOwner
         validAddress(_masterCopy)
     {
-        emit LBPManagerMastercopyChanged(masterCopy, _masterCopy);
+        emit MastercopyChanged(masterCopy, _masterCopy);
         masterCopy = _masterCopy;
     }
 
