@@ -27,7 +27,7 @@ const deploy = async () => {
 };
 
 describe(">> Contract: LBPManagerFactory", () => {
-  let setup, fees, beneficiary;
+  let setup, fee, beneficiary;
   let tokenAddresses, admin, owner, sortedTokens, newLBPFactory;
 
   const startTime = Date.now();
@@ -122,6 +122,18 @@ describe(">> Contract: LBPManagerFactory", () => {
         setup.lbpManager.address
       );
     });
+    it("$ set new mastercopy", async () => {
+      const newMasterCopy = await init.getContractInstance(
+        "LBPManager",
+        setup.roles.root
+      );
+      await expect(setup.lbpManagerFactory.setMasterCopy(newMasterCopy.address))
+        .to.emit(setup.lbpManagerFactory, "MastercopyChanged")
+        .withArgs(setup.lbpManager.address, newMasterCopy.address);
+      expect(await setup.lbpManagerFactory.masterCopy()).to.equal(
+        newMasterCopy.address
+      );
+    });
   });
   context("» set new LBPFactory", () => {
     before("!! deploy new LBP Factory", async () => {
@@ -144,8 +156,10 @@ describe(">> Contract: LBPManagerFactory", () => {
           .setLBPFactory(newLBPFactory.address)
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
-    it("$ succeeds on valid master copy", async () => {
-      await setup.lbpManagerFactory.setLBPFactory(newLBPFactory.address);
+    it("$ succeeds on valid LBPFactory copy", async () => {
+      await expect(setup.lbpManagerFactory.setLBPFactory(newLBPFactory.address))
+        .to.emit(setup.lbpManagerFactory, "LBPFactoryChanged")
+        .withArgs(setup.lbpFactory.address, newLBPFactory.address);
       expect(await setup.lbpManagerFactory.LBPFactory()).to.equal(
         newLBPFactory.address
       );
@@ -260,13 +274,11 @@ describe(">> Contract: LBPManagerFactory", () => {
       const receipt = await tx.wait();
 
       const args = receipt.events.filter((data) => {
-        return data.event === "DeployLBPManager";
+        return data.event === "LBPManagerDeployed";
       })[0].args;
 
-      setup.lbp = setup.Lbp.attach(args.lbp);
-      expect(await setup.lbp.getOwner()).to.equal(args.lbpManager);
-      expect(await args.admin).to.equal(admin.address);
-      expect(await args.primeDaoAddress).to.equal();
+      expect(args[1]).to.equal(admin.address);
+      expect(args[2]).to.equal(METADATA);
     });
   });
 });

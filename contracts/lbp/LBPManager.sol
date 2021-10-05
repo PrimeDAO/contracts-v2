@@ -39,6 +39,19 @@ contract LBPManager {
     bool public poolFunded; // true:- LBP is funded; false:- LBP is yet not funded.
     bool public initialized; // true:- LBP created; false:- LBP not yet created. Makes sure, only initialized once.
 
+    event LBPManagerAdminChanged(
+        address indexed oldAdmin,
+        address indexed newAdmin
+    );
+
+    event FeeTransferred(
+        address indexed beneficiary,
+        address tokenAddress,
+        uint256 amount
+    );
+
+    event PoolTokensWithdrawn(address indexed LbpAddress, uint256 amount);
+
     modifier onlyAdmin() {
         require(msg.sender == admin, "LBPManager: caller is not admin");
         _;
@@ -50,6 +63,8 @@ contract LBPManager {
      */
     function transferAdminRights(address _newAdmin) external onlyAdmin {
         require(_newAdmin != address(0), "LBPManager: new admin is zero");
+
+        emit LBPManagerAdminChanged(admin, _newAdmin);
         admin = _newAdmin;
     }
 
@@ -149,6 +164,11 @@ contract LBPManager {
                 beneficiary,
                 _feeAmountRequired()
             );
+            emit FeeTransferred(
+                beneficiary,
+                address(tokenList[projectTokenIndex]),
+                _feeAmountRequired()
+            );
         }
 
         for (uint8 i; i < tokenList.length; i++) {
@@ -235,6 +255,7 @@ contract LBPManager {
             "LBPManager: no BPT token balance"
         );
 
+        emit PoolTokensWithdrawn(address(lbp), lbp.balanceOf(address(this)));
         lbp.transfer(_receiver, lbp.balanceOf(address(this)));
     }
 
