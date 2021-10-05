@@ -37,8 +37,8 @@ const getGnosisProxyInstance = async (setup) => {
   return await ethers.getContractAt("GnosisSafe", proxy_addr);
 };
 
-const getLBPWrapperFactory = async (setup) => {
-  return await ethers.getContractFactory("LBPWrapper", setup.roles.root);
+const getLBPManagerFactory = async (setup) => {
+  return await ethers.getContractFactory("LBPManager", setup.roles.root);
 };
 
 const getContractInstance = async (factoryName, address, args) => {
@@ -71,6 +71,6 @@ module.exports = {
   initialize,
   getGnosisProxyInstance,
   gettokenInstances,
-  getLBPWrapperFactory,
+  getLBPManagerFactory,
   getContractInstance,
 };
