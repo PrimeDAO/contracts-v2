@@ -60,22 +60,22 @@ contract LBPManager {
      * @param _beneficiary              The address that receives the feePercentage.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
-     * @param _tokenList                Numerically sorted array (ascending) containing two addresses:
+     * @param _tokenList                array containing two addresses in order:
                                             - The address of the project token being distributed.
                                             - The address of the funding token being exchanged for the project token.
-     * @param _amounts                  Sorted array to match the _tokenList, containing two parameters:
+     * @param _amounts                  array containing two parameters in order:
                                             - The amounts of project token to be added as liquidity to the LBP.
                                             - The amounts of funding token to be added as liquidity to the LBP.
-     * @param _startWeights             Sorted array to match the _tokenList, containing two parametes:
+     * @param _startWeights             array containing two parametes in order:
                                             - The start weight for the project token in the LBP.
                                             - The start weight for the funding token in the LBP.
-     * @param _startTimeEndTime         Array containing two parameters:
+     * @param _startTimeEndTime         array containing two parameters in order:
                                             - Start time for the LBP.
                                             - End time for the LBP.
-     * @param _endWeights               Sorted array to match the _tokenList, containing two parametes:
+     * @param _endWeights               array containing two parametes in order:
                                             - The end weight for the project token in the LBP.
                                             - The end weight for the funding token in the LBP.
-    * @param _fees                     Array containing two parameters:
+    * @param _fees                      array containing two parameters in order:
                                             - Percentage of fee paid for every swap in the LBP.
                                             - Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
      * @param _metadata                 IPFS Hash of the LBP creation wizard information.
@@ -96,34 +96,50 @@ contract LBPManager {
         require(!initialized, "LBPManager: already initialized");
         require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
 
-        {
-            initialized = true;
-            admin = msg.sender;
-            feePercentage = _fees[1];
-            beneficiary = _beneficiary;
-            amounts = _amounts;
-            tokenList = _tokenList;
-            metadata = _metadata;
-        }
-        {
-            lbp = ILBP(
-                ILBPFactory(_LBPFactory).create(
-                    _name,
-                    _symbol,
-                    _tokenList,
-                    _startWeights,
-                    _fees[0], // swapFeePercentage
-                    address(this),
-                    true // SwapEnabled is set to true at pool creation.
-                )
-            );
+        initialized = true;
+        admin = msg.sender;
+        feePercentage = _fees[1];
+        beneficiary = _beneficiary;
+        metadata = _metadata;
 
-            lbp.updateWeightsGradually(
-                _startTimeEndTime[0],
-                _startTimeEndTime[1],
-                _endWeights
-            );
+        if (address(_tokenList[0]) > address(_tokenList[1])) {
+            tokenList.push(_tokenList[1]);
+            tokenList.push(_tokenList[0]);
+            amounts.push(_amounts[1]);
+            amounts.push(_amounts[0]);
+
+            projectTokenIndex = 1;
+            uint256 swap = _startWeights[0];
+            _startWeights[0] = _startWeights[1];
+            _startWeights[1] = swap;
+
+            swap = _endWeights[0];
+            _endWeights[0] = _endWeights[1];
+            _endWeights[1] = swap;
+        } else {
+            projectTokenIndex = 0;
+            tokenList = _tokenList;
+            amounts = _amounts;
         }
+
+        lbp = ILBP(
+            ILBPFactory(_LBPFactory).create(
+                _name,
+                _symbol,
+                _tokenList,
+                _startWeights,
+                _fees[0], // swapFeePercentage
+                address(this),
+                true // SwapEnabled is set to true at pool creation.
+            )
+        );
+
+        lbp.updateWeightsGradually(
+            _startTimeEndTime[0],
+            _startTimeEndTime[1],
+            _endWeights
+        );
+
         return address(lbp);
     }
 
@@ -131,18 +147,11 @@ contract LBPManager {
 
     /**
      * @dev                             Subtracts the fee and adds liquidity to the LBP.
-     * @param _projectTokenIndex        Index for the _tokenList array for the funding token.
      * @param _sender                   Address of the liquidity provider.
-     * @param _userData                 UserData object that specifies the type of join.
      */
-    function addLiquidity(
-        uint8 _projectTokenIndex,
-        address _sender,
-        bytes memory _userData
-    ) external onlyAdmin {
+    function addLiquidity(address _sender) external onlyAdmin {
         require(!poolFunded, "LBPManager: pool already funded");
         poolFunded = true;
-        projectTokenIndex = _projectTokenIndex;
 
         IVault vault = lbp.getVault();
 
@@ -162,8 +171,8 @@ contract LBPManager {
 
         IVault.JoinPoolRequest memory request = IVault.JoinPoolRequest({
             maxAmountsIn: amounts,
-            userData: _userData,
-            fromInternalBalance: false, // It is not possible to add liquidity through the internal Vault balance.
+            userData: abi.encode(0, amounts),// JOIN_KIND_INIT = 0, used when adding liquidity for the first time.
+            fromInternalBalance: false,// It is not possible to add liquidity through the internal Vault balance.
             assets: tokenList
         });
 
