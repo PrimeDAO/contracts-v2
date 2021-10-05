@@ -375,9 +375,11 @@ describe.only(">> Contract: LBPManager", () => {
       ).to.be.revertedWith("LBPManager: new admin is zero");
     });
     it("» success", async () => {
-      await lbpManagerInstance
-        .connect(owner)
-        .transferAdminRights(admin.address);
+      await expect(
+        lbpManagerInstance.connect(owner).transferAdminRights(admin.address)
+      )
+        .to.emit(lbpManagerInstance, "LBPManagerAdminChanged")
+        .withArgs(owner.address, admin.address);
       expect(await lbpManagerInstance.admin()).to.equal(admin.address);
     });
   });
@@ -514,6 +516,15 @@ describe.only(">> Contract: LBPManager", () => {
         };
         ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
           await setupInitialState(contractInstances, initialState));
+      });
+      it("» success fee transferred", async () => {
+        await expect(
+          lbpManagerInstance
+            .connect(admin)
+            .addLiquidity(projectTokenIndex, admin.address, userData)
+        )
+          .to.emit(lbpManagerInstance, "FeeTransferred")
+          .withArgs(beneficiary.address, tokenAddresses[0], amountToAddForFee);
       });
       it("» success", async () => {
         const eventName = "PoolBalanceChanged";
@@ -1019,9 +1030,11 @@ describe.only(">> Contract: LBPManager", () => {
         const balance = await lbpContractInstance.balanceOf(
           lbpManagerInstance.address
         );
-        await lbpManagerInstance
-          .connect(admin)
-          .withdrawPoolTokens(admin.address);
+        await expect(
+          lbpManagerInstance.connect(admin).withdrawPoolTokens(admin.address)
+        )
+          .to.emit(lbpManagerInstance, "PoolTokensWithdrawn")
+          .withArgs(lbpInstance.address, balance);
         expect(await lbpContractInstance.balanceOf(admin.address)).to.equal(
           balance
         );
