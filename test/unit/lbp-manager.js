@@ -324,10 +324,28 @@ describe(">> Contract: LBPManager", () => {
       });
     });
     describe("$ deploy LBP using Manager succeeds", () => {
+      let unsortedInitializeLBPParams;
+      before("!! setup reverse token addresses", async () => {
+        fees = [TO_LOW_SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
+        unsortedInitializeLBPParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          [tokenAddresses[1], tokenAddresses[0]],
+          INITIAL_BALANCES,
+          START_WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          fees,
+          beneficiary.address,
+          METADATA
+        );
+      })
       it("» success", async () => {
         await lbpManagerInstance
           .connect(owner)
-          .initializeLBP(...initializeLBPParams);
+          .initializeLBP(...unsortedInitializeLBPParams);
         lbpInstance = lbpContractFactory.attach(await lbpManagerInstance.lbp());
         poolId = await lbpInstance.getPoolId();
 
@@ -342,16 +360,36 @@ describe(">> Contract: LBPManager", () => {
           METADATA.toLowerCase()
         );
       });
-      it("» reverts when invoking it again", async () => {
-        await lbpManagerInstance
-          .connect(owner)
-          .initializeLBP(...initializeLBPParams);
-        await expect(
-          lbpManagerInstance
-            .connect(admin)
-            .initializeLBP(...initializeLBPParams)
-        ).to.be.revertedWith("LBPManager: already initialized");
-      });
+    });
+  });
+  describe("$ deploy LBP using Manager succeeds with unsorted array", () => {
+    it("» success", async () => {
+      await lbpManagerInstance
+        .connect(owner)
+        .initializeLBP(...initializeLBPParams);
+      lbpInstance = lbpContractFactory.attach(await lbpManagerInstance.lbp());
+      poolId = await lbpInstance.getPoolId();
+
+      expect(await lbpManagerInstance.lbp()).not.equal(ZERO_ADDRESS);
+      expect(await lbpManagerInstance.beneficiary()).to.equal(
+        beneficiary.address
+      );
+      expect(await lbpManagerInstance.feePercentage()).to.equal(
+        FEE_PERCENTAGE_ZERO
+      );
+      expect(await lbpManagerInstance.metadata()).to.equal(
+        METADATA.toLowerCase()
+      );
+    });
+    it("» reverts when invoking it again", async () => {
+      await lbpManagerInstance
+        .connect(owner)
+        .initializeLBP(...initializeLBPParams);
+      await expect(
+        lbpManagerInstance
+          .connect(admin)
+          .initializeLBP(...initializeLBPParams)
+      ).to.be.revertedWith("LBPManager: already initialized");
     });
   });
   describe("# transfers ownership of LBPManager", async () => {
