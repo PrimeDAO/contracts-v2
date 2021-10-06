@@ -43,14 +43,13 @@ contract LBPManager {
         address indexed oldAdmin,
         address indexed newAdmin
     );
-
     event FeeTransferred(
         address indexed beneficiary,
         address tokenAddress,
         uint256 amount
     );
-
     event PoolTokensWithdrawn(address indexed LbpAddress, uint256 amount);
+    event MetadataUpdated(bytes indexed metadata);
 
     modifier onlyAdmin() {
         require(msg.sender == admin, "LBPManager: caller is not admin");
@@ -286,5 +285,14 @@ contract LBPManager {
         feeAmount =
             (amounts[projectTokenIndex] * feePercentage) /
             HUNDRED_PERCENT;
+    }
+
+    /**
+     * @dev                     Updates metadata.
+     * @param _metadata         LBP wizard contract metadata, that is an IPFS Hash.
+     */
+    function updateMetadata(bytes memory _metadata) external onlyAdmin {
+        metadata = _metadata;
+        emit MetadataUpdated(_metadata);
     }
 }

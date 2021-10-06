@@ -1046,6 +1046,40 @@ describe(">> Contract: LBPManager", () => {
         ).to.be.revertedWith("LBPManager: endtime not reached");
       });
     });
+    describe("$ update metadata", () => {
+      let newMetadata;
+      beforeEach(async () => {
+        newMetadata = "0x";
+        const fundingAmount = {
+          initialBalances: INITIAL_BALANCES,
+          feePercentage: FEE_PERCENTAGE_ZERO,
+        };
+        const initialState = {
+          initializeLBPParams,
+          fundingAmount,
+          poolFunded: true,
+        };
+        ({
+          lbpManagerInstance,
+          tokenInstances,
+          lbpContractInstance,
+          tokenAddresses,
+        } = await setupInitialState(contractInstances, initialState));
+      });
+      it("» revert on not called by owner", async () => {
+        await expect(
+          lbpManagerInstance.updateMetadata(newMetadata)
+        ).to.be.revertedWith("LBPManager: caller is not admin");
+      });
+      it("» succes on updating metadata", async () => {
+        await expect(
+          lbpManagerInstance.connect(admin).updateMetadata(newMetadata)
+        )
+          .to.emit(lbpManagerInstance, "MetadataUpdated")
+          .withArgs(newMetadata);
+        expect(await lbpManagerInstance.metadata()).to.equal(newMetadata);
+      });
+    });
     describe("$ succes on withdraw pool tokens", () => {
       beforeEach(async () => {
         // Specifies funds and fee to be sent to setpInitialState
