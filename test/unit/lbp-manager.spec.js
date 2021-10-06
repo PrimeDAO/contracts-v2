@@ -273,23 +273,24 @@ describe(">> Contract: LBPManager", () => {
         expect(await lbpManagerInstance.beneficiary()).to.equal(
           beneficiary.address
         );
+        expect(await lbpManagerInstance.admin()).to.equal(owner.address);
         expect(await lbpManagerInstance.metadata()).to.equal(
           METADATA.toLowerCase()
         );
         expect(await lbpManagerInstance.name()).to.equal(NAME);
         expect(await lbpManagerInstance.symbol()).to.equal(SYMBOL);
 
-        // expect(await lbpManagerInstance.amounts()).to.equal(INITIAL_BALANCES);
-        // expect(await lbpManagerInstance.tokenList()).to.equal(tokenAddresses);
-        // expect(await lbpManagerInstance.startWeights()).to.equal(START_WEIGHTS);
-        // expect(await lbpManagerInstance.endWeights()).to.equal(END_WEIGHTS);
-        // expect(await lbpManagerInstance.LBPFactory()).to.equal(
-        //   lbpFactoryInstance.address
-        // );
-        //   expect(await lbpManagerInstance.startTimeEndTime()).to.equal([
-        //     startTime,
-        //     endTime,
-        //   ]);
+        expect(await lbpManagerInstance.amounts()).to.equal(INITIAL_BALANCES);
+        expect(await lbpManagerInstance.tokenList()).to.equal(tokenAddresses);
+        expect(await lbpManagerInstance.startWeights()).to.equal(START_WEIGHTS);
+        expect(await lbpManagerInstance.endWeights()).to.equal(END_WEIGHTS);
+        expect(await lbpManagerInstance.LBPFactory()).to.equal(
+          lbpFactoryInstance.address
+        );
+        expect(await lbpManagerInstance.startTimeEndTime()).to.equal([
+          startTime,
+          endTime,
+        ]);
       });
     });
   });
@@ -441,18 +442,8 @@ describe(">> Contract: LBPManager", () => {
       it("» success", async () => {
         await lbpManagerInstance.connect(admin).initializeLBP(admin.address);
         lbpInstance = lbpContractFactory.attach(await lbpManagerInstance.lbp());
-        // poolId = await lbpInstance.getPoolId();
 
         expect(await lbpManagerInstance.lbp()).not.equal(ZERO_ADDRESS);
-        // expect(await lbpManagerInstance.beneficiary()).to.equal(
-        //   beneficiary.address
-        // );
-        // expect(await lbpManagerInstance.feePercentage()).to.equal(
-        //   FEE_PERCENTAGE_ZERO
-        // );
-        // expect(await lbpManagerInstance.metadata()).to.equal(
-        //   METADATA.toLowerCase()
-        // );
       });
       it("» reverts when initializing LBP twice", async () => {
         await lbpManagerInstance.connect(admin).initializeLBP(admin.address);
@@ -548,377 +539,379 @@ describe(">> Contract: LBPManager", () => {
       });
     });
   });
-  // describe("# initializeLBP with different feePercentage", () => {
-  //   describe("$ adding liquidity with 5 percent fee", async () => {
-  //     let amountToAddForFee;
+  describe("# initializeLBP with different feePercentage", () => {
+    describe("$ adding liquidity with 5 percent fee", async () => {
+      let amountToAddForFee;
 
-  //     beforeEach(async () => {
-  //       fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_FIVE];
+      beforeEach(async () => {
+        fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_FIVE];
 
-  //       initializeLBPManagerParams = paramGenerator.initializeParams(
-  //         lbpFactoryInstance.address,
-  //         NAME,
-  //         SYMBOL,
-  //         tokenAddresses,
-  //         INITIAL_BALANCES,
-  //         START_WEIGHTS,
-  //         startTime,
-  //         endTime,
-  //         END_WEIGHTS,
-  //         fees,
-  //         beneficiary.address,
-  //         METADATA
-  //       );
+        initializeLBPManagerParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          INITIAL_BALANCES,
+          START_WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          fees,
+          beneficiary.address,
+          METADATA
+        );
 
-  //       const fundingAmount = {
-  //         initialBalances: INITIAL_BALANCES,
-  //         feePercentage: FEE_PERCENTAGE_FIVE,
-  //       };
+        const fundingAmount = {
+          initialBalances: INITIAL_BALANCES,
+          feePercentage: FEE_PERCENTAGE_FIVE,
+        };
 
-  //       const initialState = {
-  //         initializeLBPManagerParams,
-  //         fundingAmount,
-  //       };
-  //       ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
-  //         await setupInitialState(contractInstances, initialState));
-  //     });
-  //     it("» success fee transferred", async () => {
-  //       await expect(
-  //         lbpManagerInstance.connect(admin).initializeLBP(admin.address)
-  //       )
-  //         .to.emit(lbpManagerInstance, "FeeTransferred")
-  //         .withArgs(beneficiary.address, tokenAddresses[0], amountToAddForFee);
-  //     });
-  //     it("» success", async () => {
-  //       const eventName = "PoolBalanceChanged";
-  //       const { abi } = VaultArtifact;
-  //       const vaultInterface = new ethers.utils.Interface(abi);
+        const initialState = {
+          initializeLBPManagerParams,
+          fundingAmount,
+        };
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
+          await setupInitialState(contractInstances, initialState));
+      });
+      it("» success fee transferred", async () => {
+        await expect(
+          lbpManagerInstance.connect(admin).initializeLBP(admin.address)
+        )
+          .to.emit(lbpManagerInstance, "FeeTransferred")
+          .withArgs(beneficiary.address, tokenAddresses[0], amountToAddForFee);
+      });
+      it("» success", async () => {
+        const eventName = "PoolBalanceChanged";
+        const { abi } = VaultArtifact;
+        const vaultInterface = new ethers.utils.Interface(abi);
 
-  //       expect(
-  //         (
-  //           await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
-  //             beneficiary.address
-  //           )
-  //         ).eq(0)
-  //       ).to.be.true;
+        expect(
+          (
+            await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+              beneficiary.address
+            )
+          ).eq(0)
+        ).to.be.true;
 
-  //       // await expect(
-  //       //   lbpManagerInstance.connect(admin).initializeLBP(admin.address)
-  //       // ).to.emit(vaultInstance, eventName);
+        // await expect(
+        //   lbpManagerInstance.connect(admin).initializeLBP(admin.address)
+        // ).to.emit(vaultInstance, eventName);
 
-  //       const tx = await lbpManagerInstance
-  //         .connect(admin)
-  //         .initializeLBP(admin.address);
-  //       const newLbpInstance = lbpContractFactory.attach(
-  //         await lbpManagerInstance.lbp()
-  //       );
+        const tx = await lbpManagerInstance
+          .connect(admin)
+          .initializeLBP(admin.address);
+        const newLbpInstance = lbpContractFactory.attach(
+          await lbpManagerInstance.lbp()
+        );
 
-  //       const receipt = await tx.wait();
-  //       const vaultAddress = vaultInstance.address;
-  //       const vaultEvent = receipt.events.find((log) => log === vaultAddress);
-  //       console.log(vaultEvent[1]);
-  //       const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
-  //       const sortedAddress = sortAddresses(...tokenAddresses);
+        const receipt = await tx.wait();
+        const vaultAddress = vaultInstance.address;
+        const vaultEvent = receipt.events.find(
+          (log) => log.address === vaultAddress
+        );
 
-  //       expect(decodedVaultEvent.name).to.equal(eventName);
-  //       expect(decodedVaultEvent.args[0]).to.equal(poolId);
-  //       expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
-  //       expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
-  //       expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
-  //       expect(
-  //         (await newLbpInstance.balanceOf(lbpManagerInstance.address)).eq(0)
-  //       ).to.be.false;
-  //       // Check balance beneficiary after joinPool()
-  //       expect(
-  //         await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
-  //           beneficiary.address
-  //         )
-  //       ).to.equal(amountToAddForFee);
-  //     });
-  //   });
-  //   describe("$ adding liquidity with 1 percent fee", async () => {
-  //     let amountToAddForFee;
+        const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+        const sortedAddress = sortAddresses(...tokenAddresses);
 
-  //     beforeEach(async () => {
-  //       fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ONE];
+        expect(decodedVaultEvent.name).to.equal(eventName);
+        expect(decodedVaultEvent.args[0]).to.equal(poolId);
+        expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
+        expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
+        expect(
+          (await newLbpInstance.balanceOf(lbpManagerInstance.address)).eq(0)
+        ).to.be.false;
+        // Check balance beneficiary after joinPool()
+        expect(
+          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+            beneficiary.address
+          )
+        ).to.equal(amountToAddForFee);
+      });
+    });
+    describe("$ adding liquidity with 1 percent fee", async () => {
+      let amountToAddForFee;
 
-  //       initializeLBPManagerParams = paramGenerator.initializeParams(
-  //         lbpFactoryInstance.address,
-  //         NAME,
-  //         SYMBOL,
-  //         tokenAddresses,
-  //         INITIAL_BALANCES,
-  //         START_WEIGHTS,
-  //         startTime,
-  //         endTime,
-  //         END_WEIGHTS,
-  //         fees,
-  //         beneficiary.address,
-  //         METADATA
-  //       );
+      beforeEach(async () => {
+        fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ONE];
 
-  //       const fundingAmount = {
-  //         initialBalances: INITIAL_BALANCES,
-  //         feePercentage: FEE_PERCENTAGE_ONE,
-  //       };
+        initializeLBPManagerParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          INITIAL_BALANCES,
+          START_WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          fees,
+          beneficiary.address,
+          METADATA
+        );
 
-  //       const initialState = {
-  //         initializeLBPManagerParams,
-  //         fundingAmount,
-  //       };
-  //       ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
-  //         await setupInitialState(contractInstances, initialState));
-  //     });
-  //     it("» success", async () => {
-  //       const eventName = "PoolBalanceChanged";
-  //       const { abi } = VaultArtifact;
-  //       const vaultInterface = new ethers.utils.Interface(abi);
+        const fundingAmount = {
+          initialBalances: INITIAL_BALANCES,
+          feePercentage: FEE_PERCENTAGE_ONE,
+        };
 
-  //       // check balance of beneficiary before joinPool()
-  //       expect(
-  //         (
-  //           await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
-  //             beneficiary.address
-  //           )
-  //         ).eq(0)
-  //       ).to.be.true;
+        const initialState = {
+          initializeLBPManagerParams,
+          fundingAmount,
+        };
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
+          await setupInitialState(contractInstances, initialState));
+      });
+      it("» success", async () => {
+        const eventName = "PoolBalanceChanged";
+        const { abi } = VaultArtifact;
+        const vaultInterface = new ethers.utils.Interface(abi);
 
-  //       const tx = await lbpManagerInstance
-  //         .connect(admin)
-  //         .initializeLBP(admin.address);
+        // check balance of beneficiary before joinPool()
+        expect(
+          (
+            await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+              beneficiary.address
+            )
+          ).eq(0)
+        ).to.be.true;
 
-  //       const receipt = await tx.wait();
-  //       const vaultAddress = vaultInstance.address;
-  //       const vaultEvent = receipt.events.find(
-  //         (log) => log.address === vaultAddress
-  //       );
-  //       const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
-  //       const sortedAddress = sortAddresses(...tokenAddresses);
+        const tx = await lbpManagerInstance
+          .connect(admin)
+          .initializeLBP(admin.address);
 
-  //       expect(decodedVaultEvent.name).to.equal(eventName);
-  //       expect(decodedVaultEvent.args[0]).to.equal(poolId);
-  //       expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
-  //       expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
-  //       expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
-  //       expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
-  //         .to.be.false;
-  //       // Check balance beneficiary after joinPool()
-  //       expect(
-  //         await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
-  //           beneficiary.address
-  //         )
-  //       ).to.equal(amountToAddForFee);
-  //     });
-  //   });
-  //   describe("$ adding liquidity with 0 percent fee", async () => {
-  //     let amountToAddForFee;
+        const receipt = await tx.wait();
+        const vaultAddress = vaultInstance.address;
+        const vaultEvent = receipt.events.find(
+          (log) => log.address === vaultAddress
+        );
+        const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+        const sortedAddress = sortAddresses(...tokenAddresses);
 
-  //     beforeEach(async () => {
-  //       const fundingAmount = {
-  //         initialBalances: INITIAL_BALANCES,
-  //         feePercentage: FEE_PERCENTAGE_ZERO,
-  //       };
+        expect(decodedVaultEvent.name).to.equal(eventName);
+        expect(decodedVaultEvent.args[0]).to.equal(poolId);
+        expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
+        expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
+        expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
+          .to.be.false;
+        // Check balance beneficiary after joinPool()
+        expect(
+          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+            beneficiary.address
+          )
+        ).to.equal(amountToAddForFee);
+      });
+    });
+    describe("$ adding liquidity with 0 percent fee", async () => {
+      let amountToAddForFee;
 
-  //       const initialState = {
-  //         initializeLBPManagerParams,
-  //         fundingAmount,
-  //       };
-  //       ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
-  //         await setupInitialState(contractInstances, initialState));
-  //     });
-  //     it("» success", async () => {
-  //       const eventName = "PoolBalanceChanged";
-  //       const { abi } = VaultArtifact;
-  //       const vaultInterface = new ethers.utils.Interface(abi);
+      beforeEach(async () => {
+        const fundingAmount = {
+          initialBalances: INITIAL_BALANCES,
+          feePercentage: FEE_PERCENTAGE_ZERO,
+        };
 
-  //       // check balance of beneficiary before joinPool()
-  //       expect(
-  //         (
-  //           await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
-  //             beneficiary.address
-  //           )
-  //         ).eq(0)
-  //       ).to.be.true;
+        const initialState = {
+          initializeLBPManagerParams,
+          fundingAmount,
+        };
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
+          await setupInitialState(contractInstances, initialState));
+      });
+      it("» success", async () => {
+        const eventName = "PoolBalanceChanged";
+        const { abi } = VaultArtifact;
+        const vaultInterface = new ethers.utils.Interface(abi);
 
-  //       const tx = await lbpManagerInstance
-  //         .connect(admin)
-  //         .initializeLBP(admin.address);
+        // check balance of beneficiary before joinPool()
+        expect(
+          (
+            await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+              beneficiary.address
+            )
+          ).eq(0)
+        ).to.be.true;
 
-  //       const receipt = await tx.wait();
-  //       const vaultAddress = vaultInstance.address;
-  //       const vaultEvent = receipt.events.find(
-  //         (log) => log.address === vaultAddress
-  //       );
-  //       const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
-  //       const sortedAddress = sortAddresses(...tokenAddresses);
+        const tx = await lbpManagerInstance
+          .connect(admin)
+          .initializeLBP(admin.address);
 
-  //       expect(decodedVaultEvent.name).to.equal(eventName);
-  //       expect(decodedVaultEvent.args[0]).to.equal(poolId);
-  //       expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
-  //       expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
-  //       expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
-  //       expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
-  //         .to.be.false;
-  //       // Check balance beneficiary after joinPool()
-  //       expect(
-  //         await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
-  //           beneficiary.address
-  //         )
-  //       ).to.equal(amountToAddForFee);
-  //     });
-  //   });
-  //   describe("$ adding liquidity with reverse tokenList and 5 percent fee", async () => {
-  //     let amountToAddForFee;
+        const receipt = await tx.wait();
+        const vaultAddress = vaultInstance.address;
+        const vaultEvent = receipt.events.find(
+          (log) => log.address === vaultAddress
+        );
+        const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+        const sortedAddress = sortAddresses(...tokenAddresses);
 
-  //     beforeEach(async () => {
-  //       amountToAddForFee = BigNumber.from(0);
+        expect(decodedVaultEvent.name).to.equal(eventName);
+        expect(decodedVaultEvent.args[0]).to.equal(poolId);
+        expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
+        expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
+        expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
+          .to.be.false;
+        // Check balance beneficiary after joinPool()
+        expect(
+          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+            beneficiary.address
+          )
+        ).to.equal(amountToAddForFee);
+      });
+    });
+    describe("$ adding liquidity with reverse tokenList and 5 percent fee", async () => {
+      let amountToAddForFee;
 
-  //       // reverse START_weights and amounts
-  //       const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
-  //       const reverseWeights = reverseArray(START_WEIGHTS);
-  //       const reverseEndWeights = reverseArray(END_WEIGHTS);
-  //       fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_FIVE];
+      beforeEach(async () => {
+        amountToAddForFee = BigNumber.from(0);
 
-  //       initializeLBPManagerParams = paramGenerator.initializeParams(
-  //         lbpFactoryInstance.address,
-  //         NAME,
-  //         SYMBOL,
-  //         tokenAddresses,
-  //         reverseInitialBalance,
-  //         reverseWeights,
-  //         startTime,
-  //         endTime,
-  //         reverseEndWeights,
-  //         fees,
-  //         beneficiary.address,
-  //         METADATA
-  //       );
+        // reverse START_weights and amounts
+        const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
+        const reverseWeights = reverseArray(START_WEIGHTS);
+        const reverseEndWeights = reverseArray(END_WEIGHTS);
+        fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_FIVE];
 
-  //       const fundingAmount = {
-  //         initialBalances: reverseInitialBalance,
-  //         feePercentage: FEE_PERCENTAGE_FIVE,
-  //       };
+        initializeLBPManagerParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          reverseInitialBalance,
+          reverseWeights,
+          startTime,
+          endTime,
+          reverseEndWeights,
+          fees,
+          beneficiary.address,
+          METADATA
+        );
 
-  //       const initialState = {
-  //         initializeLBPManagerParams,
-  //         fundingAmount,
-  //         PROJECT_TOKEN_INDEX: PROJECT_TOKEN_INDEX,
-  //       };
-  //       ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
-  //         await setupInitialState(contractInstances, initialState));
-  //     });
-  //     it("» success", async () => {
-  //       const eventName = "PoolBalanceChanged";
-  //       const { abi } = VaultArtifact;
-  //       const vaultInterface = new ethers.utils.Interface(abi);
+        const fundingAmount = {
+          initialBalances: reverseInitialBalance,
+          feePercentage: FEE_PERCENTAGE_FIVE,
+        };
 
-  //       // check balance of beneficiary before joinPool()
-  //       expect((await tokenInstances[0].balanceOf(beneficiary.address)).eq(0))
-  //         .to.be.true;
+        const initialState = {
+          initializeLBPManagerParams,
+          fundingAmount,
+          PROJECT_TOKEN_INDEX: PROJECT_TOKEN_INDEX,
+        };
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
+          await setupInitialState(contractInstances, initialState));
+      });
+      it("» success", async () => {
+        const eventName = "PoolBalanceChanged";
+        const { abi } = VaultArtifact;
+        const vaultInterface = new ethers.utils.Interface(abi);
 
-  //       const tx = await lbpManagerInstance
-  //         .connect(admin)
-  //         .initializeLBP(admin.address);
+        // check balance of beneficiary before joinPool()
+        expect((await tokenInstances[0].balanceOf(beneficiary.address)).eq(0))
+          .to.be.true;
 
-  //       const receipt = await tx.wait();
-  //       const vaultAddress = vaultInstance.address;
-  //       const vaultEvent = receipt.events.find(
-  //         (log) => log.address === vaultAddress
-  //       );
-  //       const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
-  //       const sortedAddress = sortAddresses(...tokenAddresses);
+        const tx = await lbpManagerInstance
+          .connect(admin)
+          .initializeLBP(admin.address);
 
-  //       expect(decodedVaultEvent.name).to.equal(eventName);
-  //       expect(decodedVaultEvent.args[0]).to.equal(poolId);
-  //       expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
-  //       expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
-  //       expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
-  //       expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
-  //         .to.be.false;
-  //       // Check balance beneficiary after joinPool()
-  //       expect(
-  //         await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
-  //           beneficiary.address
-  //         )
-  //       ).to.equal(amountToAddForFee);
-  //     });
-  //   });
-  //   describe("$ adding liquidity with reverse tokenList and 0 percent fee", async () => {
-  //     let amountToAddForFee;
+        const receipt = await tx.wait();
+        const vaultAddress = vaultInstance.address;
+        const vaultEvent = receipt.events.find(
+          (log) => log.address === vaultAddress
+        );
+        const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+        const sortedAddress = sortAddresses(...tokenAddresses);
 
-  //     beforeEach(async () => {
-  //       amountToAddForFee = BigNumber.from(0);
+        expect(decodedVaultEvent.name).to.equal(eventName);
+        expect(decodedVaultEvent.args[0]).to.equal(poolId);
+        expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
+        expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
+        expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
+          .to.be.false;
+        // Check balance beneficiary after joinPool()
+        expect(
+          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+            beneficiary.address
+          )
+        ).to.equal(amountToAddForFee);
+      });
+    });
+    describe("$ adding liquidity with reverse tokenList and 0 percent fee", async () => {
+      let amountToAddForFee;
 
-  //       // reverse START_weights and amounts
-  //       const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
-  //       const reverseWeights = reverseArray(START_WEIGHTS);
-  //       const reverseEndWeights = reverseArray(END_WEIGHTS);
+      beforeEach(async () => {
+        amountToAddForFee = BigNumber.from(0);
 
-  //       initializeLBPManagerParams = paramGenerator.initializeParams(
-  //         lbpFactoryInstance.address,
-  //         NAME,
-  //         SYMBOL,
-  //         tokenAddresses,
-  //         reverseInitialBalance,
-  //         reverseWeights,
-  //         startTime,
-  //         endTime,
-  //         reverseEndWeights,
-  //         fees,
-  //         beneficiary.address,
-  //         METADATA
-  //       );
+        // reverse START_weights and amounts
+        const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
+        const reverseWeights = reverseArray(START_WEIGHTS);
+        const reverseEndWeights = reverseArray(END_WEIGHTS);
 
-  //       const fundingAmount = {
-  //         initialBalances: reverseInitialBalance,
-  //         feePercentage: FEE_PERCENTAGE_ZERO,
-  //       };
+        initializeLBPManagerParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          reverseInitialBalance,
+          reverseWeights,
+          startTime,
+          endTime,
+          reverseEndWeights,
+          fees,
+          beneficiary.address,
+          METADATA
+        );
 
-  //       const initialState = {
-  //         initializeLBPManagerParams,
-  //         fundingAmount,
-  //         PROJECT_TOKEN_INDEX: PROJECT_TOKEN_INDEX,
-  //       };
-  //       ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
-  //         await setupInitialState(contractInstances, initialState));
-  //     });
-  //     it("» success", async () => {
-  //       const eventName = "PoolBalanceChanged";
-  //       const { abi } = VaultArtifact;
-  //       const vaultInterface = new ethers.utils.Interface(abi);
+        const fundingAmount = {
+          initialBalances: reverseInitialBalance,
+          feePercentage: FEE_PERCENTAGE_ZERO,
+        };
 
-  //       // check balance of beneficiary before joinPool()
-  //       expect((await tokenInstances[0].balanceOf(beneficiary.address)).eq(0))
-  //         .to.be.true;
+        const initialState = {
+          initializeLBPManagerParams,
+          fundingAmount,
+          PROJECT_TOKEN_INDEX: PROJECT_TOKEN_INDEX,
+        };
+        ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
+          await setupInitialState(contractInstances, initialState));
+      });
+      it("» success", async () => {
+        const eventName = "PoolBalanceChanged";
+        const { abi } = VaultArtifact;
+        const vaultInterface = new ethers.utils.Interface(abi);
 
-  //       const tx = await lbpManagerInstance
-  //         .connect(admin)
-  //         .initializeLBP(admin.address);
+        // check balance of beneficiary before joinPool()
+        expect((await tokenInstances[0].balanceOf(beneficiary.address)).eq(0))
+          .to.be.true;
 
-  //       const receipt = await tx.wait();
-  //       const vaultAddress = vaultInstance.address;
-  //       const vaultEvent = receipt.events.find(
-  //         (log) => log.address === vaultAddress
-  //       );
-  //       const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
-  //       const sortedAddress = sortAddresses(...tokenAddresses);
+        const tx = await lbpManagerInstance
+          .connect(admin)
+          .initializeLBP(admin.address);
 
-  //       expect(decodedVaultEvent.name).to.equal(eventName);
-  //       expect(decodedVaultEvent.args[0]).to.equal(poolId);
-  //       expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
-  //       expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
-  //       expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
-  //       expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
-  //         .to.be.false;
-  //       // Check balance beneficiary after joinPool()
-  //       expect(
-  //         await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
-  //           beneficiary.address
-  //         )
-  //       ).to.equal(amountToAddForFee);
-  //     });
-  //   });
-  // });
+        const receipt = await tx.wait();
+        const vaultAddress = vaultInstance.address;
+        const vaultEvent = receipt.events.find(
+          (log) => log.address === vaultAddress
+        );
+        const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+        const sortedAddress = sortAddresses(...tokenAddresses);
+
+        expect(decodedVaultEvent.name).to.equal(eventName);
+        expect(decodedVaultEvent.args[0]).to.equal(poolId);
+        expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
+        expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
+        expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
+          .to.be.false;
+        // Check balance beneficiary after joinPool()
+        expect(
+          await tokenInstances[PROJECT_TOKEN_INDEX].balanceOf(
+            beneficiary.address
+          )
+        ).to.equal(amountToAddForFee);
+      });
+    });
+  });
   describe("# setSwapEnabled", () => {
     beforeEach(async () => {
       const fundingAmount = {

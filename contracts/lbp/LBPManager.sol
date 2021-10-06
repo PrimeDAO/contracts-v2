@@ -26,27 +26,25 @@ contract LBPManager {
     uint256 private constant HUNDRED_PERCENT = 10e18; // Used in calculating the fee.
 
     // Locked parameter
-    address public admin; // The address of the admin of this contract.
-    address public beneficiary; // The address that recieves fees.
-    uint256 public feePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
-    uint8 private projectTokenIndex; // The address of the project token.
-    uint256[] public amounts; // The amount of tokens that are going to be added as liquidity in LBP.
-    bytes public metadata; // IPFS Hash of the LBP creation wizard information.
-    ILBP public lbp; // The address of LBP that is managed by this contract.
-    IERC20[] public tokenList; // The tokens that are used in the LBP.
-    uint256[] public startWeights;
-    uint256[] public endWeights;
-    uint256[] public startTimeEndTime; // array containing two parameters in order:
-    // - Start time for the LBP.
-    // - End time for the LBP.
-    address public LBPFactory; // The address of Balancers LBP factory.
     string public symbol; // Symbol of the LBP.
     string public name; // Name of the LBP.
+    address public admin; // Address of the admin of this contract.
+    address public beneficiary; // Address that recieves fees.
+    uint256 public feePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
     uint256 public swapFeePercentage; // Percentage of fee paid for every swap in the LBP.
+    IERC20[] public tokenList; // Tokens that are used in the LBP, sorted by address in numerical order (ascending).
+    uint256[] public amounts; // Amount of tokens to be added as liquidity in LBP.
+    uint256[] public startWeights; // Array containing the startWeights for the project & funding token.
+    uint256[] public endWeights; // Array containing the endWeights for the project & funding token.
+    uint256[] public startTimeEndTime; // Array containing the startTime and endTime for the LBP.
+    ILBP public lbp; // Address of LBP that is managed by this contract.
+    bytes public metadata; // IPFS Hash of the LBP creation wizard information.
+    uint8 private projectTokenIndex; // Index repesenting the project token in the tokenList.
+    address public LBPFactory; // Address of Balancers LBP factory.
 
     // Contract logic
-    bool public poolFunded; // true:- LBP is funded; false:- LBP is yet not funded.
-    bool public initialized; // true:- LBP created; false:- LBP not yet created. Makes sure, only initialized once.
+    bool public poolFunded; // true:- LBP is funded; false:- LBP is not funded.
+    bool public initialized; // true:- LBPManager initialized; false:- LBPManager not initialized. Makes sure, only initialized once.
 
     event LBPManagerAdminChanged(
         address indexed oldAdmin,
@@ -82,22 +80,22 @@ contract LBPManager {
      * @param _beneficiary              The address that receives the feePercentage.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
-     * @param _tokenList                array containing two addresses in order of:
+     * @param _tokenList                Array containing two addresses in order of:
                                             1. The address of the project token being distributed.
                                             2. The address of the funding token being exchanged for the project token.
-     * @param _amounts                  array containing two parameters in order of:
+     * @param _amounts                  Array containing two parameters in order of:
                                             1. The amounts of project token to be added as liquidity to the LBP.
                                             2. The amounts of funding token to be added as liquidity to the LBP.
-     * @param _startWeights             array containing two parametes in order of:
+     * @param _startWeights             Array containing two parametes in order of:
                                             1. The start weight for the project token in the LBP.
                                             2. The start weight for the funding token in the LBP.
-     * @param _startTimeEndTime         array containing two parameters in order of:
+     * @param _startTimeEndTime         Array containing two parameters in order of:
                                             1. Start time for the LBP.
                                             2. End time for the LBP.
-     * @param _endWeights               array containing two parametes in order of:
+     * @param _endWeights               Array containing two parametes in order of:
                                             1. The end weight for the project token in the LBP.
                                             2. The end weight for the funding token in the LBP.
-    * @param _fees                      array containing two parameters in order of:
+    * @param _fees                      Array containing two parameters in order of:
                                             1. Percentage of fee paid for every swap in the LBP.
                                             2. Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
      * @param _metadata                 IPFS Hash of the LBP creation wizard information.
@@ -204,7 +202,7 @@ contract LBPManager {
     }
 
     /**
-     * @dev                             exit pool or remove liquidity from pool
+     * @dev                             Exit pool or remove liquidity from pool.
      * @param _receiver                 Address of the liquidity receiver, after exiting the LBP.
      */
     function removeLiquidity(address payable _receiver) external onlyAdmin {
@@ -276,7 +274,7 @@ contract LBPManager {
     }
 
     /**
-     * @dev     Get required amount of project tokens to cover for fees and the actual LBP.
+     * @dev             Get required amount of project tokens to cover for fees and the actual LBP.
      */
     function projectTokensRequired()
         external
@@ -287,7 +285,7 @@ contract LBPManager {
     }
 
     /**
-     * @dev     Get required amount of project tokens to cover for fees.
+     * @dev             Get required amount of project tokens to cover for fees.
      */
     function _feeAmountRequired() internal view returns (uint256 feeAmount) {
         feeAmount =
@@ -296,8 +294,8 @@ contract LBPManager {
     }
 
     /**
-     * @dev                     Updates metadata.
-     * @param _metadata         LBP wizard contract metadata, that is an IPFS Hash.
+     * @dev                             Updates metadata.
+     * @param _metadata                 LBP wizard contract metadata, that is an IPFS Hash.
      */
     function updateMetadata(bytes memory _metadata) external onlyAdmin {
         metadata = _metadata;
@@ -305,19 +303,19 @@ contract LBPManager {
     }
 
     /**
-     * @dev                     Reverses the given arrays.
-     * @param _tokenList        Array containing two addresses in order of:
-                                    1. The address of the project token being distributed.
-                                    2. The address of the funding token being exchanged for the project token.
-     * @param _amounts          Array containing two parameters in order of:
-                                    1. The amounts of project token to be added as liquidity to the LBP.
-                                    2. The amounts of funding token to be added as liquidity to the LBP.
-     * @param _startWeights     Array containing two parametes in order of:
-                                    1. The start weight for the project token in the LBP.
-                                    2. The start weight for the funding token in the LBP.
-    * @param _endWeights        Array containing two parametes in order of:
-                                    1. The end weight for the project token in the LBP.
-                                    2. The end weight for the funding token in the LBP.
+     * @dev                             Reverses the given arrays.
+     * @param _tokenList                Array containing two addresses in order of:
+                                            1. The address of the project token being distributed.
+                                            2. The address of the funding token being exchanged for the project token.
+     * @param _amounts                  Array containing two parameters in order of:
+                                            1. The amounts of project token to be added as liquidity to the LBP.
+                                            2. The amounts of funding token to be added as liquidity to the LBP.
+     * @param _startWeights             Array containing two parametes in order of:
+                                            1. The start weight for the project token in the LBP.
+                                            2. The start weight for the funding token in the LBP.
+    * @param _endWeights                Array containing two parametes in order of:
+                                            1. The end weight for the project token in the LBP.
+                                            2. The end weight for the funding token in the LBP.
      */
     function _reverseArrays(
         IERC20[] memory _tokenList,
