@@ -341,7 +341,7 @@ describe(">> Contract: LBPManager", () => {
           beneficiary.address,
           METADATA
         );
-      })
+      });
       it("» success", async () => {
         await lbpManagerInstance
           .connect(owner)
@@ -386,9 +386,7 @@ describe(">> Contract: LBPManager", () => {
         .connect(owner)
         .initializeLBP(...initializeLBPParams);
       await expect(
-        lbpManagerInstance
-          .connect(admin)
-          .initializeLBP(...initializeLBPParams)
+        lbpManagerInstance.connect(admin).initializeLBP(...initializeLBPParams)
       ).to.be.revertedWith("LBPManager: already initialized");
     });
   });
