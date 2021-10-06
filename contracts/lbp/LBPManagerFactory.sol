@@ -110,7 +110,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
      * @param _fees                     Array containing two parameters:
                                             - Percentage of fee paid for every swap in the LBP.
                                             - Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
-     * @param _metaData                 IPFS Hash of the LBP creation wizard information.
+     * @param _metadata                 IPFS Hash of the LBP creation wizard information.
      */
     function deployLBPManager(
         address _admin,
@@ -123,7 +123,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         uint256[] memory _startTimeEndtime,
         uint256[] memory _endWeights,
         uint256[] memory _fees,
-        bytes memory _metaData
+        bytes memory _metadata
     ) external onlyOwner {
         require(
             masterCopy != address(0),
@@ -143,11 +143,11 @@ contract LBPManagerFactory is CloneFactory, Ownable {
             _startTimeEndtime,
             _endWeights,
             _fees,
-            _metaData
+            _metadata
         );
 
         LBPManager(lbpManager).transferAdminRights(_admin);
 
-        emit LBPManagerDeployed(lbpManager, _admin, _metaData);
+        emit LBPManagerDeployed(lbpManager, _admin, _metadata);
     }
 }
