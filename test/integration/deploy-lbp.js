@@ -3,12 +3,10 @@
 const init = require("../test-init");
 const balancer = require("../helpers/balancer");
 const tokens = require("../helpers/tokens");
-const { parseEther, parseUnits } = ethers.utils;
+const { parseUnits } = ethers.utils;
 
 const { expect } = require("chai");
 const { constants, BN } = require("@openzeppelin/test-helpers");
-
-const SWAP_FEE_PERCENTAGE = (0.5e16).toString(); // 0.5%
 
 const deploy = async () => {
   const setup = await init.initialize(await ethers.getSigners());
@@ -64,7 +62,6 @@ describe("Integration: Deploy LBP using Gnosis Safe", async () => {
     admin,
     owner,
     sortedTokens,
-    newOwner,
     projectAdmin,
     primeBeneficiary;
 
@@ -84,7 +81,6 @@ describe("Integration: Deploy LBP using Gnosis Safe", async () => {
   const SWAP_FEE_PERCENTAGE = (0.5e16).toString(); // 0.5%
   const FEE_FIVE = parseUnits("5", 17);
   const fees = [SWAP_FEE_PERCENTAGE, FEE_FIVE];
-  const JOIN_KIND_INIT = 0;
   const zero = 0;
   const magicValue = `0x20c13b0b`;
   const signaturePosition = 196;
@@ -179,8 +175,7 @@ describe("Integration: Deploy LBP using Gnosis Safe", async () => {
         const nonce = await setup.proxySafe.nonce();
         const hash = await setup.proxySafe.getTransactionHash(...trx, nonce);
         const signature =
-          (await owner.signMessage(ethers.utils.arrayify(hash))).slice(0, -1) +
-          "f";
+          (await owner.signMessage(ethers.utils.arrayify(hash))).replace(/1b$/, "1f").replace(/1c$/, "20")
         trx.push(signature);
         await expect(
           setup.proxySafe.connect(owner).execTransaction(...trx)
@@ -260,8 +255,7 @@ describe("Integration: Deploy LBP using Gnosis Safe", async () => {
         const nonce = await setup.proxySafe.nonce();
         const hash = await setup.proxySafe.getTransactionHash(...trx, nonce);
         const signature =
-          (await owner.signMessage(ethers.utils.arrayify(hash))).slice(0, -2) +
-          "20";
+          (await owner.signMessage(ethers.utils.arrayify(hash))).replace(/1b$/, "1f").replace(/1c$/, "20")
         trx.push(signature);
         await setup.signer.connect(owner).setSafe(setup.proxySafe.address);
         await setup.proxySafe.connect(owner).execTransaction(...trx);
