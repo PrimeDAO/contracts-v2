@@ -16,7 +16,6 @@ import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
-import "hardhat/console.sol";
 
 /**
  * @title LBPManager contract.
@@ -132,7 +131,7 @@ contract LBPManager {
 
         if (address(_tokenList[0]) > address(_tokenList[1])) {
             projectTokenIndex = 1;
-            _sortArrays(_tokenList, _amounts, _startWeights, _endWeights);
+            _reverseArrays(_tokenList, _amounts, _startWeights, _endWeights);
         } else {
             projectTokenIndex = 0;
             tokenList = _tokenList;
@@ -304,8 +303,22 @@ contract LBPManager {
         emit MetadataUpdated(_metadata);
     }
 
-    // Function comment here!!!!!!!
-    function _sortArrays(
+    /**
+     * @dev                     Reverses the given arrays.
+     * @param _tokenList        Array containing two addresses in order of:
+                                    1. The address of the project token being distributed.
+                                    2. The address of the funding token being exchanged for the project token.
+     * @param _amounts          Array containing two parameters in order of:
+                                    1. The amounts of project token to be added as liquidity to the LBP.
+                                    2. The amounts of funding token to be added as liquidity to the LBP.
+     * @param _startWeights     Array containing two parametes in order of:
+                                    1. The start weight for the project token in the LBP.
+                                    2. The start weight for the funding token in the LBP.
+    * @param _endWeights        Array containing two parametes in order of:
+                                    1. The end weight for the project token in the LBP.
+                                    2. The end weight for the funding token in the LBP.
+     */
+    function _reverseArrays(
         IERC20[] memory _tokenList,
         uint256[] memory _amounts,
         uint256[] memory _startWeights,
