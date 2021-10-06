@@ -44,6 +44,11 @@ const reverseArray = (array) => {
   return array.slice().reverse();
 };
 
+const sortAddresses = (token1, token2) =>
+  BigNumber.from(token1).gt(BigNumber.from(token2))
+    ? [token2, token1]
+    : [token1, token2];
+
 const paramGenerator = {};
 paramGenerator.initializeParams = (
   factory,
@@ -326,7 +331,7 @@ describe(">> Contract: LBPManager", () => {
     describe("$ deploy LBP using Manager succeeds", () => {
       let unsortedInitializeLBPParams;
       before("!! setup reverse token addresses", async () => {
-        fees = [TO_LOW_SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
+        fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
         unsortedInitializeLBPParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
@@ -585,12 +590,13 @@ describe(">> Contract: LBPManager", () => {
           (log) => log.address === vaultAddress
         );
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+        const sortedAddress = sortAddresses(...tokenAddresses);
 
         expect(decodedVaultEvent.name).to.equal(eventName);
         expect(decodedVaultEvent.args[0]).to.equal(poolId);
         expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
-        expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
-        expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
+        expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
         expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
           .to.be.false;
         // Check balance beneficiary after joinPool()
@@ -662,12 +668,13 @@ describe(">> Contract: LBPManager", () => {
           (log) => log.address === vaultAddress
         );
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+        const sortedAddress = sortAddresses(...tokenAddresses);
 
         expect(decodedVaultEvent.name).to.equal(eventName);
         expect(decodedVaultEvent.args[0]).to.equal(poolId);
         expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
-        expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
-        expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
+        expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
         expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
           .to.be.false;
         // Check balance beneficiary after joinPool()
@@ -722,12 +729,13 @@ describe(">> Contract: LBPManager", () => {
           (log) => log.address === vaultAddress
         );
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+        const sortedAddress = sortAddresses(...tokenAddresses);
 
         expect(decodedVaultEvent.name).to.equal(eventName);
         expect(decodedVaultEvent.args[0]).to.equal(poolId);
         expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
-        expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
-        expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
+        expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
         expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
           .to.be.false;
         // Check balance beneficiary after joinPool()
@@ -801,12 +809,13 @@ describe(">> Contract: LBPManager", () => {
           (log) => log.address === vaultAddress
         );
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+        const sortedAddress = sortAddresses(...tokenAddresses);
 
         expect(decodedVaultEvent.name).to.equal(eventName);
         expect(decodedVaultEvent.args[0]).to.equal(poolId);
         expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
-        expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
-        expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
+        expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
         expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
           .to.be.false;
         // Check balance beneficiary after joinPool()
@@ -879,12 +888,13 @@ describe(">> Contract: LBPManager", () => {
           (log) => log.address === vaultAddress
         );
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
+        const sortedAddress = sortAddresses(...tokenAddresses);
 
         expect(decodedVaultEvent.name).to.equal(eventName);
         expect(decodedVaultEvent.args[0]).to.equal(poolId);
         expect(decodedVaultEvent.args[1]).to.equal(lbpManagerInstance.address);
-        expect(decodedVaultEvent.args[2][0]).to.equal(tokenAddresses[0]);
-        expect(decodedVaultEvent.args[2][1]).to.equal(tokenAddresses[1]);
+        expect(decodedVaultEvent.args[2][0]).to.equal(sortedAddress[0]);
+        expect(decodedVaultEvent.args[2][1]).to.equal(sortedAddress[1]);
         expect((await lbpInstance.balanceOf(lbpManagerInstance.address)).eq(0))
           .to.be.false;
         // Check balance beneficiary after joinPool()
