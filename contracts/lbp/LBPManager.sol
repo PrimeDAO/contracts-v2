@@ -16,6 +16,7 @@ import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 import "../utils/interface/ILBPFactory.sol";
 import "../utils/interface/IVault.sol";
 import "../utils/interface/ILBP.sol";
+import "hardhat/console.sol";
 
 /**
  * @title LBPManager contract.
@@ -34,6 +35,15 @@ contract LBPManager {
     bytes public metadata; // IPFS Hash of the LBP creation wizard information.
     ILBP public lbp; // The address of LBP that is managed by this contract.
     IERC20[] public tokenList; // The tokens that are used in the LBP.
+    uint256[] public startWeights;
+    uint256[] public endWeights;
+    uint256[] public startTimeEndTime; // array containing two parameters in order:
+    // - Start time for the LBP.
+    // - End time for the LBP.
+    address public LBPFactory; // The address of Balancers LBP factory.
+    string public symbol; // Symbol of the LBP.
+    string public name; // Name of the LBP.
+    uint256 public swapFeePercentage; // Percentage of fee paid for every swap in the LBP.
 
     // Contract logic
     bool public poolFunded; // true:- LBP is funded; false:- LBP is yet not funded.
@@ -93,7 +103,7 @@ contract LBPManager {
                                             - Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
      * @param _metadata                 IPFS Hash of the LBP creation wizard information.
      */
-    function initializeLBP(
+    function initializeLBPManager(
         address _LBPFactory,
         address _beneficiary,
         string memory _name,
@@ -105,64 +115,62 @@ contract LBPManager {
         uint256[] memory _endWeights,
         uint256[] memory _fees,
         bytes memory _metadata
-    ) external returns (address) {
+    ) external {
         require(!initialized, "LBPManager: already initialized");
         require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
 
         initialized = true;
         admin = msg.sender;
+        swapFeePercentage = _fees[0];
         feePercentage = _fees[1];
         beneficiary = _beneficiary;
         metadata = _metadata;
+        startTimeEndTime = _startTimeEndTime;
+        name = _name;
+        symbol = _symbol;
+        LBPFactory = _LBPFactory;
 
         if (address(_tokenList[0]) > address(_tokenList[1])) {
-            tokenList.push(_tokenList[1]);
-            tokenList.push(_tokenList[0]);
-            amounts.push(_amounts[1]);
-            amounts.push(_amounts[0]);
-
             projectTokenIndex = 1;
-            uint256 swap = _startWeights[0];
-            _startWeights[0] = _startWeights[1];
-            _startWeights[1] = swap;
-
-            swap = _endWeights[0];
-            _endWeights[0] = _endWeights[1];
-            _endWeights[1] = swap;
+            _sortArrays(_tokenList, _amounts, _startWeights, _endWeights);
         } else {
             projectTokenIndex = 0;
             tokenList = _tokenList;
             amounts = _amounts;
+            startWeights = _startWeights;
+            endWeights = _endWeights;
         }
-
-        lbp = ILBP(
-            ILBPFactory(_LBPFactory).create(
-                _name,
-                _symbol,
-                tokenList,
-                _startWeights,
-                _fees[0], // swapFeePercentage
-                address(this),
-                true // SwapEnabled is set to true at pool creation.
-            )
-        );
-
-        lbp.updateWeightsGradually(
-            _startTimeEndTime[0],
-            _startTimeEndTime[1],
-            _endWeights
-        );
-
-        return address(lbp);
     }
 
     /**
      * @dev                             Subtracts the fee and adds liquidity to the LBP.
      * @param _sender                   Address of the liquidity provider.
      */
-    function addLiquidity(address _sender) external onlyAdmin {
+    function initializeLBP(address _sender) external onlyAdmin {
+        require(
+            initialized == true,
+            "LBPManager: LBPManager in not initialized"
+        );
         require(!poolFunded, "LBPManager: pool already funded");
         poolFunded = true;
+
+        lbp = ILBP(
+            ILBPFactory(LBPFactory).create(
+                name,
+                symbol,
+                tokenList,
+                startWeights,
+                swapFeePercentage,
+                address(this),
+                true // SwapEnabled is set to true at pool creation.
+            )
+        );
+
+        lbp.updateWeightsGradually(
+            startTimeEndTime[0],
+            startTimeEndTime[1],
+            endWeights
+        );
 
         IVault vault = lbp.getVault();
 
@@ -294,5 +302,25 @@ contract LBPManager {
     function updateMetadata(bytes memory _metadata) external onlyAdmin {
         metadata = _metadata;
         emit MetadataUpdated(_metadata);
+    }
+
+    // Function comment here!!!!!!!
+    function _sortArrays(
+        IERC20[] memory _tokenList,
+        uint256[] memory _amounts,
+        uint256[] memory _startWeights,
+        uint256[] memory _endWeights
+    ) internal {
+        tokenList.push(_tokenList[1]);
+        tokenList.push(_tokenList[0]);
+
+        amounts.push(_amounts[1]);
+        amounts.push(_amounts[0]);
+
+        startWeights.push(_startWeights[1]);
+        startWeights.push(_startWeights[0]);
+
+        endWeights.push(_endWeights[1]);
+        endWeights.push(_endWeights[0]);
     }
 }

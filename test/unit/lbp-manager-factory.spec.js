@@ -167,46 +167,6 @@ describe(">> Contract: LBPManagerFactory", () => {
   });
   context("» deploy LBP using LBPManager with wrong values", () => {
     let params;
-    it("$ reverts on invalid swapFeePercentage", async () => {
-      fees = [TO_LOW_SWAP_FEE_PERCENTAGE, PRIME_FEE];
-      params = [
-        admin.address,
-        beneficiary.address,
-        NAME,
-        SYMBOL,
-        tokenAddresses,
-        amounts,
-        START_WEIGHTS,
-        [startTime, endTime],
-        END_WEIGHTS,
-        fees,
-        METADATA,
-      ];
-      await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
-      ).to.be.revertedWith(
-        "BAL#203" //MIN_SWAP_FEE_PERCENTAGE
-      );
-      fees = [TO_HIGH_SWAP_FEE_PERCENTAGE, PRIME_FEE];
-      params = [
-        admin.address,
-        beneficiary.address,
-        NAME,
-        SYMBOL,
-        tokenAddresses,
-        amounts,
-        START_WEIGHTS,
-        [startTime, endTime],
-        END_WEIGHTS,
-        fees,
-        METADATA,
-      ];
-      await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
-      ).to.be.revertedWith(
-        "BAL#202" //MAX_SWAP_FEE_PERCENTAGE
-      );
-    });
     it("$ reverts on invalid beneficiary address", async () => {
       fees = [SWAP_FEE_PERCENTAGE_CHANGED, PRIME_FEE];
       params = [
@@ -225,29 +185,6 @@ describe(">> Contract: LBPManagerFactory", () => {
       await expect(
         setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
       ).to.be.revertedWith("LBPManager: _beneficiary is zero");
-    });
-    it("$ reverts on to large token list array", async () => {
-      const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
-      const largeTokenListAddresses = largeTokenList
-        .map((token) => token.address)
-        .sort((a, b) => a - b);
-
-      params = [
-        admin.address,
-        beneficiary.address,
-        NAME,
-        SYMBOL,
-        largeTokenListAddresses,
-        amounts,
-        START_WEIGHTS,
-        [startTime, endTime],
-        END_WEIGHTS,
-        fees,
-        METADATA,
-      ];
-      await expect(
-        setup.lbpManagerFactory.connect(owner).deployLBPManager(...params)
-      ).to.be.revertedWith("BAL#103");
     });
   });
   context("» deploy LBP using LBPManager", () => {

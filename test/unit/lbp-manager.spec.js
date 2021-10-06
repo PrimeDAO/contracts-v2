@@ -88,20 +88,24 @@ const setupInitialState = async (contractInstances, initialState) => {
   const { lbpContractFactory, lbpManagerInstance, tokenInstances } =
     contractInstances;
 
-  const { initializeLBPParams, noOwnerTransfer, fundingAmount, poolFunded } =
-    initialState;
+  const {
+    initializeLBPManagerParams,
+    noOwnerTransfer,
+    fundingAmount,
+    poolFunded,
+  } = initialState;
 
   const tokenAddresses = tokenInstances.map((token) => token.address);
 
-  if (initializeLBPParams) {
+  if (initializeLBPManagerParams) {
     if (noOwnerTransfer) {
       await lbpManagerInstance
         .connect(owner)
-        .initializeLBP(...initializeLBPParams);
+        .initializeLBPManager(...initializeLBPManagerParams);
     } else {
       await lbpManagerInstance
         .connect(admin)
-        .initializeLBP(...initializeLBPParams);
+        .initializeLBPManager(...initializeLBPManagerParams);
     }
   }
 
@@ -144,7 +148,7 @@ const setupInitialState = async (contractInstances, initialState) => {
       .approve(lbpManagerInstance.address, initialBalancesCopy[1]);
 
     if (poolFunded) {
-      await lbpManagerInstance.connect(admin).addLiquidity(admin.address);
+      await lbpManagerInstance.connect(admin).initializeLBP(admin.address);
     }
   }
 
@@ -161,12 +165,12 @@ const setupInitialState = async (contractInstances, initialState) => {
   };
 };
 
-describe(">> Contract: LBPManager", () => {
+describe.only(">> Contract: LBPManager", () => {
   let poolId,
     admin,
     owner,
     beneficiary,
-    initializeLBPParams,
+    initializeLBPManagerParams,
     lbpFactoryInstance,
     contractInstances,
     vaultInstance,
@@ -212,7 +216,7 @@ describe(">> Contract: LBPManager", () => {
 
     fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
 
-    initializeLBPParams = paramGenerator.initializeParams(
+    initializeLBPManagerParams = paramGenerator.initializeParams(
       lbpFactoryInstance.address,
       NAME,
       SYMBOL,
@@ -227,61 +231,18 @@ describe(">> Contract: LBPManager", () => {
       METADATA
     );
   });
-
-  describe("# deploy LBP using Manager", () => {
-    describe("$ deploy LBP using Manager fails", () => {
-      let invalidInitializeLBPParams;
-
-      it("» revert on swap fee to high", async () => {
-        fees = [TO_HIGH_SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
-        invalidInitializeLBPParams = paramGenerator.initializeParams(
-          lbpFactoryInstance.address,
-          NAME,
-          SYMBOL,
-          tokenAddresses,
-          INITIAL_BALANCES,
-          START_WEIGHTS,
-          startTime,
-          endTime,
-          END_WEIGHTS,
-          fees,
-          beneficiary.address,
-          METADATA
+  describe("# initalizeLBPManger", () => {
+    describe("$ initialize fails", () => {
+      it("» revert on already initialized", async () => {
+        await lbpManagerInstance.initializeLBPManager(
+          ...initializeLBPManagerParams
         );
         await expect(
-          lbpManagerInstance
-            .connect(owner)
-            .initializeLBP(...invalidInitializeLBPParams)
-        ).to.be.revertedWith(
-          "BAL#202" //MAX_SWAP_FEE_PERCENTAGE
-        );
-      });
-      it("» revert on swap fee to low", async () => {
-        fees = [TO_LOW_SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
-        invalidInitializeLBPParams = paramGenerator.initializeParams(
-          lbpFactoryInstance.address,
-          NAME,
-          SYMBOL,
-          tokenAddresses,
-          INITIAL_BALANCES,
-          START_WEIGHTS,
-          startTime,
-          endTime,
-          END_WEIGHTS,
-          fees,
-          beneficiary.address,
-          METADATA
-        );
-        await expect(
-          lbpManagerInstance
-            .connect(owner)
-            .initializeLBP(...invalidInitializeLBPParams)
-        ).to.be.revertedWith(
-          "BAL#203" //MIN_SWAP_FEE_PERCENTAGE
-        );
+          lbpManagerInstance.initializeLBPManager(...initializeLBPManagerParams)
+        ).to.be.revertedWith("LBPManager: already initialized");
       });
       it("» revert on beneficiary address being zero", async () => {
-        invalidInitializeLBPParams = paramGenerator.initializeParams(
+        invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
           SYMBOL,
@@ -298,8 +259,93 @@ describe(">> Contract: LBPManager", () => {
         await expect(
           lbpManagerInstance
             .connect(owner)
-            .initializeLBP(...invalidInitializeLBPParams)
+            .initializeLBPManager(...invalidInitializeLBPManagerParams)
         ).to.be.revertedWith("LBPManager: _beneficiary is zero");
+      });
+    });
+    describe("$ initialize succeeds", () => {
+      it("» succeeds", async () => {
+        lbpManagerInstance
+          .connect(owner)
+          .initializeLBPManager(...initializeLBPManagerParams);
+        expect(await lbpManagerInstance.feePercentage()).to.equal(fees[1]);
+        expect(await lbpManagerInstance.swapFeePercentage()).to.equal(fees[0]);
+        expect(await lbpManagerInstance.beneficiary()).to.equal(
+          beneficiary.address
+        );
+        expect(await lbpManagerInstance.metadata()).to.equal(
+          METADATA.toLowerCase()
+        );
+
+        // expect(await lbpManagerInstance.amounts()).to.equal(INITIAL_BALANCES);
+        // expect(await lbpManagerInstance.tokenList()).to.equal(tokenAddresses);
+        // expect(await lbpManagerInstance.startWeights()).to.equal(START_WEIGHTS);
+        // expect(await lbpManagerInstance.endWeights()).to.equal(END_WEIGHTS);
+        expect(await lbpManagerInstance.name()).to.equal(NAME);
+        expect(await lbpManagerInstance.symbol()).to.equal(SYMBOL);
+        // expect(await lbpManagerInstance.LBPFactory()).to.equal(
+        //   lbpFactoryInstance.address
+        // );
+        //   expect(await lbpManagerInstance.startTimeEndTime()).to.equal([
+        //     startTime,
+        //     endTime,
+        //   ]);
+      });
+    });
+  });
+  describe("# deploy LBP using Manager", () => {
+    describe("$ deploy LBP using Manager fails", () => {
+      let invalidInitializeLBPManagerParams;
+
+      it("» revert on swap fee to high", async () => {
+        fees = [TO_HIGH_SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
+        invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          INITIAL_BALANCES,
+          START_WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          fees,
+          beneficiary.address,
+          METADATA
+        );
+        await lbpManagerInstance.initializeLBPManager(
+          ...invalidInitializeLBPManagerParams
+        );
+        await expect(
+          lbpManagerInstance.connect(owner).initializeLBP(admin.address)
+        ).to.be.revertedWith(
+          "BAL#202" //MAX_SWAP_FEE_PERCENTAGE
+        );
+      });
+      it("» revert on swap fee to low", async () => {
+        fees = [TO_LOW_SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
+        invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          INITIAL_BALANCES,
+          START_WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          fees,
+          beneficiary.address,
+          METADATA
+        );
+        await lbpManagerInstance.initializeLBPManager(
+          ...invalidInitializeLBPManagerParams
+        );
+        await expect(
+          lbpManagerInstance.connect(owner).initializeLBP(admin.address)
+        ).to.be.revertedWith(
+          "BAL#203" //MIN_SWAP_FEE_PERCENTAGE
+        );
       });
       it("» revert on token list bigger then 2", async () => {
         const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
@@ -307,7 +353,7 @@ describe(">> Contract: LBPManager", () => {
           .map((token) => token.address)
           .sort((a, b) => a - b);
 
-        invalidInitializeLBPParams = paramGenerator.initializeParams(
+        invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
           SYMBOL,
@@ -321,36 +367,74 @@ describe(">> Contract: LBPManager", () => {
           beneficiary.address,
           METADATA
         );
+        await lbpManagerInstance.initializeLBPManager(
+          ...invalidInitializeLBPManagerParams
+        );
         await expect(
-          lbpManagerInstance
-            .connect(owner)
-            .initializeLBP(...invalidInitializeLBPParams)
+          lbpManagerInstance.connect(owner).initializeLBP(admin.address)
         ).to.be.revertedWith("BAL#103");
       });
     });
     describe("$ deploy LBP using Manager succeeds", () => {
-      let unsortedInitializeLBPParams;
+      let unsortedInitializeLBPManagerParams;
       before("!! setup reverse token addresses", async () => {
         fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
-        unsortedInitializeLBPParams = paramGenerator.initializeParams(
+        const reverseTokenList = reverseArray(tokenAddresses);
+        const reverseInitialBalance = reverseArray(INITIAL_BALANCES);
+        const reverseWeights = reverseArray(START_WEIGHTS);
+        const reverseEndWeights = reverseArray(END_WEIGHTS);
+
+        unsortedInitializeLBPManagerParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
           SYMBOL,
-          [tokenAddresses[1], tokenAddresses[0]],
-          INITIAL_BALANCES,
-          START_WEIGHTS,
+          reverseTokenList,
+          reverseInitialBalance,
+          reverseWeights,
           startTime,
           endTime,
-          END_WEIGHTS,
+          reverseEndWeights,
           fees,
           beneficiary.address,
           METADATA
         );
+        await tokenInstances[0]
+          .connect(owner)
+          .transfer(admin.address, INITIAL_BALANCES[0].mul(2));
+        await tokenInstances[1]
+          .connect(owner)
+          .transfer(admin.address, INITIAL_BALANCES[1].mul(2));
+
+        // Add fee amount on top
+        // if (fees[1]) {
+        //   amountToAddForFee = initialBalancesCopy[PROJECT_TOKEN_INDEX].mul(
+        //     fees[1]
+        //   ).div(HUNDRED_PERCENT);
+        //   initialBalancesCopy[PROJECT_TOKEN_INDEX] =
+        //     initialBalancesCopy[PROJECT_TOKEN_INDEX].add(amountToAddForFee);
+        // }
+
+        // reset allowance
+        await tokenInstances[0]
+          .connect(admin)
+          .approve(lbpManagerInstance.address, 0);
+        await tokenInstances[1]
+          .connect(admin)
+          .approve(lbpManagerInstance.address, 0);
+
+        // approve allowance from admin to LBPManager
+        await tokenInstances[0]
+          .connect(admin)
+          .approve(lbpManagerInstance.address, INITIAL_BALANCES[0]);
+        await tokenInstances[1]
+          .connect(admin)
+          .approve(lbpManagerInstance.address, INITIAL_BALANCES[1]);
       });
       it("» success", async () => {
-        await lbpManagerInstance
-          .connect(owner)
-          .initializeLBP(...unsortedInitializeLBPParams);
+        await lbpManagerInstance.initializeLBPManager(
+          ...unsortedInitializeLBPManagerParams
+        );
+        await lbpManagerInstance.connect(owner).initializeLBP(admin.address);
         lbpInstance = lbpContractFactory.attach(await lbpManagerInstance.lbp());
         poolId = await lbpInstance.getPoolId();
 
@@ -371,7 +455,7 @@ describe(">> Contract: LBPManager", () => {
     it("» success", async () => {
       await lbpManagerInstance
         .connect(owner)
-        .initializeLBP(...initializeLBPParams);
+        .initializeLBPManager(...initializeLBPManagerParams);
       lbpInstance = lbpContractFactory.attach(await lbpManagerInstance.lbp());
       poolId = await lbpInstance.getPoolId();
 
@@ -389,16 +473,18 @@ describe(">> Contract: LBPManager", () => {
     it("» reverts when invoking it again", async () => {
       await lbpManagerInstance
         .connect(owner)
-        .initializeLBP(...initializeLBPParams);
+        .initializeLBP(...initializeLBPManagerParams);
       await expect(
-        lbpManagerInstance.connect(admin).initializeLBP(...initializeLBPParams)
+        lbpManagerInstance
+          .connect(admin)
+          .initializeLBP(...initializeLBPManagerParams)
       ).to.be.revertedWith("LBPManager: already initialized");
     });
   });
   describe("# transfers ownership of LBPManager", async () => {
     beforeEach(async () => {
       const initialState = {
-        initializeLBPParams,
+        initializeLBPManagerParams,
         noOwnerTransfer: true,
       };
 
@@ -430,7 +516,7 @@ describe(">> Contract: LBPManager", () => {
         };
 
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
         };
 
@@ -446,7 +532,7 @@ describe(">> Contract: LBPManager", () => {
     describe("$ calculate with five percent", () => {
       beforeEach(async () => {
         fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_FIVE];
-        initializeLBPParams = paramGenerator.initializeParams(
+        initializeLBPManagerParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
           SYMBOL,
@@ -467,7 +553,7 @@ describe(">> Contract: LBPManager", () => {
         };
 
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
         };
 
@@ -489,7 +575,7 @@ describe(">> Contract: LBPManager", () => {
           feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
         };
         ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
@@ -509,7 +595,7 @@ describe(">> Contract: LBPManager", () => {
         };
 
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
           poolFunded: true,
         };
@@ -528,7 +614,7 @@ describe(">> Contract: LBPManager", () => {
       beforeEach(async () => {
         fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_FIVE];
 
-        initializeLBPParams = paramGenerator.initializeParams(
+        initializeLBPManagerParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
           SYMBOL,
@@ -549,7 +635,7 @@ describe(">> Contract: LBPManager", () => {
         };
 
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
         };
         ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
@@ -613,7 +699,7 @@ describe(">> Contract: LBPManager", () => {
       beforeEach(async () => {
         fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ONE];
 
-        initializeLBPParams = paramGenerator.initializeParams(
+        initializeLBPManagerParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
           SYMBOL,
@@ -634,7 +720,7 @@ describe(">> Contract: LBPManager", () => {
         };
 
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
         };
         ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
@@ -695,7 +781,7 @@ describe(">> Contract: LBPManager", () => {
         };
 
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
         };
         ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
@@ -758,7 +844,7 @@ describe(">> Contract: LBPManager", () => {
         const reverseEndWeights = reverseArray(END_WEIGHTS);
         fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_FIVE];
 
-        initializeLBPParams = paramGenerator.initializeParams(
+        initializeLBPManagerParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
           SYMBOL,
@@ -779,7 +865,7 @@ describe(">> Contract: LBPManager", () => {
         };
 
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
           PROJECT_TOKEN_INDEX: PROJECT_TOKEN_INDEX,
         };
@@ -837,7 +923,7 @@ describe(">> Contract: LBPManager", () => {
         const reverseWeights = reverseArray(START_WEIGHTS);
         const reverseEndWeights = reverseArray(END_WEIGHTS);
 
-        initializeLBPParams = paramGenerator.initializeParams(
+        initializeLBPManagerParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
           SYMBOL,
@@ -858,7 +944,7 @@ describe(">> Contract: LBPManager", () => {
         };
 
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
           PROJECT_TOKEN_INDEX: PROJECT_TOKEN_INDEX,
         };
@@ -914,7 +1000,7 @@ describe(">> Contract: LBPManager", () => {
       };
 
       const initialState = {
-        initializeLBPParams,
+        initializeLBPManagerParams,
         fundingAmount,
         poolFunded: true,
       };
@@ -946,7 +1032,7 @@ describe(">> Contract: LBPManager", () => {
           feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
           poolFunded: true,
         };
@@ -981,7 +1067,7 @@ describe(">> Contract: LBPManager", () => {
           feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
           poolFunded: true,
         };
@@ -1024,7 +1110,7 @@ describe(">> Contract: LBPManager", () => {
           feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
           poolFunded: true,
         };
@@ -1055,7 +1141,7 @@ describe(">> Contract: LBPManager", () => {
           feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
           poolFunded: true,
         };
@@ -1088,7 +1174,7 @@ describe(">> Contract: LBPManager", () => {
           feePercentage: FEE_PERCENTAGE_ZERO,
         };
         const initialState = {
-          initializeLBPParams,
+          initializeLBPManagerParams,
           fundingAmount,
           poolFunded: true,
         };

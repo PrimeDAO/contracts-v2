@@ -132,7 +132,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
 
         address lbpManager = createClone(masterCopy);
 
-        address lbp = LBPManager(lbpManager).initializeLBP(
+        LBPManager(lbpManager).initializeLBPManager(
             LBPFactory,
             _beneficiary,
             _name,
