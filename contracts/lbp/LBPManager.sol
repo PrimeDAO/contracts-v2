@@ -73,24 +73,24 @@ contract LBPManager {
      * @param _beneficiary              The address that receives the feePercentage.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
-     * @param _tokenList                array containing two addresses in order:
-                                            - The address of the project token being distributed.
-                                            - The address of the funding token being exchanged for the project token.
-     * @param _amounts                  array containing two parameters in order:
-                                            - The amounts of project token to be added as liquidity to the LBP.
-                                            - The amounts of funding token to be added as liquidity to the LBP.
-     * @param _startWeights             array containing two parametes in order:
-                                            - The start weight for the project token in the LBP.
-                                            - The start weight for the funding token in the LBP.
-     * @param _startTimeEndTime         array containing two parameters in order:
-                                            - Start time for the LBP.
-                                            - End time for the LBP.
-     * @param _endWeights               array containing two parametes in order:
-                                            - The end weight for the project token in the LBP.
-                                            - The end weight for the funding token in the LBP.
-    * @param _fees                      array containing two parameters in order:
-                                            - Percentage of fee paid for every swap in the LBP.
-                                            - Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
+     * @param _tokenList                array containing two addresses in order of:
+                                            1. The address of the project token being distributed.
+                                            2. The address of the funding token being exchanged for the project token.
+     * @param _amounts                  array containing two parameters in order of:
+                                            1. The amounts of project token to be added as liquidity to the LBP.
+                                            2. The amounts of funding token to be added as liquidity to the LBP.
+     * @param _startWeights             array containing two parametes in order of:
+                                            1. The start weight for the project token in the LBP.
+                                            2. The start weight for the funding token in the LBP.
+     * @param _startTimeEndTime         array containing two parameters in order of:
+                                            1. Start time for the LBP.
+                                            2. End time for the LBP.
+     * @param _endWeights               array containing two parametes in order of:
+                                            1. The end weight for the project token in the LBP.
+                                            2. The end weight for the funding token in the LBP.
+    * @param _fees                      array containing two parameters in order of:
+                                            1. Percentage of fee paid for every swap in the LBP.
+                                            2. Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
      * @param _metadata                 IPFS Hash of the LBP creation wizard information.
      */
     function initializeLBP(
