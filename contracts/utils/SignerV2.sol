@@ -139,7 +139,6 @@ contract SignerV2 is ISignatureValidator {
     function isValidSignature(bytes memory _data, bytes memory _signature)
         public
         view
-        virtual
         override
         returns (bytes4)
     {

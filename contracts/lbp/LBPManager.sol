@@ -115,6 +115,7 @@ contract LBPManager {
         beneficiary = _beneficiary;
         metadata = _metadata;
 
+        // Token addresses are sorted in numerical order (ascending) as specified by Balancer
         if (address(_tokenList[0]) > address(_tokenList[1])) {
             tokenList.push(_tokenList[1]);
             tokenList.push(_tokenList[0]);
