@@ -40,6 +40,11 @@ const setupFixture = deployments.createFixture(
   }
 );
 
+const filterPoolBalancesChangedEvent = (receipt, address, interface, eventName) => 
+  receipt.events.find(
+    (log) => log.address === address  && (interface.parseLog(log).name === eventName)
+  );
+
 const reverseArray = (array) => {
   return array.slice().reverse();
 };
@@ -628,9 +633,7 @@ describe(">> Contract: LBPManager", () => {
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
-        const vaultEvent = receipt.events.find(
-          (log) => log.address === vaultAddress
-        );
+        const vaultEvent = filterPoolBalancesChangedEvent(receipt, vaultAddress, vaultInterface, eventName);
 
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
         const sortedAddress = sortAddresses(...tokenAddresses);
@@ -704,9 +707,7 @@ describe(">> Contract: LBPManager", () => {
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
-        const vaultEvent = receipt.events.find(
-          (log) => log.address === vaultAddress
-        );
+        const vaultEvent = filterPoolBalancesChangedEvent(receipt, vaultAddress, vaultInterface, eventName);
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
         const sortedAddress = sortAddresses(...tokenAddresses);
 
@@ -761,9 +762,7 @@ describe(">> Contract: LBPManager", () => {
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
-        const vaultEvent = receipt.events.find(
-          (log) => log.address === vaultAddress
-        );
+        const vaultEvent = filterPoolBalancesChangedEvent(receipt, vaultAddress, vaultInterface, eventName);
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
         const sortedAddress = sortAddresses(...tokenAddresses);
 
@@ -837,9 +836,7 @@ describe(">> Contract: LBPManager", () => {
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
-        const vaultEvent = receipt.events.find(
-          (log) => log.address === vaultAddress
-        );
+        const vaultEvent = filterPoolBalancesChangedEvent(receipt, vaultAddress, vaultInterface, eventName);
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
         const sortedAddress = sortAddresses(...tokenAddresses);
 
@@ -912,9 +909,7 @@ describe(">> Contract: LBPManager", () => {
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
-        const vaultEvent = receipt.events.find(
-          (log) => log.address === vaultAddress
-        );
+        const vaultEvent = filterPoolBalancesChangedEvent(receipt, vaultAddress, vaultInterface, eventName);
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
         const sortedAddress = sortAddresses(...tokenAddresses);
 
