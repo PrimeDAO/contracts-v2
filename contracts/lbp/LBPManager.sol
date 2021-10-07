@@ -115,6 +115,9 @@ contract LBPManager {
     ) external {
         require(!initialized, "LBPManager: already initialized");
         require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
+        require(_fees[0] >= 1e12, "LBPManager: swapFeePercentage to low"); // 0.0001%
+        require(_fees[0] <= 1e17, "LBPManager: swapFeePercentage to high"); // 10%
+        require(_tokenList.length == 2, "LBPManager: tokenList wrong size");
 
         initialized = true;
         admin = msg.sender;
@@ -151,7 +154,7 @@ contract LBPManager {
     }
 
     /**
-     * @dev                             Subtracts the fee and adds liquidity to the LBP.
+     * @dev                             Subtracts the fee, deploys the LBP and adds liquidity to it.
      * @param _sender                   Address of the liquidity provider.
      */
     function initializeLBP(address _sender) external onlyAdmin {

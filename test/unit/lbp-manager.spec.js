@@ -40,9 +40,15 @@ const setupFixture = deployments.createFixture(
   }
 );
 
-const filterPoolBalancesChangedEvent = (receipt, address, interface, eventName) => 
+const filterPoolBalancesChangedEvent = (
+  receipt,
+  address,
+  interface,
+  eventName
+) =>
   receipt.events.find(
-    (log) => log.address === address  && (interface.parseLog(log).name === eventName)
+    (log) =>
+      log.address === address && interface.parseLog(log).name === eventName
   );
 
 const reverseArray = (array) => {
@@ -267,6 +273,76 @@ describe(">> Contract: LBPManager", () => {
             .initializeLBPManager(...invalidInitializeLBPManagerParams)
         ).to.be.revertedWith("LBPManager: _beneficiary is zero");
       });
+      it("» revert on swapFeePercentage to low", async () => {
+        fees = [TO_LOW_SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
+        invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          INITIAL_BALANCES,
+          START_WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          fees,
+          beneficiary.address,
+          METADATA
+        );
+        await expect(
+          lbpManagerInstance
+            .connect(owner)
+            .initializeLBPManager(...invalidInitializeLBPManagerParams)
+        ).to.be.revertedWith("LBPManager: swapFeePercentage to low");
+      });
+      it("» revert on swapFeePercentage to high", async () => {
+        fees = [TO_HIGH_SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
+        invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          tokenAddresses,
+          INITIAL_BALANCES,
+          START_WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          fees,
+          beneficiary.address,
+          METADATA
+        );
+        await expect(
+          lbpManagerInstance
+            .connect(owner)
+            .initializeLBPManager(...invalidInitializeLBPManagerParams)
+        ).to.be.revertedWith("LBPManager: swapFeePercentage to high");
+      });
+      it("» revert on token list bigger then 2", async () => {
+        const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
+        const largeTokenListAddresses = largeTokenList
+          .map((token) => token.address)
+          .sort((a, b) => a - b);
+
+        invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          largeTokenListAddresses,
+          INITIAL_BALANCES,
+          START_WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          fees,
+          beneficiary.address,
+          METADATA
+        );
+        await expect(
+          lbpManagerInstance.initializeLBPManager(
+            ...invalidInitializeLBPManagerParams
+          )
+        ).to.revertedWith("LBPManager: tokenList wrong size");
+      });
     });
     describe("$ initialize succeeds", () => {
       it("» succeeds", async () => {
@@ -322,87 +398,6 @@ describe(">> Contract: LBPManager", () => {
     });
   });
   describe("# deploy LBP using Manager", () => {
-    describe("$ deploy LBP using Manager fails", () => {
-      let invalidInitializeLBPManagerParams;
-
-      it("» revert on swap fee to high", async () => {
-        fees = [TO_HIGH_SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
-        invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
-          lbpFactoryInstance.address,
-          NAME,
-          SYMBOL,
-          tokenAddresses,
-          INITIAL_BALANCES,
-          START_WEIGHTS,
-          startTime,
-          endTime,
-          END_WEIGHTS,
-          fees,
-          beneficiary.address,
-          METADATA
-        );
-        await lbpManagerInstance.initializeLBPManager(
-          ...invalidInitializeLBPManagerParams
-        );
-        await expect(
-          lbpManagerInstance.connect(owner).initializeLBP(admin.address)
-        ).to.be.revertedWith(
-          "BAL#202" //MAX_SWAP_FEE_PERCENTAGE
-        );
-      });
-      it("» revert on swap fee to low", async () => {
-        fees = [TO_LOW_SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
-        invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
-          lbpFactoryInstance.address,
-          NAME,
-          SYMBOL,
-          tokenAddresses,
-          INITIAL_BALANCES,
-          START_WEIGHTS,
-          startTime,
-          endTime,
-          END_WEIGHTS,
-          fees,
-          beneficiary.address,
-          METADATA
-        );
-        await lbpManagerInstance.initializeLBPManager(
-          ...invalidInitializeLBPManagerParams
-        );
-        await expect(
-          lbpManagerInstance.connect(owner).initializeLBP(admin.address)
-        ).to.be.revertedWith(
-          "BAL#203" //MIN_SWAP_FEE_PERCENTAGE
-        );
-      });
-      it("» revert on token list bigger then 2", async () => {
-        const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
-        const largeTokenListAddresses = largeTokenList
-          .map((token) => token.address)
-          .sort((a, b) => a - b);
-
-        invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
-          lbpFactoryInstance.address,
-          NAME,
-          SYMBOL,
-          largeTokenListAddresses,
-          INITIAL_BALANCES,
-          START_WEIGHTS,
-          startTime,
-          endTime,
-          END_WEIGHTS,
-          fees,
-          beneficiary.address,
-          METADATA
-        );
-        await lbpManagerInstance.initializeLBPManager(
-          ...invalidInitializeLBPManagerParams
-        );
-        await expect(
-          lbpManagerInstance.connect(owner).initializeLBP(admin.address)
-        ).to.be.revertedWith("BAL#103");
-      });
-    });
     describe("$ deploy LBP using Manager to test reverseArray() function", () => {
       let unsortedInitializeLBPManagerParams;
       beforeEach(async () => {
@@ -633,7 +628,12 @@ describe(">> Contract: LBPManager", () => {
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
-        const vaultEvent = filterPoolBalancesChangedEvent(receipt, vaultAddress, vaultInterface, eventName);
+        const vaultEvent = filterPoolBalancesChangedEvent(
+          receipt,
+          vaultAddress,
+          vaultInterface,
+          eventName
+        );
 
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
         const sortedAddress = sortAddresses(...tokenAddresses);
@@ -707,7 +707,12 @@ describe(">> Contract: LBPManager", () => {
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
-        const vaultEvent = filterPoolBalancesChangedEvent(receipt, vaultAddress, vaultInterface, eventName);
+        const vaultEvent = filterPoolBalancesChangedEvent(
+          receipt,
+          vaultAddress,
+          vaultInterface,
+          eventName
+        );
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
         const sortedAddress = sortAddresses(...tokenAddresses);
 
@@ -762,7 +767,12 @@ describe(">> Contract: LBPManager", () => {
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
-        const vaultEvent = filterPoolBalancesChangedEvent(receipt, vaultAddress, vaultInterface, eventName);
+        const vaultEvent = filterPoolBalancesChangedEvent(
+          receipt,
+          vaultAddress,
+          vaultInterface,
+          eventName
+        );
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
         const sortedAddress = sortAddresses(...tokenAddresses);
 
@@ -836,7 +846,12 @@ describe(">> Contract: LBPManager", () => {
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
-        const vaultEvent = filterPoolBalancesChangedEvent(receipt, vaultAddress, vaultInterface, eventName);
+        const vaultEvent = filterPoolBalancesChangedEvent(
+          receipt,
+          vaultAddress,
+          vaultInterface,
+          eventName
+        );
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
         const sortedAddress = sortAddresses(...tokenAddresses);
 
@@ -909,7 +924,12 @@ describe(">> Contract: LBPManager", () => {
 
         const receipt = await tx.wait();
         const vaultAddress = vaultInstance.address;
-        const vaultEvent = filterPoolBalancesChangedEvent(receipt, vaultAddress, vaultInterface, eventName);
+        const vaultEvent = filterPoolBalancesChangedEvent(
+          receipt,
+          vaultAddress,
+          vaultInterface,
+          eventName
+        );
         const decodedVaultEvent = vaultInterface.parseLog(vaultEvent);
         const sortedAddress = sortAddresses(...tokenAddresses);
 
