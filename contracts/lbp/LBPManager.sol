@@ -151,7 +151,7 @@ contract LBPManager {
     }
 
     /**
-     * @dev                             Subtracts the fee and adds liquidity to the LBP.
+     * @dev                             Subtracts the fee, deploys the LBP and adds liquidity to it.
      * @param _sender                   Address of the liquidity provider.
      */
     function initializeLBP(address _sender) external onlyAdmin {
