@@ -265,7 +265,7 @@ describe(">> Contract: LBPManager", () => {
     });
     describe("$ initialize succeeds", () => {
       it("» succeeds", async () => {
-        lbpManagerInstance
+        await lbpManagerInstance
           .connect(owner)
           .initializeLBPManager(...initializeLBPManagerParams);
         expect(await lbpManagerInstance.feePercentage()).to.equal(fees[1]);
@@ -280,17 +280,39 @@ describe(">> Contract: LBPManager", () => {
         expect(await lbpManagerInstance.name()).to.equal(NAME);
         expect(await lbpManagerInstance.symbol()).to.equal(SYMBOL);
 
-        expect(await lbpManagerInstance.amounts()).to.equal(INITIAL_BALANCES);
-        expect(await lbpManagerInstance.tokenList()).to.equal(tokenAddresses);
-        expect(await lbpManagerInstance.startWeights()).to.equal(START_WEIGHTS);
-        expect(await lbpManagerInstance.endWeights()).to.equal(END_WEIGHTS);
+        expect(
+          (await lbpManagerInstance.amounts(0)).eq(INITIAL_BALANCES[0])
+        ).to.equal(true);
+        expect(
+          (await lbpManagerInstance.amounts(1)).eq(INITIAL_BALANCES[1])
+        ).to.equal(true);
+        expect(await lbpManagerInstance.tokenList(0)).to.equal(
+          tokenAddresses[0]
+        );
+        expect(await lbpManagerInstance.tokenList(1)).to.equal(
+          tokenAddresses[1]
+        );
+        expect(
+          (await lbpManagerInstance.startWeights(0)).eq(START_WEIGHTS[0])
+        ).to.equal(true);
+        expect(
+          (await lbpManagerInstance.startWeights(1)).eq(START_WEIGHTS[1])
+        ).to.equal(true);
+        expect(
+          (await lbpManagerInstance.endWeights(0)).eq(END_WEIGHTS[0])
+        ).to.equal(true);
+        expect(
+          (await lbpManagerInstance.endWeights(1)).eq(END_WEIGHTS[1])
+        ).to.equal(true);
         expect(await lbpManagerInstance.LBPFactory()).to.equal(
           lbpFactoryInstance.address
         );
-        expect(await lbpManagerInstance.startTimeEndTime()).to.equal([
-          startTime,
-          endTime,
-        ]);
+        expect(
+          (await lbpManagerInstance.startTimeEndTime(0)).eq(startTime)
+        ).to.equal(true);
+        expect(
+          (await lbpManagerInstance.startTimeEndTime(1)).eq(endTime)
+        ).to.equal(true);
       });
     });
   });
