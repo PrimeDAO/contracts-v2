@@ -26,18 +26,25 @@ contract LBPManager {
     uint256 private constant HUNDRED_PERCENT = 10e18; // Used in calculating the fee.
 
     // Locked parameter
-    address public admin; // The address of the admin of this contract.
-    address public beneficiary; // The address that recieves fees.
+    string public symbol; // Symbol of the LBP.
+    string public name; // Name of the LBP.
+    address public admin; // Address of the admin of this contract.
+    address public beneficiary; // Address that recieves fees.
     uint256 public feePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
-    uint8 private projectTokenIndex; // The address of the project token.
-    uint256[] public amounts; // The amount of tokens that are going to be added as liquidity in LBP.
+    uint256 public swapFeePercentage; // Percentage of fee paid for every swap in the LBP.
+    IERC20[] public tokenList; // Tokens that are used in the LBP, sorted by address in numerical order (ascending).
+    uint256[] public amounts; // Amount of tokens to be added as liquidity in LBP.
+    uint256[] public startWeights; // Array containing the startWeights for the project & funding token.
+    uint256[] public endWeights; // Array containing the endWeights for the project & funding token.
+    uint256[] public startTimeEndTime; // Array containing the startTime and endTime for the LBP.
+    ILBP public lbp; // Address of LBP that is managed by this contract.
     bytes public metadata; // IPFS Hash of the LBP creation wizard information.
-    ILBP public lbp; // The address of LBP that is managed by this contract.
-    IERC20[] public tokenList; // The tokens that are used in the LBP.
+    uint8 private projectTokenIndex; // Index repesenting the project token in the tokenList.
+    address public LBPFactory; // Address of Balancers LBP factory.
 
     // Contract logic
-    bool public poolFunded; // true:- LBP is funded; false:- LBP is yet not funded.
-    bool public initialized; // true:- LBP created; false:- LBP not yet created. Makes sure, only initialized once.
+    bool public poolFunded; // true:- LBP is funded; false:- LBP is not funded.
+    bool public initialized; // true:- LBPManager initialized; false:- LBPManager not initialized. Makes sure, only initialized once.
 
     event LBPManagerAdminChanged(
         address indexed oldAdmin,
@@ -73,27 +80,27 @@ contract LBPManager {
      * @param _beneficiary              The address that receives the feePercentage.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
-     * @param _tokenList                array containing two addresses in order of:
+     * @param _tokenList                Array containing two addresses in order of:
                                             1. The address of the project token being distributed.
                                             2. The address of the funding token being exchanged for the project token.
-     * @param _amounts                  array containing two parameters in order of:
+     * @param _amounts                  Array containing two parameters in order of:
                                             1. The amounts of project token to be added as liquidity to the LBP.
                                             2. The amounts of funding token to be added as liquidity to the LBP.
-     * @param _startWeights             array containing two parametes in order of:
+     * @param _startWeights             Array containing two parametes in order of:
                                             1. The start weight for the project token in the LBP.
                                             2. The start weight for the funding token in the LBP.
-     * @param _startTimeEndTime         array containing two parameters in order of:
+     * @param _startTimeEndTime         Array containing two parameters in order of:
                                             1. Start time for the LBP.
                                             2. End time for the LBP.
-     * @param _endWeights               array containing two parametes in order of:
+     * @param _endWeights               Array containing two parametes in order of:
                                             1. The end weight for the project token in the LBP.
                                             2. The end weight for the funding token in the LBP.
-    * @param _fees                      array containing two parameters in order of:
+    * @param _fees                      Array containing two parameters in order of:
                                             1. Percentage of fee paid for every swap in the LBP.
                                             2. Percentage of fee paid to the _beneficiary for providing the service of the LBP Manager.
      * @param _metadata                 IPFS Hash of the LBP creation wizard information.
      */
-    function initializeLBP(
+    function initializeLBPManager(
         address _LBPFactory,
         address _beneficiary,
         string memory _name,
@@ -105,65 +112,76 @@ contract LBPManager {
         uint256[] memory _endWeights,
         uint256[] memory _fees,
         bytes memory _metadata
-    ) external returns (address) {
+    ) external {
         require(!initialized, "LBPManager: already initialized");
         require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
+        require(_fees[0] >= 1e12, "LBPManager: swapFeePercentage to low"); // 0.0001%
+        require(_fees[0] <= 1e17, "LBPManager: swapFeePercentage to high"); // 10%
+        require(_tokenList.length == 2, "LBPManager: tokenList wrong size");
 
         initialized = true;
         admin = msg.sender;
+        swapFeePercentage = _fees[0];
         feePercentage = _fees[1];
         beneficiary = _beneficiary;
         metadata = _metadata;
+        startTimeEndTime = _startTimeEndTime;
+        name = _name;
+        symbol = _symbol;
+        LBPFactory = _LBPFactory;
 
         // Token addresses are sorted in numerical order (ascending) as specified by Balancer
         if (address(_tokenList[0]) > address(_tokenList[1])) {
+            projectTokenIndex = 1;
             tokenList.push(_tokenList[1]);
             tokenList.push(_tokenList[0]);
+
             amounts.push(_amounts[1]);
             amounts.push(_amounts[0]);
 
-            projectTokenIndex = 1;
-            uint256 swap = _startWeights[0];
-            _startWeights[0] = _startWeights[1];
-            _startWeights[1] = swap;
+            startWeights.push(_startWeights[1]);
+            startWeights.push(_startWeights[0]);
 
-            swap = _endWeights[0];
-            _endWeights[0] = _endWeights[1];
-            _endWeights[1] = swap;
+            endWeights.push(_endWeights[1]);
+            endWeights.push(_endWeights[0]);
         } else {
             projectTokenIndex = 0;
             tokenList = _tokenList;
             amounts = _amounts;
+            startWeights = _startWeights;
+            endWeights = _endWeights;
         }
+    }
+
+    /**
+     * @dev                             Subtracts the fee, deploys the LBP and adds liquidity to it.
+     * @param _sender                   Address of the liquidity provider.
+     */
+    function initializeLBP(address _sender) external onlyAdmin {
+        require(
+            initialized == true,
+            "LBPManager: LBPManager in not initialized"
+        );
+        require(!poolFunded, "LBPManager: pool already funded");
+        poolFunded = true;
 
         lbp = ILBP(
-            ILBPFactory(_LBPFactory).create(
-                _name,
-                _symbol,
+            ILBPFactory(LBPFactory).create(
+                name,
+                symbol,
                 tokenList,
-                _startWeights,
-                _fees[0], // swapFeePercentage
+                startWeights,
+                swapFeePercentage,
                 address(this),
                 true // SwapEnabled is set to true at pool creation.
             )
         );
 
         lbp.updateWeightsGradually(
-            _startTimeEndTime[0],
-            _startTimeEndTime[1],
-            _endWeights
+            startTimeEndTime[0],
+            startTimeEndTime[1],
+            endWeights
         );
-
-        return address(lbp);
-    }
-
-    /**
-     * @dev                             Subtracts the fee and adds liquidity to the LBP.
-     * @param _sender                   Address of the liquidity provider.
-     */
-    function addLiquidity(address _sender) external onlyAdmin {
-        require(!poolFunded, "LBPManager: pool already funded");
-        poolFunded = true;
 
         IVault vault = lbp.getVault();
 
@@ -197,7 +215,7 @@ contract LBPManager {
     }
 
     /**
-     * @dev                             exit pool or remove liquidity from pool
+     * @dev                             Exit pool or remove liquidity from pool.
      * @param _receiver                 Address of the liquidity receiver, after exiting the LBP.
      */
     function removeLiquidity(address payable _receiver) external onlyAdmin {
@@ -269,7 +287,7 @@ contract LBPManager {
     }
 
     /**
-     * @dev     Get required amount of project tokens to cover for fees and the actual LBP.
+     * @dev             Get required amount of project tokens to cover for fees and the actual LBP.
      */
     function projectTokensRequired()
         external
@@ -280,20 +298,20 @@ contract LBPManager {
     }
 
     /**
-     * @dev     Get required amount of project tokens to cover for fees.
+     * @dev                             Updates metadata.
+     * @param _metadata                 LBP wizard contract metadata, that is an IPFS Hash.
+     */
+    function updateMetadata(bytes memory _metadata) external onlyAdmin {
+        metadata = _metadata;
+        emit MetadataUpdated(_metadata);
+    }
+
+    /**
+     * @dev             Get required amount of project tokens to cover for fees.
      */
     function _feeAmountRequired() internal view returns (uint256 feeAmount) {
         feeAmount =
             (amounts[projectTokenIndex] * feePercentage) /
             HUNDRED_PERCENT;
-    }
-
-    /**
-     * @dev                     Updates metadata.
-     * @param _metadata         LBP wizard contract metadata, that is an IPFS Hash.
-     */
-    function updateMetadata(bytes memory _metadata) external onlyAdmin {
-        metadata = _metadata;
-        emit MetadataUpdated(_metadata);
     }
 }
