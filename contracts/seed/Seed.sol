@@ -192,8 +192,10 @@ contract Seed {
             );
             isFunded = true;
         }
+
+        uint256 precision = 10**seedToken.decimals();
         // fundingAmount is an amount of fundingTokens required to buy _seedAmount of SeedTokens
-        uint256 seedAmount = (_fundingAmount * PRECISION) / price;
+        uint256 seedAmount = (_fundingAmount * precision) / price;
 
         // feeAmount is an amount of fee we are going to get in seedTokens
         uint256 feeAmount = (seedAmount * fee) / PRECISION;
@@ -509,6 +511,7 @@ contract Seed {
         view
         returns (uint256)
     {
-        return (funders[_funder].fundingAmount * PRECISION) / price;
+        uint256 precision = 10**seedToken.decimals();
+        return (funders[_funder].fundingAmount * precision) / price;
     }
 }
