@@ -161,7 +161,7 @@ contract Seed {
         fee = _fee;
         _seedTokenDecimal = _seedDecimal;
 
-        seedAmountRequired = (hardCap * PRECISION) / _price;
+        seedAmountRequired = (hardCap * (10**_seedTokenDecimal)) / _price;
         // (seedAmountRequired*fee) / (100*FEE_PRECISION) = (seedAmountRequired*fee) / PRECISION
         //  where FEE_PRECISION = 10**16
         feeAmountRequired = (seedAmountRequired * fee) / PRECISION;
