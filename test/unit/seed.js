@@ -54,6 +54,7 @@ describe("Contract: Seed", async () => {
   // constants
   const zero = 0;
   const one = 1;
+  const decimal = 18;
   const hundred = 100;
   const tenETH = parseEther("10").toString();
   const hundredTwoETH = parseEther("102").toString();
@@ -123,7 +124,8 @@ describe("Contract: Seed", async () => {
               vestingDuration.toNumber(),
               vestingCliff.toNumber(),
               permissionedSeed,
-              fee
+              fee,
+              decimal
             );
             const signers = await ethers.getSigners();
             const randomSigner = signers[9];
@@ -150,7 +152,8 @@ describe("Contract: Seed", async () => {
             vestingDuration.toNumber(),
             vestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
 
           expect(await setup.seed.initialized()).to.equal(true);
@@ -198,7 +201,8 @@ describe("Contract: Seed", async () => {
               vestingDuration.toNumber(),
               vestingCliff.toNumber(),
               permissionedSeed,
-              fee
+              fee,
+              decimal
             ),
             "Seed: contract already initialized"
           );
@@ -397,7 +401,8 @@ describe("Contract: Seed", async () => {
         //             vestingDuration.toNumber(),
         //             vestingCliff.toNumber(),
         //             permissionedSeed,
-        //             fee
+        //             fee,
+        //             decimal
         //         );
         //         await alternativeSetup.token.fundingToken.connect(root).transfer(buyer1.address, hundredTwoETH);
         //         await alternativeSetup.token.fundingToken.connect(buyer1).approve(alternativeSetup.seed.address, hundredTwoETH);
@@ -428,7 +433,8 @@ describe("Contract: Seed", async () => {
               vestingDuration.toNumber(),
               vestingCliff.toNumber(),
               permissionedSeed,
-              fee
+              fee,
+              decimal
             );
             await alternativeFundingToken
               .connect(root)
@@ -465,7 +471,8 @@ describe("Contract: Seed", async () => {
             vestingDuration.toNumber(),
             vestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
           await fundingToken
             .connect(root)
@@ -663,7 +670,8 @@ describe("Contract: Seed", async () => {
             vestingDuration.toNumber(),
             vestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
 
           await setup.data.seed
@@ -753,7 +761,8 @@ describe("Contract: Seed", async () => {
             0,
             0,
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
 
           await setup.data.seed
@@ -835,7 +844,8 @@ describe("Contract: Seed", async () => {
             altVestingDuration.toNumber(),
             altVestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
           await fundingToken
             .connect(root)
@@ -886,7 +896,8 @@ describe("Contract: Seed", async () => {
             vestingDuration.toNumber(),
             vestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
 
           await expectRevert(
@@ -928,7 +939,8 @@ describe("Contract: Seed", async () => {
             vestingDuration.toNumber(),
             vestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
 
           await setup.data.seed.connect(buyer2).buy(smallBuyAmount);
@@ -1029,7 +1041,8 @@ describe("Contract: Seed", async () => {
             vestingDuration.toNumber(),
             vestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
           await alternativeFundingToken
             .connect(root)
@@ -1079,7 +1092,8 @@ describe("Contract: Seed", async () => {
             vestingDuration.toNumber(),
             vestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
 
           await fundingToken
@@ -1171,7 +1185,8 @@ describe("Contract: Seed", async () => {
             altVestingDuration.toNumber(),
             altVestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
           await fundingToken
             .connect(root)
@@ -1239,7 +1254,8 @@ describe("Contract: Seed", async () => {
             vestingDuration.toNumber(),
             vestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
 
           await fundingToken
@@ -1303,7 +1319,8 @@ describe("Contract: Seed", async () => {
               vestingDuration.toNumber(),
               vestingCliff.toNumber(),
               permissionedSeed,
-              fee
+              fee,
+              decimal
             );
 
             await fundingToken
@@ -1442,7 +1459,8 @@ describe("Contract: Seed", async () => {
               vestingDuration.toNumber(),
               vestingCliff.toNumber(),
               permissionedSeed,
-              fee
+              fee,
+              decimal
             );
           });
 
@@ -1510,7 +1528,8 @@ describe("Contract: Seed", async () => {
               vestingDuration.toNumber(),
               vestingCliff.toNumber(),
               permissionedSeed,
-              fee
+              fee,
+              decimal
             );
             await time.increase(tenDaysInSeconds);
             await alternativeSeed.close();
@@ -1561,7 +1580,8 @@ describe("Contract: Seed", async () => {
               vestingDuration.toNumber(),
               vestingCliff.toNumber(),
               permissionedSeed,
-              fee
+              fee,
+              decimal
             );
             await time.increase(tenDaysInSeconds);
             await alternativeSeed.close();
@@ -1616,7 +1636,8 @@ describe("Contract: Seed", async () => {
             vestingDuration.toNumber(),
             vestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
         });
         it("can not withdraw before minumum funding amount is met", async () => {
@@ -1716,7 +1737,8 @@ describe("Contract: Seed", async () => {
             vestingDuration.toNumber(),
             vestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
           expect(await seed.initialized()).to.equal(true);
           expect(await seed.beneficiary()).to.equal(beneficiary.address);
@@ -1757,7 +1779,8 @@ describe("Contract: Seed", async () => {
               vestingDuration.toNumber(),
               vestingCliff.toNumber(),
               permissionedSeed,
-              fee
+              fee,
+              decimal
             ),
             "Seed: contract already initialized"
           );
@@ -1813,7 +1836,8 @@ describe("Contract: Seed", async () => {
               vestingDuration.toNumber(),
               vestingCliff.toNumber(),
               permissionedSeed,
-              fee
+              fee,
+              decimal
             );
             await time.increase(tenDaysInSeconds);
             await alternativeSeed.close();
@@ -1865,7 +1889,8 @@ describe("Contract: Seed", async () => {
             vestingDuration.toNumber(),
             vestingCliff.toNumber(),
             permissionedSeed,
-            fee
+            fee,
+            decimal
           );
           await seedToken
             .connect(root)

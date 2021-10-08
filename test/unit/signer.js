@@ -24,6 +24,7 @@ const gasAmount = 555162;
 const magicValue = `0x20c13b0b`;
 const signaturePosition = 196;
 const SIGNATURE_CREATED = "SignatureCreated";
+const decimal = 18;
 
 const deploy = async () => {
   const setup = await init.initialize(await ethers.getSigners());
@@ -139,7 +140,8 @@ describe("Contract: Signer", async () => {
             [vestingDuration, vestingCliff],
             isPermissioned,
             fee,
-            metadata
+            metadata,
+            decimal
           );
         // incorrect seedFactory address
         const trx = [
@@ -174,7 +176,8 @@ describe("Contract: Signer", async () => {
             [vestingDuration, vestingCliff],
             isPermissioned,
             fee,
-            metadata
+            metadata,
+            decimal
           );
         // incorrect seedFactory address
         const trx = [
@@ -207,7 +210,8 @@ describe("Contract: Signer", async () => {
             [vestingDuration, vestingCliff],
             isPermissioned,
             fee,
-            metadata
+            metadata,
+            decimal
           );
         // incorrect seedFactory address
         const trx = [
@@ -240,7 +244,8 @@ describe("Contract: Signer", async () => {
             [vestingDuration, vestingCliff],
             isPermissioned,
             fee,
-            metadata
+            metadata,
+            decimal
           );
         // incorrect seedFactory address
         const trx = [
@@ -273,7 +278,8 @@ describe("Contract: Signer", async () => {
             [vestingDuration, vestingCliff],
             isPermissioned,
             fee,
-            metadata
+            metadata,
+            decimal
           );
         const trx = [
           to,
@@ -331,7 +337,8 @@ describe("Contract: Signer", async () => {
             [vestingDuration, vestingCliff],
             isPermissioned,
             fee,
-            metadata
+            metadata,
+            decimal
           );
         const trx = [
           to,
@@ -407,7 +414,8 @@ describe("Contract: Signer", async () => {
           [vestingDuration, vestingCliff],
           isPermissioned,
           fee,
-          metadata
+          metadata,
+          decimal
         );
       let gasEstimated = await setup.seedFactory.estimateGas.deploySeed(
         BENEFICIARY,
@@ -420,7 +428,8 @@ describe("Contract: Signer", async () => {
         [vestingDuration, vestingCliff],
         isPermissioned,
         fee,
-        metadata
+        metadata,
+        decimal
       );
       // transafer seedFactory ownership to safe
       await setup.seedFactory

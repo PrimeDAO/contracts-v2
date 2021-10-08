@@ -56,6 +56,7 @@ describe("SeedFactory", () => {
   let requiredSeedAmount;
   let Seed;
   const pct_base = new BN("1000000000000000000"); // 10**18
+  const decimal = 18;
 
   context("» creator is owner", () => {
     before("!! deploy setup", async () => {
@@ -93,7 +94,8 @@ describe("SeedFactory", () => {
             [vestingDuration.toNumber(), vestingCliff.toNumber()],
             isWhitelisted,
             fee,
-            metadata
+            metadata,
+            decimal
           ),
           "SeedFactory: mastercopy cannot be zero address"
         );
@@ -116,7 +118,8 @@ describe("SeedFactory", () => {
             [vestingDuration.toNumber()],
             isWhitelisted,
             fee,
-            metadata
+            metadata,
+            decimal
           ),
           "SeedFactory: Hasn't provided both vesting duration and cliff"
         );
@@ -134,7 +137,8 @@ describe("SeedFactory", () => {
             [vestingDuration.toNumber(), vestingCliff.toNumber()],
             isWhitelisted,
             fee,
-            metadata
+            metadata,
+            decimal
           ),
           "SeedFactory: seedToken cannot be fundingToken"
         );
@@ -152,7 +156,8 @@ describe("SeedFactory", () => {
             [vestingDuration.toNumber(), vestingCliff.toNumber()],
             isWhitelisted,
             fee,
-            metadata
+            metadata,
+            decimal
           ),
           "SeedFactory: hardCap cannot be less than softCap"
         );
@@ -170,7 +175,8 @@ describe("SeedFactory", () => {
             [vestingCliff.toNumber(), vestingDuration.toNumber()],
             isWhitelisted,
             fee,
-            metadata
+            metadata,
+            decimal
           ),
           "SeedFactory: vestingDuration cannot be less than vestingCliff"
         );
@@ -188,7 +194,8 @@ describe("SeedFactory", () => {
             [vestingDuration.toNumber(), vestingCliff.toNumber()],
             isWhitelisted,
             fee,
-            metadata
+            metadata,
+            decimal
           ),
           "SeedFactory: endTime cannot be less than equal to startTime"
         );
@@ -208,7 +215,8 @@ describe("SeedFactory", () => {
             [vestingDuration.toNumber(), vestingCliff.toNumber()],
             isWhitelisted,
             fee,
-            metadata
+            metadata,
+            decimal
           )
         ).to.emit(seedFactory, "SeedCreated");
       });
