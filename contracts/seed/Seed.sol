@@ -44,6 +44,7 @@ contract Seed {
     bytes public metadata; // IPFS Hash
 
     uint256 internal constant PRECISION = 10**18; // used for precision e.g. 1 ETH = 10**18 wei; toWei("1") = 10**18
+    uint8 private _seedTokenDecimal;
 
     // Contract logic
     bool public closed; // is the distribution closed
@@ -120,7 +121,8 @@ contract Seed {
         uint32 _vestingDuration,
         uint32 _vestingCliff,
         bool _permissionedSeed,
-        uint256 _fee
+        uint256 _fee,
+        uint8 _seedDecimal
     ) external {
         require(!initialized, "Seed: contract already initialized");
         initialized = true;
@@ -157,6 +159,7 @@ contract Seed {
         seedToken = IERC20(_tokens[0]);
         fundingToken = IERC20(_tokens[1]);
         fee = _fee;
+        _seedTokenDecimal = _seedDecimal;
 
         seedAmountRequired = (hardCap * PRECISION) / _price;
         // (seedAmountRequired*fee) / (100*FEE_PRECISION) = (seedAmountRequired*fee) / PRECISION
@@ -193,7 +196,7 @@ contract Seed {
             isFunded = true;
         }
 
-        uint256 precision = 10**seedToken.decimals();
+        uint256 precision = 10**_seedTokenDecimal;
         // fundingAmount is an amount of fundingTokens required to buy _seedAmount of SeedTokens
         uint256 seedAmount = (_fundingAmount * precision) / price;
 
@@ -511,7 +514,7 @@ contract Seed {
         view
         returns (uint256)
     {
-        uint256 precision = 10**seedToken.decimals();
+        uint256 precision = 10**_seedTokenDecimal;
         return (funders[_funder].fundingAmount * precision) / price;
     }
 }

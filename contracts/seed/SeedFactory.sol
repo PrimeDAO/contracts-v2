@@ -73,8 +73,9 @@ contract SeedFactory is CloneFactory, Ownable {
         uint32[] memory _vestingDurationAndCliff,
         bool _permissionedSeed,
         uint256 _fee,
-        bytes memory _metadata
-    ) external onlyOwner returns (address) {
+        bytes memory _metadata,
+        uint8 _seedDecimal
+    ) external onlyOwner returns (address _newSeed) {
         {
             require(
                 address(masterCopy) != address(0),
@@ -87,7 +88,7 @@ contract SeedFactory is CloneFactory, Ownable {
         }
 
         // deploy clone
-        address _newSeed = createClone(address(masterCopy));
+        _newSeed = createClone(address(masterCopy));
 
         Seed(_newSeed).updateMetadata(_metadata);
 
@@ -103,11 +104,10 @@ contract SeedFactory is CloneFactory, Ownable {
             _vestingDurationAndCliff[0],
             _vestingDurationAndCliff[1],
             _permissionedSeed,
-            _fee
+            _fee,
+            _seedDecimal
         );
 
         emit SeedCreated(address(_newSeed), _admin);
-
-        return _newSeed;
     }
 }
