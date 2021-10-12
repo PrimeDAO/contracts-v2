@@ -116,9 +116,7 @@ describe("Integration: Deploy LBP using Gnosis Safe", async () => {
             0,
             admin.address
           );
-        expect(
-          await setup.proxySafe.isOwner(owner.address)
-        ).to.equal(true);
+        expect(await setup.proxySafe.isOwner(owner.address)).to.equal(true);
       });
     });
     context("$ deploy LBP", async () => {
@@ -174,8 +172,9 @@ describe("Integration: Deploy LBP using Gnosis Safe", async () => {
         ];
         const nonce = await setup.proxySafe.nonce();
         const hash = await setup.proxySafe.getTransactionHash(...trx, nonce);
-        const signature =
-          (await owner.signMessage(ethers.utils.arrayify(hash))).replace(/1b$/, "1f").replace(/1c$/, "20")
+        const signature = (await owner.signMessage(ethers.utils.arrayify(hash)))
+          .replace(/1b$/, "1f")
+          .replace(/1c$/, "20");
         trx.push(signature);
         await expect(
           setup.proxySafe.connect(owner).execTransaction(...trx)
@@ -254,8 +253,9 @@ describe("Integration: Deploy LBP using Gnosis Safe", async () => {
         ];
         const nonce = await setup.proxySafe.nonce();
         const hash = await setup.proxySafe.getTransactionHash(...trx, nonce);
-        const signature =
-          (await owner.signMessage(ethers.utils.arrayify(hash))).replace(/1b$/, "1f").replace(/1c$/, "20")
+        const signature = (await owner.signMessage(ethers.utils.arrayify(hash)))
+          .replace(/1b$/, "1f")
+          .replace(/1c$/, "20");
         trx.push(signature);
         await setup.signer.connect(owner).setSafe(setup.proxySafe.address);
         await setup.proxySafe.connect(owner).execTransaction(...trx);
