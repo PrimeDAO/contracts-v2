@@ -25,6 +25,7 @@ const magicValue = `0x20c13b0b`;
 const signaturePosition = 196;
 const SIGNATURE_CREATED = "SignatureCreated";
 const decimal = 18;
+let priceAndSeedTokenDecimal = [price, decimal]
 
 const deploy = async () => {
   const setup = await init.initialize(await ethers.getSigners());
@@ -134,14 +135,13 @@ describe("Contract: Signer", async () => {
             ADMIN,
             [PRIME, WETH],
             [softCap, hardCap],
-            price,
+            priceAndSeedTokenDecimal,
             startTime,
             endTime,
             [vestingDuration, vestingCliff],
             isPermissioned,
             fee,
-            metadata,
-            decimal
+            metadata
           );
         // incorrect seedFactory address
         const trx = [
@@ -170,14 +170,13 @@ describe("Contract: Signer", async () => {
             ADMIN,
             [PRIME, WETH],
             [softCap, hardCap],
-            price,
+            priceAndSeedTokenDecimal,
             startTime,
             endTime,
             [vestingDuration, vestingCliff],
             isPermissioned,
             fee,
-            metadata,
-            decimal
+            metadata
           );
         // incorrect seedFactory address
         const trx = [
@@ -204,14 +203,13 @@ describe("Contract: Signer", async () => {
             ADMIN,
             [PRIME, WETH],
             [softCap, hardCap],
-            price,
+            priceAndSeedTokenDecimal,
             startTime,
             endTime,
             [vestingDuration, vestingCliff],
             isPermissioned,
             fee,
-            metadata,
-            decimal
+            metadata
           );
         // incorrect seedFactory address
         const trx = [
@@ -238,14 +236,13 @@ describe("Contract: Signer", async () => {
             ADMIN,
             [PRIME, WETH],
             [softCap, hardCap],
-            price,
+            priceAndSeedTokenDecimal,
             startTime,
             endTime,
             [vestingDuration, vestingCliff],
             isPermissioned,
             fee,
-            metadata,
-            decimal
+            metadata
           );
         // incorrect seedFactory address
         const trx = [
@@ -272,14 +269,13 @@ describe("Contract: Signer", async () => {
             ADMIN,
             [PRIME, WETH],
             [softCap, hardCap],
-            price,
+            priceAndSeedTokenDecimal,
             startTime,
             endTime,
             [vestingDuration, vestingCliff],
             isPermissioned,
             fee,
-            metadata,
-            decimal
+            metadata
           );
         const trx = [
           to,
@@ -331,14 +327,13 @@ describe("Contract: Signer", async () => {
             ADMIN,
             [PRIME, WETH],
             [softCap, hardCap],
-            price,
+            priceAndSeedTokenDecimal,
             startTime,
             endTime,
             [vestingDuration, vestingCliff],
             isPermissioned,
             fee,
-            metadata,
-            decimal
+            metadata
           );
         const trx = [
           to,
@@ -408,28 +403,26 @@ describe("Contract: Signer", async () => {
           ADMIN,
           [PRIME, WETH],
           [softCap, hardCap],
-          price,
+          priceAndSeedTokenDecimal,
           startTime,
           endTime,
           [vestingDuration, vestingCliff],
           isPermissioned,
           fee,
-          metadata,
-          decimal
+          metadata
         );
       let gasEstimated = await setup.seedFactory.estimateGas.deploySeed(
         BENEFICIARY,
         ADMIN,
         [PRIME, WETH],
         [softCap, hardCap],
-        price,
+        priceAndSeedTokenDecimal,
         startTime,
         endTime,
         [vestingDuration, vestingCliff],
         isPermissioned,
         fee,
-        metadata,
-        decimal
+        metadata
       );
       // transafer seedFactory ownership to safe
       await setup.seedFactory

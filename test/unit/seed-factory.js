@@ -41,6 +41,7 @@ describe("SeedFactory", () => {
   let seedToken;
   let fundingToken;
   let hardCap;
+  let priceAndSeedTokenDecimal;
   let price;
   let startTime;
   let endTime;
@@ -68,6 +69,7 @@ describe("SeedFactory", () => {
       fundingToken = setup.tokens.fundingToken;
       hardCap = parseEther("100").toString();
       price = parseEther("0.01").toString();
+      priceAndSeedTokenDecimal = [price, decimal];
       softCap = parseEther("100").toString();
       startTime = await time.latest();
       endTime = await startTime.add(await time.duration.days(7));
@@ -88,14 +90,13 @@ describe("SeedFactory", () => {
             admin.address,
             [seedToken.address, fundingToken.address],
             [softCap, hardCap],
-            price,
+            priceAndSeedTokenDecimal,
             startTime.toNumber(),
             endTime.toNumber(),
             [vestingDuration.toNumber(), vestingCliff.toNumber()],
             isWhitelisted,
             fee,
-            metadata,
-            decimal
+            metadata
           ),
           "SeedFactory: mastercopy cannot be zero address"
         );
@@ -112,14 +113,13 @@ describe("SeedFactory", () => {
             admin.address,
             [seedToken.address, fundingToken.address],
             [softCap, hardCap],
-            price,
+            priceAndSeedTokenDecimal,
             startTime.toNumber(),
             endTime.toNumber(),
             [vestingDuration.toNumber()],
             isWhitelisted,
             fee,
-            metadata,
-            decimal
+            metadata
           ),
           "SeedFactory: Hasn't provided both vesting duration and cliff"
         );
@@ -131,14 +131,13 @@ describe("SeedFactory", () => {
             admin.address,
             [seedToken.address, seedToken.address],
             [softCap, hardCap],
-            price,
+            priceAndSeedTokenDecimal,
             startTime.toNumber(),
             endTime.toNumber(),
             [vestingDuration.toNumber(), vestingCliff.toNumber()],
             isWhitelisted,
             fee,
-            metadata,
-            decimal
+            metadata
           ),
           "SeedFactory: seedToken cannot be fundingToken"
         );
@@ -150,14 +149,13 @@ describe("SeedFactory", () => {
             admin.address,
             [seedToken.address, fundingToken.address],
             [parseEther("101").toString(), softCap],
-            price,
+            priceAndSeedTokenDecimal,
             startTime.toNumber(),
             endTime.toNumber(),
             [vestingDuration.toNumber(), vestingCliff.toNumber()],
             isWhitelisted,
             fee,
-            metadata,
-            decimal
+            metadata
           ),
           "SeedFactory: hardCap cannot be less than softCap"
         );
@@ -169,14 +167,13 @@ describe("SeedFactory", () => {
             admin.address,
             [seedToken.address, fundingToken.address],
             [hardCap, softCap],
-            price,
+            priceAndSeedTokenDecimal,
             startTime.toNumber(),
             endTime.toNumber(),
             [vestingCliff.toNumber(), vestingDuration.toNumber()],
             isWhitelisted,
             fee,
-            metadata,
-            decimal
+            metadata
           ),
           "SeedFactory: vestingDuration cannot be less than vestingCliff"
         );
@@ -188,14 +185,13 @@ describe("SeedFactory", () => {
             admin.address,
             [seedToken.address, fundingToken.address],
             [hardCap, softCap],
-            price,
+            priceAndSeedTokenDecimal,
             endTime.toNumber(),
             startTime.toNumber(),
             [vestingDuration.toNumber(), vestingCliff.toNumber()],
             isWhitelisted,
             fee,
-            metadata,
-            decimal
+            metadata
           ),
           "SeedFactory: endTime cannot be less than equal to startTime"
         );
@@ -209,14 +205,13 @@ describe("SeedFactory", () => {
             admin.address,
             [seedToken.address, fundingToken.address],
             [softCap, hardCap],
-            price,
+            priceAndSeedTokenDecimal,
             startTime.toNumber(),
             endTime.toNumber(),
             [vestingDuration.toNumber(), vestingCliff.toNumber()],
             isWhitelisted,
             fee,
-            metadata,
-            decimal
+            metadata
           )
         ).to.emit(seedFactory, "SeedCreated");
       });

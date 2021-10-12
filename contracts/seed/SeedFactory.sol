@@ -52,7 +52,8 @@ contract SeedFactory is CloneFactory, Ownable {
       * @param _softHardThresholds          Array containing two params:
                                                 - the minimum funding token collection threshold in wei denomination.
                                                 - the highest possible funding token amount to be raised in wei denomination.
-      * @param _price                       price of a SeedToken, expressed in fundingTokens, with precision of 10**18
+      * @param _priceSeedTokenDecimal       price of a SeedToken, expressed in fundingTokens, with precision of 10**18
+                                                And Seed Token Decimal
       * @param _startTime                   Distribution start time in unix timecode.
       * @param _endTime                     Distribution end time in unix timecode.
       * @param _vestingDurationAndCliff       Array containing two params:
@@ -67,14 +68,13 @@ contract SeedFactory is CloneFactory, Ownable {
         address _admin,
         address[] memory _tokens,
         uint256[] memory _softHardThresholds,
-        uint256 _price,
+        uint256[] memory _priceSeedTokenDecimal,
         uint256 _startTime,
         uint256 _endTime,
         uint32[] memory _vestingDurationAndCliff,
         bool _permissionedSeed,
         uint256 _fee,
-        bytes memory _metadata,
-        uint8 _seedDecimal
+        bytes memory _metadata
     ) external onlyOwner returns (address _newSeed) {
         {
             require(
@@ -98,14 +98,13 @@ contract SeedFactory is CloneFactory, Ownable {
             _admin,
             _tokens,
             _softHardThresholds,
-            _price,
+            _priceSeedTokenDecimal,
             _startTime,
             _endTime,
             _vestingDurationAndCliff[0],
             _vestingDurationAndCliff[1],
             _permissionedSeed,
-            _fee,
-            _seedDecimal
+            _fee
         );
 
         emit SeedCreated(address(_newSeed), _admin);

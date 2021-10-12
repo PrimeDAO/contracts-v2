@@ -102,7 +102,8 @@ contract Seed {
       * @param _softHardThresholds    Array containing two params:
                                         - the minimum funding token collection threshold in wei denomination.
                                         - the highest possible funding token amount to be raised in wei denomination.
-      * @param _price                 price of a SeedToken, expressed in fundingTokens, with precision of 10**18
+      * @param _priceSeedTokenDecimal price of a SeedToken, expressed in fundingTokens, with precision of 10**18
+                                       And Seed Token Decimal
       * @param _startTime             Distribution start time in unix timecode.
       * @param _endTime               Distribution end time in unix timecode.
       * @param _vestingDuration       Vesting period duration in seconds.
@@ -115,14 +116,13 @@ contract Seed {
         address _admin,
         address[] memory _tokens,
         uint256[] memory _softHardThresholds,
-        uint256 _price,
+        uint256[] memory _priceSeedTokenDecimal,
         uint256 _startTime,
         uint256 _endTime,
         uint32 _vestingDuration,
         uint32 _vestingCliff,
         bool _permissionedSeed,
-        uint256 _fee,
-        uint8 _seedDecimal
+        uint256 _fee
     ) external {
         require(!initialized, "Seed: contract already initialized");
         initialized = true;
@@ -149,7 +149,7 @@ contract Seed {
         admin = _admin;
         softCap = _softHardThresholds[0];
         hardCap = _softHardThresholds[1];
-        price = _price;
+        price = _priceSeedTokenDecimal[0];
         startTime = _startTime;
         endTime = _endTime;
         vestingStartTime = endTime;
@@ -159,9 +159,9 @@ contract Seed {
         seedToken = IERC20(_tokens[0]);
         fundingToken = IERC20(_tokens[1]);
         fee = _fee;
-        _seedTokenDecimal = _seedDecimal;
+        _seedTokenDecimal = uint8(_priceSeedTokenDecimal[1]);
 
-        seedAmountRequired = (hardCap * (10**_seedTokenDecimal)) / _price;
+        seedAmountRequired = (hardCap * (10**_seedTokenDecimal)) / price;
         // (seedAmountRequired*fee) / (100*FEE_PRECISION) = (seedAmountRequired*fee) / PRECISION
         //  where FEE_PRECISION = 10**16
         feeAmountRequired = (seedAmountRequired * fee) / PRECISION;
