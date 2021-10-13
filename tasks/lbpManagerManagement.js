@@ -1,8 +1,6 @@
-// const { network, deployments } = require("hardhat");
 const { task } = require("hardhat/config");
 const { api } = require("./utils/gnosis.js");
 const { LBPManagerArguments } = require("../test/test-сonfig.json");
-// const { getContractFactory } = require("@nomiclabs/hardhat-ethers/types");
 
 task(
   "sendTransactionLBP",
@@ -22,17 +20,13 @@ task(
     );
     const signerV2Instance = await ethers.getContract("SignerV2");
     const startTime = Math.floor(Date.now() / 1000);
-    const endTime = startTime + 1000;
+    const endTime = startTime + 100000;
 
     const transaction = {};
     transaction.to = lbpManagerFactoryInstance.address;
     transaction.value = 0;
     transaction.operation = 0;
 
-    // console.log(
-    //   LBPManagerArguments.tokenList[0],
-    //   LBPManagerArguments.tokenList[1]
-    // );
     const LBPManagerArgumentsArray = [
       root.address,
       LBPManagerArguments.BENEFICIARY,
@@ -47,7 +41,6 @@ task(
       LBPManagerArguments.metadata,
     ];
 
-    // console.log(LBPManagerArgumentsArray[4]);
     transaction.data = (
       await lbpManagerFactoryInstance.populateTransaction.deployLBPManager(
         ...LBPManagerArgumentsArray
@@ -110,9 +103,10 @@ task(
 
     const { root } = await ethers.getNamedSigners();
 
-    const primeTokenAmount = LBPManagerArguments.amounts[0];
+    // The project token is a deployed ERC20Mock that is owned by the dev wallet
+    const projectTokenAmount = LBPManagerArguments.amounts[0];
     const daiAmount = LBPManagerArguments.amounts[1];
-    const primeTokenAddress = LBPManagerArguments.tokenList[0];
+    const projectTokenAddress = LBPManagerArguments.tokenList[0];
     const daiAddress = LBPManagerArguments.tokenList[1];
 
     const LBPManagerFactory = await ethers.getContractFactory("LBPManager");
@@ -121,18 +115,16 @@ task(
     const lbpManagerInstance = await LBPManagerFactory.attach(
       lbpManagerAddress
     );
-    const primeTokenInstance = await ERC20Factory.attach(primeTokenAddress);
+    const projectTokenInstance = await ERC20Factory.attach(projectTokenAddress);
+
     const daiInstance = await ERC20Factory.attach(daiAddress);
 
-    await primeTokenInstance
+    await projectTokenInstance
       .connect(root)
-      .approve(lbpManagerInstance.address, primeTokenAmount);
+      .approve(lbpManagerInstance.address, projectTokenAmount);
     await daiInstance
       .connect(root)
       .approve(lbpManagerInstance.address, daiAmount);
-
-    // console.log(await lbpManagerInstance.tokenList(0));
-    // console.log(await lbpManagerInstance.tokenList(1));
 
     await lbpManagerInstance.connect(root).initializeLBP(root.address);
   });
