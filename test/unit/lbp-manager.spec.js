@@ -176,7 +176,7 @@ const setupInitialState = async (contractInstances, initialState) => {
   };
 };
 
-describe(">> Contract: LBPManager", () => {
+describe.only(">> Contract: LBPManager", () => {
   let poolId,
     admin,
     owner,
@@ -226,6 +226,8 @@ describe(">> Contract: LBPManager", () => {
     tokenAddresses = tokenInstances.map((token) => token.address);
 
     fees = [SWAP_FEE_PERCENTAGE, FEE_PERCENTAGE_ZERO];
+    console.log(fees[0].toString());
+    console.log(fees[1].toString());
 
     initializeLBPManagerParams = paramGenerator.initializeParams(
       lbpFactoryInstance.address,
