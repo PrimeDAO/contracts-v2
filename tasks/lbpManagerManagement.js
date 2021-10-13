@@ -2,12 +2,13 @@
 const { task } = require("hardhat/config");
 const { api } = require("./utils/gnosis.js");
 const { LBPManagerArguments } = require("../test/test-сonfig.json");
+// const { getContractFactory } = require("@nomiclabs/hardhat-ethers/types");
 
 task(
   "sendTransactionLBP",
   "send transaction for deploying LBPManager to Gnosis Safe"
 )
-  .addParam("safe", "address of safe", undefined)
+  .addParam("safe", "address of safe")
   .setAction(async ({ safe: safeAddress }, { ethers }) => {
     console.log(
       `Sending LBPManagerFactory.deployLBPManager() transaction to ${safeAddress}`
@@ -15,7 +16,7 @@ task(
 
     const gnosis = api(safeAddress, network.name);
     const { root } = await ethers.getNamedSigners();
-    const { deploy } = deployments;
+
     const lbpManagerFactoryInstance = await ethers.getContract(
       "LBPManagerFactory"
     );
@@ -23,26 +24,21 @@ task(
     const startTime = Math.floor(Date.now() / 1000);
     const endTime = startTime + 1000;
 
-    // This can be changed to DAI token afterwards
-    await deploy("FundingToken", {
-      contract: "ERC20Mock",
-      from: root.address,
-      args: ["FUNDTOKEN", "FT"],
-      log: true,
-    });
-    const fundingToken = await ethers.getContract("FundingToken");
-
     const transaction = {};
     transaction.to = lbpManagerFactoryInstance.address;
     transaction.value = 0;
     transaction.operation = 0;
 
+    // console.log(
+    //   LBPManagerArguments.tokenList[0],
+    //   LBPManagerArguments.tokenList[1]
+    // );
     const LBPManagerArgumentsArray = [
-      LBPManagerArguments.ADMIN,
+      root.address,
       LBPManagerArguments.BENEFICIARY,
       LBPManagerArguments.name,
       LBPManagerArguments.symbol,
-      [LBPManagerArguments.tokenList[0], fundingToken.address],
+      [LBPManagerArguments.tokenList[0], LBPManagerArguments.tokenList[1]],
       LBPManagerArguments.amounts,
       LBPManagerArguments.startWeights,
       [startTime, endTime],
@@ -50,6 +46,8 @@ task(
       LBPManagerArguments.fees,
       LBPManagerArguments.metadata,
     ];
+
+    // console.log(LBPManagerArgumentsArray[4]);
     transaction.data = (
       await lbpManagerFactoryInstance.populateTransaction.deployLBPManager(
         ...LBPManagerArgumentsArray
@@ -84,7 +82,7 @@ task(
 
     transaction.sender = signerV2Instance.address;
 
-    (
+    await (
       await signerV2Instance.generateSignature(
         transaction.to,
         transaction.value,
@@ -102,8 +100,39 @@ task(
       .then(async () => await gnosis.sendTransaction(transaction));
   });
 
-// task("initializeLBP", "Initializes the LBP after task sentTransactionLBP has been accepted")
-// .addParam("sender", "address of liquidity provider")
-// .setAction(async ({sender: senderAddress}, {ethers}) => {
-//   console.log("deploy")
-// })
+task(
+  "initializeLBP",
+  "Initializes the LBP after task sentTransactionLBP has been accepted by Gnosis Safe"
+)
+  .addParam("lbpmanager", "address of deployed LBPManager")
+  .setAction(async ({ lbpmanager: lbpManagerAddress }, { ethers }) => {
+    console.log("Executing LBPManager.initializeLBP()");
+
+    const { root } = await ethers.getNamedSigners();
+
+    const primeTokenAmount = LBPManagerArguments.amounts[0];
+    const daiAmount = LBPManagerArguments.amounts[1];
+    const primeTokenAddress = LBPManagerArguments.tokenList[0];
+    const daiAddress = LBPManagerArguments.tokenList[1];
+
+    const LBPManagerFactory = await ethers.getContractFactory("LBPManager");
+    const ERC20Factory = await ethers.getContractFactory("ERC20Mock");
+
+    const lbpManagerInstance = await LBPManagerFactory.attach(
+      lbpManagerAddress
+    );
+    const primeTokenInstance = await ERC20Factory.attach(primeTokenAddress);
+    const daiInstance = await ERC20Factory.attach(daiAddress);
+
+    await primeTokenInstance
+      .connect(root)
+      .approve(lbpManagerInstance.address, primeTokenAmount);
+    await daiInstance
+      .connect(root)
+      .approve(lbpManagerInstance.address, daiAmount);
+
+    // console.log(await lbpManagerInstance.tokenList(0));
+    // console.log(await lbpManagerInstance.tokenList(1));
+
+    await lbpManagerInstance.connect(root).initializeLBP(root.address);
+  });

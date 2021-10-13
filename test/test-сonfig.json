@@ -1,30 +1,32 @@
-    {
-        "SeedArguments": {
-            "ADMIN": "0x7589116F8dA3ef3934b6A7b6D398c46348d0A718",
-            "BENEFICIARY": "0x67BE2C36e75B7439ffc2DCb99dBdF4fbB2455930",
-            "WETH" : "0xc778417E063141139Fce010982780140Aa0cD5Ab",
-            "PRIME" : "0x561b8e669cE0239c560CAe80b3717De61aff19be",
-            "softCap" : "100000000000000000000",
-            "hardCap" : "10000000000000000000000",
-            "price" : "1500000000000000000",
-            "startTime" : "1625410197",
-            "endTime" : "1625420243",
-            "vestingDuration" : 31104000,
-            "vestingCliff" : 1900800,
-            "isPermissioned" : false,
-            "fee" : "20000000000000000",
-            "metadata" : "0x0000000000000000000000000000000000000000000000000000000000000000"
-        },
-        "LBPManagerArguments": {
-            "ADMIN": "0x7589116F8dA3ef3934b6A7b6D398c46348d0A718",
-            "BENEFICIARY":"0x67BE2C36e75B7439ffc2DCb99dBdF4fbB2455930",
-            "name": "TestLBP",
-            "symbol": "TT",
-            "tokenList": ["0x80E1B5fF7dAdf3FeE78F60D69eF1058FD979ca64", ""],
-            "amounts": ["2000000000000000000000", "1000000000000000000000"],
-            "startWeights": ["600000000000000000", "400000000000000000"],
-            "endWeights": ["400000000000000000", "600000000000000000"],
-            "fees": ["10000000000000000", "0"],
-            "metadata": "0x0000000000000000000000000000000000000000000000000000000000000000"
-        }
+{
+  "SeedArguments": {
+    "ADMIN": "0x7589116F8dA3ef3934b6A7b6D398c46348d0A718",
+    "BENEFICIARY": "0x67BE2C36e75B7439ffc2DCb99dBdF4fbB2455930",
+    "WETH": "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+    "PRIME": "0x561b8e669cE0239c560CAe80b3717De61aff19be",
+    "softCap": "100000000000000000000",
+    "hardCap": "10000000000000000000000",
+    "price": "1500000000000000000",
+    "startTime": "1625410197",
+    "endTime": "1625420243",
+    "vestingDuration": 31104000,
+    "vestingCliff": 1900800,
+    "isPermissioned": false,
+    "fee": "20000000000000000",
+    "metadata": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "LBPManagerArguments": {
+    "BENEFICIARY": "0x67BE2C36e75B7439ffc2DCb99dBdF4fbB2455930",
+    "name": "TestLBP",
+    "symbol": "TT",
+    "tokenList": [
+      "0x80E1B5fF7dAdf3FeE78F60D69eF1058FD979ca64",
+      "0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea"
+    ],
+    "amounts": ["2000000000000000000", "1000000000000000000"],
+    "startWeights": ["600000000000000000", "400000000000000000"],
+    "endWeights": ["400000000000000000", "600000000000000000"],
+    "fees": ["10000000000000000", "0"],
+    "metadata": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  }
 }
