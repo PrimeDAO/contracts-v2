@@ -24,6 +24,7 @@ require("./tasks/seedManagement");
 require("./tasks/gnosisManagement");
 require("./tasks/merkleDropManagement");
 require("./tasks/reputationManagement");
+require("./tasks/lbpManagerManagement");
 
 module.exports = {
   paths: {
