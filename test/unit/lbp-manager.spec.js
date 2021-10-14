@@ -318,7 +318,6 @@ describe(">> Contract: LBPManager", () => {
         ).to.be.revertedWith("LBPManager: swapFeePercentage to high");
       });
       it("» revert on token list bigger then 2", async () => {
-        
         const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
         const largeTokenListAddresses = largeTokenList
           .map((token) => token.address)
