@@ -318,7 +318,6 @@ describe(">> Contract: LBPManager", () => {
         ).to.be.revertedWith("LBPManager: swapFeePercentage to high");
       });
       it("» revert on token list bigger then 2", async () => {
-
         invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
           lbpFactoryInstance.address,
           NAME,
