@@ -318,6 +318,28 @@ describe(">> Contract: LBPManager", () => {
         ).to.be.revertedWith("LBPManager: swapFeePercentage to high");
       });
       it("» revert on token list bigger then 2", async () => {
+
+        invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          [tokenAddresses[0], tokenAddresses[0]],
+          INITIAL_BALANCES,
+          START_WEIGHTS,
+          startTime,
+          endTime,
+          END_WEIGHTS,
+          fees,
+          beneficiary.address,
+          METADATA
+        );
+        await expect(
+          lbpManagerInstance.initializeLBPManager(
+            ...invalidInitializeLBPManagerParams
+          )
+        ).to.revertedWith("LBPManager: both tokens cannot be same");
+      });
+      it("» revert when both tokens are same", async () => {
         const largeTokenList = await tokens.getErc20TokenInstances(4, owner);
         const largeTokenListAddresses = largeTokenList
           .map((token) => token.address)

@@ -118,6 +118,7 @@ contract LBPManager {
         require(_fees[0] >= 1e12, "LBPManager: swapFeePercentage to low"); // 0.0001%
         require(_fees[0] <= 1e17, "LBPManager: swapFeePercentage to high"); // 10%
         require(_tokenList.length == 2, "LBPManager: tokenList wrong size");
+        require(_tokenList[0] != _tokenList[1], "LBPManager: both tokens cannot be same");
 
         initialized = true;
         admin = msg.sender;
