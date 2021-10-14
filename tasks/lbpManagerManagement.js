@@ -119,12 +119,12 @@ task(
 
     const daiInstance = await ERC20Factory.attach(daiAddress);
 
-    await projectTokenInstance
+    await (await projectTokenInstance
       .connect(root)
-      .approve(lbpManagerInstance.address, projectTokenAmount);
-    await daiInstance
+      .approve(lbpManagerInstance.address, projectTokenAmount)).wait();
+    await (await daiInstance
       .connect(root)
-      .approve(lbpManagerInstance.address, daiAmount);
+      .approve(lbpManagerInstance.address, daiAmount)).wait();
 
     await lbpManagerInstance.connect(root).initializeLBP(root.address);
   });
