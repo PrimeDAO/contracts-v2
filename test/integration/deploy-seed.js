@@ -1,5 +1,6 @@
 const { expect } = require("chai");
 const { constants } = require("@openzeppelin/test-helpers");
+const { SeedArguments } = require("../test-сonfig.json");
 const {
   ADMIN,
   BENEFICIARY,
@@ -15,7 +16,7 @@ const {
   isPermissioned,
   fee,
   metadata,
-} = require("../test-сonfig.json");
+} = SeedArguments;
 const init = require("../test-init.js");
 
 const zero = 0;
