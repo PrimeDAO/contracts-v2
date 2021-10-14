@@ -30,7 +30,7 @@ contract Seed {
     uint256 public hardCap;
     uint256 public seedAmountRequired; // Amount of seed required for distribution
     uint256 public feeAmountRequired; // Amount of seed required for fee
-    uint256 public price; // price of a SeedToken, expressed in fundingTokens, with precision of 10**18
+    uint256 public price; // price of a SeedToken, expressed in fundingTokens, in units of funding token
     uint256 public startTime;
     uint256 public endTime; // set by project admin, this is the last resort endTime to be applied when
     //     maximumReached has not been reached by then
@@ -44,7 +44,7 @@ contract Seed {
     bytes public metadata; // IPFS Hash
 
     uint256 internal constant PRECISION = 10**18; // used for precision e.g. 1 ETH = 10**18 wei; toWei("1") = 10**18
-    uint8 private _seedTokenDecimal;
+    uint8 private _seedTokenDecimal; // for adjustment of difference of power of 10 between project and funding token
 
     // Contract logic
     bool public closed; // is the distribution closed
@@ -102,7 +102,7 @@ contract Seed {
       * @param _softHardThresholds    Array containing two params:
                                         - the minimum funding token collection threshold in wei denomination.
                                         - the highest possible funding token amount to be raised in wei denomination.
-      * @param _priceSeedTokenDecimal price of a SeedToken, expressed in fundingTokens, with precision of 10**18
+      * @param _priceSeedTokenDecimal price of a SeedToken, expressed in fundingTokens, in units of funding token
                                        And Seed Token Decimal
       * @param _startTime             Distribution start time in unix timecode.
       * @param _endTime               Distribution end time in unix timecode.

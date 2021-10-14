@@ -52,7 +52,7 @@ contract SeedFactory is CloneFactory, Ownable {
       * @param _softHardThresholds          Array containing two params:
                                                 - the minimum funding token collection threshold in wei denomination.
                                                 - the highest possible funding token amount to be raised in wei denomination.
-      * @param _priceSeedTokenDecimal       price of a SeedToken, expressed in fundingTokens, with precision of 10**18
+      * @param _priceSeedTokenDecimal       price of a SeedToken, expressed in fundingTokens, in units of funding token
                                                 And Seed Token Decimal
       * @param _startTime                   Distribution start time in unix timecode.
       * @param _endTime                     Distribution end time in unix timecode.
