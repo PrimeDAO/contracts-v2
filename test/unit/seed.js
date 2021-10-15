@@ -20,6 +20,10 @@ const deploy = async () => {
   return setup;
 };
 
+const getDecimals = async (token) => await token.decimals();
+
+const getTokenAmount = (tokenDecimal) => (amount) => parseUnits(amount, tokenDecimal.toString());
+
 describe("Contract: Seed", async () => {
   let setup;
   let root;
@@ -29,7 +33,11 @@ describe("Contract: Seed", async () => {
   let buyer3;
   let buyer4;
   let seedToken;
+  let seedTokenDecimal;
+  let getSeedAmounts;
   let fundingToken;
+  let fundingTokenDecimal;
+  let getFundingAmounts;
   let softCap;
   let hardCap;
   let price;
@@ -72,20 +80,29 @@ describe("Contract: Seed", async () => {
     before("!! setup", async () => {
       setup = await deploy();
 
-      // Tokens used
-      fundingToken = setup.token.fundingToken;
-      seedToken = setup.token.seedToken;
-
       const CustomDecimalERC20Mock = await ethers.getContractFactory(
         "CustomDecimalERC20Mock",
-        setup.roles.prime
+        setup.roles.root
       );
-      tokenWithSixDecimal = await CustomDecimalERC20Mock.deploy(
+
+      // Tokens used
+      // fundingToken = setup.token.fundingToken;
+      fundingToken = await CustomDecimalERC20Mock.deploy(
         "USDC",
         "USDC",
-        6
+        16
       );
-      fundingTokenDecimal = tokenWithSixDecimal;
+      fundingTokenDecimal = (await getDecimals(fundingToken)).toString();
+      getFundingAmounts = getTokenAmount(fundingTokenDecimal);
+
+      // seedToken = setup.token.seedToken;
+      seedToken = await CustomDecimalERC20Mock.deploy(
+        "Prime",
+        "Prime",
+        12
+      );
+      seedTokenDecimal = (await getDecimals(seedToken)).toString();
+      getSeedAmounts = getTokenAmount(seedTokenDecimal);
 
       // // Roles
       root = setup.roles.root;
@@ -96,15 +113,15 @@ describe("Contract: Seed", async () => {
       buyer3 = setup.roles.buyer3;
 
       // // Parameters to initialize seed contract
-      softCap = parseEther("10").toString();
-      hardCap = parseEther("102").toString();
+      softCap = getFundingAmounts("10").toString();
+      hardCap = getFundingAmounts("102").toString();
       price = parseUnits(
         "0.01",
         parseInt(fundingTokenDecimal) - parseInt(seedTokenDecimal) + 18
       ).toString();
-      buyAmount = parseEther("51").toString();
-      smallBuyAmount = parseEther("9").toString();
-      buySeedAmount = parseEther("5100").toString();
+      buyAmount = getFundingAmounts("51").toString();
+      smallBuyAmount = getFundingAmounts("9").toString();
+      buySeedAmount = getSeedAmounts("5100").toString();
       startTime = await time.latest();
       endTime = await startTime.add(await time.duration.days(7));
       vestingDuration = time.duration.days(365); // 1 year
@@ -117,8 +134,8 @@ describe("Contract: Seed", async () => {
         .mul(new BN(fee))
         .div(new BN(PRECISION.toString()));
       seedForDistribution = new BN(hardCap)
-        .div(new BN(price))
-        .mul(new BN(PRECISION.toString()));
+        .mul(new BN(PRECISION.toString()))
+        .div(new BN(price));
       seedForFee = seedForDistribution
         .mul(new BN(fee))
         .div(new BN(PRECISION.toString()));
@@ -147,7 +164,7 @@ describe("Contract: Seed", async () => {
             await expectRevert(
               alternativeSetup.seed
                 .connect(randomSigner)
-                .buy(parseEther("1").add(buyAmount)),
+                .buy(getFundingAmounts("1").add(buyAmount)),
               "Seed: only allowed during distribution period"
             );
           });
@@ -239,10 +256,10 @@ describe("Contract: Seed", async () => {
         before("!! top up buyer1 balance", async () => {
           await fundingToken
             .connect(root)
-            .transfer(buyer1.address, hundredTwoETH);
+            .transfer(buyer1.address, getFundingAmounts("102"));
           await fundingToken
             .connect(buyer1)
-            .approve(setup.seed.address, hundredTwoETH);
+            .approve(setup.seed.address, getFundingAmounts("102"));
 
           claimAmount = new BN(ninetyTwoDaysInSeconds).mul(
             new BN(buySeedAmount)
@@ -292,11 +309,11 @@ describe("Contract: Seed", async () => {
             .withArgs(buyer1.address, seedAmount);
           expect(
             (await fundingToken.balanceOf(setup.seed.address)).toString()
-          ).to.equal(((buySeedAmount * price) / PRECISION).toString());
+          ).to.equal(Math.floor(((buySeedAmount * price) / PRECISION)).toString());
         });
         it("cannot buy more than maximum target", async () => {
           await expectRevert(
-            setup.seed.connect(buyer1).buy(parseEther("1").add(buyAmount)),
+            setup.seed.connect(buyer1).buy(getFundingAmounts("1").add(buyAmount)),
             "Seed: amount exceeds contract sale hardCap"
           );
         });
@@ -308,13 +325,13 @@ describe("Contract: Seed", async () => {
             .connect(buyer1)
             .callStatic.buy(buyAmount);
           expect((await seedAmount).toString()).to.equal(buySeedAmount);
-          expect((await feeAmount).toString()).to.equal(hundredTwoETH);
+          expect((await feeAmount).toString()).to.equal(getSeedAmounts("102"));
         });
         it("updates fee mapping for locker", async () => {
           // get funding amount to calculate fee
           expect(
             (await setup.seed.feeForFunder(buyer1.address)).toString()
-          ).to.equal(hundredTwoETH);
+          ).to.equal(getSeedAmounts("102"));
         });
         it("updates the remaining seeds to distribution", async () => {
           expect((await setup.seed.seedRemainder()).toString()).to.equal(
@@ -397,32 +414,6 @@ describe("Contract: Seed", async () => {
             (await setup.seed.funders(buyer1.address)).totalClaimed.toString()
           ).to.equal(zero.toString());
         });
-        // context.only("» seedAmount exceeds seedRemaind", () => {
-        //     it("reverts: 'Seed: seed distribution would be exceeded'", async ()  => {
-        //         const alternativeSetup = await deploy();
-        //         await alternativeSetup.seed.initialize(
-        //             beneficiary.address,
-        //             admin.address,
-        //             [
-        //                 alternativeSetup.token.seedToken.address,
-        //                 alternativeSetup.token.fundingToken.address
-        //             ],
-        //             [softCap, hardCap],
-        //             price,
-        //             startTime.toNumber(),
-        //             endTime.toNumber(),
-        //             vestingDuration.toNumber(),
-        //             vestingCliff.toNumber(),
-        //             permissionedSeed,
-        //             fee
-        //         );
-        //         await alternativeSetup.token.fundingToken.connect(root).transfer(buyer1.address, hundredTwoETH);
-        //         await alternativeSetup.token.fundingToken.connect(buyer1).approve(alternativeSetup.seed.address, hundredTwoETH);
-        //         await alternativeSetup.token.seedToken.connect(root).transfer(
-        //         alternativeSetup.seed.address, requiredSeedAmount.toString());
-        //         await alternativeSetup.seed.connect(buyer1).buy(hundredTwoETH)
-        //     })
-        // })
         context("» ERC20 transfer fails", () => {
           it("reverts 'Seed: funding token transferFrom failed' ", async () => {
             const alternativeSetup = await deploy();
@@ -434,6 +425,14 @@ describe("Contract: Seed", async () => {
               "DAI Stablecoin",
               "DAI"
             );
+            const fundingTokenDecimal = await getDecimals(alternativeFundingToken);
+            const getFundingAmounts = getTokenAmount(fundingTokenDecimal);
+            const softCap = getFundingAmounts("10").toString();
+            const hardCap = getFundingAmounts("102").toString();
+            const price = parseUnits(
+              "0.01",
+              parseInt(fundingTokenDecimal) - parseInt(seedTokenDecimal) + 18
+            ).toString();
             await alternativeSetup.seed.initialize(
               beneficiary.address,
               admin.address,
@@ -447,6 +446,7 @@ describe("Contract: Seed", async () => {
               permissionedSeed,
               fee
             );
+            const requiredAmount = (await alternativeSetup.seed.seedAmountRequired()).add(await alternativeSetup.seed.feeAmountRequired());
             await alternativeFundingToken
               .connect(root)
               .transfer(buyer1.address, hundredTwoETH);
@@ -454,10 +454,10 @@ describe("Contract: Seed", async () => {
               .connect(root)
               .transfer(
                 alternativeSetup.seed.address,
-                requiredSeedAmount.toString()
+                requiredAmount.toString()
               );
             await expectRevert(
-              alternativeSetup.seed.connect(buyer1).buy(parseEther("5")),
+              alternativeSetup.seed.connect(buyer1).buy(getFundingAmounts("5")),
               "Seed: funding token transferFrom failed"
             );
           });
@@ -486,24 +486,24 @@ describe("Contract: Seed", async () => {
           );
           await fundingToken
             .connect(root)
-            .transfer(buyer1.address, hundredTwoETH);
+            .transfer(buyer1.address, getFundingAmounts("102"));
           await fundingToken
             .connect(buyer1)
-            .approve(alternativeSetup.seed.address, hundredTwoETH);
+            .approve(alternativeSetup.seed.address, getFundingAmounts("102"));
           await seedToken
             .connect(root)
             .transfer(
               alternativeSetup.seed.address,
               requiredSeedAmount.toString()
             );
-          await alternativeSetup.seed.connect(buyer1).buy(parseEther("5"));
+          await alternativeSetup.seed.connect(buyer1).buy(getFundingAmounts("5"));
         });
 
         it("is not possible to buy", async () => {
           await expectRevert(
             alternativeSetup.seed
               .connect(buyer1)
-              .claim(buyer1.address, parseEther("5")),
+              .claim(buyer1.address, getSeedAmounts("5")),
             "Seed: minimum funding amount not met"
           );
         });
@@ -856,17 +856,17 @@ describe("Contract: Seed", async () => {
           );
           await fundingToken
             .connect(root)
-            .transfer(buyer1.address, hundredTwoETH);
+            .transfer(buyer1.address, getFundingAmounts("102"));
           await fundingToken
             .connect(buyer1)
-            .approve(alternativeSetup.seed.address, hundredTwoETH);
+            .approve(alternativeSetup.seed.address, getFundingAmounts("102"));
           await fakeSeedToken
             .connect(root)
             .transfer(
               alternativeSetup.seed.address,
               requiredSeedAmount.toString()
             );
-          await alternativeSetup.seed.connect(buyer1).buy(hundredTwoETH);
+          await alternativeSetup.seed.connect(buyer1).buy(getFundingAmounts("102"));
           await time.increase(tenDaysInSeconds);
           const correctClaimAmount = await alternativeSetup.seed.calculateClaim(
             buyer1.address
@@ -1009,11 +1009,12 @@ describe("Contract: Seed", async () => {
           ).to.equal("0");
         });
         it("cannot be called before funding minimum is reached", async () => {
-          await fundingToken.connect(root).transfer(buyer2.address, tenETH);
+          const currentBuyAmount = getFundingAmounts("10");
+          await fundingToken.connect(root).transfer(buyer2.address, currentBuyAmount);
           await fundingToken
             .connect(buyer2)
-            .approve(setup.data.seed.address, tenETH);
-          await setup.data.seed.connect(buyer2).buy(tenETH);
+            .approve(setup.data.seed.address, currentBuyAmount);
+          await setup.data.seed.connect(buyer2).buy(currentBuyAmount);
           await expectRevert(
             setup.data.seed.connect(buyer2).retrieveFundingTokens(),
             "Seed: minimum funding amount met"
@@ -1050,17 +1051,17 @@ describe("Contract: Seed", async () => {
           );
           await alternativeFundingToken
             .connect(root)
-            .transfer(buyer1.address, hundredTwoETH);
+            .transfer(buyer1.address, getFundingAmounts("102"));
           await alternativeFundingToken
             .connect(buyer1)
-            .approve(alternativeSetup.seed.address, hundredTwoETH);
+            .approve(alternativeSetup.seed.address, getFundingAmounts("102"));
           await seedToken
             .connect(root)
             .transfer(
               alternativeSetup.seed.address,
               requiredSeedAmount.toString()
             );
-          await alternativeSetup.seed.connect(buyer1).buy(parseEther("5"));
+          await alternativeSetup.seed.connect(buyer1).buy(getFundingAmounts("5"));
           await alternativeFundingToken.burn(buyer1.address);
           await expectRevert(
             alternativeSetup.seed.connect(buyer1).retrieveFundingTokens(),
@@ -1192,10 +1193,10 @@ describe("Contract: Seed", async () => {
           );
           await fundingToken
             .connect(root)
-            .transfer(buyer1.address, hundredTwoETH);
+            .transfer(buyer1.address, getFundingAmounts("102"));
           await fundingToken
             .connect(buyer1)
-            .approve(alternativeSetup.seed.address, hundredTwoETH);
+            .approve(alternativeSetup.seed.address, getFundingAmounts("102"));
           await fakeSeedToken
             .connect(root)
             .transfer(
@@ -1679,7 +1680,12 @@ describe("Contract: Seed", async () => {
 
       // Tokens used
       fundingToken = setup.token.fundingToken;
+      fundingTokenDecimal = await getDecimals(fundingToken);
+      getFundingAmounts = getTokenAmount(fundingTokenDecimal);
+
       seedToken = setup.token.seedToken;
+      seedTokenDecimal = await getDecimals(seedToken);
+      getSeedAmounts = getTokenAmount(seedTokenDecimal);
 
       // // Roles
       root = setup.roles.root;
@@ -1691,10 +1697,13 @@ describe("Contract: Seed", async () => {
       buyer4 = setup.roles.buyer3;
 
       // // Parameters to initialize seed contract
-      softCap = parseEther("10").toString();
-      hardCap = parseEther("102").toString();
-      price = parseEther("0.01").toString();
-      buyAmount = parseEther("51").toString();
+      softCap = getFundingAmounts("10").toString();
+      hardCap = getFundingAmounts("102").toString();
+      price = parseUnits(
+        "0.01",
+        parseInt(fundingTokenDecimal) - parseInt(seedTokenDecimal) + 18
+      ).toString();
+      buyAmount = getFundingAmounts("51").toString();
       startTime = await time.latest();
       endTime = await startTime.add(await time.duration.days(7));
       vestingDuration = time.duration.days(365); // 1 year
@@ -1797,7 +1806,7 @@ describe("Contract: Seed", async () => {
         });
         it("reverts when unwhitelist account buys", async () => {
           await expectRevert(
-            seed.connect(buyer1).buy(parseEther("1").toString()),
+            seed.connect(buyer1).buy(getFundingAmounts("1").toString()),
             "Seed: sender has no rights"
           );
         });
@@ -1892,12 +1901,12 @@ describe("Contract: Seed", async () => {
             );
           await fundingToken
             .connect(root)
-            .transfer(buyer2.address, hundredTwoETH);
+            .transfer(buyer2.address, getFundingAmounts("102"));
           await fundingToken
             .connect(buyer2)
-            .approve(alternativeSetup.seed.address, hundredTwoETH);
+            .approve(alternativeSetup.seed.address, getFundingAmounts("102"));
           await alternativeSetup.seed.connect(admin).whitelist(buyer2.address);
-          await alternativeSetup.seed.connect(buyer2).buy(hundredTwoETH);
+          await alternativeSetup.seed.connect(buyer2).buy(getFundingAmounts("102"));
           await expectRevert(
             alternativeSetup.seed.connect(buyer2).buy(twoHundredFourETH),
             "Seed: maximum funding reached"
@@ -1910,118 +1919,23 @@ describe("Contract: Seed", async () => {
     before("!! setup", async () => {
       setup = await deploy();
 
+      const CustomDecimalERC20Mock = await ethers.getContractFactory(
+        "CustomDecimalERC20Mock",
+        setup.roles.root
+      );
+
       // Tokens used
-      fundingToken = setup.token.fundingToken;
+      fundingToken = await CustomDecimalERC20Mock.deploy(
+        "USDC",
+        "USDC",
+        6
+      );
+      fundingTokenDecimal = await getDecimals(fundingToken);
+      getFundingAmounts = getTokenAmount(fundingTokenDecimal);
+
       seedToken = setup.token.seedToken;
-      const CustomDecimalERC20Mock = await ethers.getContractFactory(
-        "CustomDecimalERC20Mock",
-        setup.roles.prime
-      );
-      tokenWithSixDecimal = await CustomDecimalERC20Mock.deploy(
-        "USDC",
-        "USDC",
-        6
-      );
-
-      // // Roles
-      root = setup.roles.root;
-      beneficiary = setup.roles.beneficiary;
-      admin = setup.roles.prime;
-      buyer1 = setup.roles.buyer1;
-      buyer2 = setup.roles.buyer2;
-      buyer3 = setup.roles.buyer3;
-      fundingTokenDecimal = (await tokenWithSixDecimal.decimals()).toString();
-
-      // // Parameters to initialize seed contract
-      softCap = parseUnits("10", fundingTokenDecimal).toString();
-      hardCap = parseUnits("102", fundingTokenDecimal).toString();
-      buyAmount = parseUnits("51", fundingTokenDecimal).toString();
-      smallBuyAmount = parseUnits("9", fundingTokenDecimal).toString();
-      buySeedAmount = parseEther("5100").toString();
-      price = parseUnits("1", fundingTokenDecimal).toString();
-      startTime = await time.latest();
-      endTime = await startTime.add(await time.duration.days(7));
-      vestingDuration = time.duration.days(365); // 1 year
-      vestingCliff = time.duration.days(90); // 3 months
-      permissionedSeed = false;
-      fee = parseEther("0.02").toString(); // 2%
-      metadata = `0x`;
-
-      buySeedFee = new BN(buySeedAmount)
-        .mul(new BN(fee))
-        .div(new BN(PRECISION.toString()));
-      seedForDistribution = new BN(hardCap)
-        .mul(new BN(PRECISION.toString()))
-        .div(new BN(price));
-      seedForFee = seedForDistribution
-        .mul(new BN(fee))
-        .div(new BN(PRECISION.toString()));
-      requiredSeedAmount = seedForDistribution.add(seedForFee);
-
-      await setup.seed.initialize(
-        beneficiary.address,
-        admin.address,
-        [seedToken.address, tokenWithSixDecimal.address],
-        [softCap, hardCap],
-        price,
-        startTime.toNumber(),
-        endTime.toNumber(),
-        vestingDuration.toNumber(),
-        vestingCliff.toNumber(),
-        permissionedSeed,
-        fee
-      );
-      await tokenWithSixDecimal
-        .connect(root)
-        .transfer(buyer1.address, hundredTwoETH);
-      await tokenWithSixDecimal
-        .connect(buyer1)
-        .approve(setup.seed.address, hundredTwoETH);
-
-      claimAmount = new BN(ninetyTwoDaysInSeconds).mul(
-        new BN(buySeedAmount).mul(new BN(twoBN)).div(new BN(vestingDuration))
-      );
-      feeAmount = new BN(claimAmount)
-        .mul(new BN(fee))
-        .div(new BN(PRECISION.toString()));
-      await seedToken
-        .connect(root)
-        .transfer(setup.seed.address, requiredSeedAmount.toString());
-    });
-    it("$ buys with one funding token", async () => {
-      const oneFundingTokenAmount = parseUnits("1", fundingTokenDecimal);
-      await tokenWithSixDecimal
-        .connect(buyer1)
-        .approve(setup.seed.address, oneFundingTokenAmount);
-      await setup.seed.connect(buyer1).buy(oneFundingTokenAmount);
-      const expectedSeedAmount = oneFundingTokenAmount
-        .mul(PRECISION)
-        .div(BigNumber.from(price));
-      expect(
-        (await setup.seed.seedAmountForFunder(buyer1.address)).eq(
-          expectedSeedAmount
-        )
-      ).to.be.true;
-    });
-  });
-  context("» price test of both tokens with decimals 6", () => {
-    before("!! setup", async () => {
-      setup = await deploy();
-
-      // Tokens used
-      fundingToken = setup.token.fundingToken;
-      const CustomDecimalERC20Mock = await ethers.getContractFactory(
-        "CustomDecimalERC20Mock",
-        setup.roles.prime
-      );
-      seedToken = await CustomDecimalERC20Mock.deploy("Prime", "Prime", 6);
-      tokenWithSixDecimal = await CustomDecimalERC20Mock.deploy(
-        "USDC",
-        "USDC",
-        6
-      );
-      fundingTokenDecimal = (await tokenWithSixDecimal.decimals()).toString();
-      seedTokenDecimal = (await seedToken.decimals()).toString();
+      seedTokenDecimal = await getDecimals(seedToken);
+      getSeedAmounts = getTokenAmount(seedTokenDecimal);
 
       // // Roles
       root = setup.roles.root;
@@ -2032,11 +1946,11 @@ describe("Contract: Seed", async () => {
       buyer3 = setup.roles.buyer3;
 
       // // Parameters to initialize seed contract
-      softCap = parseUnits("10", fundingTokenDecimal).toString();
-      hardCap = parseUnits("102", fundingTokenDecimal).toString();
-      buyAmount = parseUnits("51", fundingTokenDecimal).toString();
-      smallBuyAmount = parseUnits("9", fundingTokenDecimal).toString();
-      buySeedAmount = parseUnits("5100", seedTokenDecimal).toString();
+      softCap = getFundingAmounts("10").toString();
+      hardCap = getFundingAmounts("102").toString();
+      buyAmount = getFundingAmounts("51").toString();
+      smallBuyAmount = getFundingAmounts("9").toString();
+      buySeedAmount = getSeedAmounts("5100").toString();
       price = parseUnits(
         "1",
         parseInt(fundingTokenDecimal) - parseInt(seedTokenDecimal) + 18
@@ -2063,7 +1977,7 @@ describe("Contract: Seed", async () => {
       await setup.seed.initialize(
         beneficiary.address,
         admin.address,
-        [seedToken.address, tokenWithSixDecimal.address],
+        [seedToken.address, fundingToken.address],
         [softCap, hardCap],
         price,
         startTime.toNumber(),
@@ -2073,12 +1987,12 @@ describe("Contract: Seed", async () => {
         permissionedSeed,
         fee
       );
-      await tokenWithSixDecimal
+      await fundingToken
         .connect(root)
-        .transfer(buyer1.address, hundredTwoETH);
-      await tokenWithSixDecimal
+        .transfer(buyer1.address, getFundingAmounts("102"));
+      await fundingToken
         .connect(buyer1)
-        .approve(setup.seed.address, hundredTwoETH);
+        .approve(setup.seed.address, getFundingAmounts("102"));
 
       claimAmount = new BN(ninetyTwoDaysInSeconds).mul(
         new BN(buySeedAmount).mul(new BN(twoBN)).div(new BN(vestingDuration))
@@ -2087,12 +2001,120 @@ describe("Contract: Seed", async () => {
         .mul(new BN(fee))
         .div(new BN(PRECISION.toString()));
       await seedToken
+        .connect(root)
+        .transfer(setup.seed.address, requiredSeedAmount.toString());
+    });
+    it("$ buys with one funding token", async () => {
+      const oneFundingTokenAmount = getFundingAmounts("1");
+      await fundingToken
+        .connect(buyer1)
+        .approve(setup.seed.address, oneFundingTokenAmount);
+      await setup.seed.connect(buyer1).buy(oneFundingTokenAmount);
+      const expectedSeedAmount = oneFundingTokenAmount
+        .mul(PRECISION)
+        .div(BigNumber.from(price));
+      expect(
+        (await setup.seed.seedAmountForFunder(buyer1.address)).eq(
+          expectedSeedAmount
+        )
+      ).to.be.true;
+    });
+  });
+  context("» price test of both tokens with decimals 6", () => {
+    before("!! setup", async () => {
+      setup = await deploy();
+
+      // Tokens used
+      const CustomDecimalERC20Mock = await ethers.getContractFactory(
+        "CustomDecimalERC20Mock",
+        setup.roles.root
+      );
+      fundingToken = await CustomDecimalERC20Mock.deploy(
+        "USDC",
+        "USDC",
+        6
+      );
+      fundingTokenDecimal = await getDecimals(fundingToken);
+      getFundingAmounts = getTokenAmount(fundingTokenDecimal);
+
+      
+      seedToken = await CustomDecimalERC20Mock.deploy("Prime", "Prime", 6);
+      seedTokenDecimal = await getDecimals(seedToken);
+      getSeedAmounts = getTokenAmount(seedTokenDecimal);
+
+      // // Roles
+      root = setup.roles.root;
+      beneficiary = setup.roles.beneficiary;
+      admin = setup.roles.prime;
+      buyer1 = setup.roles.buyer1;
+      buyer2 = setup.roles.buyer2;
+      buyer3 = setup.roles.buyer3;
+
+      // // Parameters to initialize seed contract
+      softCap = getFundingAmounts("10").toString();
+      hardCap = getFundingAmounts("102").toString();
+      buyAmount = getFundingAmounts("51").toString();
+      smallBuyAmount = getFundingAmounts("9").toString();
+      buySeedAmount = getSeedAmounts("5100", seedTokenDecimal).toString();
+      price = parseUnits(
+        "1",
+        parseInt(fundingTokenDecimal) - parseInt(seedTokenDecimal) + 18
+      ).toString();
+      startTime = await time.latest();
+      endTime = await startTime.add(await time.duration.days(7));
+      vestingDuration = time.duration.days(365); // 1 year
+      vestingCliff = time.duration.days(90); // 3 months
+      permissionedSeed = false;
+      fee = parseEther("0.02").toString(); // 2%
+      metadata = `0x`;
+
+      buySeedFee = new BN(buySeedAmount)
+        .mul(new BN(fee))
+        .div(new BN(PRECISION.toString()));
+      seedForDistribution = new BN(hardCap)
+        .mul(new BN(PRECISION.toString()))
+        .div(new BN(price));
+      seedForFee = seedForDistribution
+        .mul(new BN(fee))
+        .div(new BN(PRECISION.toString()));
+      requiredSeedAmount = seedForDistribution.add(seedForFee);
+
+      await setup.seed.initialize(
+        beneficiary.address,
+        admin.address,
+        [seedToken.address, fundingToken.address],
+        [softCap, hardCap],
+        price,
+        startTime.toNumber(),
+        endTime.toNumber(),
+        vestingDuration.toNumber(),
+        vestingCliff.toNumber(),
+        permissionedSeed,
+        fee
+      );
+      await fundingToken
+        .connect(root)
+        .transfer(buyer1.address, getFundingAmounts("102"));
+      await fundingToken
+        .connect(buyer1)
+        .approve(setup.seed.address, getFundingAmounts("102"));
+
+      claimAmount = new BN(ninetyTwoDaysInSeconds).mul(
+        new BN(buySeedAmount).mul(new BN(twoBN)).div(new BN(vestingDuration))
+      );
+      feeAmount = new BN(claimAmount)
+        .mul(new BN(fee))
+        .div(new BN(PRECISION.toString()));
+      await seedToken
+        .connect(root)
+        .transfer(admin.address, requiredSeedAmount.toString());
+      await seedToken
         .connect(admin)
         .transfer(setup.seed.address, requiredSeedAmount.toString());
     });
     it("$ buys with one funding token", async () => {
-      const oneFundingTokenAmount = parseUnits("100", fundingTokenDecimal);
-      await tokenWithSixDecimal
+      const oneFundingTokenAmount = getFundingAmounts("100");
+      await fundingToken
         .connect(buyer1)
         .approve(setup.seed.address, oneFundingTokenAmount);
       await setup.seed.connect(buyer1).buy(oneFundingTokenAmount);
