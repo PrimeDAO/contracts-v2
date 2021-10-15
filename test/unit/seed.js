@@ -1,7 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { time, expectRevert, BN } = require("@openzeppelin/test-helpers");
-const { utils: {parseEther, parseUnits}, BigNumber } = ethers;
+const {
+  utils: { parseEther, parseUnits },
+  BigNumber,
+} = ethers;
 
 const init = require("../test-init.js");
 
@@ -73,6 +76,17 @@ describe("Contract: Seed", async () => {
       fundingToken = setup.token.fundingToken;
       seedToken = setup.token.seedToken;
 
+      const CustomDecimalERC20Mock = await ethers.getContractFactory(
+        "CustomDecimalERC20Mock",
+        setup.roles.prime
+      );
+      tokenWithSixDecimal = await CustomDecimalERC20Mock.deploy(
+        "USDC",
+        "USDC",
+        6
+      );
+      fundingTokenDecimal = tokenWithSixDecimal;
+
       // // Roles
       root = setup.roles.root;
       beneficiary = setup.roles.beneficiary;
@@ -84,7 +98,10 @@ describe("Contract: Seed", async () => {
       // // Parameters to initialize seed contract
       softCap = parseEther("10").toString();
       hardCap = parseEther("102").toString();
-      price = parseEther("0.01").toString();
+      price = parseUnits(
+        "0.01",
+        parseInt(fundingTokenDecimal) - parseInt(seedTokenDecimal) + 18
+      ).toString();
       buyAmount = parseEther("51").toString();
       smallBuyAmount = parseEther("9").toString();
       buySeedAmount = parseEther("5100").toString();
