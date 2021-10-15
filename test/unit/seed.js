@@ -22,7 +22,8 @@ const deploy = async () => {
 
 const getDecimals = async (token) => await token.decimals();
 
-const getTokenAmount = (tokenDecimal) => (amount) => parseUnits(amount, tokenDecimal.toString());
+const getTokenAmount = (tokenDecimal) => (amount) =>
+  parseUnits(amount, tokenDecimal.toString());
 
 describe("Contract: Seed", async () => {
   let setup;
@@ -87,20 +88,12 @@ describe("Contract: Seed", async () => {
 
       // Tokens used
       // fundingToken = setup.token.fundingToken;
-      fundingToken = await CustomDecimalERC20Mock.deploy(
-        "USDC",
-        "USDC",
-        16
-      );
+      fundingToken = await CustomDecimalERC20Mock.deploy("USDC", "USDC", 16);
       fundingTokenDecimal = (await getDecimals(fundingToken)).toString();
       getFundingAmounts = getTokenAmount(fundingTokenDecimal);
 
       // seedToken = setup.token.seedToken;
-      seedToken = await CustomDecimalERC20Mock.deploy(
-        "Prime",
-        "Prime",
-        12
-      );
+      seedToken = await CustomDecimalERC20Mock.deploy("Prime", "Prime", 12);
       seedTokenDecimal = (await getDecimals(seedToken)).toString();
       getSeedAmounts = getTokenAmount(seedTokenDecimal);
 
@@ -309,11 +302,15 @@ describe("Contract: Seed", async () => {
             .withArgs(buyer1.address, seedAmount);
           expect(
             (await fundingToken.balanceOf(setup.seed.address)).toString()
-          ).to.equal(Math.floor(((buySeedAmount * price) / PRECISION)).toString());
+          ).to.equal(
+            Math.floor((buySeedAmount * price) / PRECISION).toString()
+          );
         });
         it("cannot buy more than maximum target", async () => {
           await expectRevert(
-            setup.seed.connect(buyer1).buy(getFundingAmounts("1").add(buyAmount)),
+            setup.seed
+              .connect(buyer1)
+              .buy(getFundingAmounts("1").add(buyAmount)),
             "Seed: amount exceeds contract sale hardCap"
           );
         });
@@ -425,7 +422,9 @@ describe("Contract: Seed", async () => {
               "DAI Stablecoin",
               "DAI"
             );
-            const fundingTokenDecimal = await getDecimals(alternativeFundingToken);
+            const fundingTokenDecimal = await getDecimals(
+              alternativeFundingToken
+            );
             const getFundingAmounts = getTokenAmount(fundingTokenDecimal);
             const softCap = getFundingAmounts("10").toString();
             const hardCap = getFundingAmounts("102").toString();
@@ -446,7 +445,9 @@ describe("Contract: Seed", async () => {
               permissionedSeed,
               fee
             );
-            const requiredAmount = (await alternativeSetup.seed.seedAmountRequired()).add(await alternativeSetup.seed.feeAmountRequired());
+            const requiredAmount = (
+              await alternativeSetup.seed.seedAmountRequired()
+            ).add(await alternativeSetup.seed.feeAmountRequired());
             await alternativeFundingToken
               .connect(root)
               .transfer(buyer1.address, hundredTwoETH);
@@ -496,7 +497,9 @@ describe("Contract: Seed", async () => {
               alternativeSetup.seed.address,
               requiredSeedAmount.toString()
             );
-          await alternativeSetup.seed.connect(buyer1).buy(getFundingAmounts("5"));
+          await alternativeSetup.seed
+            .connect(buyer1)
+            .buy(getFundingAmounts("5"));
         });
 
         it("is not possible to buy", async () => {
@@ -866,7 +869,9 @@ describe("Contract: Seed", async () => {
               alternativeSetup.seed.address,
               requiredSeedAmount.toString()
             );
-          await alternativeSetup.seed.connect(buyer1).buy(getFundingAmounts("102"));
+          await alternativeSetup.seed
+            .connect(buyer1)
+            .buy(getFundingAmounts("102"));
           await time.increase(tenDaysInSeconds);
           const correctClaimAmount = await alternativeSetup.seed.calculateClaim(
             buyer1.address
@@ -1010,7 +1015,9 @@ describe("Contract: Seed", async () => {
         });
         it("cannot be called before funding minimum is reached", async () => {
           const currentBuyAmount = getFundingAmounts("10");
-          await fundingToken.connect(root).transfer(buyer2.address, currentBuyAmount);
+          await fundingToken
+            .connect(root)
+            .transfer(buyer2.address, currentBuyAmount);
           await fundingToken
             .connect(buyer2)
             .approve(setup.data.seed.address, currentBuyAmount);
@@ -1061,7 +1068,9 @@ describe("Contract: Seed", async () => {
               alternativeSetup.seed.address,
               requiredSeedAmount.toString()
             );
-          await alternativeSetup.seed.connect(buyer1).buy(getFundingAmounts("5"));
+          await alternativeSetup.seed
+            .connect(buyer1)
+            .buy(getFundingAmounts("5"));
           await alternativeFundingToken.burn(buyer1.address);
           await expectRevert(
             alternativeSetup.seed.connect(buyer1).retrieveFundingTokens(),
@@ -1906,7 +1915,9 @@ describe("Contract: Seed", async () => {
             .connect(buyer2)
             .approve(alternativeSetup.seed.address, getFundingAmounts("102"));
           await alternativeSetup.seed.connect(admin).whitelist(buyer2.address);
-          await alternativeSetup.seed.connect(buyer2).buy(getFundingAmounts("102"));
+          await alternativeSetup.seed
+            .connect(buyer2)
+            .buy(getFundingAmounts("102"));
           await expectRevert(
             alternativeSetup.seed.connect(buyer2).buy(twoHundredFourETH),
             "Seed: maximum funding reached"
@@ -1925,11 +1936,7 @@ describe("Contract: Seed", async () => {
       );
 
       // Tokens used
-      fundingToken = await CustomDecimalERC20Mock.deploy(
-        "USDC",
-        "USDC",
-        6
-      );
+      fundingToken = await CustomDecimalERC20Mock.deploy("USDC", "USDC", 6);
       fundingTokenDecimal = await getDecimals(fundingToken);
       getFundingAmounts = getTokenAmount(fundingTokenDecimal);
 
@@ -2029,15 +2036,10 @@ describe("Contract: Seed", async () => {
         "CustomDecimalERC20Mock",
         setup.roles.root
       );
-      fundingToken = await CustomDecimalERC20Mock.deploy(
-        "USDC",
-        "USDC",
-        6
-      );
+      fundingToken = await CustomDecimalERC20Mock.deploy("USDC", "USDC", 6);
       fundingTokenDecimal = await getDecimals(fundingToken);
       getFundingAmounts = getTokenAmount(fundingTokenDecimal);
 
-      
       seedToken = await CustomDecimalERC20Mock.deploy("Prime", "Prime", 6);
       seedTokenDecimal = await getDecimals(seedToken);
       getSeedAmounts = getTokenAmount(seedTokenDecimal);
