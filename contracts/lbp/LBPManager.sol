@@ -39,7 +39,7 @@ contract LBPManager {
     uint256[] public startTimeEndTime; // Array containing the startTime and endTime for the LBP.
     ILBP public lbp; // Address of LBP that is managed by this contract.
     bytes public metadata; // IPFS Hash of the LBP creation wizard information.
-    uint8 private projectTokenIndex; // Index repesenting the project token in the tokenList.
+    uint8 public projectTokenIndex; // Index repesenting the project token in the tokenList.
     address public LBPFactory; // Address of Balancers LBP factory.
 
     // Contract logic
