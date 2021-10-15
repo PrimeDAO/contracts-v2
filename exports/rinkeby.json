@@ -162,7 +162,7 @@
       ]
     },
     "LBPManager": {
-      "address": "0x7830930fC2a80bE661220A1A03C4CE2084979914",
+      "address": "0xBfF6938b2A6a8ca827990688d9DDFdf7B65B7744",
       "abi": [
         {
           "anonymous": false,
@@ -466,6 +466,19 @@
               "internalType": "bool",
               "name": "",
               "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "projectTokenIndex",
+          "outputs": [
+            {
+              "internalType": "uint8",
+              "name": "",
+              "type": "uint8"
             }
           ],
           "stateMutability": "view",

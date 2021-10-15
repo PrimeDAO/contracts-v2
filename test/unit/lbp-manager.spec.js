@@ -366,7 +366,11 @@ describe(">> Contract: LBPManager", () => {
       });
     });
     describe("$ initialize succeeds", () => {
+      let projectTokenIndex;
       it("» succeeds", async () => {
+        if (tokenAddresses[0] > tokenAddresses[1]) projectTokenIndex = 1;
+        else projectTokenIndex = 0;
+
         await lbpManagerInstance
           .connect(owner)
           .initializeLBPManager(...initializeLBPManagerParams);
@@ -415,6 +419,9 @@ describe(">> Contract: LBPManager", () => {
         expect(
           (await lbpManagerInstance.startTimeEndTime(1)).eq(endTime)
         ).to.equal(true);
+        expect(await lbpManagerInstance.projectTokenIndex()).to.equal(
+          projectTokenIndex
+        );
       });
     });
   });
