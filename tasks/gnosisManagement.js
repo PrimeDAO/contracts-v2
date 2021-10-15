@@ -1,6 +1,6 @@
 const { task } = require("hardhat/config");
 const { api } = require("./utils/gnosis.js");
-const seedArguments = require("../test/test-сonfig.json");
+const { SeedArguments } = require("../test/test-сonfig.json");
 
 task("addDelegate", "adds delegate to Gnosis Safe")
   .addParam("safe", "address of safe", undefined)
@@ -33,7 +33,7 @@ task("addDelegate", "adds delegate to Gnosis Safe")
     }
   );
 
-task("sendTransaction", "send transaction to Gnosis Safe")
+task("sendTransactionSeed", "send transaction to Gnosis Safe")
   .addParam("safe", "address of safe", undefined)
   .setAction(async ({ safe: safeAddress }, { ethers }) => {
     console.log(
@@ -45,17 +45,17 @@ task("sendTransaction", "send transaction to Gnosis Safe")
     const signerInstance = await ethers.getContract("Signer");
     const { data, to } =
       await seedFactoryInstance.populateTransaction.deploySeed(
-        seedArguments.BENEFICIARY,
-        seedArguments.ADMIN,
-        [seedArguments.PRIME, seedArguments.WETH],
-        [seedArguments.softCap, seedArguments.hardCap],
-        seedArguments.price,
-        seedArguments.startTime,
-        seedArguments.endTime,
-        [seedArguments.vestingDuration, seedArguments.vestingCliff],
-        seedArguments.isPermissioned,
-        seedArguments.fee,
-        seedArguments.metadata
+        SeedArguments.BENEFICIARY,
+        SeedArguments.ADMIN,
+        [SeedArguments.PRIME, SeedArguments.WETH],
+        [SeedArguments.softCap, SeedArguments.hardCap],
+        SeedArguments.price,
+        SeedArguments.startTime,
+        SeedArguments.endTime,
+        [SeedArguments.vestingDuration, SeedArguments.vestingCliff],
+        SeedArguments.isPermissioned,
+        SeedArguments.fee,
+        SeedArguments.metadata
       );
     const trx = {
       to,

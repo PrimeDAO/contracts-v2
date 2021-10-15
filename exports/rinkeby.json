@@ -162,7 +162,7 @@
       ]
     },
     "LBPManager": {
-      "address": "0x8c3703F772315ABBC95B90fb74D99aE07C7Dc543",
+      "address": "0x7830930fC2a80bE661220A1A03C4CE2084979914",
       "abi": [
         {
           "anonymous": false,
@@ -635,7 +635,7 @@
       ]
     },
     "LBPManagerFactory": {
-      "address": "0x1bA9f8760d75D677360d4F8ab20A28Ae1AbbED9e",
+      "address": "0xE3Ba9BA90616e862E7645fC4Fcad151ae3E28970",
       "abi": [
         {
           "inputs": [
@@ -3902,7 +3902,7 @@
       ]
     },
     "SignerV2": {
-      "address": "0x04D72B83b8f42fF8B99a8B5BB727B9EFCd68B99F",
+      "address": "0x9E44019Fd8e65F2cb95a5C0C057E238D4fc8e836",
       "abi": [
         {
           "inputs": [

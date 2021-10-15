@@ -73,7 +73,7 @@ const signerV2 = async (setup) => {
     setup.roles.root
   );
   return await signerV2Factory.deploy(setup.roles.root.address, [], []);
-}
+};
 
 module.exports = {
   initialize,
@@ -81,5 +81,5 @@ module.exports = {
   gettokenInstances,
   getLBPManagerFactory,
   getContractInstance,
-  signerV2
+  signerV2,
 };
