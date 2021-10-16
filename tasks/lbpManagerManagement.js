@@ -38,7 +38,9 @@ task(
       [startTime, endTime],
       LBPManagerArguments.endWeights,
       LBPManagerArguments.fees,
-      ethers.utils.hexlify(ethers.utils.toUtf8Bytes(LBPManagerArguments.metadata)),
+      ethers.utils.hexlify(
+        ethers.utils.toUtf8Bytes(LBPManagerArguments.metadata)
+      ),
     ];
 
     transaction.data = (
@@ -92,7 +94,7 @@ task(
       .wait()
       .then(async () => {
         const trx = await gnosis.sendTransaction(transaction);
-        if(trx){
+        if (trx) {
           console.log("Transaction request sent to Gnosis Safe");
         }
         return trx;
