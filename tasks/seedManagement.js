@@ -66,6 +66,7 @@ task("sendTransactionSeed", "send transaction to Gnosis Safe")
         signature: trx.signature,
       };
       await gnosis.sendTransaction(options);
+      console.log("Transaction request sent to Gnosis Successfully");
     });
 
     await signerInstance
