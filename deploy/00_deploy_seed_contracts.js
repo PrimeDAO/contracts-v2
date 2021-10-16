@@ -1,9 +1,8 @@
 const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
-  const safeInstance = await ethers.getContract("Safe");
 
-  const { address: seedFactoryAddress } = await deploy("SeedFactory", {
+  await deploy("SeedFactory", {
     from: root,
     args: [],
     log: true,
@@ -18,12 +17,6 @@ const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
   const seedFactoryInstance = await ethers.getContract("SeedFactory");
 
   await seedFactoryInstance.setMasterCopy(seedAddress);
-
-  await deploy("Signer", {
-    from: root,
-    args: [safeInstance.address, seedFactoryAddress],
-    log: true,
-  });
 };
 
 module.exports = deployFunction;
