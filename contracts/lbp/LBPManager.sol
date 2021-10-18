@@ -23,14 +23,14 @@ import "../utils/interface/ILBP.sol";
  */
 contract LBPManager {
     // Constants
-    uint256 private constant HUNDRED_PERCENT = 10e18; // Used in calculating the fee.
+    uint256 private constant HUNDRED_PERCENT = 1e18; // Used in calculating the fee.
 
     // Locked parameter
     string public symbol; // Symbol of the LBP.
     string public name; // Name of the LBP.
     address public admin; // Address of the admin of this contract.
     address public beneficiary; // Address that recieves fees.
-    uint256 public feePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
+    uint256 public feePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%, 1e18)
     uint256 public swapFeePercentage; // Percentage of fee paid for every swap in the LBP.
     IERC20[] public tokenList; // Tokens that are used in the LBP, sorted by address in numerical order (ascending).
     uint256[] public amounts; // Amount of tokens to be added as liquidity in LBP.

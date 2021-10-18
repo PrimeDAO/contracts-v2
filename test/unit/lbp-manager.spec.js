@@ -91,7 +91,7 @@ paramGenerator.initializeParams = (
 const setupInitialState = async (contractInstances, initialState) => {
   let amountToAddForFee = BigNumber.from(0);
 
-  const HUNDRED_PERCENT = parseUnits("10", 18);
+  const HUNDRED_PERCENT = parseUnits("1", 18);
   const signers = await ethers.getSigners();
 
   [owner, admin, beneficiary] = signers;
