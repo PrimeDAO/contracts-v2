@@ -191,15 +191,16 @@ contract LBPManager {
 
         if (feePercentage != 0) {
             // Transfer fee to beneficiary.
+            uint256 feeAmountRequired = _feeAmountRequired();
             tokenList[projectTokenIndex].transferFrom(
                 _sender,
                 beneficiary,
-                _feeAmountRequired()
+                feeAmountRequired
             );
             emit FeeTransferred(
                 beneficiary,
                 address(tokenList[projectTokenIndex]),
-                _feeAmountRequired()
+                feeAmountRequired
             );
         }
 
@@ -232,8 +233,7 @@ contract LBPManager {
             "LBPManager: no BPT token balance"
         );
 
-        uint256 endTime;
-        (, endTime, ) = lbp.getGradualWeightUpdateParams();
+        uint256 endTime = startTimeEndTime[1];
 
         require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
@@ -245,8 +245,6 @@ contract LBPManager {
             toInternalBalance: false,
             assets: tokenList
         });
-
-        lbp.approve(address(vault), lbp.balanceOf(address(this)));
 
         vault.exitPool(lbp.getPoolId(), address(this), _receiver, request);
     }
@@ -269,8 +267,7 @@ contract LBPManager {
     function withdrawPoolTokens(address _receiver) external onlyAdmin {
         require(_receiver != address(0), "LBPManager: receiver is zero");
 
-        uint256 endTime;
-        (, endTime, ) = lbp.getGradualWeightUpdateParams();
+        uint256 endTime = startTimeEndTime[1];
         require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
         require(
