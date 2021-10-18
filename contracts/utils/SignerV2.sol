@@ -17,7 +17,7 @@ import "@gnosis.pm/safe-contracts/contracts/interfaces/ISignatureValidator.sol";
 
 /**
  * @title PrimeDAO Signer Contract
- * @dev   Enables signing SeedFactory.deploySeed() transaction before sending it to Gnosis Safe.
+ * @dev   Enables signing approved function signature transaction before sending it to Gnosis Safe.
  */
 contract SignerV2 is ISignatureValidator {
     bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH =
@@ -211,7 +211,7 @@ contract SignerV2 is ISignatureValidator {
 
     /**
      * @dev                      add new contracts and functions
-     * @param _contract           contract address
+     * @param _contract          contract address
      * @param _functionSignature function signature for the contract
      */
     function approveNewTransaction(address _contract, bytes4 _functionSignature)
