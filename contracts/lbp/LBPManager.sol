@@ -191,15 +191,16 @@ contract LBPManager {
 
         if (feePercentage != 0) {
             // Transfer fee to beneficiary.
+            uint256 feeAmountRequired = _feeAmountRequired();
             tokenList[projectTokenIndex].transferFrom(
                 _sender,
                 beneficiary,
-                _feeAmountRequired()
+                feeAmountRequired
             );
             emit FeeTransferred(
                 beneficiary,
                 address(tokenList[projectTokenIndex]),
-                _feeAmountRequired()
+                feeAmountRequired
             );
         }
 
