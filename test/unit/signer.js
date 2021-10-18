@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { constants } = require("@openzeppelin/test-helpers");
-const {SeedArguments} = require("../test-сonfig.json");
+const { SeedArguments } = require("../test-сonfig.json");
 const {
   ADMIN,
   BENEFICIARY,
