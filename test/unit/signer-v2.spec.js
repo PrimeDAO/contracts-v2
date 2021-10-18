@@ -129,6 +129,14 @@ describe("Contract: Signer", async () => {
           Signer_Factory.deploy(constants.ZERO_ADDRESS, [], [])
         ).to.revertedWith("Signer: Safe address cannot be zero");
       });
+      it("reverts when contract address is zero or function signature is zero", async () => {
+        await expect(
+          Signer_Factory.deploy(setup.proxySafe.address, [constants.ZERO_ADDRESS], ["0x00000000"])
+        ).to.revertedWith("Signer: contract address cannot be zero");
+        await expect(
+          Signer_Factory.deploy(setup.proxySafe.address, [setup.lbpManagerFactoryInstance.address], ["0x00000000"])
+        ).to.revertedWith("Signer: function signature cannot be zero");
+      });
     });
     context("valid constructor parameters", async () => {
       it("deploys signer contract", async () => {

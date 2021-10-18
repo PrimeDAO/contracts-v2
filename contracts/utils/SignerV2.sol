@@ -53,6 +53,14 @@ contract SignerV2 is ISignatureValidator {
         require(_safe != address(0), "Signer: Safe address cannot be zero");
         safe = _safe;
         for (uint256 i; i < _contracts.length; i++) {
+            require(
+                _contracts[i] != address(0),
+                "Signer: contract address cannot be zero"
+            );
+            require(
+                _functionSignatures[i] != bytes4(0),
+                "Signer: function signature cannot be zero"
+            );
             allowedTransactions[_contracts[i]][_functionSignatures[i]] = true;
         }
     }
