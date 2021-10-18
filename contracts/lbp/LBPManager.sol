@@ -232,8 +232,7 @@ contract LBPManager {
             "LBPManager: no BPT token balance"
         );
 
-        uint256 endTime;
-        (, endTime, ) = lbp.getGradualWeightUpdateParams();
+        uint256 endTime = startTimeEndTime[1];
 
         require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
@@ -267,8 +266,7 @@ contract LBPManager {
     function withdrawPoolTokens(address _receiver) external onlyAdmin {
         require(_receiver != address(0), "LBPManager: receiver is zero");
 
-        uint256 endTime;
-        (, endTime, ) = lbp.getGradualWeightUpdateParams();
+        uint256 endTime = startTimeEndTime[1];
         require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
         require(
