@@ -246,8 +246,6 @@ contract LBPManager {
             assets: tokenList
         });
 
-        lbp.approve(address(vault), lbp.balanceOf(address(this)));
-
         vault.exitPool(lbp.getPoolId(), address(this), _receiver, request);
     }
 
