@@ -90,6 +90,7 @@ describe("Contract: Signer", async () => {
   let setup;
   let nonce = 0;
   let Signer_Factory;
+  let ZERO_BYTES4 = "0x00000000";
   let tokenAddresses,
     admin,
     owner,
@@ -134,14 +135,14 @@ describe("Contract: Signer", async () => {
           Signer_Factory.deploy(
             setup.proxySafe.address,
             [constants.ZERO_ADDRESS],
-            ["0x00000000"]
+            [ZERO_BYTES4]
           )
         ).to.revertedWith("Signer: contract address cannot be zero");
         await expect(
           Signer_Factory.deploy(
             setup.proxySafe.address,
             [setup.lbpManagerFactoryInstance.address],
-            ["0x00000000"]
+            [ZERO_BYTES4]
           )
         ).to.revertedWith("Signer: function signature cannot be zero");
       });
