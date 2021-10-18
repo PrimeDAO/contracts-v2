@@ -12,7 +12,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // solium-disable linebreak-style
-pragma solidity ^0.8.6;
+pragma solidity 0.8.9;
 
 import "../utils/CloneFactory.sol";
 import "openzeppelin-solidity/contracts/access/Ownable.sol";

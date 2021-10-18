@@ -15,7 +15,7 @@
 import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 import "./IVault.sol";
 
-pragma solidity ^0.8.6;
+pragma solidity 0.8.9;
 
 interface ILBP is IERC20 {
     function updateWeightsGradually(

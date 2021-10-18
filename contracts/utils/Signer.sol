@@ -12,7 +12,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // solium-disable linebreak-style
-pragma solidity 0.8.6;
+pragma solidity 0.8.9;
 
 import "./interface/Safe.sol";
 import "@gnosis.pm/safe-contracts/contracts/interfaces/ISignatureValidator.sol";
