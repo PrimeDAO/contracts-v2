@@ -220,4 +220,20 @@ contract SignerV2 is ISignatureValidator {
         );
         allowedTransactions[_contract][_functionSignature] = true;
     }
+
+    /**
+     * @dev                      add new contracts and functions
+     * @param _contract           contract address
+     * @param _functionSignature function signature for the contract
+     */
+    function removeAllowedTransaction(address _contract, bytes4 _functionSignature)
+        external
+        onlySafe
+    {
+        require(
+            allowedTransactions[_contract][_functionSignature] == true,
+            "Signer: only approved transactions can be removed"
+        );
+        allowedTransactions[_contract][_functionSignature] = false;
+    }
 }
