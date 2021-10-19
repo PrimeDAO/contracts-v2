@@ -229,7 +229,7 @@ describe("Contract: Signer", async () => {
             uselessFunctionSignature
           )
       ).to.be.revertedWith("Signer: only approved transactions can be removed");
-    })
+    });
   });
   context(">> setSafe", async () => {
     beforeEach("!! new Signer v2 instance", async () => {
