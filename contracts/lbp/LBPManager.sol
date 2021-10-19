@@ -117,11 +117,24 @@ contract LBPManager {
         require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
         require(_fees[0] >= 1e12, "LBPManager: swapFeePercentage to low"); // 0.0001%
         require(_fees[0] <= 1e17, "LBPManager: swapFeePercentage to high"); // 10%
-        require(_tokenList.length == 2, "LBPManager: tokenList wrong size");
+        require(
+            _tokenList.length == 2 &&
+            _amounts.length == 2 &&
+            _startWeights.length == 2 &&
+            _startTimeEndTime.length == 2 &&
+            _endWeights.length == 2 &&
+            _fees.length == 2,
+            "LBPManager: arrays with wrong size"
+        );
         require(
             _tokenList[0] != _tokenList[1],
             "LBPManager: both tokens cannot be same"
         );
+        require(
+            _startTimeEndTime[0] < _startTimeEndTime[1],
+            "LBPManager: start time greater than end time"
+        );
+
 
         initialized = true;
         admin = msg.sender;
