@@ -40,7 +40,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // solhint-disable max-line-length
 // solhint-disable no-inline-assembly
 
-pragma solidity 0.8.6;
+pragma solidity 0.8.9;
 
 contract CloneFactory {
     function createClone(address target) internal returns (address result) {

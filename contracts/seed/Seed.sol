@@ -14,7 +14,7 @@
 /* solhint-disable space-after-comma */
 /* solhint-disable max-states-count */
 // solium-disable linebreak-style
-pragma solidity 0.8.6;
+pragma solidity 0.8.9;
 
 import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 

@@ -12,7 +12,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 /* solium-disable */
-pragma solidity ^0.8.6;
+pragma solidity 0.8.9;
 
 import "openzeppelin-contracts-sol8/token/ERC20/IERC20.sol";
 
