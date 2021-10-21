@@ -1843,6 +1843,7 @@ describe("Contract: Seed", async () => {
 
           expect(await seed.whitelisted(buyer3.address)).to.equal(true);
           expect(await seed.whitelisted(buyer4.address)).to.equal(true);
+          expect(await seed.isWhitelistBatchInvoked()).to.equal(true);
         });
       });
     });

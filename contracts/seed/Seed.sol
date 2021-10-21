@@ -52,6 +52,7 @@ contract Seed {
     bool public initialized; // is this contract initialized [not necessary that it is funded]
     bool public minimumReached; // if the softCap[minimum limit of funding token] is reached
     bool public maximumReached; // if the hardCap[maximum limit of funding token] is reached
+    bool public isWhitelistBatchInvoked; // if the whitelistBatch method have been invoked
     uint256 public vestingStartTime; // timestamp for when vesting starts, by default == endTime,
     //     otherwise when maximumReached is reached
     uint256 public totalFunderCount; // Total funders that have contributed.
@@ -398,6 +399,7 @@ contract Seed {
     function whitelistBatch(address[] memory _buyers) external onlyAdmin {
         require(!closed, "Seed: should not be closed");
         require(permissionedSeed == true, "Seed: seed is not whitelisted");
+        isWhitelistBatchInvoked = true;
         for (uint256 i = 0; i < _buyers.length; i++) {
             whitelisted[_buyers[i]] = true;
         }
