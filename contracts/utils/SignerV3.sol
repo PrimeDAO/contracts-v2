@@ -32,13 +32,16 @@ contract SignerV2 is ISignatureValidator {
     /* solium-enable */
 
     event SignatureCreated(bytes signature, bytes32 indexed hash);
+    event NewDaoRegistered(bytes32 indexed botId, address indexed safe);
 
     /**
      * @dev this will be used to register a safe for new telegram bot created by user
      * @param _safe address of newly deployed gnosis safe for the telegram bot
      */
     function registerNewDao(address _safe) public {
-        registeredSafe[keccak256(abi.encode(_safe))] = _safe;
+        bytes32 botId = keccak256(abi.encode(_safe));
+        registeredSafe[botId] = _safe;
+        emit NewDaoRegistered(botId, _safe);
     }
 
     /**
@@ -169,7 +172,10 @@ contract SignerV2 is ISignatureValidator {
      * @param _safe        safe address
      */
     function setSafe(address _safe, bytes32 _botId) public {
-        require(msg.sender == registeredSafe[_botId], "Signer: only safe functionality");
+        require(
+            msg.sender == registeredSafe[_botId],
+            "Signer: only safe functionality"
+        );
         require(_safe != address(0), "Signer: new safe cannot be zero address");
         registeredSafe[_botId] = _safe;
     }
