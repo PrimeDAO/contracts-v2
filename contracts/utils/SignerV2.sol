@@ -28,33 +28,20 @@ contract SignerV2 is ISignatureValidator {
     mapping(bytes32 => bytes32) public approvedSignatures;
 
     /* solium-disable */
-    address public safe;
-    mapping(address => mapping(bytes4 => bool)) public allowedTransactions;
+    mapping(bytes32 => address) public registeredSafe;
     /* solium-enable */
 
     event SignatureCreated(bytes signature, bytes32 indexed hash);
-
-    modifier onlySafe() {
-        require(msg.sender == safe, "Signer: only safe functionality");
-        _;
-    }
+    event NewDaoRegistered(bytes32 indexed botId, address indexed safe);
 
     /**
-     * @dev                       Signer Constructor
-     * @param _safe               Gnosis Safe address.
-     * @param _contracts          array of contract addresses
-     * @param _functionSignatures array of function signatures
+     * @dev this will be used to register a safe for new telegram bot created by user
+     * @param _safe address of newly deployed gnosis safe for the telegram bot
      */
-    constructor(
-        address _safe,
-        address[] memory _contracts,
-        bytes4[] memory _functionSignatures
-    ) {
-        require(_safe != address(0), "Signer: Safe address cannot be zero");
-        safe = _safe;
-        for (uint256 i; i < _contracts.length; i++) {
-            allowedTransactions[_contracts[i]][_functionSignatures[i]] = true;
-        }
+    function registerNewDao(address _safe) public {
+        bytes32 botId = keccak256(abi.encode(_safe));
+        registeredSafe[botId] = _safe;
+        emit NewDaoRegistered(botId, _safe);
     }
 
     /**
@@ -66,11 +53,10 @@ contract SignerV2 is ISignatureValidator {
      * @param _safeTxGas      safe transaction gas for gnosis safe.
      * @param _baseGas        base gas for gnosis safe.
      * @param _gasPrice       gas price for gnosis safe transaction.
-     * @param _gasToken       token which gas needs to paid for gnosis safe transaction.
-     * @param _refundReceiver address account to receive refund for remaining gas.
      * @param _nonce          gnosis safe contract nonce.
      */
     function generateSignature(
+        bytes32 _botId,
         address _to,
         uint256 _value,
         bytes calldata _data,
@@ -78,24 +64,13 @@ contract SignerV2 is ISignatureValidator {
         uint256 _safeTxGas,
         uint256 _baseGas,
         uint256 _gasPrice,
-        address _gasToken,
-        address _refundReceiver,
         uint256 _nonce
     ) external returns (bytes memory signature, bytes32 hash) {
         // check if transaction parameters are correct
-        require(
-            allowedTransactions[_to][_getFunctionHashFromData(_data)],
-            "Signer: can only sign calls to approved contract function"
-        );
-        require(
-            _value == 0 &&
-                _refundReceiver == address(0) &&
-                _operation == Enum.Operation.Call,
-            "Signer: invalid arguments provided"
-        );
+        address currentSafe = registeredSafe[_botId];
 
         // get contractTransactionHash from gnosis safe
-        hash = Safe(safe).getTransactionHash(
+        hash = Safe(currentSafe).getTransactionHash(
             _to,
             0,
             _data,
@@ -103,8 +78,8 @@ contract SignerV2 is ISignatureValidator {
             _safeTxGas,
             _baseGas,
             _gasPrice,
-            _gasToken,
-            _refundReceiver,
+            address(0),
+            address(0),
             _nonce
         );
 
@@ -196,28 +171,12 @@ contract SignerV2 is ISignatureValidator {
      * @dev                set new safe
      * @param _safe        safe address
      */
-    function setSafe(address _safe) public onlySafe {
+    function setSafe(address _safe, bytes32 _botId) public {
+        require(
+            msg.sender == registeredSafe[_botId],
+            "Signer: only safe functionality"
+        );
         require(_safe != address(0), "Signer: new safe cannot be zero address");
-        safe = _safe;
-    }
-
-    /**
-     * @dev                      add new contracts and functions
-     * @param _contract           contract address
-     * @param _functionSignature function signature for the contract
-     */
-    function approveNewTransaction(address _contract, bytes4 _functionSignature)
-        external
-        onlySafe
-    {
-        require(
-            _contract != address(0),
-            "Signer: contract address cannot be zero"
-        );
-        require(
-            _functionSignature != bytes4(0),
-            "Signer: function signature cannot be zero"
-        );
-        allowedTransactions[_contract][_functionSignature] = true;
+        registeredSafe[_botId] = _safe;
     }
 }
