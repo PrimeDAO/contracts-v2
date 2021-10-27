@@ -23,19 +23,6 @@ const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
   await lbpManagerFactoryInstance.setMasterCopy(lbpManagerAddress);
 
   await lbpManagerFactoryInstance.transferOwnership(safeInstance.address);
-
-  const deployLBPManagerFunctionSignature =
-    await lbpManagerFactoryInstance.interface.getSighash("deployLBPManager");
-
-  await deploy("SignerV2", {
-    from: root,
-    args: [
-      safeInstance.address,
-      [lbpManagerFactoryInstance.address],
-      [deployLBPManagerFunctionSignature],
-    ],
-    log: true,
-  });
 };
 
 module.exports = deployFunction;
