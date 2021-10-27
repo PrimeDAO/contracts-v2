@@ -210,6 +210,44 @@ describe("Contract: Signer", async () => {
       ).to.equal(true);
     });
   });
+  context(">> removeAllowedTransaction", () => {
+    it("$ removes allowed transaction successfully", async () => {
+      expect(
+        await setup.newSigner
+          .connect(owner)
+          .allowedTransactions(
+            setup.lbpManagerFactoryInstance.address,
+            uselessFunctionSignature
+          )
+      ).to.equal(true);
+      await expect(
+        setup.newSigner
+          .connect(owner)
+          .removeAllowedTransaction(
+            setup.lbpManagerFactoryInstance.address,
+            uselessFunctionSignature
+          )
+      ).to.not.be.reverted;
+      expect(
+        await setup.newSigner
+          .connect(owner)
+          .allowedTransactions(
+            setup.lbpManagerFactoryInstance.address,
+            uselessFunctionSignature
+          )
+      ).to.equal(false);
+    });
+    it("$ reverts when trying to removed non existing transaction", async () => {
+      await expect(
+        setup.newSigner
+          .connect(owner)
+          .removeAllowedTransaction(
+            setup.lbpManagerFactoryInstance.address,
+            uselessFunctionSignature
+          )
+      ).to.be.revertedWith("Signer: only approved transactions can be removed");
+    });
+  });
   context(">> setSafe", async () => {
     beforeEach("!! new Signer v2 instance", async () => {
       setup.newSigner = await Signer_Factory.deploy(owner.address, [], []);
