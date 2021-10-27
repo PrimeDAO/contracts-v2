@@ -341,7 +341,7 @@ describe(">> Contract: LBPManager", () => {
           lbpManagerInstance.initializeLBPManager(
             ...invalidInitializeLBPManagerParams
           )
-        ).to.revertedWith("LBPManager: tokenList wrong size");
+        ).to.revertedWith("LBPManager: arrays with wrong size");
       });
       it("» revert when both tokens are same", async () => {
         invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
@@ -363,6 +363,27 @@ describe(">> Contract: LBPManager", () => {
             ...invalidInitializeLBPManagerParams
           )
         ).to.revertedWith("LBPManager: both tokens cannot be same");
+      });
+      it("» revert when startTime is after endTime", async () => {
+        invalidInitializeLBPManagerParams = paramGenerator.initializeParams(
+          lbpFactoryInstance.address,
+          NAME,
+          SYMBOL,
+          [tokenAddresses[0], tokenAddresses[1]],
+          INITIAL_BALANCES,
+          START_WEIGHTS,
+          endTime,
+          startTime,
+          END_WEIGHTS,
+          fees,
+          beneficiary.address,
+          METADATA
+        );
+        await expect(
+          lbpManagerInstance.initializeLBPManager(
+            ...invalidInitializeLBPManagerParams
+          )
+        ).to.revertedWith("LBPManager: start time greater than end time");
       });
     });
     describe("$ initialize succeeds", () => {
