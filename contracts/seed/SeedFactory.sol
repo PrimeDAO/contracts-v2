@@ -10,6 +10,9 @@
 */
 
 // SPDX-License-Identifier: GPL-3.0-or-later
+// PrimeDAO Seed Factory contract. Enable PrimeDAO governance to create new Seed contracts.
+// Copyright (C) 2021 PrimeDao
+
 // solium-disable linebreak-style
 /* solhint-disable space-after-comma */
 

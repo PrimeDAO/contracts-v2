@@ -8,6 +8,8 @@
 */
 
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Signer contract. Enables signing transaction before sending it to Gnosis Safe.
+// Copyright (C) 2021 PrimeDao
 
 // solium-disable linebreak-style
 pragma solidity 0.8.9;
@@ -17,7 +19,7 @@ import "@gnosis.pm/safe-contracts/contracts/interfaces/ISignatureValidator.sol";
 
 /**
  * @title PrimeDAO Signer Contract
- * @dev   Enables signing SeedFactory.deploySeed() transaction before sending it to Gnosis Safe.
+ * @dev   Enables signing transaction before sending it to Gnosis Safe.
  */
 contract SignerV2 is ISignatureValidator {
     bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH =
