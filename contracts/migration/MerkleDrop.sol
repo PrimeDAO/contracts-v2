@@ -15,6 +15,12 @@
  and the addition of a blocknumber that needs to have passed for a drop to be claimable.
 */
 
+// MerkelDrop.sol was originally published SPDX-License-Identifier: AGPL-3.0-or-later.
+// Republished by PrimeDAO under GNU General Public License v3.0.
+
+// MerkleDrop contract. Smart contract for executing merkle drops for ERC20 tokens.
+// Copyright (C) 2021 PrimeDao
+
 pragma solidity 0.5.16;
 pragma experimental ABIEncoderV2;
 
