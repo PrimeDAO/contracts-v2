@@ -24,7 +24,7 @@ import "./LBPManager.sol";
  */
 contract LBPManagerFactory is CloneFactory, Ownable {
     address public masterCopy;
-    address public LBPFactory;
+    address public lbpFactory;
 
     event LBPManagerDeployed(
         address indexed lbpManager,
@@ -44,15 +44,16 @@ contract LBPManagerFactory is CloneFactory, Ownable {
 
     /**
      * @dev                             Constructor.
-     * @param _LBPFactory               The address of Balancers LBP factory.
+     * @param _lbpFactory               The address of Balancers LBP factory.
      */
-    constructor(address _LBPFactory) {
-        require(_LBPFactory != address(0), "LBPMFactory: LBPFactory is zero");
-        LBPFactory = _LBPFactory;
+    constructor(address _lbpFactory) {
+        require(_lbpFactory != address(0), "LBPMFactory: LBPFactory is zero");
+        lbpFactory = _lbpFactory;
     }
 
     modifier validAddress(address addressToCheck) {
         require(addressToCheck != address(0), "LBPMFactory: address is zero");
+        // solhint-disable-next-line reason-string
         require(
             addressToCheck != address(this),
             "LBPMFactory: address same as LBPManagerFactory"
@@ -75,15 +76,15 @@ contract LBPManagerFactory is CloneFactory, Ownable {
 
     /**
      * @dev                             Set Balancers LBP Factory contract as basis for deploying LBPs.
-     * @param _LBPFactory               The address of Balancers LBP factory.
+     * @param _lbpFactory               The address of Balancers LBP factory.
      */
-    function setLBPFactory(address _LBPFactory)
+    function setLBPFactory(address _lbpFactory)
         external
         onlyOwner
-        validAddress(_LBPFactory)
+        validAddress(_lbpFactory)
     {
-        emit LBPFactoryChanged(LBPFactory, _LBPFactory);
-        LBPFactory = _LBPFactory;
+        emit LBPFactoryChanged(lbpFactory, _lbpFactory);
+        lbpFactory = _lbpFactory;
     }
 
     /**
@@ -125,6 +126,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         uint256[] memory _fees,
         bytes memory _metadata
     ) external onlyOwner {
+        // solhint-disable-next-line reason-string
         require(
             masterCopy != address(0),
             "LBPMFactory: LBPManager mastercopy not set"
@@ -133,7 +135,7 @@ contract LBPManagerFactory is CloneFactory, Ownable {
         address lbpManager = createClone(masterCopy);
 
         LBPManager(lbpManager).initializeLBPManager(
-            LBPFactory,
+            lbpFactory,
             _beneficiary,
             _name,
             _symbol,

@@ -128,7 +128,7 @@ describe("Contract: Signer", async () => {
       it("reverts when safe address is zero", async () => {
         await expect(
           Signer_Factory.deploy(constants.ZERO_ADDRESS, [], [])
-        ).to.revertedWith("Signer: Safe address cannot be zero");
+        ).to.revertedWith("Signer: Safe address zero");
       });
       it("reverts when contract address is zero or function signature is zero", async () => {
         await expect(
@@ -137,14 +137,14 @@ describe("Contract: Signer", async () => {
             [constants.ZERO_ADDRESS],
             [ZERO_BYTES4]
           )
-        ).to.revertedWith("Signer: contract address cannot be zero");
+        ).to.revertedWith("Signer: contract address zero");
         await expect(
           Signer_Factory.deploy(
             setup.proxySafe.address,
             [setup.lbpManagerFactoryInstance.address],
             [ZERO_BYTES4]
           )
-        ).to.revertedWith("Signer: function signature cannot be zero");
+        ).to.revertedWith("Signer: function signature zero");
       });
     });
     context("valid constructor parameters", async () => {
@@ -179,7 +179,7 @@ describe("Contract: Signer", async () => {
         setup.newSigner
           .connect(owner)
           .approveNewTransaction(ZERO_ADDRESS, uselessFunctionSignature)
-      ).to.be.revertedWith("Signer: contract address cannot be zero");
+      ).to.be.revertedWith("Signer: contract address zero");
     });
     it("$ reverts when function signature is zero", async () => {
       await expect(
@@ -189,7 +189,7 @@ describe("Contract: Signer", async () => {
             setup.lbpManagerFactoryInstance.address,
             "0x00000000"
           )
-      ).to.be.revertedWith("Signer: function signature cannot be zero");
+      ).to.be.revertedWith("Signer: function signature zero");
     });
     it("$ approves new transaction when invoked by safe", async () => {
       await expect(
@@ -255,7 +255,7 @@ describe("Contract: Signer", async () => {
     it("$ reverts when safe address is zero", async () => {
       await expect(
         setup.newSigner.connect(owner).setSafe(ZERO_ADDRESS)
-      ).to.be.revertedWith("Signer: new safe cannot be zero address");
+      ).to.be.revertedWith("Signer: Safe zero address");
     });
     it("$ sets new safe safe address with valid address", async () => {
       await expect(
@@ -308,9 +308,7 @@ describe("Contract: Signer", async () => {
         ];
         await expect(
           setup.signer.generateSignature(...trx, nonce)
-        ).to.be.revertedWith(
-          "Signer: can only sign calls to approved contract function"
-        );
+        ).to.be.revertedWith("Signer: invalid function");
       });
       it("reverts on invalid value parameter", async () => {
         // here we create a transaction object
@@ -337,7 +335,7 @@ describe("Contract: Signer", async () => {
         ];
         await expect(
           setup.signer.generateSignature(...trx, nonce)
-        ).to.be.revertedWith("Signer: invalid arguments provided");
+        ).to.be.revertedWith("Signer: invalid arguments");
       });
       it("reverts on invalid operation field", async () => {
         // here we create a transaction object
@@ -364,7 +362,7 @@ describe("Contract: Signer", async () => {
         ];
         await expect(
           setup.signer.generateSignature(...trx, nonce)
-        ).to.be.revertedWith("Signer: invalid arguments provided");
+        ).to.be.revertedWith("Signer: invalid arguments");
       });
       it("reverts on invalid to refund receiver", async () => {
         // here we create a transaction object
@@ -391,7 +389,7 @@ describe("Contract: Signer", async () => {
         ];
         await expect(
           setup.signer.generateSignature(...trx, nonce)
-        ).to.be.revertedWith("Signer: invalid arguments provided");
+        ).to.be.revertedWith("Signer: invalid arguments");
       });
     });
     context("valid arguments", async () => {

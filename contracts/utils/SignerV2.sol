@@ -50,16 +50,16 @@ contract SignerV2 is ISignatureValidator {
         address[] memory _contracts,
         bytes4[] memory _functionSignatures
     ) {
-        require(_safe != address(0), "Signer: Safe address cannot be zero");
+        require(_safe != address(0), "Signer: Safe address zero");
         safe = _safe;
         for (uint256 i; i < _contracts.length; i++) {
             require(
                 _contracts[i] != address(0),
-                "Signer: contract address cannot be zero"
+                "Signer: contract address zero"
             );
             require(
                 _functionSignatures[i] != bytes4(0),
-                "Signer: function signature cannot be zero"
+                "Signer: function signature zero"
             );
             allowedTransactions[_contracts[i]][_functionSignatures[i]] = true;
         }
@@ -93,13 +93,13 @@ contract SignerV2 is ISignatureValidator {
         // check if transaction parameters are correct
         require(
             allowedTransactions[_to][_getFunctionHashFromData(_data)],
-            "Signer: can only sign calls to approved contract function"
+            "Signer: invalid function"
         );
         require(
             _value == 0 &&
                 _refundReceiver == address(0) &&
                 _operation == Enum.Operation.Call,
-            "Signer: invalid arguments provided"
+            "Signer: invalid arguments"
         );
 
         // get contractTransactionHash from gnosis safe
@@ -122,6 +122,7 @@ contract SignerV2 is ISignatureValidator {
         );
         bytes memory messageHash = _encodeMessageHash(hash);
         // check if transaction is not signed before
+        // solhint-disable-next-line reason-string
         require(
             approvedSignatures[hash] != keccak256(messageHash),
             "Signer: transaction already signed"
@@ -152,6 +153,7 @@ contract SignerV2 is ISignatureValidator {
     {
         if (_data.length == 32) {
             bytes32 hash;
+            // solhint-disable-next-line no-inline-assembly
             assembly {
                 hash := mload(add(_data, 32))
             }
@@ -175,6 +177,7 @@ contract SignerV2 is ISignatureValidator {
         pure
         returns (bytes4 functionHash)
     {
+        // solhint-disable-next-line no-inline-assembly
         assembly {
             functionHash := mload(add(data, 32))
         }
@@ -205,7 +208,7 @@ contract SignerV2 is ISignatureValidator {
      * @param _safe        safe address
      */
     function setSafe(address _safe) public onlySafe {
-        require(_safe != address(0), "Signer: new safe cannot be zero address");
+        require(_safe != address(0), "Signer: Safe zero address");
         safe = _safe;
     }
 
@@ -218,13 +221,10 @@ contract SignerV2 is ISignatureValidator {
         external
         onlySafe
     {
-        require(
-            _contract != address(0),
-            "Signer: contract address cannot be zero"
-        );
+        require(_contract != address(0), "Signer: contract address zero");
         require(
             _functionSignature != bytes4(0),
-            "Signer: function signature cannot be zero"
+            "Signer: function signature zero"
         );
         allowedTransactions[_contract][_functionSignature] = true;
     }
@@ -238,6 +238,7 @@ contract SignerV2 is ISignatureValidator {
         address _contract,
         bytes4 _functionSignature
     ) external onlySafe {
+        // solhint-disable-next-line reason-string
         require(
             allowedTransactions[_contract][_functionSignature] == true,
             "Signer: only approved transactions can be removed"
