@@ -25,14 +25,14 @@ import "../utils/interface/ILBP.sol";
  */
 contract LBPManager {
     // Constants
-    uint256 private constant HUNDRED_PERCENT = 10e18; // Used in calculating the fee.
+    uint256 private constant HUNDRED_PERCENT = 1e18; // Used in calculating the fee.
 
     // Locked parameter
     string public symbol; // Symbol of the LBP.
     string public name; // Name of the LBP.
     address public admin; // Address of the admin of this contract.
     address public beneficiary; // Address that recieves fees.
-    uint256 public feePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%)
+    uint256 public feePercentage; // Fee expressed as a % (e.g. 10**18 = 100% fee, toWei('1') = 100%, 1e18)
     uint256 public swapFeePercentage; // Percentage of fee paid for every swap in the LBP.
     IERC20[] public tokenList; // Tokens that are used in the LBP, sorted by address in numerical order (ascending).
     uint256[] public amounts; // Amount of tokens to be added as liquidity in LBP.
@@ -119,10 +119,22 @@ contract LBPManager {
         require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
         require(_fees[0] >= 1e12, "LBPManager: swapFeePercentage to low"); // 0.0001%
         require(_fees[0] <= 1e17, "LBPManager: swapFeePercentage to high"); // 10%
-        require(_tokenList.length == 2, "LBPManager: tokenList wrong size");
+        require(
+            _tokenList.length == 2 &&
+                _amounts.length == 2 &&
+                _startWeights.length == 2 &&
+                _startTimeEndTime.length == 2 &&
+                _endWeights.length == 2 &&
+                _fees.length == 2,
+            "LBPManager: arrays with wrong size"
+        );
         require(
             _tokenList[0] != _tokenList[1],
             "LBPManager: both tokens cannot be same"
+        );
+        require(
+            _startTimeEndTime[0] < _startTimeEndTime[1],
+            "LBPManager: start time greater than end time"
         );
 
         initialized = true;
@@ -193,15 +205,16 @@ contract LBPManager {
 
         if (feePercentage != 0) {
             // Transfer fee to beneficiary.
+            uint256 feeAmountRequired = _feeAmountRequired();
             tokenList[projectTokenIndex].transferFrom(
                 _sender,
                 beneficiary,
-                _feeAmountRequired()
+                feeAmountRequired
             );
             emit FeeTransferred(
                 beneficiary,
                 address(tokenList[projectTokenIndex]),
-                _feeAmountRequired()
+                feeAmountRequired
             );
         }
 
@@ -234,8 +247,7 @@ contract LBPManager {
             "LBPManager: no BPT token balance"
         );
 
-        uint256 endTime;
-        (, endTime, ) = lbp.getGradualWeightUpdateParams();
+        uint256 endTime = startTimeEndTime[1];
 
         require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
@@ -247,8 +259,6 @@ contract LBPManager {
             toInternalBalance: false,
             assets: tokenList
         });
-
-        lbp.approve(address(vault), lbp.balanceOf(address(this)));
 
         vault.exitPool(lbp.getPoolId(), address(this), _receiver, request);
     }
@@ -271,8 +281,7 @@ contract LBPManager {
     function withdrawPoolTokens(address _receiver) external onlyAdmin {
         require(_receiver != address(0), "LBPManager: receiver is zero");
 
-        uint256 endTime;
-        (, endTime, ) = lbp.getGradualWeightUpdateParams();
+        uint256 endTime = startTimeEndTime[1];
         require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
         require(

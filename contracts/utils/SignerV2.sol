@@ -19,7 +19,7 @@ import "@gnosis.pm/safe-contracts/contracts/interfaces/ISignatureValidator.sol";
 
 /**
  * @title PrimeDAO Signer Contract
- * @dev   Enables signing transaction before sending it to Gnosis Safe.
+ * @dev   Enables signing approved function signature transaction before sending it to Gnosis Safe.
  */
 contract SignerV2 is ISignatureValidator {
     bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH =
@@ -55,6 +55,14 @@ contract SignerV2 is ISignatureValidator {
         require(_safe != address(0), "Signer: Safe address cannot be zero");
         safe = _safe;
         for (uint256 i; i < _contracts.length; i++) {
+            require(
+                _contracts[i] != address(0),
+                "Signer: contract address cannot be zero"
+            );
+            require(
+                _functionSignatures[i] != bytes4(0),
+                "Signer: function signature cannot be zero"
+            );
             allowedTransactions[_contracts[i]][_functionSignatures[i]] = true;
         }
     }
@@ -205,7 +213,7 @@ contract SignerV2 is ISignatureValidator {
 
     /**
      * @dev                      add new contracts and functions
-     * @param _contract           contract address
+     * @param _contract          contract address
      * @param _functionSignature function signature for the contract
      */
     function approveNewTransaction(address _contract, bytes4 _functionSignature)
@@ -221,5 +229,21 @@ contract SignerV2 is ISignatureValidator {
             "Signer: function signature cannot be zero"
         );
         allowedTransactions[_contract][_functionSignature] = true;
+    }
+
+    /**
+     * @dev                      add new contracts and functions
+     * @param _contract           contract address
+     * @param _functionSignature function signature for the contract
+     */
+    function removeAllowedTransaction(
+        address _contract,
+        bytes4 _functionSignature
+    ) external onlySafe {
+        require(
+            allowedTransactions[_contract][_functionSignature] == true,
+            "Signer: only approved transactions can be removed"
+        );
+        allowedTransactions[_contract][_functionSignature] = false;
     }
 }

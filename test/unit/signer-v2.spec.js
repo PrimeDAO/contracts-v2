@@ -90,6 +90,7 @@ describe("Contract: Signer", async () => {
   let setup;
   let nonce = 0;
   let Signer_Factory;
+  let ZERO_BYTES4 = "0x00000000";
   let tokenAddresses,
     admin,
     owner,
@@ -128,6 +129,22 @@ describe("Contract: Signer", async () => {
         await expect(
           Signer_Factory.deploy(constants.ZERO_ADDRESS, [], [])
         ).to.revertedWith("Signer: Safe address cannot be zero");
+      });
+      it("reverts when contract address is zero or function signature is zero", async () => {
+        await expect(
+          Signer_Factory.deploy(
+            setup.proxySafe.address,
+            [constants.ZERO_ADDRESS],
+            [ZERO_BYTES4]
+          )
+        ).to.revertedWith("Signer: contract address cannot be zero");
+        await expect(
+          Signer_Factory.deploy(
+            setup.proxySafe.address,
+            [setup.lbpManagerFactoryInstance.address],
+            [ZERO_BYTES4]
+          )
+        ).to.revertedWith("Signer: function signature cannot be zero");
       });
     });
     context("valid constructor parameters", async () => {
@@ -191,6 +208,44 @@ describe("Contract: Signer", async () => {
             uselessFunctionSignature
           )
       ).to.equal(true);
+    });
+  });
+  context(">> removeAllowedTransaction", () => {
+    it("$ removes allowed transaction successfully", async () => {
+      expect(
+        await setup.newSigner
+          .connect(owner)
+          .allowedTransactions(
+            setup.lbpManagerFactoryInstance.address,
+            uselessFunctionSignature
+          )
+      ).to.equal(true);
+      await expect(
+        setup.newSigner
+          .connect(owner)
+          .removeAllowedTransaction(
+            setup.lbpManagerFactoryInstance.address,
+            uselessFunctionSignature
+          )
+      ).to.not.be.reverted;
+      expect(
+        await setup.newSigner
+          .connect(owner)
+          .allowedTransactions(
+            setup.lbpManagerFactoryInstance.address,
+            uselessFunctionSignature
+          )
+      ).to.equal(false);
+    });
+    it("$ reverts when trying to removed non existing transaction", async () => {
+      await expect(
+        setup.newSigner
+          .connect(owner)
+          .removeAllowedTransaction(
+            setup.lbpManagerFactoryInstance.address,
+            uselessFunctionSignature
+          )
+      ).to.be.revertedWith("Signer: only approved transactions can be removed");
     });
   });
   context(">> setSafe", async () => {
