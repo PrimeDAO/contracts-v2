@@ -1,7 +1,7 @@
 const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
-  // const safeInstance = await ethers.getContract("Safe");
+  const safeInstance = await ethers.getContract("Safe");
   const lbpFactoryInstance = await ethers.getContract(
     "LiquidityBootstrappingPoolFactory"
   );
@@ -24,7 +24,7 @@ const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
 
   await lbpManagerFactoryInstance.setMasterCopy(lbpManagerAddress);
 
-  // await lbpManagerFactoryInstance.transferOwnership(safeInstance.address);
+  await lbpManagerFactoryInstance.transferOwnership(safeInstance.address);
 };
 
 module.exports = deployFunction;
