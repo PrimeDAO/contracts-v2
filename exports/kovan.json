@@ -893,6 +893,10 @@
         }
       ]
     },
+    "PrimeToken": {
+      "address": "0xBE778562b804DF11d0f1C02ADD3cE963E465dd70",
+      "abi": "ERC20"
+    },
     "Seed": {
       "address": "0x0beD7D35bFDFd0af54Dc3819F4955aAfAEfbBC8B",
       "abi": [
@@ -1889,9 +1893,6 @@
           "type": "function"
         }
       ]
-    },
-    "PrimeToken": {
-      "abi": "ERC20"
     },
     "DAI": {
       "abi": "ERC20",
