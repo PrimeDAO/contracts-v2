@@ -9,6 +9,9 @@
 
 */
 // SPDX-License-Identifier: GPL-3.0-or-later
+// PrimeDAO Reputation contract. Reputation is a non-transferable ERC20 token used for PrimeDAO Governance.
+// Copyright (C) 2021 PrimeDao
+
 // solium-disable linebreak-style
 
 pragma solidity 0.8.6;

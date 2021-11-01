@@ -10,6 +10,8 @@
 */
 
 // SPDX-License-Identifier: GPL-3.0-or-later
+// LBPManager Factory contract. Governance to create new LBPManager contracts.
+// Copyright (C) 2021 PrimeDao
 
 // solium-disable linebreak-style
 pragma solidity 0.8.9;

@@ -10,6 +10,9 @@
 */
 
 // SPDX-License-Identifier: GPL-3.0-or-later
+// PrimeDAO Seed contract. Smart contract for seed phases of liquid launch.
+// Copyright (C) 2021 PrimeDao
+
 // solium-disable operator-whitespace
 /* solhint-disable space-after-comma */
 /* solhint-disable max-states-count */

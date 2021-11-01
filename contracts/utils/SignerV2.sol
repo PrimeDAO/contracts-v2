@@ -8,6 +8,8 @@
 */
 
 // SPDX-License-Identifier: GPL-3.0-or-later
+// Signer contract. Enables signing transaction before sending it to Gnosis Safe.
+// Copyright (C) 2021 PrimeDao
 
 // solium-disable linebreak-style
 pragma solidity 0.8.9;
