@@ -2,7 +2,7 @@ const fs = require("fs").promises;
 const path = require("path");
 const sharedAbiConfig = require("./sharedAbiConfig");
 
-const networks = ["rinkeby", "mainnet"];
+const networks = ["rinkeby", "mainnet", "kovan"];
 
 const compressAbis = (abisObject, sharedAbiConfig, networkName) => {
   const networkContracts = { ...sharedAbiConfig[networkName] };

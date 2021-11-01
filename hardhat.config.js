@@ -59,6 +59,11 @@ module.exports = {
       url: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
       saveDeployments: true,
     },
+    kovan: {
+      ...sharedNetworkConfig,
+      url: `https://kovan.infura.io/v3/${INFURA_KEY}`,
+      saveDeployments: true,
+    },
     ganache: {
       ...sharedNetworkConfig,
       url: "http://127.0.0.1:7545",

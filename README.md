@@ -85,6 +85,17 @@ General (multiple tags):
 Example (deploys Migration contracts):
 `npm run deploy:contracts:rinkeby --tags=Migration`
 
+### Deployment to kovan
+
+General (one tag):
+`npm run deploy:contracts:kovan --tags=<YOUR_TAG_NAME>`
+
+General (multiple tags):
+`npm run deploy:contracts:kovan --tags=<YOUR_TAG_NAME1>,<YOUR_TAG_NAME2>`
+
+Example (deploys Migration contracts):
+`npm run deploy:contracts:kovan --tags=Migration`
+
 ### Deployment to mainnet
 
 General (one tag):

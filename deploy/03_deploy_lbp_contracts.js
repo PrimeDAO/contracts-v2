@@ -2,7 +2,9 @@ const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
   const safeInstance = await ethers.getContract("Safe");
-  const lbpFactoryInstance = await ethers.getContract("LBPFactory");
+  const lbpFactoryInstance = await ethers.getContract(
+    "LiquidityBootstrappingPoolFactory"
+  );
 
   await deploy("LBPManagerFactory", {
     from: root,
