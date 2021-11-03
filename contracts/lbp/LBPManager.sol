@@ -306,7 +306,7 @@ contract LBPManager {
     }
 
     /**
-     * @dev                              Tells whether swaps are enabled or not for the given pool
+     * @dev                              Tells whether swaps are enabled or not for the LBP
      */
     function getSwapEnabled() public view returns (bool) {
         return lbp.getSwapEnabled();
