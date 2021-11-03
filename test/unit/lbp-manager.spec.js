@@ -1021,12 +1021,12 @@ describe(">> Contract: LBPManager", () => {
     it("» setSwapEnabled to false", async () => {
       expect(await lbpManagerInstance.admin()).to.equal(admin.address);
       await lbpManagerInstance.connect(admin).setSwapEnabled(false);
-      expect(await lbpInstance.getSwapEnabled()).to.be.false;
+      expect(await lbpManagerInstance.getSwapEnabled()).to.equal(false);
     });
     it("» setSwapEnabled to true", async () => {
       expect(await lbpManagerInstance.admin()).to.equal(admin.address);
       await lbpManagerInstance.connect(admin).setSwapEnabled(true);
-      expect(await lbpInstance.getSwapEnabled()).to.be.true;
+      expect(await lbpManagerInstance.getSwapEnabled()).to.equal(true);
     });
   });
   describe("# withdraw liquidity from the pool", () => {
