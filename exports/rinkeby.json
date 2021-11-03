@@ -3,7 +3,7 @@
   "chainId": "4",
   "contracts": {
     "LBPManager": {
-      "address": "0xBfF6938b2A6a8ca827990688d9DDFdf7B65B7744",
+      "address": "0xc5b506d51cd186fd11eAE363996D080F3DeDb8B4",
       "abi": [
         {
           "anonymous": false,
@@ -68,7 +68,7 @@
             {
               "indexed": true,
               "internalType": "address",
-              "name": "LbpAddress",
+              "name": "lbpAddress",
               "type": "address"
             },
             {
@@ -80,19 +80,6 @@
           ],
           "name": "PoolTokensWithdrawn",
           "type": "event"
-        },
-        {
-          "inputs": [],
-          "name": "LBPFactory",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
         },
         {
           "inputs": [],
@@ -172,6 +159,19 @@
           "type": "function"
         },
         {
+          "inputs": [],
+          "name": "getSwapEnabled",
+          "outputs": [
+            {
+              "internalType": "bool",
+              "name": "",
+              "type": "bool"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
           "inputs": [
             {
               "internalType": "address",
@@ -188,7 +188,7 @@
           "inputs": [
             {
               "internalType": "address",
-              "name": "_LBPFactory",
+              "name": "_lbpFactory",
               "type": "address"
             },
             {
@@ -275,6 +275,19 @@
         },
         {
           "inputs": [],
+          "name": "lbpFactory",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
           "name": "metadata",
           "outputs": [
             {
@@ -341,7 +354,7 @@
         {
           "inputs": [
             {
-              "internalType": "address payable",
+              "internalType": "address",
               "name": "_receiver",
               "type": "address"
             }
@@ -489,13 +502,13 @@
       ]
     },
     "LBPManagerFactory": {
-      "address": "0xE3Ba9BA90616e862E7645fC4Fcad151ae3E28970",
+      "address": "0xE53cD0409415342d0bdACBc4dd8D5714e5303a4C",
       "abi": [
         {
           "inputs": [
             {
               "internalType": "address",
-              "name": "_LBPFactory",
+              "name": "_lbpFactory",
               "type": "address"
             }
           ],
@@ -585,19 +598,6 @@
           "type": "event"
         },
         {
-          "inputs": [],
-          "name": "LBPFactory",
-          "outputs": [
-            {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
           "inputs": [
             {
               "internalType": "address",
@@ -662,6 +662,19 @@
         },
         {
           "inputs": [],
+          "name": "lbpFactory",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
           "name": "masterCopy",
           "outputs": [
             {
@@ -697,7 +710,7 @@
           "inputs": [
             {
               "internalType": "address",
-              "name": "_LBPFactory",
+              "name": "_lbpFactory",
               "type": "address"
             }
           ],
