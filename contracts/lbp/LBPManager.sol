@@ -23,6 +23,7 @@ import "../utils/interface/ILBP.sol";
  * @title LBPManager contract.
  * @dev   Smart contract for managing interactions with a Balancer LBP.
  */
+// solhint-disable-next-line max-states-count
 contract LBPManager {
     // Constants
     uint256 private constant HUNDRED_PERCENT = 1e18; // Used in calculating the fee.
@@ -42,7 +43,7 @@ contract LBPManager {
     ILBP public lbp; // Address of LBP that is managed by this contract.
     bytes public metadata; // IPFS Hash of the LBP creation wizard information.
     uint8 public projectTokenIndex; // Index repesenting the project token in the tokenList.
-    address public LBPFactory; // Address of Balancers LBP factory.
+    address public lbpFactory; // Address of Balancers LBP factory.
 
     // Contract logic
     bool public poolFunded; // true:- LBP is funded; false:- LBP is not funded.
@@ -57,7 +58,7 @@ contract LBPManager {
         address tokenAddress,
         uint256 amount
     );
-    event PoolTokensWithdrawn(address indexed LbpAddress, uint256 amount);
+    event PoolTokensWithdrawn(address indexed lbpAddress, uint256 amount);
     event MetadataUpdated(bytes indexed metadata);
 
     modifier onlyAdmin() {
@@ -78,7 +79,7 @@ contract LBPManager {
 
     /**
      * @dev                             Initialize LBPManager.
-     * @param _LBPFactory               LBP factory address.
+     * @param _lbpFactory               LBP factory address.
      * @param _beneficiary              The address that receives the feePercentage.
      * @param _name                     Name of the LBP.
      * @param _symbol                   Symbol of the LBP.
@@ -103,7 +104,7 @@ contract LBPManager {
      * @param _metadata                 IPFS Hash of the LBP creation wizard information.
      */
     function initializeLBPManager(
-        address _LBPFactory,
+        address _lbpFactory,
         address _beneficiary,
         string memory _name,
         string memory _symbol,
@@ -117,7 +118,9 @@ contract LBPManager {
     ) external {
         require(!initialized, "LBPManager: already initialized");
         require(_beneficiary != address(0), "LBPManager: _beneficiary is zero");
+        // solhint-disable-next-line reason-string
         require(_fees[0] >= 1e12, "LBPManager: swapFeePercentage to low"); // 0.0001%
+        // solhint-disable-next-line reason-string
         require(_fees[0] <= 1e17, "LBPManager: swapFeePercentage to high"); // 10%
         require(
             _tokenList.length == 2 &&
@@ -126,15 +129,15 @@ contract LBPManager {
                 _startTimeEndTime.length == 2 &&
                 _endWeights.length == 2 &&
                 _fees.length == 2,
-            "LBPManager: arrays with wrong size"
+            "LBPManager: arrays wrong size"
         );
         require(
             _tokenList[0] != _tokenList[1],
-            "LBPManager: both tokens cannot be same"
+            "LBPManager: tokens can't be same"
         );
         require(
             _startTimeEndTime[0] < _startTimeEndTime[1],
-            "LBPManager: start time greater than end time"
+            "LBPManager: startTime > endTime"
         );
 
         initialized = true;
@@ -146,7 +149,7 @@ contract LBPManager {
         startTimeEndTime = _startTimeEndTime;
         name = _name;
         symbol = _symbol;
-        LBPFactory = _LBPFactory;
+        lbpFactory = _lbpFactory;
 
         // Token addresses are sorted in numerical order (ascending) as specified by Balancer
         if (address(_tokenList[0]) > address(_tokenList[1])) {
@@ -176,15 +179,13 @@ contract LBPManager {
      * @param _sender                   Address of the liquidity provider.
      */
     function initializeLBP(address _sender) external onlyAdmin {
-        require(
-            initialized == true,
-            "LBPManager: LBPManager in not initialized"
-        );
+        // solhint-disable-next-line reason-string
+        require(initialized == true, "LBPManager: LBPManager not initialized");
         require(!poolFunded, "LBPManager: pool already funded");
         poolFunded = true;
 
         lbp = ILBP(
-            ILBPFactory(LBPFactory).create(
+            ILBPFactory(lbpFactory).create(
                 name,
                 symbol,
                 tokenList,
@@ -237,18 +238,15 @@ contract LBPManager {
      * @dev                             Exit pool or remove liquidity from pool.
      * @param _receiver                 Address of the liquidity receiver, after exiting the LBP.
      */
-    function removeLiquidity(address payable _receiver) external onlyAdmin {
-        require(
-            _receiver != payable(address(0)),
-            "LBPManager: receiver is zero"
-        );
+    function removeLiquidity(address _receiver) external onlyAdmin {
+        require(_receiver != address(0), "LBPManager: receiver is zero");
         require(
             lbp.balanceOf(address(this)) > 0,
             "LBPManager: no BPT token balance"
         );
 
         uint256 endTime = startTimeEndTime[1];
-
+        // solhint-disable-next-line not-rely-on-time
         require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
         IVault vault = lbp.getVault();
@@ -260,7 +258,12 @@ contract LBPManager {
             assets: tokenList
         });
 
-        vault.exitPool(lbp.getPoolId(), address(this), _receiver, request);
+        vault.exitPool(
+            lbp.getPoolId(),
+            address(this),
+            payable(_receiver),
+            request
+        );
     }
 
     /*
@@ -282,6 +285,7 @@ contract LBPManager {
         require(_receiver != address(0), "LBPManager: receiver is zero");
 
         uint256 endTime = startTimeEndTime[1];
+        // solhint-disable-next-line not-rely-on-time
         require(block.timestamp >= endTime, "LBPManager: endtime not reached");
 
         require(

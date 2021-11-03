@@ -71,7 +71,7 @@ describe(">> Contract: LBPManagerFactory", () => {
         owner,
         [setup.lbpFactory.address]
       );
-      expect(await setup.lbpManagerFactory.LBPFactory()).to.equal(
+      expect(await setup.lbpManagerFactory.lbpFactory()).to.equal(
         setup.lbpFactory.address
       );
     });
@@ -160,7 +160,7 @@ describe(">> Contract: LBPManagerFactory", () => {
       await expect(setup.lbpManagerFactory.setLBPFactory(newLBPFactory.address))
         .to.emit(setup.lbpManagerFactory, "LBPFactoryChanged")
         .withArgs(setup.lbpFactory.address, newLBPFactory.address);
-      expect(await setup.lbpManagerFactory.LBPFactory()).to.equal(
+      expect(await setup.lbpManagerFactory.lbpFactory()).to.equal(
         newLBPFactory.address
       );
     });
