@@ -1029,6 +1029,27 @@ describe(">> Contract: LBPManager", () => {
       expect(await lbpInstance.getSwapEnabled()).to.be.true;
     });
   });
+  describe("# getSwapEnabled", () => {
+    beforeEach(async () => {
+      const fundingAmount = {
+        initialBalances: INITIAL_BALANCES,
+        feePercentage: FEE_PERCENTAGE_ZERO,
+      };
+
+      const initialState = {
+        initializeLBPManagerParams,
+        fundingAmount,
+        poolFunded: true,
+      };
+      ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
+        await setupInitialState(contractInstances, initialState));
+    });
+    it("» returns correct value of swapEnabled", async () => {
+      expect(
+        await lbpManagerInstance.getSwapEnabled()
+      ).to.be.true;
+    });
+  });
   describe("# withdraw liquidity from the pool", () => {
     describe("$ fails on call exit pool", () => {
       beforeEach(async () => {

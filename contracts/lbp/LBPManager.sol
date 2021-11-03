@@ -326,6 +326,13 @@ contract LBPManager {
     }
 
     /**
+     * @dev returns value of swapEnabled, if true, swapping is enabled else swapping is disabled.
+     */
+    function getSwapEnabled() external view returns (bool) {
+        return lbp.getSwapEnabled();
+    }
+
+    /**
      * @dev             Get required amount of project tokens to cover for fees.
      */
     function _feeAmountRequired() internal view returns (uint256 feeAmount) {
