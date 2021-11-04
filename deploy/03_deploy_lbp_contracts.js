@@ -1,14 +1,23 @@
+const { getBalancerContractAddress } = require("@balancer-labs/v2-deployments");
+
 const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
   const safeInstance = await ethers.getContract("Safe");
-  const lbpFactoryInstance = await ethers.getContract(
-    "LiquidityBootstrappingPoolFactory"
+  const liquidityBootstrappingPoolFactoryTaskId =
+    "20210721-liquidity-bootstrapping-pool";
+  const contractName = "LiquidityBootstrappingPoolFactory";
+  const networkName = hre.network.name;
+
+  const lbpFactoryAddress = await getBalancerContractAddress(
+    liquidityBootstrappingPoolFactoryTaskId,
+    contractName,
+    networkName
   );
 
   await deploy("LBPManagerFactory", {
     from: root,
-    args: [lbpFactoryInstance.address],
+    args: [lbpFactoryAddress],
     log: true,
   });
 
