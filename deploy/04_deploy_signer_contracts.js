@@ -18,8 +18,8 @@ const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
     from: root,
     args: [
       safeInstance.address,
-      [lbpManagerFactoryInstance.address, seedFactoryInstance.address],
-      [deployLBPManagerFunctionSignature, deploySeedFunctionSignature],
+      [lbpManagerFactoryInstance.address],
+      [deployLBPManagerFunctionSignature],
     ],
     log: true,
   });
