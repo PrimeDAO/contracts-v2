@@ -8,7 +8,8 @@ const deployFunction = async ({
 }) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
-  const safeInstance = network.name == "kovan" ? root : await ethers.getContract("Safe");
+  const safeInstance =
+    network.name == "kovan" ? root : await ethers.getContract("Safe");
 
   // Gnosis Safe has no deployments on Kovan testnet. Because of this we use the deployer address instead
   const liquidityBootstrappingPoolFactoryTaskId =
