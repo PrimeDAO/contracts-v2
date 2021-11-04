@@ -1,18 +1,28 @@
 const { getBalancerContractAddress } = require("@balancer-labs/v2-deployments");
 
-const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
+const deployFunction = async ({
+  getNamedAccounts,
+  deployments,
+  ethers,
+  network,
+}) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
-  const safeInstance = await ethers.getContract("Safe");
+
+  // Gnosis Safe has no deployments on Kovan testnet. Because of this we use the deployer address instead
+  if (network.name == "kovan") {
+    const safeInstance = root;
+  } else {
+    const safeInstance = await ethers.getContract("Safe");
+  }
   const liquidityBootstrappingPoolFactoryTaskId =
     "20210721-liquidity-bootstrapping-pool";
   const contractName = "LiquidityBootstrappingPoolFactory";
-  const networkName = hre.network.name;
 
   const lbpFactoryAddress = await getBalancerContractAddress(
     liquidityBootstrappingPoolFactoryTaskId,
     contractName,
-    networkName
+    network.name
   );
 
   await deploy("LBPManagerFactory", {
