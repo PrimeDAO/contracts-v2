@@ -485,6 +485,11 @@ describe(">> Contract: LBPManager", () => {
           initialState
         ));
       });
+      it("» getSwapEnabled reverts when calling it before initialized LBP", async () => {
+        await expect(lbpManagerInstance.getSwapEnabled()).to.be.revertedWith(
+          "LBPManager: LBP not initialized."
+        );
+      });
       it("» success", async () => {
         await lbpManagerInstance.connect(admin).initializeLBP(admin.address);
         lbpInstance = lbpContractFactory.attach(await lbpManagerInstance.lbp());
