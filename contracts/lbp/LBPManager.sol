@@ -309,6 +309,10 @@ contract LBPManager {
      * @dev                              Tells whether swaps are enabled or not for the LBP
      */
     function getSwapEnabled() external view returns (bool) {
+        require(
+            poolFunded,
+            "LBPManager: LBP not initialized."
+        );
         return lbp.getSwapEnabled();
     }
 
