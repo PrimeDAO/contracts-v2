@@ -1,4 +1,5 @@
-const deployFunction = async ({ getNamedAccounts, deployments }) => {
+const deployFunction = async ({ getNamedAccounts, deployments, network }) => {
+  console.log(`Deploying on network ${network.name}`);
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
 
