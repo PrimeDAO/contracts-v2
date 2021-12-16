@@ -6,7 +6,7 @@ const setupTest = deployments.createFixture(async ({ deployments, ethers }) => {
   return await ethers.getContract("Badger");
 });
 
-describe.only("Badger", function () {
+describe("Badger", function () {
   // base config
   const defaultUriId = "QmTPHQWYMPrwsRuuhmehpbFtWYFNWLcWGmio9KxPk7fKfk";
 
