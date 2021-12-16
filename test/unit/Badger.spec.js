@@ -1,16 +1,12 @@
 const { expect } = require("chai");
 const { ethers, deployments } = require("hardhat");
 
-const setupTest = deployments.createFixture(
-  async ({ deployments, getNamedAccounts, ethers }, options) => {
-    await deployments.fixture("Badger"); // ensure you start from a fresh deployments
-    const { root } = await getNamedAccounts();
+const setupTest = deployments.createFixture(async ({ deployments, ethers }) => {
+  await deployments.fixture("Badger");
+  return await ethers.getContract("Badger");
+});
 
-    return await ethers.getContract("Badger");
-  }
-);
-
-describe("Badger", function () {
+describe.only("Badger", function () {
   // base config
   const baseUri = "https://gateway.pinata.cloud/ipfs/";
   const defaultUriId = "QmTPHQWYMPrwsRuuhmehpbFtWYFNWLcWGmio9KxPk7fKfk";
