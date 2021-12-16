@@ -103,7 +103,7 @@ contract Badger is Ownable, ERC1155 {
         address account,
         uint256 id,
         uint256 amount
-    ) public onlyOwner isTier(id) {
+    ) public onlyOwner {
         _burn(account, id, amount);
     }
 
