@@ -8,7 +8,6 @@ const setupTest = deployments.createFixture(async ({ deployments, ethers }) => {
 
 describe.only("Badger", function () {
   // base config
-  const baseUri = "https://gateway.pinata.cloud/ipfs/";
   const defaultUriId = "QmTPHQWYMPrwsRuuhmehpbFtWYFNWLcWGmio9KxPk7fKfk";
 
   const amount = 2;
@@ -25,7 +24,7 @@ describe.only("Badger", function () {
     isTransferable: true,
   };
 
-  let badgerInstance, owner, alice, bob;
+  let badgerInstance, owner, alice, bob, baseUri;
 
   before("get signers", async () => {
     [owner, alice, bob] = await ethers.getSigners();
@@ -34,6 +33,7 @@ describe.only("Badger", function () {
   beforeEach(async () => {
     const badgerFactory = await ethers.getContractFactory("Badger");
     badgerInstance = await setupTest();
+    baseUri = await badgerInstance.uri(0);
   });
 
   /*
