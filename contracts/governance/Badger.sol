@@ -59,7 +59,7 @@ contract Badger is Ownable, ERC1155 {
             "Transfer disabled for this tier"
         );
         require(
-            msg.sender == owner() ||
+            owner() == _msgSender() ||
                 from == _msgSender() ||
                 isApprovedForAll(from, _msgSender()),
             "Unauthorized"
