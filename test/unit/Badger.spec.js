@@ -319,7 +319,7 @@ describe.only("Badger", function () {
             emptyUriIdentifier,
             isTransferable
           )
-        ).to.be.revertedWith("URI identifier required");
+        ).to.be.revertedWith("String cannot be empty");
       });
     });
   });
@@ -361,10 +361,10 @@ describe.only("Badger", function () {
     context("when uriId is empty string ", () => {
       const empytUriId = "";
 
-      it("reverts 'URI identifier required'", () => {
+      it("reverts 'String cannot be empty'", () => {
         expect(
           badgerInstance.updateUriIdentifier(tokenId, empytUriId)
-        ).to.be.revertedWith("URI identifier required");
+        ).to.be.revertedWith("String cannot be empty");
       });
     });
 
@@ -413,13 +413,13 @@ describe.only("Badger", function () {
     });
 
     context("when one uriId is an empty string", () => {
-      it("reverts 'URI identifier required'", () => {
+      it("reverts 'String cannot be empty'", () => {
         expect(
           badgerInstance.updateMultipleUriIdentifiers(
             [nonTransferableTier.tokenId, transferableTier.tokenId],
             ["first_id", ""]
           )
-        ).to.be.revertedWith("URI identifier required");
+        ).to.be.revertedWith("String cannot be empty");
       });
     });
 
@@ -488,6 +488,36 @@ describe.only("Badger", function () {
             newTransferability
           )
         ).to.be.revertedWith("Tier does not exist");
+      });
+    });
+  });
+
+  describe.only("#changeBaseUri", () => {
+    const newBaseUri = "www.example.com/";
+
+    it("changes the baseUri", async () => {
+      await badgerInstance.changeBaseUri(newBaseUri);
+
+      const receivedNewUri = await badgerInstance.uri(0);
+
+      expect(receivedNewUri).to.be.equal(newBaseUri);
+    });
+
+    context("with empty string", () => {
+      const emptyString = "";
+
+      it("reverts 'String cannot be empty'", async () => {
+        expect(badgerInstance.changeBaseUri(emptyString)).to.be.revertedWith(
+          "String cannot be empty"
+        );
+      });
+    });
+
+    context("when called by non-contract-owner", () => {
+      it("reverts 'Ownable: caller is not the owner'", async () => {
+        expect(
+          badgerInstance.connect(alice).changeBaseUri(newBaseUri)
+        ).to.be.revertedWith("Ownable: caller is not the owner");
       });
     });
   });

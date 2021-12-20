@@ -68,7 +68,7 @@ contract Badger is Ownable, ERC1155 {
     }
 
     modifier isValidString(string calldata uriId) {
-        require(_isNonEmptyString(uriId), "URI identifier required");
+        require(_isNonEmptyString(uriId), "String cannot be empty");
         _;
     }
 
@@ -211,7 +211,11 @@ contract Badger is Ownable, ERC1155 {
      * @dev                 sets a base uri, that is the first part of the url where the metadata for a tokenId is stored
      * @param _newBaseUri   baseUrl (e.g. www.filestoring.com/)
      */
-    function changeBaseUri(string memory _newBaseUri) public onlyOwner {
+    function changeBaseUri(string calldata _newBaseUri)
+        public
+        onlyOwner
+        isValidString(_newBaseUri)
+    {
         _setURI(_newBaseUri);
     }
 
