@@ -1,4 +1,17 @@
-//SPDX-License-Identifier: Unlicense
+/*
+
+██████╗░██████╗░██╗███╗░░░███╗███████╗██████╗░░█████╗░░█████╗░
+██╔══██╗██╔══██╗██║████╗░████║██╔════╝██╔══██╗██╔══██╗██╔══██╗
+██████╔╝██████╔╝██║██╔████╔██║█████╗░░██║░░██║███████║██║░░██║
+██╔═══╝░██╔══██╗██║██║╚██╔╝██║██╔══╝░░██║░░██║██╔══██║██║░░██║
+██║░░░░░██║░░██║██║██║░╚═╝░██║███████╗██████╔╝██║░░██║╚█████╔╝
+╚═╝░░░░░╚═╝░░╚═╝╚═╝╚═╝░░░░░╚═╝╚══════╝╚═════╝░╚═╝░░╚═╝░╚════╝░
+
+*/
+// SPDX-License-Identifier: GPL-3.0-or-later
+// PrimeDAO Badger contract. Badger is a ERC1155 token used for governance.
+// Copyright (C) 2021 PrimeDao
+
 pragma solidity 0.8.10;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
@@ -140,38 +153,6 @@ contract Badger is Ownable, ERC1155 {
     ) public onlyOwner isSameLength(accounts, tokenIds, amounts) {
         for (uint256 i = 0; i < accounts.length; i++) {
             _burn(accounts[i], tokenIds[i], amounts[i]);
-        }
-    }
-
-    /**
-     * @dev                 burns from multiple addresses arbitrary units of tokens of ONE token id per address
-     *                      example: mint 3 units of tokenId 1 as well as 4 units of tokenId 2 to Alice
-     *                      and mint 4 units of tokenId 2 as well as 5 units of tokenId 1 to Bob
-     * @param accounts      list of token holder addresses
-     * @param tokenIds      list of lists of token ids -> order must match with amounts
-     * @param amounts       list of lists of burn amounts -> order must match with tokenIds
-     */
-    function mintMultipleToMultiple(
-        address[] calldata accounts,
-        uint256[][] calldata tokenIds,
-        uint256[][] calldata amounts
-    ) public onlyOwner {
-        require(
-            accounts.length == tokenIds.length &&
-                tokenIds.length == amounts.length,
-            "Input array mismatch"
-        );
-
-        bytes memory data;
-        for (uint256 i = 0; i < accounts.length; i++) {
-            require(
-                tokenIds[i].length == amounts[i].length,
-                "Input array mismatch"
-            );
-
-            for (uint8 j = 0; j < tokenIds[i].length; j++) {
-                _mint(accounts[i], tokenIds[i][j], amounts[i][j], data);
-            }
         }
     }
 
