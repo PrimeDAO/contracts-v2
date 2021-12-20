@@ -22,6 +22,12 @@ contract Badger is Ownable, ERC1155 {
     using Strings for string;
 
     /*
+        State variables
+    */
+
+    mapping(uint256 => TokenTier) public tokenTiers; // tokenId => TokenTier
+
+    /*
         Structs
     */
 
@@ -31,10 +37,10 @@ contract Badger is Ownable, ERC1155 {
     }
 
     /*
-        State variables
+        Events
     */
 
-    mapping(uint256 => TokenTier) public tokenTiers; // tokenId => TokenTier
+    event TierChange(uint256 indexed tokenId, string uriId, bool transferable);
 
     /*
         Modifiers
@@ -221,6 +227,7 @@ contract Badger is Ownable, ERC1155 {
         bool transferable
     ) public onlyOwner isValidString(uriId) {
         tokenTiers[tokenId] = TokenTier(uriId, transferable);
+        emit TierChange(tokenId, uriId, transferable);
     }
 
     /**
@@ -262,6 +269,7 @@ contract Badger is Ownable, ERC1155 {
         isTier(tokenId)
     {
         tokenTiers[tokenId].transferable = transferable;
+        emit TierChange(tokenId, tokenTiers[tokenId].uriId, transferable);
     }
 
     /*
@@ -294,6 +302,7 @@ contract Badger is Ownable, ERC1155 {
         isValidString(uriId)
     {
         tokenTiers[tokenId].uriId = uriId;
+        emit TierChange(tokenId, uriId, tokenTiers[tokenId].transferable);
     }
 
     function _isNonEmptyString(string memory uriId)

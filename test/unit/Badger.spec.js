@@ -6,7 +6,7 @@ const setupTest = deployments.createFixture(async ({ deployments, ethers }) => {
   return await ethers.getContract("Badger");
 });
 
-describe("Badger", function () {
+describe.only("Badger", function () {
   // base config
   const defaultUriId = "QmTPHQWYMPrwsRuuhmehpbFtWYFNWLcWGmio9KxPk7fKfk";
 
@@ -291,6 +291,14 @@ describe("Badger", function () {
       expect(transferable).to.equal(isTransferable);
     });
 
+    it("emits an event 'TierChange'", async () => {
+      await expect(
+        badgerInstance.createTokenTier(tokenId, uriIdentifier, isTransferable)
+      )
+        .to.emit(badgerInstance, "TierChange")
+        .withArgs(tokenId, uriIdentifier, isTransferable);
+    });
+
     context("when called by non-contract-owner", () => {
       it("reverts 'Ownable: caller is not the owner'", () => {
         expect(
@@ -328,14 +336,18 @@ describe("Badger", function () {
       );
     });
 
-    beforeEach("update token's uriId", async () => {
-      await badgerInstance.updateUriIdentifier(tokenId, newUriId);
-    });
-
     it("saves the new uriId and returns correct uri", async () => {
+      await badgerInstance.updateUriIdentifier(tokenId, newUriId);
+
       const uri = await badgerInstance.uri(tokenId);
 
       expect(uri).to.equal(baseUri + newUriId);
+    });
+
+    it("emits an event 'TierChange'", async () => {
+      await expect(badgerInstance.updateUriIdentifier(tokenId, newUriId))
+        .to.emit(badgerInstance, "TierChange")
+        .withArgs(tokenId, newUriId, isTransferable);
     });
 
     context("when called by non-contract-owner", () => {
@@ -427,6 +439,7 @@ describe("Badger", function () {
 
   describe("#updateTransferableStatus", () => {
     const { tokenId, uriIdentifier, isTransferable } = nonTransferableTier;
+    const newTransferability = true;
 
     beforeEach("create new token tier", async () => {
       await badgerInstance.createTokenTier(
@@ -436,28 +449,44 @@ describe("Badger", function () {
       );
     });
 
-    beforeEach("sets transferable to true", async () => {
-      await badgerInstance.updateTransferableStatus(tokenId, true);
-    });
-
     it("saves the new uriId and returns correct uri", async () => {
+      await badgerInstance.updateTransferableStatus(
+        tokenId,
+        newTransferability
+      );
+
       const { transferable } = await badgerInstance.tokenTiers(tokenId);
 
-      expect(transferable).to.equal(true);
+      expect(transferable).to.equal(newTransferability);
+    });
+
+    it("emits an event 'TierChange'", async () => {
+      await expect(
+        badgerInstance.updateTransferableStatus(tokenId, newTransferability)
+      )
+        .to.emit(badgerInstance, "TierChange")
+        .withArgs(tokenId, uriIdentifier, newTransferability);
     });
 
     context("when called by non-contract-owner", () => {
       it("reverts 'Ownable: caller is not the owner'", () => {
         expect(
-          badgerInstance.connect(alice).updateTransferableStatus(tokenId, true)
+          badgerInstance
+            .connect(alice)
+            .updateTransferableStatus(tokenId, newTransferability)
         ).to.be.revertedWith("Ownable: caller is not the owner");
       });
     });
 
     context("when token tier does not exist", () => {
+      const nonExistentTokenId = 66;
+
       it("reverts 'Tier does not exist'", () => {
         expect(
-          badgerInstance.updateTransferableStatus(66, true)
+          badgerInstance.updateTransferableStatus(
+            nonExistentTokenId,
+            newTransferability
+          )
         ).to.be.revertedWith("Tier does not exist");
       });
     });
