@@ -61,14 +61,14 @@ contract Badger is Ownable, ERC1155 {
 
     modifier isTier(uint256 tokenId) {
         require(
-            _isNonEmptyString(tokenTiers[tokenId].uriId),
+            !_isEmptyString(tokenTiers[tokenId].uriId),
             "Tier does not exist"
         );
         _;
     }
 
     modifier isValidString(string calldata uriId) {
-        require(_isNonEmptyString(uriId), "String cannot be empty");
+        require(!_isEmptyString(uriId), "String cannot be empty");
         _;
     }
 
@@ -230,6 +230,11 @@ contract Badger is Ownable, ERC1155 {
         string calldata uriId,
         bool transferable
     ) public onlyOwner isValidString(uriId) {
+        require(
+            _isEmptyString(tokenTiers[tokenId].uriId),
+            "Tier already exists for tokenId"
+        );
+
         tokenTiers[tokenId] = TokenTier(uriId, transferable);
         emit TierChange(tokenId, uriId, transferable);
     }
@@ -309,12 +314,8 @@ contract Badger is Ownable, ERC1155 {
         emit TierChange(tokenId, uriId, tokenTiers[tokenId].transferable);
     }
 
-    function _isNonEmptyString(string memory uriId)
-        internal
-        pure
-        returns (bool)
-    {
-        return bytes(uriId).length != 0;
+    function _isEmptyString(string memory uriId) internal pure returns (bool) {
+        return bytes(uriId).length == 0;
     }
 
     function _mint(

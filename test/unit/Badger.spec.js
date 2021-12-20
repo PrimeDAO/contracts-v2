@@ -322,6 +322,22 @@ describe.only("Badger", function () {
         ).to.be.revertedWith("String cannot be empty");
       });
     });
+
+    context("when tier already exists", () => {
+      beforeEach("create token tier", async () => {
+        await badgerInstance.createTokenTier(
+          tokenId,
+          uriIdentifier,
+          isTransferable
+        );
+      });
+
+      it("reverts 'Tier already exists for tokenId'", () => {
+        expect(
+          badgerInstance.createTokenTier(tokenId, uriIdentifier, isTransferable)
+        ).to.be.revertedWith("Tier already exists for tokenId");
+      });
+    });
   });
 
   describe("#updateUriIdentifier", () => {
@@ -492,7 +508,7 @@ describe.only("Badger", function () {
     });
   });
 
-  describe.only("#changeBaseUri", () => {
+  describe("#changeBaseUri", () => {
     const newBaseUri = "www.example.com/";
 
     it("changes the baseUri", async () => {
