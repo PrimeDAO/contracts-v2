@@ -31,7 +31,6 @@ describe("Badger", function () {
   });
 
   beforeEach(async () => {
-    const badgerFactory = await ethers.getContractFactory("Badger");
     badgerInstance = await setupTest();
     baseUri = await badgerInstance.uri(0);
   });
