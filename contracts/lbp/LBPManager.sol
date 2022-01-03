@@ -25,6 +25,9 @@ import "../utils/interface/ILBP.sol";
  */
 // solhint-disable-next-line max-states-count
 contract LBPManager {
+
+    enum TaskState{Waiting, Started, Ended}
+    TaskState public state;
     // Constants
     uint256 private constant HUNDRED_PERCENT = 1e18; // Used in calculating the fee.
 
@@ -192,7 +195,7 @@ contract LBPManager {
                 startWeights,
                 swapFeePercentage,
                 address(this),
-                true // SwapEnabled is set to true at pool creation.
+                false // SwapEnabled is set to true at pool creation.
             )
         );
 
@@ -232,6 +235,35 @@ contract LBPManager {
         });
 
         vault.joinPool(lbp.getPoolId(), address(this), address(this), request);
+    }
+
+    /**
+     * @dev start LBP just before one block
+     * @notice it can be invoked by anyone only once
+     */
+    function startLbp() external {
+        uint256 startTime;
+        uint256 blockTime = 5 minutes;
+        bool isSwapEnabled = lbp.getSwapEnabled();
+        (startTime, ,) = lbp.getGradualWeightUpdateParams();
+        require(!isSwapEnabled && state == TaskState.Waiting, "LBPManager: swapping already active");
+        require(block.timestamp > startTime - blockTime, "LBPManager: Only once block before start time");
+        state = TaskState.Started;
+        lbp.setSwapEnabled(true);
+    }
+
+    /**
+     * @dev ends LBP just after one block
+     * @notice it can be invoked by anyone only once
+     */
+    function endLbp() external {
+        uint256 endTime;
+        bool isSwapEnabled = lbp.getSwapEnabled();
+        (, endTime,) = lbp.getGradualWeightUpdateParams();
+        require(isSwapEnabled && state == TaskState.Started, "LBPManager: swapping already active");
+        require(block.timestamp > endTime, "LBPManager: Only once block before start time");
+        state = TaskState.Ended;
+        lbp.setSwapEnabled(false);
     }
 
     /**
@@ -302,6 +334,7 @@ contract LBPManager {
      * @param _swapEnabled              Enables/disables swapping.
      */
     function setSwapEnabled(bool _swapEnabled) external onlyAdmin {
+        require(TaskState.Ended != state, "LBPManager: LBP ended");
         lbp.setSwapEnabled(_swapEnabled);
     }
 
