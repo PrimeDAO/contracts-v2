@@ -25,8 +25,11 @@ import "../utils/interface/ILBP.sol";
  */
 // solhint-disable-next-line max-states-count
 contract LBPManager {
-
-    enum TaskState{Waiting, Started, Ended}
+    enum TaskState {
+        Waiting,
+        Started,
+        Ended
+    }
     TaskState public state;
     // Constants
     uint256 private constant HUNDRED_PERCENT = 1e18; // Used in calculating the fee.
@@ -245,9 +248,15 @@ contract LBPManager {
         uint256 startTime;
         uint256 blockTime = 5 minutes;
         bool isSwapEnabled = lbp.getSwapEnabled();
-        (startTime, ,) = lbp.getGradualWeightUpdateParams();
-        require(!isSwapEnabled && state == TaskState.Waiting, "LBPManager: swapping already active");
-        require(block.timestamp > startTime - blockTime, "LBPManager: Only once block before start time");
+        (startTime, , ) = lbp.getGradualWeightUpdateParams();
+        require(
+            !isSwapEnabled && state == TaskState.Waiting,
+            "LBPManager: swapping already active"
+        );
+        require(
+            block.timestamp > startTime - blockTime,
+            "LBPManager: Only once block before start time"
+        );
         state = TaskState.Started;
         lbp.setSwapEnabled(true);
     }
@@ -259,9 +268,15 @@ contract LBPManager {
     function endLbp() external {
         uint256 endTime;
         bool isSwapEnabled = lbp.getSwapEnabled();
-        (, endTime,) = lbp.getGradualWeightUpdateParams();
-        require(isSwapEnabled && state == TaskState.Started, "LBPManager: swapping already active");
-        require(block.timestamp > endTime, "LBPManager: Only once block before start time");
+        (, endTime, ) = lbp.getGradualWeightUpdateParams();
+        require(
+            isSwapEnabled && state == TaskState.Started,
+            "LBPManager: swapping already active"
+        );
+        require(
+            block.timestamp > endTime,
+            "LBPManager: Only once block before start time"
+        );
         state = TaskState.Ended;
         lbp.setSwapEnabled(false);
     }
