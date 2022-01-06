@@ -1177,6 +1177,13 @@ describe(">> Contract: LBPManager", () => {
         lbpManagerInstance.connect(owner).endLbp()
       ).to.be.revertedWith("LBPManager: not started or already ended");
     });
+    it("$ reverts when current time < end time", async () => {
+      await expect(lbpManagerInstance.connect(owner).startLbp()).to.not.be
+        .reverted;
+      await expect(
+        lbpManagerInstance.connect(owner).endLbp()
+      ).to.be.revertedWith("LBPManager: haven't reached end time");
+    });
     it("$ ends lbp swapping", async () => {
       expect(await lbpManagerInstance.getSwapEnabled()).to.be.false;
       await expect(lbpManagerInstance.connect(owner).startLbp()).to.not.be
@@ -1200,8 +1207,10 @@ describe(">> Contract: LBPManager", () => {
       ).to.be.revertedWith("LBPManager: not started or already ended");
     });
     it("$ can be invoked by anyone", async () => {
-      await time.increase(await time.duration.minutes(5));
-      await expect(lbpManagerInstance.connect(beneficiary).startLbp()).to.not.be
+      await expect(lbpManagerInstance.connect(owner).startLbp()).to.not.be
+        .reverted;
+      await time.increase(await time.duration.minutes(20));
+      await expect(lbpManagerInstance.connect(beneficiary).endLbp()).to.not.be
         .reverted;
     });
     it("$ updates state even if swap is already disabled", async () => {
