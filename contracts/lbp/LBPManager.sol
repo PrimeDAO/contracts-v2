@@ -246,23 +246,25 @@ contract LBPManager {
      */
     function startLbp() external {
         uint256 startTime;
-        uint256 blockTime = 5 minutes;
+        uint256 buffer = 5 minutes;
         bool isSwapEnabled = lbp.getSwapEnabled();
         (startTime, , ) = lbp.getGradualWeightUpdateParams();
         require(
-            !isSwapEnabled && state == TaskState.Waiting,
-            "LBPManager: swapping already active"
+            state == TaskState.Waiting,
+            "LBPManager: already started"
         );
         require(
-            block.timestamp > startTime - blockTime,
-            "LBPManager: Only once block before start time"
+            block.timestamp > startTimeEndTime[0] - buffer,
+            "LBPManager: one block before start time"
         );
         state = TaskState.Started;
-        lbp.setSwapEnabled(true);
+        if(!isSwapEnabled){
+            lbp.setSwapEnabled(true);
+        }
     }
 
     /**
-     * @dev ends LBP just after one block
+     * @dev ends LBP once end time is reached
      * @notice it can be invoked by anyone only once
      */
     function endLbp() external {
@@ -271,11 +273,11 @@ contract LBPManager {
         (, endTime, ) = lbp.getGradualWeightUpdateParams();
         require(
             isSwapEnabled && state == TaskState.Started,
-            "LBPManager: swapping already active"
+            "LBPManager: swapping disabled"
         );
         require(
-            block.timestamp > endTime,
-            "LBPManager: Only once block before start time"
+            block.timestamp >= startTimeEndTime[1],
+            "LBPManager: haven't reached end time"
         );
         state = TaskState.Ended;
         lbp.setSwapEnabled(false);
@@ -349,7 +351,10 @@ contract LBPManager {
      * @param _swapEnabled              Enables/disables swapping.
      */
     function setSwapEnabled(bool _swapEnabled) external onlyAdmin {
-        require(TaskState.Ended != state, "LBPManager: LBP ended");
+        require(
+            block.timestamp >= startTimeEndTime[0] && block.timestamp < startTimeEndTime[1],
+            "LBPManager: only between start time and end time"
+        );
         lbp.setSwapEnabled(_swapEnabled);
     }
 
