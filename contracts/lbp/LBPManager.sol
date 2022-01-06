@@ -186,7 +186,6 @@ contract LBPManager {
      */
     function initializeLBP(address _sender) external onlyAdmin {
         // solhint-disable-next-line reason-string
-        require(initialized == true, "LBPManager: LBPManager not initialized");
         require(!poolFunded, "LBPManager: pool already funded");
         poolFunded = true;
 
