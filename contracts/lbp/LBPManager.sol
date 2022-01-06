@@ -249,16 +249,13 @@ contract LBPManager {
         uint256 buffer = 5 minutes;
         bool isSwapEnabled = lbp.getSwapEnabled();
         (startTime, , ) = lbp.getGradualWeightUpdateParams();
-        require(
-            state == TaskState.Waiting,
-            "LBPManager: already started"
-        );
+        require(state == TaskState.Waiting, "LBPManager: already started");
         require(
             block.timestamp > startTimeEndTime[0] - buffer,
             "LBPManager: one block before start time"
         );
         state = TaskState.Started;
-        if(!isSwapEnabled){
+        if (!isSwapEnabled) {
             lbp.setSwapEnabled(true);
         }
     }
@@ -352,7 +349,8 @@ contract LBPManager {
      */
     function setSwapEnabled(bool _swapEnabled) external onlyAdmin {
         require(
-            block.timestamp >= startTimeEndTime[0] && block.timestamp < startTimeEndTime[1],
+            block.timestamp >= startTimeEndTime[0] &&
+                block.timestamp < startTimeEndTime[1],
             "LBPManager: only between start time and end time"
         );
         lbp.setSwapEnabled(_swapEnabled);
