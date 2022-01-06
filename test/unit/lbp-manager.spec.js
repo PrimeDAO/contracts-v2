@@ -1087,6 +1087,26 @@ describe(">> Contract: LBPManager", () => {
         feePercentage: FEE_PERCENTAGE_ZERO,
       };
 
+      const startTime = (await time.latest()).add(
+        await time.duration.minutes(10)
+      );
+      const endTime = startTime.add(await time.duration.minutes(10));
+
+      const initializeLBPManagerParams = paramGenerator.initializeParams(
+        lbpFactoryInstance.address,
+        NAME,
+        SYMBOL,
+        tokenAddresses,
+        INITIAL_BALANCES,
+        START_WEIGHTS,
+        startTime.toString(),
+        endTime.toString(),
+        END_WEIGHTS,
+        fees,
+        beneficiary.address,
+        METADATA
+      );
+
       const initialState = {
         initializeLBPManagerParams,
         fundingAmount,
@@ -1100,15 +1120,105 @@ describe(">> Contract: LBPManager", () => {
         lbpManagerInstance.connect(owner).setSwapEnabled(false)
       ).to.be.revertedWith("LBPManager: caller is not admin");
     });
+    it("» reverts when invoked before start time", async () => {
+      await expect(
+        lbpManagerInstance.connect(admin).setSwapEnabled(false)
+      ).to.be.revertedWith("LBPManager: only between start time and end time");
+    });
     it("» setSwapEnabled to false", async () => {
+      await time.increase(time.duration.minutes(10));
       expect(await lbpManagerInstance.admin()).to.equal(admin.address);
       await lbpManagerInstance.connect(admin).setSwapEnabled(false);
       expect(await lbpManagerInstance.getSwapEnabled()).to.equal(false);
     });
     it("» setSwapEnabled to true", async () => {
+      await time.increase(time.duration.minutes(10));
       expect(await lbpManagerInstance.admin()).to.equal(admin.address);
       await lbpManagerInstance.connect(admin).setSwapEnabled(true);
       expect(await lbpManagerInstance.getSwapEnabled()).to.equal(true);
+    });
+    it("» reverts when invoked after end time", async () => {
+      await time.increase(time.duration.minutes(20));
+      await expect(
+        lbpManagerInstance.connect(admin).setSwapEnabled(false)
+      ).to.be.revertedWith("LBPManager: only between start time and end time");
+    });
+  });
+  describe("# endLbp", () => {
+    beforeEach(async () => {
+      const fundingAmount = {
+        initialBalances: INITIAL_BALANCES,
+        feePercentage: FEE_PERCENTAGE_ZERO,
+      };
+
+      const startTime = (await time.latest()).add(
+        await time.duration.minutes(10)
+      );
+      const endTime = startTime.add(await time.duration.minutes(20));
+
+      const initializeLBPManagerParams = paramGenerator.initializeParams(
+        lbpFactoryInstance.address,
+        NAME,
+        SYMBOL,
+        tokenAddresses,
+        INITIAL_BALANCES,
+        START_WEIGHTS,
+        startTime.toString(),
+        endTime.toString(),
+        END_WEIGHTS,
+        fees,
+        beneficiary.address,
+        METADATA
+      );
+
+      const initialState = {
+        initializeLBPManagerParams,
+        fundingAmount,
+        poolFunded: true,
+      };
+      ({ lbpManagerInstance, tokenInstances, amountToAddForFee } =
+        await setupInitialState(contractInstances, initialState));
+    });
+    it("$ reverts when invoked before condition currentTime > startTime - 5 minutes is met", async () => {
+      await expect(
+        lbpManagerInstance.connect(owner).startLbp()
+      ).to.be.revertedWith("LBPManager: one block before start time");
+    });
+    it("$ cannot use setSwapEnabled outside the weight change period", async () => {
+      await expect(
+        lbpManagerInstance.connect(admin).setSwapEnabled(true)
+      ).to.be.revertedWith("LBPManager: only between start time and end time");
+    });
+    it("$ starts lbp swapping", async () => {
+      await time.increase(await time.duration.minutes(5));
+      expect(await lbpManagerInstance.getSwapEnabled()).to.be.false;
+      await expect(lbpManagerInstance.connect(owner).startLbp()).to.not.be
+        .reverted;
+      expect(await lbpManagerInstance.state()).to.be.equal(1);
+      expect(await lbpManagerInstance.getSwapEnabled()).to.be.true;
+    });
+    it("$ can only be invoked once", async () => {
+      await time.increase(await time.duration.minutes(5));
+      await expect(lbpManagerInstance.connect(owner).startLbp()).to.not.be
+        .reverted;
+      await expect(
+        lbpManagerInstance.connect(owner).startLbp()
+      ).to.be.revertedWith("LBPManager: already started");
+    });
+    it("$ can be invoked by anyone", async () => {
+      await time.increase(await time.duration.minutes(5));
+      await expect(lbpManagerInstance.connect(beneficiary).startLbp()).to.not.be
+        .reverted;
+    });
+    it("$ updates state even if swap is already enabled", async () => {
+      await time.increase(await time.duration.minutes(10));
+      await expect(lbpManagerInstance.connect(admin).setSwapEnabled(true)).to
+        .not.be.reverted;
+      expect(await lbpManagerInstance.getSwapEnabled()).to.be.true;
+      expect(await lbpManagerInstance.state()).to.be.equal(0);
+      await expect(lbpManagerInstance.connect(owner).startLbp()).to.not.be
+        .reverted;
+      expect(await lbpManagerInstance.state()).to.be.equal(1);
     });
   });
   describe("# withdraw liquidity from the pool", () => {
