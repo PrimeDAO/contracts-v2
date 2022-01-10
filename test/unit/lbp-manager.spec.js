@@ -1041,7 +1041,7 @@ describe(">> Contract: LBPManager", () => {
     it("$ reverts when invoked before condition currentTime > startTime - 5 minutes is met", async () => {
       await expect(
         lbpManagerInstance.connect(owner).startLbp()
-      ).to.be.revertedWith("LBPManager: one block before start time");
+      ).to.be.revertedWith("LBPManager: not the right time");
     });
     it("$ starts lbp swapping", async () => {
       await time.increase(await time.duration.minutes(5));
@@ -1057,7 +1057,7 @@ describe(">> Contract: LBPManager", () => {
         .reverted;
       await expect(
         lbpManagerInstance.connect(owner).startLbp()
-      ).to.be.revertedWith("LBPManager: already started");
+      ).to.be.revertedWith("LBPManager: started");
     });
     it("$ can be invoked by anyone", async () => {
       await time.increase(await time.duration.minutes(5));
@@ -1175,14 +1175,14 @@ describe(">> Contract: LBPManager", () => {
     it("$ reverts when startLBP wasn't invoked", async () => {
       await expect(
         lbpManagerInstance.connect(owner).endLbp()
-      ).to.be.revertedWith("LBPManager: not started or already ended");
+      ).to.be.revertedWith("LBPManager: !started or ended");
     });
     it("$ reverts when current time < end time", async () => {
       await expect(lbpManagerInstance.connect(owner).startLbp()).to.not.be
         .reverted;
       await expect(
         lbpManagerInstance.connect(owner).endLbp()
-      ).to.be.revertedWith("LBPManager: haven't reached end time");
+      ).to.be.revertedWith("LBPManager: after >= end time");
     });
     it("$ ends lbp swapping", async () => {
       expect(await lbpManagerInstance.getSwapEnabled()).to.be.false;
@@ -1204,7 +1204,7 @@ describe(">> Contract: LBPManager", () => {
         .reverted;
       await expect(
         lbpManagerInstance.connect(owner).endLbp()
-      ).to.be.revertedWith("LBPManager: not started or already ended");
+      ).to.be.revertedWith("LBPManager: !started or ended");
     });
     it("$ can be invoked by anyone", async () => {
       await expect(lbpManagerInstance.connect(owner).startLbp()).to.not.be

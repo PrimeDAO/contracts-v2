@@ -25,6 +25,11 @@ import "../utils/interface/ILBP.sol";
  */
 // solhint-disable-next-line max-states-count
 contract LBPManager {
+    /*
+        Waiting:- current time < start time - 5 minutes, swapping is disabled
+        Started:- start time - 5 minutes <= current time < endTime, swapping enabled, can also be updated by admin
+        Ended:- current time > end time, swapping disableds
+    */
     enum TaskState {
         Waiting,
         Started,
@@ -240,7 +245,7 @@ contract LBPManager {
     }
 
     /**
-     * @dev start LBP just before one block
+     * @dev start LBP before 5 minutes of start time
      * @notice it can be invoked by anyone only once
      */
     function startLbp() external {
@@ -248,10 +253,10 @@ contract LBPManager {
         uint256 buffer = 5 minutes;
         bool isSwapEnabled = lbp.getSwapEnabled();
         (startTime, , ) = lbp.getGradualWeightUpdateParams();
-        require(state == TaskState.Waiting, "LBPManager: already started");
+        require(state == TaskState.Waiting, "LBPManager: started");
         require(
             block.timestamp > startTimeEndTime[0] - buffer,
-            "LBPManager: one block before start time"
+            "LBPManager: not the right time"
         );
         state = TaskState.Started;
         if (!isSwapEnabled) {
@@ -269,11 +274,11 @@ contract LBPManager {
         (, endTime, ) = lbp.getGradualWeightUpdateParams();
         require(
             state == TaskState.Started,
-            "LBPManager: not started or already ended"
+            "LBPManager: !started or ended"
         );
         require(
             block.timestamp >= startTimeEndTime[1],
-            "LBPManager: haven't reached end time"
+            "LBPManager: after >= end time"
         );
         state = TaskState.Ended;
         if (isSwapEnabled) {
