@@ -25,6 +25,17 @@ import "../utils/interface/ILBP.sol";
  */
 // solhint-disable-next-line max-states-count
 contract LBPManager {
+    /*
+        Waiting:- current time < start time - 5 minutes, swapping is disabled
+        Started:- start time - 5 minutes <= current time < endTime, swapping enabled, can also be updated by admin
+        Ended:- current time > end time, swapping disableds
+    */
+    enum TaskState {
+        Waiting,
+        Started,
+        Ended
+    }
+    TaskState public state;
     // Constants
     uint256 private constant HUNDRED_PERCENT = 1e18; // Used in calculating the fee.
 
@@ -180,7 +191,6 @@ contract LBPManager {
      */
     function initializeLBP(address _sender) external onlyAdmin {
         // solhint-disable-next-line reason-string
-        require(initialized == true, "LBPManager: LBPManager not initialized");
         require(!poolFunded, "LBPManager: pool already funded");
         poolFunded = true;
 
@@ -192,7 +202,7 @@ contract LBPManager {
                 startWeights,
                 swapFeePercentage,
                 address(this),
-                true // SwapEnabled is set to true at pool creation.
+                false // SwapEnabled is set to true at pool creation.
             )
         );
 
@@ -232,6 +242,45 @@ contract LBPManager {
         });
 
         vault.joinPool(lbp.getPoolId(), address(this), address(this), request);
+    }
+
+    /**
+     * @dev start LBP before 5 minutes of start time
+     * @notice it can be invoked by anyone only once
+     */
+    function startLbp() external {
+        uint256 startTime;
+        uint256 buffer = 5 minutes;
+        bool isSwapEnabled = lbp.getSwapEnabled();
+        (startTime, , ) = lbp.getGradualWeightUpdateParams();
+        require(state == TaskState.Waiting, "LBPManager: started");
+        require(
+            block.timestamp > startTimeEndTime[0] - buffer,
+            "LBPManager: not the right time"
+        );
+        state = TaskState.Started;
+        if (!isSwapEnabled) {
+            lbp.setSwapEnabled(true);
+        }
+    }
+
+    /**
+     * @dev ends LBP once end time is reached
+     * @notice it can be invoked by anyone only once
+     */
+    function endLbp() external {
+        uint256 endTime;
+        bool isSwapEnabled = lbp.getSwapEnabled();
+        (, endTime, ) = lbp.getGradualWeightUpdateParams();
+        require(state == TaskState.Started, "LBPManager: !started or ended");
+        require(
+            block.timestamp >= startTimeEndTime[1],
+            "LBPManager: after >= end time"
+        );
+        state = TaskState.Ended;
+        if (isSwapEnabled) {
+            lbp.setSwapEnabled(false);
+        }
     }
 
     /**
@@ -302,6 +351,11 @@ contract LBPManager {
      * @param _swapEnabled              Enables/disables swapping.
      */
     function setSwapEnabled(bool _swapEnabled) external onlyAdmin {
+        require(
+            block.timestamp >= startTimeEndTime[0] &&
+                block.timestamp < startTimeEndTime[1],
+            "LBPManager: only between start time and end time"
+        );
         lbp.setSwapEnabled(_swapEnabled);
     }
 
