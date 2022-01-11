@@ -192,7 +192,7 @@ contract LBPManager {
                 startWeights,
                 swapFeePercentage,
                 address(this),
-                true // SwapEnabled is set to true at pool creation.
+                false // SwapEnabled is set to false at pool creation.
             )
         );
 
