@@ -37,7 +37,7 @@ const getUrl = (network) => {
     case "rinkeby":
       return `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/`;
     case "arbitrum":
-      return `https://safe-transaction.arbitrum.gnosis.io/api/v1/safes/`
+      return `https://safe-transaction.arbitrum.gnosis.io/api/v1/safes/`;
     default:
       return `${network}, is not supported yet`;
   }
