@@ -69,6 +69,16 @@ module.exports = {
       url: "http://127.0.0.1:7545",
       saveDeployments: false,
     },
+    arbitrumTest: {
+      ...sharedNetworkConfig,
+      url: "https://rinkeby.arbitrum.io/rpc",
+      saveDeployments: true,
+    },
+    arbitrum: {
+      ...sharedNetworkConfig,
+      url: "https://arb1.arbitrum.io/rpc",
+      saveDeployments: true,
+    },
   },
   solidity: {
     compilers: [
