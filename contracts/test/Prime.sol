@@ -15,7 +15,7 @@ pragma solidity 0.8.6;
 
 import "openzeppelin-contracts-sol8/token/ERC20/extensions/ERC20Capped.sol";
 
-contract PrimeToken is ERC20Capped {
+contract Prime is ERC20Capped {
     constructor(
         uint256 initialSupply,
         uint256 cap,

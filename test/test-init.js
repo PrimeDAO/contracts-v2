@@ -49,7 +49,7 @@ const getContractInstance = async (factoryName, address, args) => {
 
 const gettokenInstances = async (setup) => {
   const PrimeToken_Factory = await ethers.getContractFactory(
-    "PrimeToken",
+    "Prime",
     setup.roles.root
   );
   const seedToken = await PrimeToken_Factory.deploy(
