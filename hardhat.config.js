@@ -8,7 +8,8 @@ require("solidity-coverage");
 require("@nomiclabs/hardhat-etherscan");
 // require("hardhat-gas-reporter");
 
-const { INFURA_KEY, MNEMONIC, ETHERSCAN_API_KEY, PK } = process.env;
+const { INFURA_KEY, MNEMONIC, ETHERSCAN_API_KEY, ARBISCAN_API_KEY, PK } =
+  process.env;
 const DEFAULT_MNEMONIC = "hello darkness my old friend";
 
 const sharedNetworkConfig = {};
@@ -114,7 +115,10 @@ module.exports = {
     ],
   },
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
+    apiKey: {
+      mainnet: ETHERSCAN_API_KEY,
+      arbitrumOne: ARBISCAN_API_KEY,
+    },
   },
   namedAccounts: {
     root: 0,
