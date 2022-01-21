@@ -1,0 +1,408 @@
+{
+  "address": "0x0564448C22484eeAE4B33C75c6f6718Fb05C3b8c",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_safe",
+          "type": "address"
+        },
+        {
+          "internalType": "address[]",
+          "name": "_contracts",
+          "type": "address[]"
+        },
+        {
+          "internalType": "bytes4[]",
+          "name": "_functionSignatures",
+          "type": "bytes4[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "signature",
+          "type": "bytes"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "hash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "SignatureCreated",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "name": "allowedTransactions",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_contract",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "_functionSignature",
+          "type": "bytes4"
+        }
+      ],
+      "name": "approveNewTransaction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "approvedSignatures",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "enum Enum.Operation",
+          "name": "_operation",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_safeTxGas",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_baseGas",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_gasPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_gasToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_refundReceiver",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_nonce",
+          "type": "uint256"
+        }
+      ],
+      "name": "generateSignature",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "signature",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "hash",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_signature",
+          "type": "bytes"
+        }
+      ],
+      "name": "isValidSignature",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_contract",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes4",
+          "name": "_functionSignature",
+          "type": "bytes4"
+        }
+      ],
+      "name": "removeAllowedTransaction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "safe",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_safe",
+          "type": "address"
+        }
+      ],
+      "name": "setSafe",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xb1511a79714da77a3c79b59156c7a0767f8988ae8e8713f5c4d47d755fd64c2c",
+  "receipt": {
+    "to": null,
+    "from": "0xc039897eE5A0d14A3d1F212922FaF7e159Ab619F",
+    "contractAddress": "0x0564448C22484eeAE4B33C75c6f6718Fb05C3b8c",
+    "transactionIndex": 0,
+    "gasUsed": "20717688",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x2556871f6b1a9d5841c1e06b027133b2e2c9320788f9d85e601350b5da178d11",
+    "transactionHash": "0xb1511a79714da77a3c79b59156c7a0767f8988ae8e8713f5c4d47d755fd64c2c",
+    "logs": [],
+    "blockNumber": 4859173,
+    "cumulativeGasUsed": "11521368",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x9941869DC4D03Dd9F86F55507Ff8785bB28cFDb3",
+    [
+      "0xB448335Ff3105145dc6Cf805e544F1e4a41B35ca",
+      "0xe2314dd8d79DB953490385f48AFB96e70e15F4ac"
+    ],
+    [
+      "0xfd3bd38a",
+      "0xda235e6e"
+    ]
+  ],
+  "solcInputHash": "42b406d3224a9df56184f6848bd1b375",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.9+commit.e5eed63a\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_safe\",\"type\":\"address\"},{\"internalType\":\"address[]\",\"name\":\"_contracts\",\"type\":\"address[]\"},{\"internalType\":\"bytes4[]\",\"name\":\"_functionSignatures\",\"type\":\"bytes4[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"hash\",\"type\":\"bytes32\"}],\"name\":\"SignatureCreated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"name\":\"allowedTransactions\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_contract\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"_functionSignature\",\"type\":\"bytes4\"}],\"name\":\"approveNewTransaction\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"approvedSignatures\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"},{\"internalType\":\"enum Enum.Operation\",\"name\":\"_operation\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"_safeTxGas\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_baseGas\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_gasPrice\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_gasToken\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_refundReceiver\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_nonce\",\"type\":\"uint256\"}],\"name\":\"generateSignature\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"},{\"internalType\":\"bytes32\",\"name\":\"hash\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"_signature\",\"type\":\"bytes\"}],\"name\":\"isValidSignature\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_contract\",\"type\":\"address\"},{\"internalType\":\"bytes4\",\"name\":\"_functionSignature\",\"type\":\"bytes4\"}],\"name\":\"removeAllowedTransaction\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"safe\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_safe\",\"type\":\"address\"}],\"name\":\"setSafe\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Enables signing approved function signature transaction before sending it to Gnosis Safe.\",\"kind\":\"dev\",\"methods\":{\"approveNewTransaction(address,bytes4)\":{\"details\":\"add new contracts and functions\",\"params\":{\"_contract\":\"contract address\",\"_functionSignature\":\"function signature for the contract\"}},\"constructor\":{\"details\":\"Signer Constructor\",\"params\":{\"_contracts\":\"array of contract addresses\",\"_functionSignatures\":\"array of function signatures\",\"_safe\":\"Gnosis Safe address.\"}},\"generateSignature(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,uint256)\":{\"details\":\"Signature generator\",\"params\":{\"_baseGas\":\"base gas for gnosis safe.\",\"_data\":\"encoded transaction data.\",\"_gasPrice\":\"gas price for gnosis safe transaction.\",\"_gasToken\":\"token which gas needs to paid for gnosis safe transaction.\",\"_nonce\":\"gnosis safe contract nonce.\",\"_operation\":\"type of operation call.\",\"_refundReceiver\":\"address account to receive refund for remaining gas.\",\"_safeTxGas\":\"safe transaction gas for gnosis safe.\",\"_to\":\"receiver address.\",\"_value\":\"value in wei.\"}},\"isValidSignature(bytes,bytes)\":{\"details\":\"Validate signature using EIP1271\",\"params\":{\"_data\":\"Encoded transaction hash supplied to verify signature.\",\"_signature\":\"Signature that needs to be verified.\"}},\"removeAllowedTransaction(address,bytes4)\":{\"details\":\"add new contracts and functions\",\"params\":{\"_contract\":\"contract address\",\"_functionSignature\":\"function signature for the contract\"}},\"setSafe(address)\":{\"details\":\"set new safe\",\"params\":{\"_safe\":\"safe address\"}}},\"title\":\"PrimeDAO Signer Contract\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/utils/SignerV2.sol\":\"SignerV2\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@gnosis.pm/safe-contracts/contracts/interfaces/ISignatureValidator.sol\":{\"content\":\"// SPDX-License-Identifier: LGPL-3.0-only\\npragma solidity >=0.7.0 <0.9.0;\\n\\ncontract ISignatureValidatorConstants {\\n    // bytes4(keccak256(\\\"isValidSignature(bytes,bytes)\\\")\\n    bytes4 internal constant EIP1271_MAGIC_VALUE = 0x20c13b0b;\\n}\\n\\nabstract contract ISignatureValidator is ISignatureValidatorConstants {\\n    /**\\n     * @dev Should return whether the signature provided is valid for the provided data\\n     * @param _data Arbitrary length data signed on the behalf of address(this)\\n     * @param _signature Signature byte array associated with _data\\n     *\\n     * MUST return the bytes4 magic value 0x20c13b0b when function passes.\\n     * MUST NOT modify state (using STATICCALL for solc < 0.5, view modifier for solc > 0.5)\\n     * MUST allow external calls\\n     */\\n    function isValidSignature(bytes memory _data, bytes memory _signature) public view virtual returns (bytes4);\\n}\\n\",\"keccak256\":\"0x5b6e9bf17f28738ce88e751f420b0559f5151ba7bec2ff3c7bb31e42673d6801\",\"license\":\"LGPL-3.0-only\"},\"contracts/utils/SignerV2.sol\":{\"content\":\"/*\\n\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\u2588\\u2588\\u2557\\u2588\\u2588\\u2588\\u2557\\u2591\\u2591\\u2591\\u2588\\u2588\\u2588\\u2557\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\u2591\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\u2591\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\n\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2557\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2557\\u2588\\u2588\\u2551\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\u2588\\u2588\\u2588\\u2588\\u2551\\u2588\\u2588\\u2554\\u2550\\u2550\\u2550\\u2550\\u255d\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2557\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2557\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2557\\n\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2554\\u255d\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2554\\u255d\\u2588\\u2588\\u2551\\u2588\\u2588\\u2554\\u2588\\u2588\\u2588\\u2588\\u2554\\u2588\\u2588\\u2551\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\u2591\\u2588\\u2588\\u2551\\u2591\\u2591\\u2588\\u2588\\u2551\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2551\\u2588\\u2588\\u2551\\u2591\\u2591\\u2588\\u2588\\u2551\\n\\u2588\\u2588\\u2554\\u2550\\u2550\\u2550\\u255d\\u2591\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2557\\u2588\\u2588\\u2551\\u2588\\u2588\\u2551\\u255a\\u2588\\u2588\\u2554\\u255d\\u2588\\u2588\\u2551\\u2588\\u2588\\u2554\\u2550\\u2550\\u255d\\u2591\\u2591\\u2588\\u2588\\u2551\\u2591\\u2591\\u2588\\u2588\\u2551\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2551\\u2588\\u2588\\u2551\\u2591\\u2591\\u2588\\u2588\\u2551\\n\\u2588\\u2588\\u2551\\u2591\\u2591\\u2591\\u2591\\u2591\\u2588\\u2588\\u2551\\u2591\\u2591\\u2588\\u2588\\u2551\\u2588\\u2588\\u2551\\u2588\\u2588\\u2551\\u2591\\u255a\\u2550\\u255d\\u2591\\u2588\\u2588\\u2551\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2554\\u255d\\u2588\\u2588\\u2551\\u2591\\u2591\\u2588\\u2588\\u2551\\u255a\\u2588\\u2588\\u2588\\u2588\\u2588\\u2554\\u255d\\n\\u255a\\u2550\\u255d\\u2591\\u2591\\u2591\\u2591\\u2591\\u255a\\u2550\\u255d\\u2591\\u2591\\u255a\\u2550\\u255d\\u255a\\u2550\\u255d\\u255a\\u2550\\u255d\\u2591\\u2591\\u2591\\u2591\\u2591\\u255a\\u2550\\u255d\\u255a\\u2550\\u2550\\u2550\\u2550\\u2550\\u2550\\u255d\\u255a\\u2550\\u2550\\u2550\\u2550\\u2550\\u255d\\u2591\\u255a\\u2550\\u255d\\u2591\\u2591\\u255a\\u2550\\u255d\\u2591\\u255a\\u2550\\u2550\\u2550\\u2550\\u255d\\u2591\\n*/\\n\\n// SPDX-License-Identifier: GPL-3.0-or-later\\n// Signer contract. Enables signing transaction before sending it to Gnosis Safe.\\n// Copyright (C) 2021 PrimeDao\\n\\n// solium-disable linebreak-style\\npragma solidity 0.8.9;\\n\\nimport \\\"./interface/Safe.sol\\\";\\nimport \\\"@gnosis.pm/safe-contracts/contracts/interfaces/ISignatureValidator.sol\\\";\\n\\n/**\\n * @title PrimeDAO Signer Contract\\n * @dev   Enables signing approved function signature transaction before sending it to Gnosis Safe.\\n */\\ncontract SignerV2 is ISignatureValidator {\\n    bytes32 private constant DOMAIN_SEPARATOR_TYPEHASH =\\n        0x7a9f5b2bf4dbb53eb85e012c6094a3d71d76e5bfe821f44ab63ed59311264e35;\\n    bytes32 private constant MSG_TYPEHASH =\\n        0xa1a7ad659422d5fc08fdc481fd7d8af8daf7993bc4e833452b0268ceaab66e5d; // mapping for msg typehash\\n\\n    mapping(bytes32 => bytes32) public approvedSignatures;\\n\\n    /* solium-disable */\\n    address public safe;\\n    mapping(address => mapping(bytes4 => bool)) public allowedTransactions;\\n    /* solium-enable */\\n\\n    event SignatureCreated(bytes signature, bytes32 indexed hash);\\n\\n    modifier onlySafe() {\\n        require(msg.sender == safe, \\\"Signer: only safe functionality\\\");\\n        _;\\n    }\\n\\n    /**\\n     * @dev                       Signer Constructor\\n     * @param _safe               Gnosis Safe address.\\n     * @param _contracts          array of contract addresses\\n     * @param _functionSignatures array of function signatures\\n     */\\n    constructor(\\n        address _safe,\\n        address[] memory _contracts,\\n        bytes4[] memory _functionSignatures\\n    ) {\\n        require(_safe != address(0), \\\"Signer: Safe address zero\\\");\\n        safe = _safe;\\n        for (uint256 i; i < _contracts.length; i++) {\\n            require(\\n                _contracts[i] != address(0),\\n                \\\"Signer: contract address zero\\\"\\n            );\\n            require(\\n                _functionSignatures[i] != bytes4(0),\\n                \\\"Signer: function signature zero\\\"\\n            );\\n            allowedTransactions[_contracts[i]][_functionSignatures[i]] = true;\\n        }\\n    }\\n\\n    /**\\n     * @dev                   Signature generator\\n     * @param _to             receiver address.\\n     * @param _value          value in wei.\\n     * @param _data           encoded transaction data.\\n     * @param _operation      type of operation call.\\n     * @param _safeTxGas      safe transaction gas for gnosis safe.\\n     * @param _baseGas        base gas for gnosis safe.\\n     * @param _gasPrice       gas price for gnosis safe transaction.\\n     * @param _gasToken       token which gas needs to paid for gnosis safe transaction.\\n     * @param _refundReceiver address account to receive refund for remaining gas.\\n     * @param _nonce          gnosis safe contract nonce.\\n     */\\n    function generateSignature(\\n        address _to,\\n        uint256 _value,\\n        bytes calldata _data,\\n        Enum.Operation _operation,\\n        uint256 _safeTxGas,\\n        uint256 _baseGas,\\n        uint256 _gasPrice,\\n        address _gasToken,\\n        address _refundReceiver,\\n        uint256 _nonce\\n    ) external returns (bytes memory signature, bytes32 hash) {\\n        // check if transaction parameters are correct\\n        require(\\n            allowedTransactions[_to][_getFunctionHashFromData(_data)],\\n            \\\"Signer: invalid function\\\"\\n        );\\n        require(\\n            _value == 0 &&\\n                _refundReceiver == address(0) &&\\n                _operation == Enum.Operation.Call,\\n            \\\"Signer: invalid arguments\\\"\\n        );\\n\\n        // get contractTransactionHash from gnosis safe\\n        hash = Safe(safe).getTransactionHash(\\n            _to,\\n            0,\\n            _data,\\n            _operation,\\n            _safeTxGas,\\n            _baseGas,\\n            _gasPrice,\\n            _gasToken,\\n            _refundReceiver,\\n            _nonce\\n        );\\n\\n        bytes memory paddedAddress = bytes.concat(\\n            bytes12(0),\\n            bytes20(address(this))\\n        );\\n        bytes memory messageHash = _encodeMessageHash(hash);\\n        // check if transaction is not signed before\\n        // solhint-disable-next-line reason-string\\n        require(\\n            approvedSignatures[hash] != keccak256(messageHash),\\n            \\\"Signer: transaction already signed\\\"\\n        );\\n\\n        // generate signature and add it to approvedSignatures mapping\\n        signature = bytes.concat(\\n            paddedAddress,\\n            bytes32(uint256(65)),\\n            bytes1(0),\\n            bytes32(uint256(messageHash.length)),\\n            messageHash\\n        );\\n        approvedSignatures[hash] = keccak256(messageHash);\\n        emit SignatureCreated(signature, hash);\\n    }\\n\\n    /**\\n     * @dev                Validate signature using EIP1271\\n     * @param _data        Encoded transaction hash supplied to verify signature.\\n     * @param _signature   Signature that needs to be verified.\\n     */\\n    function isValidSignature(bytes memory _data, bytes memory _signature)\\n        public\\n        view\\n        override\\n        returns (bytes4)\\n    {\\n        if (_data.length == 32) {\\n            bytes32 hash;\\n            // solhint-disable-next-line no-inline-assembly\\n            assembly {\\n                hash := mload(add(_data, 32))\\n            }\\n            if (approvedSignatures[hash] == keccak256(_signature)) {\\n                return EIP1271_MAGIC_VALUE;\\n            }\\n        } else {\\n            if (approvedSignatures[keccak256(_data)] == keccak256(_signature)) {\\n                return EIP1271_MAGIC_VALUE;\\n            }\\n        }\\n        return \\\"0x\\\";\\n    }\\n\\n    /**\\n     * @dev               Get the byte hash of function call i.e. first four bytes of data\\n     * @param data        encoded transaction data.\\n     */\\n    function _getFunctionHashFromData(bytes memory data)\\n        private\\n        pure\\n        returns (bytes4 functionHash)\\n    {\\n        // solhint-disable-next-line no-inline-assembly\\n        assembly {\\n            functionHash := mload(add(data, 32))\\n        }\\n    }\\n\\n    /**\\n     * @dev                encode message with contants\\n     * @param message      the message that needs to be encoded\\n     */\\n    function _encodeMessageHash(bytes32 message)\\n        private\\n        pure\\n        returns (bytes memory)\\n    {\\n        bytes32 safeMessageHash = keccak256(abi.encode(MSG_TYPEHASH, message));\\n        return\\n            abi.encodePacked(\\n                bytes1(0x19),\\n                bytes1(0x23),\\n                keccak256(\\n                    abi.encode(DOMAIN_SEPARATOR_TYPEHASH, safeMessageHash)\\n                )\\n            );\\n    }\\n\\n    /**\\n     * @dev                set new safe\\n     * @param _safe        safe address\\n     */\\n    function setSafe(address _safe) public onlySafe {\\n        require(_safe != address(0), \\\"Signer: Safe zero address\\\");\\n        safe = _safe;\\n    }\\n\\n    /**\\n     * @dev                      add new contracts and functions\\n     * @param _contract          contract address\\n     * @param _functionSignature function signature for the contract\\n     */\\n    function approveNewTransaction(address _contract, bytes4 _functionSignature)\\n        external\\n        onlySafe\\n    {\\n        require(_contract != address(0), \\\"Signer: contract address zero\\\");\\n        require(\\n            _functionSignature != bytes4(0),\\n            \\\"Signer: function signature zero\\\"\\n        );\\n        allowedTransactions[_contract][_functionSignature] = true;\\n    }\\n\\n    /**\\n     * @dev                      add new contracts and functions\\n     * @param _contract           contract address\\n     * @param _functionSignature function signature for the contract\\n     */\\n    function removeAllowedTransaction(\\n        address _contract,\\n        bytes4 _functionSignature\\n    ) external onlySafe {\\n        // solhint-disable-next-line reason-string\\n        require(\\n            allowedTransactions[_contract][_functionSignature] == true,\\n            \\\"Signer: only approved transactions can be removed\\\"\\n        );\\n        allowedTransactions[_contract][_functionSignature] = false;\\n    }\\n}\\n\",\"keccak256\":\"0xe624a9e5e08a33f78d239cfb54a0b1bd7380e6a22b1d2ccbe5c52ebec1469709\",\"license\":\"GPL-3.0-or-later\"},\"contracts/utils/interface/Safe.sol\":{\"content\":\"/*\\n\\n\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\u2588\\u2588\\u2557\\u2588\\u2588\\u2588\\u2557\\u2591\\u2591\\u2591\\u2588\\u2588\\u2588\\u2557\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\u2591\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\u2591\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\n\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2557\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2557\\u2588\\u2588\\u2551\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\u2588\\u2588\\u2588\\u2588\\u2551\\u2588\\u2588\\u2554\\u2550\\u2550\\u2550\\u2550\\u255d\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2557\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2557\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2557\\n\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2554\\u255d\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2554\\u255d\\u2588\\u2588\\u2551\\u2588\\u2588\\u2554\\u2588\\u2588\\u2588\\u2588\\u2554\\u2588\\u2588\\u2551\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2591\\u2591\\u2588\\u2588\\u2551\\u2591\\u2591\\u2588\\u2588\\u2551\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2551\\u2588\\u2588\\u2551\\u2591\\u2591\\u2588\\u2588\\u2551\\n\\u2588\\u2588\\u2554\\u2550\\u2550\\u2550\\u255d\\u2591\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2557\\u2588\\u2588\\u2551\\u2588\\u2588\\u2551\\u255a\\u2588\\u2588\\u2554\\u255d\\u2588\\u2588\\u2551\\u2588\\u2588\\u2554\\u2550\\u2550\\u255d\\u2591\\u2591\\u2588\\u2588\\u2551\\u2591\\u2591\\u2588\\u2588\\u2551\\u2588\\u2588\\u2554\\u2550\\u2550\\u2588\\u2588\\u2551\\u2588\\u2588\\u2551\\u2591\\u2591\\u2588\\u2588\\u2551\\n\\u2588\\u2588\\u2551\\u2591\\u2591\\u2591\\u2591\\u2591\\u2588\\u2588\\u2551\\u2591\\u2591\\u2588\\u2588\\u2551\\u2588\\u2588\\u2551\\u2588\\u2588\\u2551\\u2591\\u255a\\u2550\\u255d\\u2591\\u2588\\u2588\\u2551\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2557\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2554\\u255d\\u2588\\u2588\\u2551\\u2591\\u2591\\u2588\\u2588\\u2551\\u255a\\u2588\\u2588\\u2588\\u2588\\u2588\\u2554\\u255d\\n\\u255a\\u2550\\u255d\\u2591\\u2591\\u2591\\u2591\\u2591\\u255a\\u2550\\u255d\\u2591\\u2591\\u255a\\u2550\\u255d\\u255a\\u2550\\u255d\\u255a\\u2550\\u255d\\u2591\\u2591\\u2591\\u2591\\u2591\\u255a\\u2550\\u255d\\u255a\\u2550\\u2550\\u2550\\u2550\\u2550\\u2550\\u255d\\u255a\\u2550\\u2550\\u2550\\u2550\\u2550\\u255d\\u2591\\u255a\\u2550\\u255d\\u2591\\u2591\\u255a\\u2550\\u255d\\u2591\\u255a\\u2550\\u2550\\u2550\\u2550\\u255d\\u2591\\n\\n*/\\n\\n// SPDX-License-Identifier: GPL-3.0-or-later\\n\\n/* solium-disable */\\npragma solidity 0.8.9;\\n\\ncontract Enum {\\n    enum Operation {\\n        Call,\\n        DelegateCall\\n    }\\n}\\n\\ninterface Safe {\\n    function getTransactionHash(\\n        address to,\\n        uint256 value,\\n        bytes calldata data,\\n        Enum.Operation operation,\\n        uint256 safeTxGas,\\n        uint256 baseGas,\\n        uint256 gasPrice,\\n        address gasToken,\\n        address refundReceiver,\\n        uint256 _nonce\\n    ) external view returns (bytes32);\\n}\\n\",\"keccak256\":\"0x6540fa1c8f8c463c7132e0542056dc6863b67f51ae0e705c261a2144f852bf6c\",\"license\":\"GPL-3.0-or-later\"}},\"version\":1}",
+  "bytecode": "0x60806040523480156200001157600080fd5b506040516200127238038062001272833981016040819052620000349162000378565b6001600160a01b038316620000905760405162461bcd60e51b815260206004820152601960248201527f5369676e65723a20536166652061646472657373207a65726f0000000000000060448201526064015b60405180910390fd5b600180546001600160a01b0319166001600160a01b03851617905560005b8251811015620002575760006001600160a01b0316838281518110620000d857620000d86200045c565b60200260200101516001600160a01b03161415620001395760405162461bcd60e51b815260206004820152601d60248201527f5369676e65723a20636f6e74726163742061646472657373207a65726f000000604482015260640162000087565b81516000908390839081106200015357620001536200045c565b60200260200101516001600160e01b0319161415620001b55760405162461bcd60e51b815260206004820152601f60248201527f5369676e65723a2066756e6374696f6e207369676e6174757265207a65726f00604482015260640162000087565b600160026000858481518110620001d057620001d06200045c565b60200260200101516001600160a01b03166001600160a01b0316815260200190815260200160002060008484815181106200020f576200020f6200045c565b6020908102919091018101516001600160e01b0319168252810191909152604001600020805460ff1916911515919091179055806200024e8162000472565b915050620000ae565b505050506200049c565b80516001600160a01b03811681146200027957600080fd5b919050565b634e487b7160e01b600052604160045260246000fd5b604051601f8201601f191681016001600160401b0381118282101715620002bf57620002bf6200027e565b604052919050565b60006001600160401b03821115620002e357620002e36200027e565b5060051b60200190565b600082601f830112620002ff57600080fd5b81516020620003186200031283620002c7565b62000294565b82815260059290921b840181019181810190868411156200033857600080fd5b8286015b848110156200036d5780516001600160e01b0319811681146200035f5760008081fd5b83529183019183016200033c565b509695505050505050565b6000806000606084860312156200038e57600080fd5b620003998462000261565b602085810151919450906001600160401b0380821115620003b957600080fd5b818701915087601f830112620003ce57600080fd5b8151620003df6200031282620002c7565b81815260059190911b8301840190848101908a831115620003ff57600080fd5b938501935b828510156200042857620004188562000261565b8252938501939085019062000404565b60408a015190975094505050808311156200044257600080fd5b50506200045286828701620002ed565b9150509250925092565b634e487b7160e01b600052603260045260246000fd5b60006000198214156200049557634e487b7160e01b600052601160045260246000fd5b5060010190565b610dc680620004ac6000396000f3fe608060405234801561001057600080fd5b50600436106100885760003560e01c80635db0cb941161005b5780635db0cb941461011157806374fe857a14610124578063e14ff99814610145578063f164e6ea1461017357600080fd5b8063186f03541461008d57806320c13b0b146100bd5780632435f0a5146100e957806357ba1262146100fe575b600080fd5b6001546100a0906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6100d06100cb3660046109a4565b6101b1565b6040516001600160e01b031990911681526020016100b4565b6100fc6100f7366004610a24565b61023a565b005b6100fc61010c366004610a24565b610355565b6100fc61011f366004610a68565b610453565b610137610132366004610a99565b6104f5565b6040516100b4929190610bdd565b610165610153366004610bff565b60006020819052908152604090205481565b6040519081526020016100b4565b6101a1610181366004610a24565b600260209081526000928352604080842090915290825290205460ff1681565b60405190151581526020016100b4565b60008251602014156101f657602083810151835184830120600082815292839052604090922054909114156101f057506320c13b0b60e01b9050610234565b5061022c565b81805190602001206000808580519060200120815260200190815260200160002054141561022c57506320c13b0b60e01b610234565b5061060f60f31b5b92915050565b6001546001600160a01b0316331461026d5760405162461bcd60e51b815260040161026490610c18565b60405180910390fd5b6001600160a01b0382166102c35760405162461bcd60e51b815260206004820152601d60248201527f5369676e65723a20636f6e74726163742061646472657373207a65726f0000006044820152606401610264565b6001600160e01b0319811661031a5760405162461bcd60e51b815260206004820152601f60248201527f5369676e65723a2066756e6374696f6e207369676e6174757265207a65726f006044820152606401610264565b6001600160a01b0390911660009081526002602090815260408083206001600160e01b0319909416835292905220805460ff19166001179055565b6001546001600160a01b0316331461037f5760405162461bcd60e51b815260040161026490610c18565b6001600160a01b03821660009081526002602090815260408083206001600160e01b03198516845290915290205460ff16151560011461041b5760405162461bcd60e51b815260206004820152603160248201527f5369676e65723a206f6e6c7920617070726f766564207472616e73616374696f6044820152701b9cc818d85b881899481c995b5bdd9959607a1b6064820152608401610264565b6001600160a01b0390911660009081526002602090815260408083206001600160e01b0319909416835292905220805460ff19169055565b6001546001600160a01b0316331461047d5760405162461bcd60e51b815260040161026490610c18565b6001600160a01b0381166104d35760405162461bcd60e51b815260206004820152601960248201527f5369676e65723a2053616665207a65726f2061646472657373000000000000006044820152606401610264565b600180546001600160a01b0319166001600160a01b0392909216919091179055565b60606000600260008e6001600160a01b03166001600160a01b03168152602001908152602001600020600061055f8d8d8080601f0160208091040260200160405190810160405280939291908181526020018383808284376000920191909152506108fa92505050565b6001600160e01b031916815260208101919091526040016000205460ff166105c95760405162461bcd60e51b815260206004820152601860248201527f5369676e65723a20696e76616c69642066756e6374696f6e00000000000000006044820152606401610264565b8b1580156105de57506001600160a01b038416155b80156105fb575060008960018111156105f9576105f9610c4f565b145b6106475760405162461bcd60e51b815260206004820152601960248201527f5369676e65723a20696e76616c696420617267756d656e7473000000000000006044820152606401610264565b600160009054906101000a90046001600160a01b03166001600160a01b031663d8d11f788e60008e8e8e8e8e8e8e8e8e6040518c63ffffffff1660e01b815260040161069d9b9a99989796959493929190610c65565b60206040518083038186803b1580156106b557600080fd5b505afa1580156106c9573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106ed9190610d16565b604080516000602082018190526bffffffffffffffffffffffff193060601b16602c83015292935001604051602081830303815290604052905060006107f083604080517fa1a7ad659422d5fc08fdc481fd7d8af8daf7993bc4e833452b0268ceaab66e5d602080830191909152818301939093528151808203830181526060820183528051908401207f7a9f5b2bf4dbb53eb85e012c6094a3d71d76e5bfe821f44ab63ed59311264e35608083015260a0808301919091528251808303909101815260c0820183528051930192909220601960f81b60e0840152602360f81b60e184015260e28084019190915281518084039091018152610102909201905290565b905080805190602001206000808581526020019081526020016000205414156108665760405162461bcd60e51b815260206004820152602260248201527f5369676e65723a207472616e73616374696f6e20616c7265616479207369676e604482015261195960f21b6064820152608401610264565b80516040516108819184916041916000918690602001610d2f565b6040516020818303038152906040529350808051906020012060008085815260200190815260200160002081905550827f4418bf19096bdd1b926a95d3cba8654e780b1b8b9a68526fb2faa0de58040d85856040516108e09190610d7d565b60405180910390a250509b509b9950505050505050505050565b6020015190565b634e487b7160e01b600052604160045260246000fd5b600082601f83011261092857600080fd5b813567ffffffffffffffff8082111561094357610943610901565b604051601f8301601f19908116603f0116810190828211818310171561096b5761096b610901565b8160405283815286602085880101111561098457600080fd5b836020870160208301376000602085830101528094505050505092915050565b600080604083850312156109b757600080fd5b823567ffffffffffffffff808211156109cf57600080fd5b6109db86838701610917565b935060208501359150808211156109f157600080fd5b506109fe85828601610917565b9150509250929050565b80356001600160a01b0381168114610a1f57600080fd5b919050565b60008060408385031215610a3757600080fd5b610a4083610a08565b915060208301356001600160e01b031981168114610a5d57600080fd5b809150509250929050565b600060208284031215610a7a57600080fd5b610a8382610a08565b9392505050565b803560028110610a1f57600080fd5b60008060008060008060008060008060006101408c8e031215610abb57600080fd5b610ac48c610a08565b9a5060208c0135995060408c013567ffffffffffffffff80821115610ae857600080fd5b818e0191508e601f830112610afc57600080fd5b813581811115610b0b57600080fd5b8f6020828501011115610b1d57600080fd5b602083019b50809a50505050610b3560608d01610a8a565b965060808c0135955060a08c0135945060c08c01359350610b5860e08d01610a08565b9250610b676101008d01610a08565b91506101208c013590509295989b509295989b9093969950565b60005b83811015610b9c578181015183820152602001610b84565b83811115610bab576000848401525b50505050565b60008151808452610bc9816020860160208601610b81565b601f01601f19169290920160200192915050565b604081526000610bf06040830185610bb1565b90508260208301529392505050565b600060208284031215610c1157600080fd5b5035919050565b6020808252601f908201527f5369676e65723a206f6e6c7920736166652066756e6374696f6e616c69747900604082015260600190565b634e487b7160e01b600052602160045260246000fd5b6001600160a01b038c168152602081018b905261014060408201819052810189905260006101608a8c828501376000838c01820152601f8b01601f1916830101905060028910610cc557634e487b7160e01b600052602160045260246000fd5b8860608301528760808301528660a08301528560c0830152610cf260e08301866001600160a01b03169052565b6001600160a01b039390931661010082015261012001529998505050505050505050565b600060208284031215610d2857600080fd5b5051919050565b60008651610d41818460208b01610b81565b808301905086815260ff60f81b861660208201528460218201528351610d6e816041840160208801610b81565b01604101979650505050505050565b602081526000610a836020830184610bb156fea2646970667358221220f69374d89bbf24c6491b2c4940a2def00bf1ee1a0a8d66723f2c3725417412b764736f6c63430008090033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100885760003560e01c80635db0cb941161005b5780635db0cb941461011157806374fe857a14610124578063e14ff99814610145578063f164e6ea1461017357600080fd5b8063186f03541461008d57806320c13b0b146100bd5780632435f0a5146100e957806357ba1262146100fe575b600080fd5b6001546100a0906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6100d06100cb3660046109a4565b6101b1565b6040516001600160e01b031990911681526020016100b4565b6100fc6100f7366004610a24565b61023a565b005b6100fc61010c366004610a24565b610355565b6100fc61011f366004610a68565b610453565b610137610132366004610a99565b6104f5565b6040516100b4929190610bdd565b610165610153366004610bff565b60006020819052908152604090205481565b6040519081526020016100b4565b6101a1610181366004610a24565b600260209081526000928352604080842090915290825290205460ff1681565b60405190151581526020016100b4565b60008251602014156101f657602083810151835184830120600082815292839052604090922054909114156101f057506320c13b0b60e01b9050610234565b5061022c565b81805190602001206000808580519060200120815260200190815260200160002054141561022c57506320c13b0b60e01b610234565b5061060f60f31b5b92915050565b6001546001600160a01b0316331461026d5760405162461bcd60e51b815260040161026490610c18565b60405180910390fd5b6001600160a01b0382166102c35760405162461bcd60e51b815260206004820152601d60248201527f5369676e65723a20636f6e74726163742061646472657373207a65726f0000006044820152606401610264565b6001600160e01b0319811661031a5760405162461bcd60e51b815260206004820152601f60248201527f5369676e65723a2066756e6374696f6e207369676e6174757265207a65726f006044820152606401610264565b6001600160a01b0390911660009081526002602090815260408083206001600160e01b0319909416835292905220805460ff19166001179055565b6001546001600160a01b0316331461037f5760405162461bcd60e51b815260040161026490610c18565b6001600160a01b03821660009081526002602090815260408083206001600160e01b03198516845290915290205460ff16151560011461041b5760405162461bcd60e51b815260206004820152603160248201527f5369676e65723a206f6e6c7920617070726f766564207472616e73616374696f6044820152701b9cc818d85b881899481c995b5bdd9959607a1b6064820152608401610264565b6001600160a01b0390911660009081526002602090815260408083206001600160e01b0319909416835292905220805460ff19169055565b6001546001600160a01b0316331461047d5760405162461bcd60e51b815260040161026490610c18565b6001600160a01b0381166104d35760405162461bcd60e51b815260206004820152601960248201527f5369676e65723a2053616665207a65726f2061646472657373000000000000006044820152606401610264565b600180546001600160a01b0319166001600160a01b0392909216919091179055565b60606000600260008e6001600160a01b03166001600160a01b03168152602001908152602001600020600061055f8d8d8080601f0160208091040260200160405190810160405280939291908181526020018383808284376000920191909152506108fa92505050565b6001600160e01b031916815260208101919091526040016000205460ff166105c95760405162461bcd60e51b815260206004820152601860248201527f5369676e65723a20696e76616c69642066756e6374696f6e00000000000000006044820152606401610264565b8b1580156105de57506001600160a01b038416155b80156105fb575060008960018111156105f9576105f9610c4f565b145b6106475760405162461bcd60e51b815260206004820152601960248201527f5369676e65723a20696e76616c696420617267756d656e7473000000000000006044820152606401610264565b600160009054906101000a90046001600160a01b03166001600160a01b031663d8d11f788e60008e8e8e8e8e8e8e8e8e6040518c63ffffffff1660e01b815260040161069d9b9a99989796959493929190610c65565b60206040518083038186803b1580156106b557600080fd5b505afa1580156106c9573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106ed9190610d16565b604080516000602082018190526bffffffffffffffffffffffff193060601b16602c83015292935001604051602081830303815290604052905060006107f083604080517fa1a7ad659422d5fc08fdc481fd7d8af8daf7993bc4e833452b0268ceaab66e5d602080830191909152818301939093528151808203830181526060820183528051908401207f7a9f5b2bf4dbb53eb85e012c6094a3d71d76e5bfe821f44ab63ed59311264e35608083015260a0808301919091528251808303909101815260c0820183528051930192909220601960f81b60e0840152602360f81b60e184015260e28084019190915281518084039091018152610102909201905290565b905080805190602001206000808581526020019081526020016000205414156108665760405162461bcd60e51b815260206004820152602260248201527f5369676e65723a207472616e73616374696f6e20616c7265616479207369676e604482015261195960f21b6064820152608401610264565b80516040516108819184916041916000918690602001610d2f565b6040516020818303038152906040529350808051906020012060008085815260200190815260200160002081905550827f4418bf19096bdd1b926a95d3cba8654e780b1b8b9a68526fb2faa0de58040d85856040516108e09190610d7d565b60405180910390a250509b509b9950505050505050505050565b6020015190565b634e487b7160e01b600052604160045260246000fd5b600082601f83011261092857600080fd5b813567ffffffffffffffff8082111561094357610943610901565b604051601f8301601f19908116603f0116810190828211818310171561096b5761096b610901565b8160405283815286602085880101111561098457600080fd5b836020870160208301376000602085830101528094505050505092915050565b600080604083850312156109b757600080fd5b823567ffffffffffffffff808211156109cf57600080fd5b6109db86838701610917565b935060208501359150808211156109f157600080fd5b506109fe85828601610917565b9150509250929050565b80356001600160a01b0381168114610a1f57600080fd5b919050565b60008060408385031215610a3757600080fd5b610a4083610a08565b915060208301356001600160e01b031981168114610a5d57600080fd5b809150509250929050565b600060208284031215610a7a57600080fd5b610a8382610a08565b9392505050565b803560028110610a1f57600080fd5b60008060008060008060008060008060006101408c8e031215610abb57600080fd5b610ac48c610a08565b9a5060208c0135995060408c013567ffffffffffffffff80821115610ae857600080fd5b818e0191508e601f830112610afc57600080fd5b813581811115610b0b57600080fd5b8f6020828501011115610b1d57600080fd5b602083019b50809a50505050610b3560608d01610a8a565b965060808c0135955060a08c0135945060c08c01359350610b5860e08d01610a08565b9250610b676101008d01610a08565b91506101208c013590509295989b509295989b9093969950565b60005b83811015610b9c578181015183820152602001610b84565b83811115610bab576000848401525b50505050565b60008151808452610bc9816020860160208601610b81565b601f01601f19169290920160200192915050565b604081526000610bf06040830185610bb1565b90508260208301529392505050565b600060208284031215610c1157600080fd5b5035919050565b6020808252601f908201527f5369676e65723a206f6e6c7920736166652066756e6374696f6e616c69747900604082015260600190565b634e487b7160e01b600052602160045260246000fd5b6001600160a01b038c168152602081018b905261014060408201819052810189905260006101608a8c828501376000838c01820152601f8b01601f1916830101905060028910610cc557634e487b7160e01b600052602160045260246000fd5b8860608301528760808301528660a08301528560c0830152610cf260e08301866001600160a01b03169052565b6001600160a01b039390931661010082015261012001529998505050505050505050565b600060208284031215610d2857600080fd5b5051919050565b60008651610d41818460208b01610b81565b808301905086815260ff60f81b861660208201528460218201528351610d6e816041840160208801610b81565b01604101979650505050505050565b602081526000610a836020830184610bb156fea2646970667358221220f69374d89bbf24c6491b2c4940a2def00bf1ee1a0a8d66723f2c3725417412b764736f6c63430008090033",
+  "devdoc": {
+    "details": "Enables signing approved function signature transaction before sending it to Gnosis Safe.",
+    "kind": "dev",
+    "methods": {
+      "approveNewTransaction(address,bytes4)": {
+        "details": "add new contracts and functions",
+        "params": {
+          "_contract": "contract address",
+          "_functionSignature": "function signature for the contract"
+        }
+      },
+      "constructor": {
+        "details": "Signer Constructor",
+        "params": {
+          "_contracts": "array of contract addresses",
+          "_functionSignatures": "array of function signatures",
+          "_safe": "Gnosis Safe address."
+        }
+      },
+      "generateSignature(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,uint256)": {
+        "details": "Signature generator",
+        "params": {
+          "_baseGas": "base gas for gnosis safe.",
+          "_data": "encoded transaction data.",
+          "_gasPrice": "gas price for gnosis safe transaction.",
+          "_gasToken": "token which gas needs to paid for gnosis safe transaction.",
+          "_nonce": "gnosis safe contract nonce.",
+          "_operation": "type of operation call.",
+          "_refundReceiver": "address account to receive refund for remaining gas.",
+          "_safeTxGas": "safe transaction gas for gnosis safe.",
+          "_to": "receiver address.",
+          "_value": "value in wei."
+        }
+      },
+      "isValidSignature(bytes,bytes)": {
+        "details": "Validate signature using EIP1271",
+        "params": {
+          "_data": "Encoded transaction hash supplied to verify signature.",
+          "_signature": "Signature that needs to be verified."
+        }
+      },
+      "removeAllowedTransaction(address,bytes4)": {
+        "details": "add new contracts and functions",
+        "params": {
+          "_contract": "contract address",
+          "_functionSignature": "function signature for the contract"
+        }
+      },
+      "setSafe(address)": {
+        "details": "set new safe",
+        "params": {
+          "_safe": "safe address"
+        }
+      }
+    },
+    "title": "PrimeDAO Signer Contract",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 357,
+        "contract": "contracts/utils/SignerV2.sol:SignerV2",
+        "label": "approvedSignatures",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_bytes32,t_bytes32)"
+      },
+      {
+        "astId": 359,
+        "contract": "contracts/utils/SignerV2.sol:SignerV2",
+        "label": "safe",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      },
+      {
+        "astId": 365,
+        "contract": "contracts/utils/SignerV2.sol:SignerV2",
+        "label": "allowedTransactions",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_address,t_mapping(t_bytes4,t_bool))"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_bytes4": {
+        "encoding": "inplace",
+        "label": "bytes4",
+        "numberOfBytes": "4"
+      },
+      "t_mapping(t_address,t_mapping(t_bytes4,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(bytes4 => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_bytes4,t_bool)"
+      },
+      "t_mapping(t_bytes32,t_bytes32)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => bytes32)",
+        "numberOfBytes": "32",
+        "value": "t_bytes32"
+      },
+      "t_mapping(t_bytes4,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_bytes4",
+        "label": "mapping(bytes4 => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      }
+    }
+  }
+}
