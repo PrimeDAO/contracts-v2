@@ -642,7 +642,7 @@
       ]
     },
     "LBPManager": {
-      "address": "0xe9b9eB4D93e1edA434D7B3C4C7eE4A7EF035F656",
+      "address": "0x0788407B68acdd4009AE6c31411808c6fA24BEb3",
       "abi": [
         {
           "anonymous": false,
