@@ -257,6 +257,12 @@ contract Badger is Ownable, ERC1155 {
         _createTokenTier(tokenId, uriId, transferable);
     }
 
+    /**
+     * @dev                 creates multiple new token tiers
+     * @param tokenIds      array of identifiers for the new token tiers
+     * @param uriIds        array of uriIds for the new token tiers
+     * @param transferable  array of bools determining if tokens from specific tier should be transferable or not
+     */
     function batchCreateTokenTiers(
         uint256[] calldata tokenIds,
         string[] calldata uriIds,
