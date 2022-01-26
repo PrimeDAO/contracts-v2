@@ -6,7 +6,7 @@ const setupTest = deployments.createFixture(async ({ deployments, ethers }) => {
   return await ethers.getContract("Badger");
 });
 
-describe("Badger", function () {
+describe.only("Badger", function () {
   // base config
   const defaultUriId = "QmTPHQWYMPrwsRuuhmehpbFtWYFNWLcWGmio9KxPk7fKfk";
 
@@ -632,6 +632,71 @@ describe("Badger", function () {
               .connect(bob)
               .safeTransferFrom(alice.address, bob.address, tokenId, amount, 0)
           ).to.be.revertedWith("Unauthorized");
+        });
+      });
+    });
+  });
+
+  describe.only("#safeBatchTransferFrom", () => {
+    context("with non-transferable token", () => {
+      const { tokenId, uriIdentifier, isTransferable } = nonTransferableTier;
+
+      beforeEach("create token tier & mint", async () => {
+        await badgerInstance.createTokenTier(
+          tokenId,
+          uriIdentifier,
+          isTransferable
+        );
+        await badgerInstance.mint(alice.address, tokenId, amount);
+      });
+
+      context("when called by owner of the token", () => {
+        it("reverts 'Transfer disabled for this tier'", async () => {
+          await expect(
+            badgerInstance
+              .connect(alice)
+              .safeBatchTransferFrom(
+                alice.address,
+                bob.address,
+                [nonTransferableTier.tokenId, transferableTier.tokenId],
+                [amount, amount],
+                0
+              )
+          ).to.be.revertedWith("Transfer disabled for this tier");
+        });
+      });
+    });
+
+    context("with transferable token", () => {
+      const { tokenId, uriIdentifier, isTransferable } = transferableTier;
+
+      beforeEach("create token tier & mint", async () => {
+        await badgerInstance.createTokenTier(
+          tokenId,
+          uriIdentifier,
+          isTransferable
+        );
+        await badgerInstance.mint(alice.address, tokenId, amount);
+      });
+
+      context("when called by owner of the token", () => {
+        it("transfers the token to the recipient", async () => {
+          await badgerInstance
+            .connect(alice)
+            .safeBatchTransferFrom(
+              alice.address,
+              bob.address,
+              [transferableTier.tokenId],
+              [amount],
+              0
+            );
+
+          expect(
+            await badgerInstance.balanceOf(
+              bob.address,
+              transferableTier.tokenId
+            )
+          ).to.equal(amount);
         });
       });
     });

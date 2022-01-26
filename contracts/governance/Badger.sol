@@ -203,6 +203,30 @@ contract Badger is Ownable, ERC1155 {
         _safeTransferFrom(from, to, id, amount, data);
     }
 
+    /**
+     * @dev                 batch transfers tokens from one address to another allowing custom data parameter
+     * @notice              this is the standard transfer interface for ERC1155 tokens which contracts expect
+     * @param from          address from which token will be transferred
+     * @param to            recipient of address
+     * @param ids           ids of token to be transferred
+     * @param amounts       amounts of token to be transferred
+     */
+    function safeBatchTransferFrom(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) public override {
+        for (uint8 i = 0; i < ids.length; i++) {
+            require(
+                tokenTiers[ids[i]].transferable,
+                "Transfer disabled for this tier"
+            );
+        }
+        super.safeBatchTransferFrom(from, to, ids, amounts, data);
+    }
+
     /*
         Configuration
     */
@@ -229,14 +253,24 @@ contract Badger is Ownable, ERC1155 {
         uint256 tokenId,
         string calldata uriId,
         bool transferable
-    ) public onlyOwner isValidString(uriId) {
+    ) public onlyOwner {
+        _createTokenTier(tokenId, uriId, transferable);
+    }
+
+    function batchCreateTokenTiers(
+        uint256[] calldata tokenIds,
+        string[] calldata uriIds,
+        bool[] calldata transferable
+    ) public onlyOwner {
         require(
-            _isEmptyString(tokenTiers[tokenId].uriId),
-            "Tier already exists for tokenId"
+            tokenIds.length == uriIds.length &&
+                uriIds.length == transferable.length,
+            "Input array mismatch"
         );
 
-        tokenTiers[tokenId] = TokenTier(uriId, transferable);
-        emit TierChange(tokenId, uriId, transferable);
+        for (uint8 i = 0; i < tokenIds.length; i++) {
+            _createTokenTier(tokenIds[i], uriIds[i], transferable[i]);
+        }
     }
 
     /**
@@ -333,5 +367,19 @@ contract Badger is Ownable, ERC1155 {
         uint256 amount
     ) internal override isTier(id) {
         super._burn(account, id, amount);
+    }
+
+    function _createTokenTier(
+        uint256 tokenId,
+        string calldata uriId,
+        bool transferable
+    ) internal isValidString(uriId) {
+        require(
+            _isEmptyString(tokenTiers[tokenId].uriId),
+            "Tier already exists for tokenId"
+        );
+
+        tokenTiers[tokenId] = TokenTier(uriId, transferable);
+        emit TierChange(tokenId, uriId, transferable);
     }
 }
