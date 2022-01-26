@@ -339,6 +339,50 @@ describe.only("Badger", function () {
     });
   });
 
+  describe("#batchCreateTokenTiers", () => {
+    beforeEach("batch create tiers", async () => {
+      await badgerInstance.batchCreateTokenTiers(
+        [nonTransferableTier.tokenId, transferableTier.tokenId],
+        [nonTransferableTier.uriIdentifier, transferableTier.uriIdentifier],
+        [nonTransferableTier.isTransferable, transferableTier.isTransferable]
+      );
+    });
+
+    it("creates correct nontransferable token", async () => {
+      const nontransferableToken = await badgerInstance.tokenTiers(
+        nonTransferableTier.tokenId
+      );
+      expect(nontransferableToken.uriId).to.equal(
+        nonTransferableTier.uriIdentifier
+      );
+      expect(nontransferableToken.transferable).to.equal(
+        nonTransferableTier.isTransferable
+      );
+    });
+
+    it("creates correct transferable token", async () => {
+      const transferableToken = await badgerInstance.tokenTiers(
+        transferableTier.tokenId
+      );
+      expect(transferableToken.uriId).to.equal(transferableTier.uriIdentifier);
+      expect(transferableToken.transferable).to.equal(
+        transferableTier.isTransferable
+      );
+    });
+
+    context("with differing input array lengths", () => {
+      it("reverts 'Input array mismatch'", async () => {
+        await expect(
+          badgerInstance.batchCreateTokenTiers(
+            [nonTransferableTier.tokenId, transferableTier.tokenId],
+            [nonTransferableTier.uriIdentifier, transferableTier.uriIdentifier],
+            [nonTransferableTier.isTransferable]
+          )
+        ).to.be.revertedWith("Input array mismatch");
+      });
+    });
+  });
+
   describe("#updateUriIdentifier", () => {
     const { tokenId, uriIdentifier, isTransferable } = nonTransferableTier;
     const newUriId = "420";
@@ -637,7 +681,7 @@ describe.only("Badger", function () {
     });
   });
 
-  describe.only("#safeBatchTransferFrom", () => {
+  describe("#safeBatchTransferFrom", () => {
     context("with non-transferable token", () => {
       const { tokenId, uriIdentifier, isTransferable } = nonTransferableTier;
 
