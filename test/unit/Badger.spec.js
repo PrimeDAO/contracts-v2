@@ -339,6 +339,50 @@ describe("Badger", function () {
     });
   });
 
+  describe("#batchCreateTokenTiers", () => {
+    beforeEach("batch create tiers", async () => {
+      await badgerInstance.batchCreateTokenTiers(
+        [nonTransferableTier.tokenId, transferableTier.tokenId],
+        [nonTransferableTier.uriIdentifier, transferableTier.uriIdentifier],
+        [nonTransferableTier.isTransferable, transferableTier.isTransferable]
+      );
+    });
+
+    it("creates correct nontransferable token", async () => {
+      const nontransferableToken = await badgerInstance.tokenTiers(
+        nonTransferableTier.tokenId
+      );
+      expect(nontransferableToken.uriId).to.equal(
+        nonTransferableTier.uriIdentifier
+      );
+      expect(nontransferableToken.transferable).to.equal(
+        nonTransferableTier.isTransferable
+      );
+    });
+
+    it("creates correct transferable token", async () => {
+      const transferableToken = await badgerInstance.tokenTiers(
+        transferableTier.tokenId
+      );
+      expect(transferableToken.uriId).to.equal(transferableTier.uriIdentifier);
+      expect(transferableToken.transferable).to.equal(
+        transferableTier.isTransferable
+      );
+    });
+
+    context("with differing input array lengths", () => {
+      it("reverts 'Input array mismatch'", async () => {
+        await expect(
+          badgerInstance.batchCreateTokenTiers(
+            [nonTransferableTier.tokenId, transferableTier.tokenId],
+            [nonTransferableTier.uriIdentifier, transferableTier.uriIdentifier],
+            [nonTransferableTier.isTransferable]
+          )
+        ).to.be.revertedWith("Input array mismatch");
+      });
+    });
+  });
+
   describe("#updateUriIdentifier", () => {
     const { tokenId, uriIdentifier, isTransferable } = nonTransferableTier;
     const newUriId = "420";
@@ -632,6 +676,71 @@ describe("Badger", function () {
               .connect(bob)
               .safeTransferFrom(alice.address, bob.address, tokenId, amount, 0)
           ).to.be.revertedWith("Unauthorized");
+        });
+      });
+    });
+  });
+
+  describe("#safeBatchTransferFrom", () => {
+    context("with non-transferable token", () => {
+      const { tokenId, uriIdentifier, isTransferable } = nonTransferableTier;
+
+      beforeEach("create token tier & mint", async () => {
+        await badgerInstance.createTokenTier(
+          tokenId,
+          uriIdentifier,
+          isTransferable
+        );
+        await badgerInstance.mint(alice.address, tokenId, amount);
+      });
+
+      context("when called by owner of the token", () => {
+        it("reverts 'Transfer disabled for this tier'", async () => {
+          await expect(
+            badgerInstance
+              .connect(alice)
+              .safeBatchTransferFrom(
+                alice.address,
+                bob.address,
+                [nonTransferableTier.tokenId, transferableTier.tokenId],
+                [amount, amount],
+                0
+              )
+          ).to.be.revertedWith("Transfer disabled for this tier");
+        });
+      });
+    });
+
+    context("with transferable token", () => {
+      const { tokenId, uriIdentifier, isTransferable } = transferableTier;
+
+      beforeEach("create token tier & mint", async () => {
+        await badgerInstance.createTokenTier(
+          tokenId,
+          uriIdentifier,
+          isTransferable
+        );
+        await badgerInstance.mint(alice.address, tokenId, amount);
+      });
+
+      context("when called by owner of the token", () => {
+        it("transfers the token to the recipient", async () => {
+          await badgerInstance
+            .connect(alice)
+            .safeBatchTransferFrom(
+              alice.address,
+              bob.address,
+              [transferableTier.tokenId],
+              [amount],
+              0
+            );
+
+          expect(
+            await badgerInstance.balanceOf(
+              bob.address,
+              transferableTier.tokenId
+            )
+          ).to.equal(amount);
         });
       });
     });
