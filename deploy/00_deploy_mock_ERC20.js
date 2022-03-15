@@ -5,8 +5,8 @@ const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
   const { root } = await getNamedAccounts();
 
   // Change these values
-  const name = "ClimatiDAO";
-  const symbol = "CLD";
+  const name = "SPORE";
+  const symbol = "SPO";
   const supply = "100000";
 
   const convertedSupply = parseEther(supply);
