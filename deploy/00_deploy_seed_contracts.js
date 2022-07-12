@@ -2,7 +2,7 @@ const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
   const safeInstance =
-      (network.name === "kovan" ) ? root : await ethers.getContract("Safe");
+    network.name === "kovan" ? root : await ethers.getContract("Safe");
 
   await deploy("SeedFactory", {
     from: root,

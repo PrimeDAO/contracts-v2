@@ -2,10 +2,16 @@ const fs = require("fs").promises;
 const path = require("path");
 const sharedAbiConfig = require("./sharedAbiConfig");
 
-const networks = ["rinkeby", "mainnet", "kovan", "arbitrum", "alfajores", "celo"];
+const networks = [
+  "rinkeby",
+  "mainnet",
+  "kovan",
+  "arbitrum",
+  "alfajores",
+  "celo",
+];
 
 const compressAbis = (abisObject, sharedAbiConfig, networkName) => {
-  console.log("Not require");
   const networkContracts = { ...sharedAbiConfig[networkName] };
 
   const compressedAbiObject = { ...abisObject };
@@ -31,7 +37,6 @@ const compressAbis = (abisObject, sharedAbiConfig, networkName) => {
 // it generates the abis and addresses for the frontend and compresses the resulting file
 // by saving just one abi representation for contracts that share the same ABI (e.g. ERC20)
 const exportAbiFunction = async ({ run, network, deployments }) => {
-  console.log("near");
   const { name } = network;
   if (!networks.includes(name)) return;
 
@@ -47,10 +52,10 @@ const exportAbiFunction = async ({ run, network, deployments }) => {
   // IF they exist in external sources AND do not yet exist in sharedAbis.json
   const sharedAbisPath = path.resolve(__dirname, `../exports/sharedAbis.json`);
   const sharedAbis = JSON.parse(await fs.readFile(sharedAbisPath));
-  console.log("there");
   const sharedAbiNames = Array.from(
     new Set(
       networks.reduce((array, networkName) => {
+        if(!sharedAbiConfig[networkName]) return array;
         const networkAbiNames = Object.values(sharedAbiConfig[networkName]).map(
           (contract) => contract.abi
         );
@@ -58,7 +63,6 @@ const exportAbiFunction = async ({ run, network, deployments }) => {
       }, [])
     )
   );
-  console.log("here");
   let updateSharedAbis = false;
   for (const abiName of sharedAbiNames) {
     const artifact = await deployments.getArtifact(abiName);

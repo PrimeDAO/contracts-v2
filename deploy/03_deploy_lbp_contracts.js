@@ -17,11 +17,16 @@ const deployFunction = async ({
   const contractName = "LiquidityBootstrappingPoolFactory";
 
   // Balancer contracts are not deployed on Celo and Alfajores, so we're using Symmetric/root instead
-  const lbpFactoryAddress = network.name === "celo" ? "0xdF87a2369FAa3140613c3C5D008A9F50B3303fD3" : network.name === "alfajores" ? root :await getBalancerContractAddress(
-    liquidityBootstrappingPoolFactoryTaskId,
-    contractName,
-    network.name
-  );
+  const lbpFactoryAddress =
+    network.name === "celo"
+      ? "0xdF87a2369FAa3140613c3C5D008A9F50B3303fD3"
+      : network.name === "alfajores"
+      ? root
+      : await getBalancerContractAddress(
+          liquidityBootstrappingPoolFactoryTaskId,
+          contractName,
+          network.name
+        );
 
   await deploy("LBPManagerFactory", {
     from: root,
