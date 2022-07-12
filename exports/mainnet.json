@@ -3,7 +3,7 @@
   "chainId": "1",
   "contracts": {
     "Badger": {
-      "address": "0x9241627B130665b0a1e5636F1CC211895687BF25",
+      "address": "0x8770c26ea1614D541985cE8CEA7d792BfEe7c249",
       "abi": [
         {
           "inputs": [
@@ -224,29 +224,6 @@
             }
           ],
           "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256[]",
-              "name": "tokenIds",
-              "type": "uint256[]"
-            },
-            {
-              "internalType": "string[]",
-              "name": "uriIds",
-              "type": "string[]"
-            },
-            {
-              "internalType": "bool[]",
-              "name": "transferable",
-              "type": "bool[]"
-            }
-          ],
-          "name": "batchCreateTokenTiers",
-          "outputs": [],
-          "stateMutability": "nonpayable",
           "type": "function"
         },
         {
