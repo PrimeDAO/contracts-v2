@@ -2,7 +2,14 @@ const fs = require("fs").promises;
 const path = require("path");
 const sharedAbiConfig = require("./sharedAbiConfig");
 
-const networks = ["rinkeby", "mainnet", "kovan", "arbitrum"];
+const networks = [
+  "rinkeby",
+  "mainnet",
+  "kovan",
+  "arbitrum",
+  "alfajores",
+  "celo",
+];
 
 const compressAbis = (abisObject, sharedAbiConfig, networkName) => {
   const networkContracts = { ...sharedAbiConfig[networkName] };
@@ -36,7 +43,6 @@ const exportAbiFunction = async ({ run, network, deployments }) => {
   // export ABIs of deployed contracts via hardhat
   const targetExportPath = path.resolve(__dirname, `../exports/${name}.json`);
   await run("export", { export: targetExportPath });
-
   // compress ABIs according to sharedAbiConfig
   const exportedAbis = JSON.parse(await fs.readFile(targetExportPath));
   const compressedAbis = compressAbis(exportedAbis, sharedAbiConfig, name);
@@ -49,6 +55,7 @@ const exportAbiFunction = async ({ run, network, deployments }) => {
   const sharedAbiNames = Array.from(
     new Set(
       networks.reduce((array, networkName) => {
+        if (!sharedAbiConfig[networkName]) return array;
         const networkAbiNames = Object.values(sharedAbiConfig[networkName]).map(
           (contract) => contract.abi
         );

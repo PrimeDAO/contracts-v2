@@ -9,18 +9,24 @@ const deployFunction = async ({
   const { deploy } = deployments;
   const { root } = await getNamedAccounts();
   const safeInstance =
-    network.name == "kovan" ? root : await ethers.getContract("Safe");
+    network.name === "kovan" ? root : await ethers.getContract("Safe");
 
   // Gnosis Safe has no deployments on Kovan testnet. Because of this we use the deployer address instead
   const liquidityBootstrappingPoolFactoryTaskId =
     "20210721-liquidity-bootstrapping-pool";
   const contractName = "LiquidityBootstrappingPoolFactory";
 
-  const lbpFactoryAddress = await getBalancerContractAddress(
-    liquidityBootstrappingPoolFactoryTaskId,
-    contractName,
-    network.name
-  );
+  // Balancer contracts are not deployed on Celo and Alfajores, so we're using Symmetric/root instead
+  const lbpFactoryAddress =
+    network.name === "celo"
+      ? "0xdF87a2369FAa3140613c3C5D008A9F50B3303fD3"
+      : network.name === "alfajores"
+      ? root
+      : await getBalancerContractAddress(
+          liquidityBootstrappingPoolFactoryTaskId,
+          contractName,
+          network.name
+        );
 
   await deploy("LBPManagerFactory", {
     from: root,

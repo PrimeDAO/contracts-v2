@@ -80,6 +80,16 @@ module.exports = {
       url: "https://arb1.arbitrum.io/rpc",
       saveDeployments: true,
     },
+    alfajores: {
+      ...sharedNetworkConfig,
+      url: "https://alfajores-forno.celo-testnet.org",
+      saveDeployments: true,
+    },
+    celo: {
+      ...sharedNetworkConfig,
+      url: "https://forno.celo.org",
+      saveDeployments: true,
+    },
   },
   solidity: {
     compilers: [

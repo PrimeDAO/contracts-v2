@@ -8,6 +8,8 @@
     "deploy:contracts:kovan": "npx hardhat deploy --network kovan --tags Export,$npm_config_tags",
     "deploy:contracts:mainnet": "npx hardhat deploy --network mainnet --tags Export,$npm_config_tags",
     "deploy:contracts:arbitrum": "npx hardhat deploy --network arbitrum --tags Export,$npm_config_tags",
+    "deploy:contracts:alfajores": "npx hardhat deploy --network alfajores --tags Export,$npm_config_tags",
+    "deploy:contracts:celo": "npx hardhat deploy --network celo --tags Export,$npm_config_tags",
     "compile": "hardhat compile",
     "format": "npx prettier --write \"**/*.js\" \"**/*.sol\"",
     "lint": "eslint . --ext .js && solhint 'contracts/**/*.sol'",
