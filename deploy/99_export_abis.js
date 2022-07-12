@@ -55,7 +55,7 @@ const exportAbiFunction = async ({ run, network, deployments }) => {
   const sharedAbiNames = Array.from(
     new Set(
       networks.reduce((array, networkName) => {
-        if(!sharedAbiConfig[networkName]) return array;
+        if (!sharedAbiConfig[networkName]) return array;
         const networkAbiNames = Object.values(sharedAbiConfig[networkName]).map(
           (contract) => contract.abi
         );
