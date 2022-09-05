@@ -1,9 +1,9 @@
 {
-  "name": "celo",
-  "chainId": "42220",
+  "name": "alfajores",
+  "chainId": "44787",
   "contracts": {
     "Badger": {
-      "address": "0x4153e3a4902DD74627E77c3De72c072fc770D795",
+      "address": "0x186E6AA7C156e5e0076cBAD5507a6878B56d6C46",
       "abi": [
         {
           "inputs": [
@@ -665,7 +665,7 @@
       ]
     },
     "LBPManager": {
-      "address": "0xce7aB0657C211941Cc629fb5f3823B07dbC4Fd95",
+      "address": "0xe90B606f0b8Bf334B57d1f19e40c907f423542eB",
       "abi": [
         {
           "anonymous": false,
@@ -1164,7 +1164,7 @@
       ]
     },
     "LBPManagerFactory": {
-      "address": "0x9F4116AdFd83c30dBAA5146D17d1f5A9a56b1502",
+      "address": "0x38fC952e6936339D9AC344CCd3A906F1c0Ad47A8",
       "abi": [
         {
           "inputs": [
@@ -1410,7 +1410,7 @@
       ]
     },
     "MerkleDrop": {
-      "address": "0xD0dB40F709783588dAA2ab4BBf5cb74076763Ac4",
+      "address": "0xC61E96F6A055A337D54d07dB2D9F6683111741C2",
       "abi": [
         {
           "anonymous": false,
@@ -1734,7 +1734,7 @@
       ]
     },
     "Multicall": {
-      "address": "0x57f9b1a50FcAbD56843DA648379C82b24ba464Dd",
+      "address": "0x51bbaE8F2C13E4613033148E0EeD12Fc82a896c5",
       "abi": [
         {
           "inputs": [
@@ -1878,11 +1878,11 @@
       ]
     },
     "Prime": {
-      "address": "0x3B07929950357629c7Cb353bA298eD092Ab51B2e",
+      "address": "0x0e0295Ab71aB64dDa0705C12074DC293B3eF9253",
       "abi": "ERC20"
     },
     "PrimeToken": {
-      "address": "0xD5264be94A7C69C8e77a7067993CF36C6d8D17c4",
+      "address": "0x63Dc36A83771a65bAFb1CA09a9EE4D009F3792b7",
       "abi": [
         {
           "inputs": [
@@ -2191,7 +2191,7 @@
       ]
     },
     "RatingReputation": {
-      "address": "0xdFFFBD92f0442D04143fABc127A8217F77E97149",
+      "address": "0xa1f30d104a4950236CEaB5c00BA24e12c1689eF0",
       "abi": [
         {
           "inputs": [
@@ -2606,7 +2606,7 @@
       ]
     },
     "Safe": {
-      "address": "0x79204a1E9a49D4C132931AdCB9F39dA90179ba1c",
+      "address": "0xEFc3a819695932394D89b8AF6f49e0D89EDf9A40",
       "abi": [
         {
           "inputs": [],
@@ -3642,7 +3642,7 @@
       ]
     },
     "SignerV2": {
-      "address": "0x86Be53D39fB8406a7192d3086ED644c5e5187cf1",
+      "address": "0x931B0459Cd92D3FFF58cD1Cb00F8B48098d0d65d",
       "abi": [
         {
           "inputs": [
@@ -3885,7 +3885,7 @@
       ]
     },
     "SeedFactory": {
-      "address": "0xFb59890ec6bb01A2054f397AFAEf78228508D108",
+      "address": "0x67DB2ed83cD7F60aa97D84676c10308c4EF14822",
       "abi": [
         {
           "anonymous": false,
@@ -4056,7 +4056,7 @@
       ]
     },
     "Seed": {
-      "address": "0xeF74A087d47527080C76005Cb34c9eFDd9326020",
+      "address": "0x8Ab457C4c818153DE31bEF5Aa5D696A7E1EaD267",
       "abi": [
         {
           "anonymous": false,
