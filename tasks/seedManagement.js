@@ -1,5 +1,6 @@
 const { task } = require("hardhat/config");
 const { SeedArguments } = require("../test/test-сonfig.json");
+const { api } = require("./utils/gnosis.js");
 
 task("sendTransactionSeed", "send transaction to Gnosis Safe")
   .addParam("safe", "address of safe", undefined)
@@ -8,9 +9,8 @@ task("sendTransactionSeed", "send transaction to Gnosis Safe")
       `Sending SeedFactory.deploySeed() transaction to ${safeAddress}`
     );
     const gnosis = api(safeAddress, network.name);
-    const { root } = await ethers.getNamedSigners();
     const seedFactoryInstance = await ethers.getContract("SeedFactory");
-    const signerInstance = await ethers.getContract("Signer");
+    const signerInstance = await ethers.getContract("SignerV2");
     const { data, to } =
       await seedFactoryInstance.populateTransaction.deploySeed(
         SeedArguments.BENEFICIARY,
@@ -47,31 +47,8 @@ task("sendTransactionSeed", "send transaction to Gnosis Safe")
       (trx.gasPrice = 0),
       (trx.nonce = await gnosis.getCurrentNonce());
 
-    await signerInstance.once("SignatureCreated", async (signature, hash) => {
-      trx.signature = signature;
-      const options = {
-        safe: trx.safe,
-        to: trx.to,
-        value: trx.value,
-        data: trx.data,
-        operation: trx.operation,
-        safeTxGas: trx.safeTxGas,
-        baseGas: trx.baseGas,
-        gasPrice: trx.gasPrice,
-        gasToken: trx.gasToken,
-        refundReceiver: trx.refundReceiver,
-        nonce: trx.nonce,
-        contractTransactionHash: hash,
-        sender: signerInstance.address,
-        signature: trx.signature,
-      };
-      await gnosis.sendTransaction(options);
-      console.log("Transaction request sent to Gnosis Successfully");
-    });
-
-    await signerInstance
-      .connect(root)
-      .generateSignature(
+    const { hash, signature } =
+      await signerInstance.callStatic.generateSignature(
         trx.to,
         trx.value,
         trx.data,
@@ -83,6 +60,49 @@ task("sendTransactionSeed", "send transaction to Gnosis Safe")
         trx.refundReceiver,
         trx.nonce
       );
+
+    trx.signature = signature;
+    const options = {
+      safe: trx.safe,
+      to: trx.to,
+      value: trx.value,
+      data: trx.data,
+      operation: trx.operation,
+      safeTxGas: trx.safeTxGas,
+      baseGas: trx.baseGas,
+      gasPrice: trx.gasPrice,
+      gasToken: trx.gasToken,
+      refundReceiver: trx.refundReceiver,
+      nonce: trx.nonce,
+      contractTransactionHash: hash,
+      sender: signerInstance.address,
+      signature: trx.signature,
+    };
+
+    await (
+      await signerInstance.generateSignature(
+        trx.to,
+        trx.value,
+        trx.data,
+        trx.operation,
+        trx.safeTxGas,
+        trx.baseGas,
+        trx.gasPrice,
+        trx.gasToken,
+        trx.refundReceiver,
+        trx.nonce
+      )
+    )
+      .wait()
+      .then(async () => {
+        const trx = await gnosis.sendTransaction(options);
+        if (trx) {
+          console.log("Transaction request sent to Gnosis Safe");
+        }
+        return trx;
+      });
+
+    console.log("Transaction request sent to Gnosis Successfully");
   });
 
 task("changeOwner", "changes owner of SeedFactory")
