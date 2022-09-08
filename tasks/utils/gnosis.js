@@ -38,6 +38,8 @@ const getUrl = (network) => {
       return `https://safe-transaction.rinkeby.gnosis.io/api/v1/safes/`;
     case "arbitrum":
       return `https://safe-transaction.arbitrum.gnosis.io/api/v1/safes/`;
+    case "celo":
+      return `https://transaction-service.gnosis-safe-staging.celo-networks-dev.org/api/v1/safes/`;
     default:
       return `${network}, is not supported yet`;
   }
