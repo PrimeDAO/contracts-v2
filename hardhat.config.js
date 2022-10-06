@@ -55,9 +55,9 @@ module.exports = {
       url: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
       saveDeployments: true,
     },
-    rinkeby: {
+    goerli: {
       ...sharedNetworkConfig,
-      url: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
+      url: `https://goerli.infura.io/v3/${INFURA_KEY}`,
       saveDeployments: true,
     },
     kovan: {
@@ -128,6 +128,7 @@ module.exports = {
     apiKey: {
       mainnet: ETHERSCAN_API_KEY,
       arbitrumOne: ARBISCAN_API_KEY,
+      goerli: ARBISCAN_API_KEY,
     },
   },
   namedAccounts: {
