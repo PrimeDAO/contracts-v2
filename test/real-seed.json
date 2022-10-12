@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0",
+  "general": {
+    "projectName": "Bananafi v1 QA test",
+    "customLinks": [],
+    "projectWebsite": "https://www.curvelabs.eu/",
+    "whitepaper": "https://github.com/florestaDAO/docs/blob/main/FlorestaDAO-Whitepaper.pdf",
+    "github": "https://github.com/florestaDAO"
+  },
+  "projectDetails": {
+    "summary": "Describe your project. This short description will be visible to users on Featured Launch cards and the Seed and Liquid Launch Dashboard pages\\n",
+    "proposition": "Describe your project. This short description will be visible to users on Featured Launch cards and the Seed and Liquid Launch Dashboard pages\\n",
+    "teamDescription": "Describe your project. This short description will be visible to users on Featured Launch cards and the Seed and Liquid Launch Dashboard pages\\n"
+  },
+  "tokenDetails": {
+    "tokenDistrib": [
+      {
+        "stakeHolder": "100",
+        "amount": "10000000000000000000000",
+        "cliff": 0,
+        "vest": 1
+      }
+    ],
+    "maxSupply": "10000000000000000000000",
+    "projectTokenInfo": {
+      "address": "0x67DB2ed83cD7F60aa97D84676c10308c4EF14822",
+      "decimals": 18,
+      "logoURI": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAeFBMVEX///8AAADm5uZgYGBAQEDc3NyVlZW2trbl5eXw8PDq6urt7e35+fnf39/R0dFNTU29vb1+fn7Ly8tzc3MeHh4sLCywsLAODg5VVVVtbW2Li4tmZmbCwsKbm5unp6cvLy8YGBhHR0cmJiZ5eXk9PT2NjY02NjaDg4OUZnNIAAAEVElEQVR4nO3a6XaqMBiFYdBaEWdtpZPWocP93+FpSZhC8gVrwa513uefJKbZkIYQDAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAID/SG9QE40uaXBab7B3UYOXeghtjutdT/zaKI578djW83trg6+nzbidAF59a4e+9VeOr0xeTockrZLMP1cTo/TG2eDjrO0wVu6EYfhgPe3bfaXS3aZa7E74ldE8HV2QEobholZ/cFerdIzLFaSEYXiFyygnDHdG9ZWtUjIt1ZATWs5Z21TCp3Gci2bDp2K6qI7BaamvpcG6L40+lXBXNNj7anBZXHnXf3drVMJb83D0bB1Xb/rgOp1gRsOD/vxcVFEJh2aDg3nWoDxJ/z5HwiCYHVWHjqVjO3VoXtwlFrrbL/kRR8Kvqmr+DR9+sfdNOBMGYx2xVKaO9Mu1BqrSIT/gTJhVtZa1yJ0w6OmTHmUHXtTn6pS/MQazO2EwC20NtE1IGAxVhz6zz0tr5++rLQgJg1vVoDlBt0tKmM382TlPPyTmFdimhz+q33GMRDWl3l/e7TOICVeVf5yJOW0qeuxlH8WEO2NId0FMGFRmv5m9anxGwtgY912QEz6Ve6/uDLVFyeiMhPrPHRylrZAT6hGoVmVD+wgbnJNQzbz7Lp+k5ITjsHTdVqflcnmqLUnU/1a+MJAT6lM2uLjfzckJJx9p8ZPUgor0Xv3oSqhP2cZR3AY5YaCWp2uhgYUxPcoJg9e0ePvD3v6EJ+E6Le67ir8WPirgW37Ak/DgHxS/zJPwMy2eO78eq2vSZOWtqH2h00+7+wOehO9p8Y2rOHsgLg1jT0L/sP9tnoRbKeFE3y4r5Z6Ep7+Z0D5KF9lOwEd5V7FRwj83Sm0PrXG+0/pcWYs3GqVdLts8CdUpf6wdn3xm+cx7W6O51Pn3WuBJqIprD3SbJMvXj40iT8KjMfW2r9GaxujQ7JDlu6t31bOmUafm76za9NNOtUPLfIDaliZN1qWJeeHbJCfUS7LyoWLTe2l9pSQnVHPzH3p6qk802fZh2J/avyInfOh8omn0jF+aLfXOWrh3bl03ecbvdN9bTKjzFPc7vZ8orZzFhOr2mlzQ3/OJCdWipVhiRfoCSpO9lFDtZXU7SMWEtZ0xVXkfWWtrUkI9C3c5k4oJ9QZMsShdNemgkFDPUl0uuwMpYbS3X0LPNOFOmG3qd3sJhXdPuj/FrWJkfLZzJtTvCDr+L3QmHGcr69K8p7roW3A5EkaPusFO7/bf6glH0WpXvPseGFW9HawnHE1ftvn70bDz39Z43uOX93+PYs2slvweP+n6DbAn4bEcMBK7ftco4Y14o+k+YfXhfSbUbJiw0zcyGeE3UcbSeuGs2TDh+jq/+7L/ru3wuKndtW7FhPn/ofV3bcl8vbjWz/fiqFcTW0/2yFIzF/XEBq/640QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wBD9CdV6SSI9wAAAABJRU5ErkJggg==",
+      "name": "TestD2D",
+      "symbol": "TD2D"
+    }
+  },
+  "contactDetails": { "contactEmail": "bartuculha@hotmail.com", "remarks": "" },
+  "launchDetails": {
+    "fundingTokenInfo": {
+      "address": "0x765de816845861e75a25fca122bb6898b8b1282a",
+      "chainId": 42220,
+      "name": "Celo Dollar",
+      "symbol": "CUSD",
+      "decimals": 18,
+      "logoURI": "https://raw.githubusercontent.com/PrimeDAO/tokenlists/main/logos/cUSD.png",
+      "id": "celo-dollar",
+      "price": 0.99408
+    },
+    "startDate": "2022-10-07T00:00:00.000Z",
+    "endDate": "2022-10-08T00:00:00.000Z",
+    "adminAddress": "0xB86fa0cfEEA21558DF988AD0ae22F92a8EF69AC1",
+    "legalDisclaimer": "",
+    "geoBlock": false,
+    "pricePerToken": "1",
+    "fundingTarget": "100000000000000",
+    "fundingMax": "100000000000000",
+    "vestingPeriod": 8,
+    "vestingCliff": 0,
+    "whitelist": ""
+  }
+}

@@ -20,7 +20,7 @@ const deployFunction = async ({ getNamedAccounts, deployments, ethers }) => {
 
   await seedFactoryInstance.setMasterCopy(seedAddress);
 
-  await seedFactoryInstance.transferOwnership(safeInstance.address);
+  // await seedFactoryInstance.transferOwnership(safeInstance.address);
 };
 
 module.exports = deployFunction;
