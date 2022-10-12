@@ -197,127 +197,52 @@ const gnosisSubmitTx = async (network, safe, tx) => {
 const { utils } = ethers;
 
 /**
+ * WIP
+ * (note instructions below)
+ *
+ * There are 2 steps to manually executing a tx from Gnosis
+ * 1. Approve the tx
+ * 2. Execute the tx
+ *
+ * ! Assuming Safe needs only one approval.
+ *
+ * Instructions
+ * 0. This instructions are based on Celo
+ * 1. Find the tx hash (aka safeTxHash) you want to execute
+ *   - eg. by manually calling the Safe api
+ *   - GET `https://transaction-service.gnosis-safe-staging.celo-networks-dev.org/api/v1/multisig-transactions/0xb1e7747743982635c3a1fafb953e63dde58bb2cda9b4c2952028a1f972a8a3eb/`
+ * 2. Update the args with the response from (1.)
+ * 3. Execute following command in the root directory
+ * ```
+ * # Note, you have to have the PK in the .env file
+ * npx hardhat executeSafeTx --network celo --safe 0x0276a552F424949C934bC74bB623886AAc9Ed807 --owner 0xB86fa0cfEEA21558DF988AD0ae22F92a8EF69AC1 --pk ""
+ * ```
+ * 4. Call (1.) again, now you should see a `signatures` field
+ *   - copy that signature
+ * 5. Update the signature
+ * 6. Uncomment the code and comment out
+ *   - Call (3.) again
+ * 7. Done.
+ *
+ *
+ * @param {*} hreEthers - the ethers instance from hre when calling Hardhat script
  * @param {string} network
  * @param {string} safe
  * @param {string} owner
  * @param {string} privateKey
  */
 const execute = async (hreEthers, network, safe, owner, privateKey) => {
-  // const txHash1 =
-  //   "0xa2176dfcef7dd06ae490ef71c977b540a0b57970a6de62019ed3293b100f973f";
-  // const wallet1 = new ethers.Wallet(privateKey);
-  // /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 283 ~ wallet1.address', wallet1.address)
-  // // const contract_transaction_hash1 = txHash1;
-  // const contract_transaction_hash1 = encryptForGnosis(txHash1);
-  // // const contract_transaction_hash1 =
-  // // "0x51ecb34635c49980a0c7647c6d9300ee145211f4c45dd5fb3a305ac29f71a6c05da91e9c1508d4c4196ca6ab0a49d74196141c7cd6ba0ce935b7b7da56595e031b";
-  // /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 261 ~ contract_transaction_hash1', contract_transaction_hash1)
-  // const signature1 = await wallet1.signMessage(contract_transaction_hash1);
-  // /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 265 ~ signature1', signature1);
-  // ("0x51ecb34635c49980a0c7647c6d9300ee145211f4c45dd5fb3a305ac29f71a6c05da91e9c1508d4c4196ca6ab0a49d74196141c7cd6ba0ce935b7b7da56595e031b");
-
-  // return;
-
-  const safeDomain = new EIP712Domain.default({
-    verifyingContract: safe,
-    chainId: NETWORK_CHAIN_ID_MAPPING[network],
-  });
-
-  const SafeTx = safeDomain.createType("SafeTx", [
-    { type: "address", name: "to" },
-    { type: "uint256", name: "value" },
-    { type: "bytes", name: "data" },
-    { type: "uint8", name: "operation" },
-    { type: "uint256", name: "safeTxGas" },
-    { type: "uint256", name: "baseGas" },
-    { type: "uint256", name: "gasPrice" },
-    { type: "address", name: "gasToken" },
-    { type: "address", name: "refundReceiver" },
-    { type: "uint256", name: "nonce" },
-  ]);
-
-  const to = owner;
-  const operation = "0";
-  const data =
-    "0xda235e6e0000000000000000000000000276a552f424949c934bc74bb623886aac9ed807000000000000000000000000b86fa0cfeea21558df988ad0ae22f92a8ef69ac1000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000001c00000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000633f6c00000000000000000000000000000000000000000000000000000000006340bd800000000000000000000000000000000000000000000000000000000000000220000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000280000000000000000000000000000000000000000000000000000000000000000200000000000000000000000067db2ed83cd7f60aa97d84676c10308c4ef14822000000000000000000000000765de816845861e75a25fca122bb6898b8b1282a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000005af3107a400000000000000000000000000000000000000000000000000000005af3107a4000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002e516d614e5564716d58684866534b5264707235743953744c333171597a434441556d4c647358744d375a6f555646000000000000000000000000000000000000";
-  // const value = "1000";
-  const value = 0;
-  const baseTxn = {
-    to,
-    value,
-    data,
-    operation,
-  };
-
-  // console.log(JSON.stringify({ baseTxn }));
-
   const gnosis = api(safe, network);
-
-  // const {
-  //   safeTxGas,
-  //   // baseGas,
-  //   // gasPrice,
-  //   // gasToken,
-  //   // refundReceiver,
-  //   // lastUsedNonce,
-  // } = (await gnosis.getEstimate(baseTxn)).data;
-
-  const baseGas = 0;
-  const gasPrice = 0;
-  const gasToken = "0x0000000000000000000000000000000000000000";
-  const refundReceiver = "0x0000000000000000000000000000000000000000";
-  // const nonce = await gnosis.getCurrentNonce();
-  const nonce = 3;
-  /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 236 ~ nonce', nonce)
-
-  // Call api to get message
-  // get tx data
-
-  const safeInstance = await hreEthers.getContract("Safe");
-  /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 268 ~ safeInstance.address', safeInstance.address)
+  /** 1. */
   const txHash =
     "0xb1e7747743982635c3a1fafb953e63dde58bb2cda9b4c2952028a1f972a8a3eb";
-  // const txHash = await safeInstance.getTransactionHash(
-  //   to,
-  //   value,
-  //   data,
-  //   operation,
-  //   safeTxGas,
-  //   baseGas,
-  //   gasPrice,
-  //   gasToken,
-  //   refundReceiver,
-  //   nonce
-  // );
-  /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 319 ~ txHash', txHash)
-
   const wallet = new ethers.Wallet(privateKey);
-  /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 283 ~ wallet.address', wallet.address)
-  // const contract_transaction_hash = hexStringToByte(txHash);
-
   const signature = (await wallet.signMessage(ethers.utils.arrayify(txHash)))
     .replace(/1b$/, "1f")
     .replace(/1c$/, "20");
 
-  const contract_transaction_hash = encryptForGnosis(txHash);
-  // const contract_transaction_hash =
-  // "0x51ecb34635c49980a0c7647c6d9300ee145211f4c45dd5fb3a305ac29f71a6c05da91e9c1508d4c4196ca6ab0a49d74196141c7cd6ba0ce935b7b7da56595e031b";
-  /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 261 ~ contract_transaction_hash', contract_transaction_hash)
-  // const signature = await wallet.signMessage(contract_transaction_hash);
-  /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 265 ~ signature', signature)
-
+  /** 2. */
   const args = {
-    // to: "0xF25bBDF9f7C5b75Be0eAb107dF497C863D651247",
-    // value: "0",
-    // data,
-    // operation: 0,
-    // gasToken: "0x0000000000000000000000000000000000000000",
-    // safeTxGas: 501208,
-    // baseGas: 0,
-    // gasPrice: "0",
-    // refundReceiver: "0x0000000000000000000000000000000000000000",
-    // nonce: 3,
-
     to: "0xFb59890ec6bb01A2054f397AFAEf78228508D108",
     value: "0",
     data: "0xda235e6e0000000000000000000000000276a552f424949c934bc74bb623886aac9ed807000000000000000000000000b86fa0cfeea21558df988ad0ae22f92a8ef69ac1000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000001c00000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000633f6c00000000000000000000000000000000000000000000000000000000006340bd800000000000000000000000000000000000000000000000000000000000000220000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000280000000000000000000000000000000000000000000000000000000000000000200000000000000000000000067db2ed83cd7f60aa97d84676c10308c4ef14822000000000000000000000000765de816845861e75a25fca122bb6898b8b1282a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000005af3107a400000000000000000000000000000000000000000000000000000005af3107a4000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002e516d614e5564716d58684866534b5264707235743953744c333171597a434441556d4c647358744d375a6f555646000000000000000000000000000000000000",
@@ -328,76 +253,45 @@ const execute = async (hreEthers, network, safe, owner, privateKey) => {
     gasPrice: "0",
     refundReceiver: "0x0000000000000000000000000000000000000000",
     nonce: 0,
-
     contractTransactionHash: txHash,
     sender: owner,
     signature,
     origin: "Prime Launch Script to accept tx",
   };
-  /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 305 ~ args', args)
+  /** 3. */
   const result = await gnosis.sendTransaction(args);
 
-  // const response = await safeInstance.execTransaction(
-  //   "0xF25bBDF9f7C5b75Be0eAb107dF497C863D651247",
-  //   "0",
-  //   data,
-  //   0,
-  //   501208,
-  //   0,
-  //   "0",
-  //   "0x0000000000000000000000000000000000000000",
-  //   "0x0000000000000000000000000000000000000000",
-  //   "0xd8ac4141cbb0066ef8279ee058df778822310683463585897009c815c1dce8c51aa3dac1082fd0e0060082a6036437ad129aa243ce0d00b6a304bce53b89959620"
-  // );
-
-  // /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 374 ~ response', response)
-
-  // /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 319 ~ result', result)
-  // console.log({ signature });
-
-  // const txn = {
-  //   ...baseTxn,
-  //   safeTxGas,
-  //   baseGas,
-  //   gasPrice,
-  //   gasToken,
-  //   nonce,
-  //   refundReceiver,
+  // const baseTxn = {
+  //   to: args.to,
+  //   value: args.value,
+  //   data: args.data,
+  //   operation: args.operation,
   // };
+  // console.log(baseTxn);
+  // const { safeTxGas } = (await gnosis.getEstimate(baseTxn)).data;
+  // const safeTxGas = 395394;
 
-  // console.log({ txn });
-  // const safeTx = new SafeTx({
-  //   ...txn,
-  //   data: utils.arrayify(txn.data),
-  // });
-  // const signer = async (data) => {
-  //   /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 251 ~ data', data)
-  //   privateKey;
-  //   let { r, s, v } = ethUtil.ecsign(data, ethUtil.toBuffer(`0x${privateKey}`));
-  //   const finalR = new BigNumber(r.toString("hex"), 16).toString(10);
-  //   const finalS = new BigNumber(s.toString("hex"), 16).toString(10);
-  //   return {
-  //     r: finalR,
-  //     s: finalS,
-  //     v,
-  //   };
-  // };
-  // const signature = await safeTx.sign(signer);
+  const safeInstance = await hreEthers.getContract("Safe");
 
-  // const toSend = {
-  //   ...txn,
-  //   dataGas: baseGas,
-  //   signatures: [signature],
-  // };
+  /** 5. */
+  const signatureFromApi =
+    "0x16e05ca9ac3e38400a2f60cdfe23cbae6338a059a4cf4e559ee4581f0cb04a7d44463c046c845543cf54f5c339c3d95612ac4427b407fd72dd680f65f88e86a01f";
 
-  // console.log(JSON.stringify({ toSend }));
+  /** 6. */
+  const response = await safeInstance.execTransaction(
+    args.to,
+    args.value,
+    args.data,
+    args.operation,
+    args.safeTxGas,
+    args.baseGas,
+    args.gasPrice,
+    args.gasToken,
+    args.refundReceiver,
+    signatureFromApi
+  );
 
-  // const result1 = await gnosisSubmitTx(network, safe, toSend);
-  // /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 320 ~ result1', result1)
-  // console.log({ data });
-  // console.log("Done?");
-
-  // return data;
+  /* prettier-ignore */ console.log('>>>> _ >>>> ~ file: gnosis.js ~ line 374 ~ response', response)
 };
 
 module.exports = { api, execute };
